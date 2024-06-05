@@ -11,6 +11,7 @@ fastapi = "^0.111.0"
 pydantic = "^2.7.3"
 aiohttp = "^3.9.5"
 asyncio = "^3.4.3"
+asyncpg = "^0.29.0"
 
 
 [tool.poetry.group.dev.dependencies]
