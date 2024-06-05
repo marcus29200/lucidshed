@@ -31,7 +31,9 @@ CREATE TABLE IF NOT EXISTS engineering_items (
 ]
 
 
-WORK_ITEM_QUERIES["CREATE_ENGINEERING_WORK_ITEM"] = """
+WORK_ITEM_QUERIES[
+    "CREATE_ENGINEERING_WORK_ITEM"
+] = """
 INSERT INTO engineering_items
 (id, organization_id, title, description, status, priority, created_at, created_by_id, modified_at, modified_by_id, archived_at, archived_by_id, deleted_at, deleted_by_id, completed_at, completed_by_id)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)

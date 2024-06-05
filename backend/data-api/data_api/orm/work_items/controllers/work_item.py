@@ -12,14 +12,16 @@ class WorkItemController:
     async def create(self, **kwargs):
         raise NotImplementedError()
 
-    async def get(self, *, organization_id: str, id: Optional[str] = None) -> Dict[str, Any]:
+    async def get(
+        self, *, organization_id: str, id: Optional[str] = None
+    ) -> Dict[str, Any]:
         # Get item record here
         record = await self.db.fetchrow()
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
-        
-        return record 
+
+        return record
 
     async def update(self, **kwargs):
         raise NotImplementedError()

@@ -2,7 +2,9 @@ from typing import Optional
 
 
 class ObjectNotFoundException(Exception):
-    def __init__(self, organization_id:Optional[str] = None, object_id: Optional[str] = None):
+    def __init__(
+        self, organization_id: Optional[str] = None, object_id: Optional[str] = None
+    ):
         self.object_id = object_id
         self.organization_id = organization_id
 

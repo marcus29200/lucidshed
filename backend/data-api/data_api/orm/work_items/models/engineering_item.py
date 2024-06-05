@@ -15,4 +15,3 @@ class BaseEngineeringItem(BaseWorkItem):
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
     pass
-    

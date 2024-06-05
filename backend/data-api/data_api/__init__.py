@@ -1,6 +1,0 @@
-from data_api.orm.common import Model
-
-
-class WorkItemAssignment(Model):
-    work_item_id: str
-    user_id: str
