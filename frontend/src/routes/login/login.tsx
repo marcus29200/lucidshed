@@ -1,0 +1,108 @@
+import { FormEvent, useState } from 'react';
+import { Button, Container, Divider, TextField, Typography } from "@mui/material";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from "../../hooks/auth";
+import { login } from '../../api/auth'
+import LogoHeader from '../../components/LogoHeader';
+
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const { storeUser } = useAuth();
+  const beginGoogleOAuth = () => window.location.href = 'http://localhost:9999/api/auth/sso/login?provider=Google&redirectUrl="http://localhost:5173/home'
+  const { mutate } = useMutation({
+    mutationFn: login,
+    onSuccess: (data) => {
+      storeUser(data);
+      console.info("successfully registered. check your email")
+      navigate('/dashboard');
+    },
+    onError: (error) => {
+      console.error(error)
+    }
+  });
+
+  const onSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    mutate({ email, password })
+
+  }
+  return (
+    <>
+      <LogoHeader>
+        <div style={{ display: 'inline-flex', gap: '6px' }}>
+          <Typography variant="body2">Don't have an account?</Typography>
+          <Link to="/register">
+            <Typography color="primary" variant="body2" sx={{ fontWeight: 'bold' }}>
+              Get started for free
+            </Typography>
+          </Link>
+        </div>
+      </LogoHeader>
+
+
+      <Container maxWidth="sm" sx={{ textAlign: "left" }}>
+        <Typography variant="h5" sx={{ marginBottom: '16px' }}>Sign in to your team space</Typography>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <form style={{ width: '100%' }} onSubmit={onSubmit}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              size="small"
+              id="email"
+              label="Email"
+              name="email"
+              autoFocus
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              sx={{ marginTop: '0px', marginBottom: '32px' }}
+              required
+              fullWidth
+              size="small"
+              name="password"
+              label="Password"
+              type="password"
+              value={password}
+              id="password"
+              inputProps={{
+                minLength: '6',
+                // TODO set up pattern checking
+              }}
+              autoComplete="current-password"
+              onChange={e => setPassword(e.target.value)}
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+            >
+              Sign in
+            </Button>
+
+            <Divider sx={{ marginY: '12px' }}>OR</Divider>
+            <Button
+              fullWidth
+              variant="contained"
+              color="neutral"
+              onClick={beginGoogleOAuth}
+              sx={{ bgcolor: "neutral.lighter", color: "black" }}
+            >
+              Sign in with Google
+            </Button>
+          </form>
+        </div >
+      </Container>
+    </>
+  );
+};
+
+export default Login;
