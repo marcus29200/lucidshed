@@ -1,6 +1,6 @@
 from data_api.orm.work_items.models.work_item import BaseWorkItem, WorkItem
 from enum import StrEnum
-from typing import Optional
+from typing import List, Optional
 
 
 class EngineeringItemType(StrEnum):
@@ -11,10 +11,15 @@ class EngineeringItemType(StrEnum):
 
 class BaseEngineeringItem(BaseWorkItem):
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY
+    estimate: Optional[int] = None
+    iteration_id: Optional[str] = None
+    tags: Optional[List[str]] = []  # Maybe should be a list of ids
+    related_tickets: Optional[List[str]] = []  # List of ids
+    related_files: Optional[List[str]] = []  # List of ids
 
     def __init__(self, **data):
         data["item_type"] = (
-            data.get("item_type") or EngineeringItemType.STORY
+            data.get("item_type") or EngineeringItemType.STORY.value
         )  # no None values
 
         super().__init__(**data)

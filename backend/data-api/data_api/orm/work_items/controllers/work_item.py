@@ -3,6 +3,7 @@ from datetime import datetime
 from data_api.orm.work_items.models.work_item import WorkItem
 from data_api.exceptions.common import ObjectNotFoundException
 from data_api.database.database import DatabaseController
+from data_api.orm.common.queries import WORK_ITEM_QUERIES
 
 
 class WorkItemController:
@@ -16,7 +17,9 @@ class WorkItemController:
         self, *, organization_id: str, id: Optional[str] = None
     ) -> Dict[str, Any]:
         # Get item record here
-        record = await self.db.fetchrow()
+        record = await self.db.fetchrow(
+            WORK_ITEM_QUERIES.get("GET_ENGINEERING_WORK_ITEM"), organization_id, id
+        )
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)

@@ -36,7 +36,7 @@ class DatabaseController:
             await self.__pool.close()
 
     async def execute(self, query: str, *args: Any) -> None:
-        return await self.__pool.execute(query, *args())
+        return await self.__pool.execute(query, *args)
 
     async def fetch(self, query: str, *args: Any) -> List[asyncpg.Record]:
         return await self.__pool.fetch(query, *args)

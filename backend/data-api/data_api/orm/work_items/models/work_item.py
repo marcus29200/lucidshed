@@ -1,5 +1,5 @@
 from datetime import datetime
-from data_api.orm.common import MAX_ID_LENGTH, Model
+from data_api.orm.common.models import MAX_ID_LENGTH, Model
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -7,8 +7,10 @@ from typing import Optional
 class BaseWorkItem(BaseModel):
     title: Optional[str] = ""
     description: Optional[str] = ""
-    status: Optional[str] = ""
-    priority: Optional[str] = ""
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
+    modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     archived_at: Optional[datetime] = None
     archived_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     deleted_at: Optional[datetime] = None

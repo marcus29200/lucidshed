@@ -1,4 +1,4 @@
-import pytest
+import pytest_asyncio
 from data_api.api.application import DataApplication
 from data_api.database.database import DatabaseController
 from data_api.orm.work_items.controllers.engineering_item import (
@@ -7,7 +7,7 @@ from data_api.orm.work_items.controllers.engineering_item import (
 from data_api.api.settings import Settings
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def data_application() -> DataApplication:
     async with DataApplication(Settings()) as app:
         await app.init()
@@ -15,8 +15,8 @@ async def data_application() -> DataApplication:
         yield app
 
 
-@pytest.fixture
-async def engineering_item_controller() -> EngineeringItemController:
+@pytest_asyncio.fixture
+async def engineering_item_controller():
     database = DatabaseController(Settings().database_dsn)
 
     await database.init()

@@ -1,4 +1,4 @@
-from data_api.orm.common import Model
+from data_api.orm.common.models import Model
 from datetime import datetime
 
 
