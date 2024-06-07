@@ -13,12 +13,10 @@ class WorkItemController:
     async def create(self, **kwargs):
         raise NotImplementedError()
 
-    async def get(
-        self, *, organization_id: str, id: Optional[str] = None
-    ) -> Dict[str, Any]:
+    async def get(self, *, organization_id: str, id: str) -> Dict[str, Any]:
         # Get item record here
         record = await self.db.fetchrow(
-            WORK_ITEM_QUERIES.get("GET_ENGINEERING_WORK_ITEM"), organization_id, id
+            WORK_ITEM_QUERIES.get("GET_ENGINEERING_ITEM"), organization_id, id
         )
 
         if not record:
@@ -29,5 +27,15 @@ class WorkItemController:
     async def update(self, **kwargs):
         raise NotImplementedError()
 
-    async def delete():
-        pass
+    async def delete(self, *, organization_id: str, id: str) -> bool:
+        result = await self.db.execute(
+            WORK_ITEM_QUERIES.get("DELETE_ENGINEERING_ITEM"),
+            organization_id,
+            id,
+            "test@test.com",  # TODO Needs to be current user
+        )
+
+        if result != "UPDATE 1":
+            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+
+        return True

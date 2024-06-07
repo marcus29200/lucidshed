@@ -96,3 +96,38 @@ async def test_update_engineering_work_item(
     assert engineering_item.title == "Test Updated"
     assert engineering_item.description == "Test description"
     assert engineering_item.modified_at > old_modified_at
+
+
+async def test_update_engineering_work_item(
+    engineering_controller: EngineeringController,
+):
+    engineering_item = await create_engineering_item(engineering_controller)
+
+    engineering_item.title = "Test Updated"
+    assert engineering_item.modified_at
+    old_modified_at = engineering_item.modified_at
+
+    engineering_item = await engineering_controller.update(engineering_item)
+
+    assert engineering_item.title == "Test Updated"
+    assert engineering_item.description == "Test description"
+    assert engineering_item.modified_at > old_modified_at
+
+
+async def test_delete_engineering_work_item(
+    engineering_controller: EngineeringController,
+):
+    engineering_item = await create_engineering_item(engineering_controller)
+
+    result = await engineering_controller.delete(
+        organization_id=engineering_item.organization_id, id=engineering_item.id
+    )
+
+    assert result is True
+
+
+async def test_delete_engineering_work_item_fails_when_doesnt_exist(
+    engineering_controller: EngineeringController,
+):
+    with pytest.raises(ObjectNotFoundException):
+        await engineering_controller.delete(organization_id="t", id=0)

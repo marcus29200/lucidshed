@@ -13,7 +13,7 @@ class EngineeringController(WorkItemController):
         # Create db record
         # How do we handle if completed is set right away?
         record = await self.db.fetchrow(
-            WORK_ITEM_QUERIES.get("CREATE_ENGINEERING_WORK_ITEM"),
+            WORK_ITEM_QUERIES.get("CREATE_ENGINEERING_ITEM"),
             "test",  # TODO Org id, needs to come from the validated jwt token, and also, this might need to control the db we access
             engineering_item.title,
             engineering_item.description,
@@ -51,7 +51,7 @@ class EngineeringController(WorkItemController):
         old_engineering_item.update(**new_engineering_item)
 
         record = await self.db.fetchrow(
-            WORK_ITEM_QUERIES.get("UPDATE_ENGINEERING_WORK_ITEM"),
+            WORK_ITEM_QUERIES.get("UPDATE_ENGINEERING_ITEM"),
             "test",  # TODO Org id, needs to come from the validated jwt token, and also, this might need to control the db we access
             new_engineering_item["id"],
             old_engineering_item["title"],

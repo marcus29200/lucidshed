@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS engineering_items (
 
 
 WORK_ITEM_QUERIES[
-    "CREATE_ENGINEERING_WORK_ITEM"
+    "CREATE_ENGINEERING_ITEM"
 ] = """
 INSERT INTO engineering_items
 (organization_id, title, description, status, priority, item_type, estimate, iteration_id, tags, related_tickets, related_files, created_by_id, modified_by_id)
@@ -47,13 +47,13 @@ RETURNING *;
 
 
 WORK_ITEM_QUERIES[
-    "GET_ENGINEERING_WORK_ITEM"
+    "GET_ENGINEERING_ITEM"
 ] = """
 SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2;
 """
 
 WORK_ITEM_QUERIES[
-    "UPDATE_ENGINEERING_WORK_ITEM"
+    "UPDATE_ENGINEERING_ITEM"
 ] = """
 UPDATE engineering_items
 SET 
@@ -79,4 +79,15 @@ SET
 WHERE
     organization_id = $1 AND id = $2
 RETURNING *;
+"""
+
+WORK_ITEM_QUERIES[
+    "DELETE_ENGINEERING_ITEM"
+] = """
+UPDATE engineering_items
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $3
+WHERE
+    organization_id = $1 AND id = $2
 """
