@@ -1,7 +1,7 @@
 from fastapi import APIRouter, FastAPI
 from data_api.database.database import DatabaseController
 from data_api.orm.work_items.controllers.engineering_item import (
-    EngineeringItemController,
+    EngineeringController,
 )
 
 
@@ -20,7 +20,7 @@ class DataApplication(FastAPI):
         self.db = DatabaseController(self.settings.database_dsn)
         await self.db.init()
 
-        self.engineering_item_controller = EngineeringItemController(self.db)
+        self.engineering_controller = EngineeringController(self.db)
 
     async def close(self) -> None:
         await self.db.close()

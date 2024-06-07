@@ -9,7 +9,7 @@ from data_api.orm.work_items.models.engineering_item import (
     EngineeringItemType,
 )
 from data_api.orm.work_items.controllers.engineering_item import (
-    EngineeringItemController,
+    EngineeringController,
 )
 from data_api.exceptions.common import ObjectNotFoundException
 
@@ -18,7 +18,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_engineering_item(
-    engineering_item_controller: EngineeringItemController,
+    engineering_controller: EngineeringController,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
 ) -> EngineeringItem:
     base_engineering_item = BaseEngineeringItem(
@@ -27,12 +27,15 @@ async def create_engineering_item(
         item_type=item_type,
     )
 
-    # NOTE: This is an async generator for some reason
-    return await engineering_item_controller.create(base_engineering_item)
+    engineering_item = await engineering_controller.create(base_engineering_item)
+
+    assert engineering_item.id
+
+    return engineering_item
 
 
-async def test_add_engineering_work_item(engineering_item_controller):
-    engineering_item = await create_engineering_item(engineering_item_controller)
+async def test_add_engineering_work_item(engineering_controller):
+    engineering_item = await create_engineering_item(engineering_controller)
 
     assert isinstance(engineering_item, EngineeringItem)
 
@@ -44,14 +47,15 @@ async def test_add_engineering_work_item(engineering_item_controller):
 
 
 async def test_add_engineering_work_item_defaults_item_type_to_valid_value(
-    engineering_item_controller,
+    engineering_controller,
 ):
     engineering_item = await create_engineering_item(
-        engineering_item_controller, item_type=None
+        engineering_controller, item_type=None
     )
 
     assert isinstance(engineering_item, EngineeringItem)
 
+    assert engineering_item.id
     assert engineering_item.title == "Test"
     assert engineering_item.description == "Test description"
     assert engineering_item.created_at
@@ -60,13 +64,11 @@ async def test_add_engineering_work_item_defaults_item_type_to_valid_value(
 
 
 async def test_get_engineering_work_item(
-    engineering_item_controller: EngineeringItemController,
+    engineering_controller: EngineeringController,
 ):
-    engineering_item = await create_engineering_item(engineering_item_controller)
+    engineering_item = await create_engineering_item(engineering_controller)
 
-    assert engineering_item.id
-
-    engineering_item = await engineering_item_controller.get(
+    engineering_item = await engineering_controller.get(
         organization_id="test", id=engineering_item.id
     )
 
@@ -74,7 +76,23 @@ async def test_get_engineering_work_item(
 
 
 async def test_get_engineering_work_item_raises_not_found_exception(
-    engineering_item_controller: EngineeringItemController,
+    engineering_controller: EngineeringController,
 ):
     with pytest.raises(ObjectNotFoundException):
-        await engineering_item_controller.get(organization_id="test", id=0)
+        await engineering_controller.get(organization_id="test", id=0)
+
+
+async def test_update_engineering_work_item(
+    engineering_controller: EngineeringController,
+):
+    engineering_item = await create_engineering_item(engineering_controller)
+
+    engineering_item.title = "Test Updated"
+    assert engineering_item.modified_at
+    old_modified_at = engineering_item.modified_at
+
+    engineering_item = await engineering_controller.update(engineering_item)
+
+    assert engineering_item.title == "Test Updated"
+    assert engineering_item.description == "Test description"
+    assert engineering_item.modified_at > old_modified_at
