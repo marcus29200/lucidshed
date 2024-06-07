@@ -40,7 +40,7 @@ WORK_ITEM_QUERIES[
     "CREATE_ENGINEERING_ITEM"
 ] = """
 INSERT INTO engineering_items
-(organization_id, title, description, status, priority, item_type, estimate, iteration_id, tags, related_tickets, related_files, created_by_id, modified_by_id)
+(organization_id, title, description, status, priority, item_type, estimate, iteration_id, tags, related_tickets, related_files, created_by_id, modified_by_id)  # noqa
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *;
 """
@@ -56,7 +56,7 @@ WORK_ITEM_QUERIES[
     "UPDATE_ENGINEERING_ITEM"
 ] = """
 UPDATE engineering_items
-SET 
+SET
     title = $3,
     description = $4,
     status = $5,

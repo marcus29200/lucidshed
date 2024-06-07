@@ -1,9 +1,11 @@
-from typing import Optional
+from typing import Optional, Union
 
 
 class ObjectNotFoundException(Exception):
     def __init__(
-        self, organization_id: Optional[str] = None, object_id: Optional[str] = None
+        self,
+        organization_id: Optional[str] = None,
+        object_id: Optional[Union[str, int]] = None,
     ):
         self.object_id = object_id
         self.organization_id = organization_id

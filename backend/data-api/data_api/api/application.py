@@ -1,9 +1,7 @@
 from fastapi import APIRouter, FastAPI
-from data_api.database.database import DatabaseController
-from data_api.orm.work_items.controllers.engineering_item import (
-    EngineeringController,
-)
 
+from data_api.database.database import DatabaseController
+from data_api.orm.work_items.controllers.engineering_item import EngineeringController
 
 router = APIRouter()
 

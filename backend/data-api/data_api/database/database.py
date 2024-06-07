@@ -1,10 +1,9 @@
-import asyncpg
-from typing import Any, List, Optional
-from contextlib import asynccontextmanager
-from data_api.orm.common.queries import INIT_STATEMENTS
-
 import logging
+from typing import Any, List, Optional
 
+import asyncpg
+
+from data_api.orm.common.queries import INIT_STATEMENTS
 
 logger = logging.getLogger(__name__)
 
@@ -12,14 +11,9 @@ logger = logging.getLogger(__name__)
 class DatabaseController:
     def __init__(self, dsn: str) -> None:
         self.__dsn = dsn
-        self.__pool = None
 
-    async def init(
-        self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5
-    ) -> None:
-        self.__pool = await asyncpg.create_pool(
-            self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5
-        )
+    async def init(self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5) -> None:
+        self.__pool = await asyncpg.create_pool(self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5)
 
         await self.init_database_tables()
 
@@ -35,7 +29,7 @@ class DatabaseController:
         if self.__pool:
             await self.__pool.close()
 
-    async def execute(self, query: str, *args: Any) -> None:
+    async def execute(self, query: str, *args: Any) -> str:
         return await self.__pool.execute(query, *args)
 
     async def fetch(self, query: str, *args: Any) -> List[asyncpg.Record]:

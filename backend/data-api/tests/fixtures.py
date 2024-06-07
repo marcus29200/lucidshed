@@ -1,10 +1,9 @@
 import pytest_asyncio
+
 from data_api.api.application import DataApplication
-from data_api.database.database import DatabaseController
-from data_api.orm.work_items.controllers.engineering_item import (
-    EngineeringController,
-)
 from data_api.api.settings import Settings
+from data_api.database.database import DatabaseController
+from data_api.orm.work_items.controllers.engineering_item import EngineeringController
 
 
 @pytest_asyncio.fixture

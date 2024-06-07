@@ -1,7 +1,9 @@
 from datetime import datetime
-from data_api.orm.common.models import MAX_ID_LENGTH, Model
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
+from data_api.orm.common.models import MAX_ID_LENGTH, Model
 
 
 class BaseWorkItem(BaseModel):

@@ -1,10 +1,6 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request
 
-from data_api.orm.work_items.models.engineering_item import (
-    BaseEngineeringItem,
-    EngineeringItem,
-)
-
+from data_api.orm.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 
 engineering_item_router = APIRouter
 
