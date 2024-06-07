@@ -5,6 +5,9 @@ from data_api.api.settings import Settings
 from data_api.database.database import DatabaseController
 from data_api.orm.work_items.controllers.engineering_item import EngineeringController
 
+# from async_asgi_testclient import TestClient
+from httpx import AsyncClient
+
 
 @pytest_asyncio.fixture
 async def data_application() -> DataApplication:
@@ -24,3 +27,11 @@ async def engineering_controller():
         yield EngineeringController(database)
     finally:
         await database.close()
+
+
+@pytest_asyncio.fixture
+async def data_api(data_application):
+    async with AsyncClient(
+        app=data_application, base_url="http://localhost:8080"
+    ) as test_client:
+        yield test_client
