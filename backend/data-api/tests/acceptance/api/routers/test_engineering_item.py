@@ -7,7 +7,9 @@ pytestmark = pytest.mark.asyncio
 
 
 async def add_engineering_item(
-    data_api: TestClient, overrides: Optional[Dict[str, Any]] = {}
+    data_api: TestClient,
+    overrides: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
 ):
     data = {
         "title": "test",
@@ -19,7 +21,7 @@ async def add_engineering_item(
 
     response = await data_api.post("/engineeringItem", json=data)
 
-    assert response.status_code == 201
+    assert response.status_code == expected_status_code
 
     return response.json()
 
@@ -46,6 +48,15 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
 
     assert engineering_item["id"] > 0
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
+
+
+async def test_should_fail_to_add_invalid_engineering_item_type(data_api: TestClient):
+    response = await add_engineering_item(
+        data_api, {"item_type": "Invalid"}, expected_status_code=422
+    )
+
+    assert response["detail"][0]["loc"] == ["body", "item_type"]
+    assert response["detail"][0]["msg"] == "Input should be 'epic', 'story' or 'task'"
 
 
 async def test_should_add_engineering_item_with_created_by_override(
