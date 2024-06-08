@@ -1,9 +1,9 @@
 import pytest_asyncio
 
-from data_api.api.application import DataApplication
-from data_api.api.settings import Settings
-from data_api.database.database import DatabaseController
-from data_api.orm.work_items.controllers.engineering_item import EngineeringController
+from app.api.application import DataApplication
+from app.api.settings import Settings
+from app.database.database import DatabaseController
+from app.database.work_items.controllers.engineering_item import EngineeringController
 
 # from async_asgi_testclient import TestClient
 from httpx import AsyncClient

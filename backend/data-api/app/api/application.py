@@ -1,8 +1,9 @@
 from fastapi import APIRouter, FastAPI
 
-from data_api.database.database import DatabaseController
-from data_api.orm.work_items.controllers.engineering_item import EngineeringController
-from data_api.api.routers.engineering_item import router as engineering_item_router
+from app.database.database import DatabaseController
+from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.settings import Settings
 
 router = APIRouter()
 
@@ -32,3 +33,6 @@ class DataApplication(FastAPI):
 
     async def close(self) -> None:
         await self.db.close()
+
+
+app = DataApplication(Settings())

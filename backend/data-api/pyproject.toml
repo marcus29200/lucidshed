@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data_api"
+name = "app"
 version = "0.1.0"
 description = ""
 authors = ["Marcus Scaffidi", "Zach Durham"]
@@ -12,6 +12,7 @@ pydantic = "^2.7.3"
 aiohttp = "^3.9.5"
 asyncio = "^3.4.3"
 asyncpg = "^0.29.0"
+uvicorn = "^0.30.1"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -25,6 +26,9 @@ pytest-asyncio = "^0.23.7"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+api = "app.entrypoints:run_api"
 
 [tool.black]
 line-length = 120

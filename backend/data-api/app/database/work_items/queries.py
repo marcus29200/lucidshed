@@ -1,4 +1,4 @@
-from data_api.orm.common.models import MAX_ID_LENGTH
+from app.database.common.models import MAX_ID_LENGTH
 
 WORK_ITEM_QUERIES = {}
 

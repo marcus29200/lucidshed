@@ -1,7 +1,7 @@
 # NOTE: To log history of work items, etc... To provide an audit log
 from enum import StrEnum
 
-from data_api.orm.common.models import Model
+from app.database.common.models import Model
 
 
 class ActionType(StrEnum):

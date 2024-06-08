@@ -11,3 +11,6 @@ format:
 	$(POETRY) run black .
 	$(POETRY) run flake8 data_api tests
 	$(POETRY) run mypy -p data_api
+
+api:
+	$(POETRY) run api

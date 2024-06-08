@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from data_api.orm.work_items.models.engineering_item import EngineeringItemType
+from app.database.work_items.models.engineering_item import EngineeringItemType
 from typing import Any, Dict, Optional
 
 pytestmark = pytest.mark.asyncio

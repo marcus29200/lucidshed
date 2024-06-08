@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from data_api.orm.common.models import Model
+from app.database.common.models import Model
 
 
 class WorkItemAssignment(Model):

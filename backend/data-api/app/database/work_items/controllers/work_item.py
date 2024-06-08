@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
-from data_api.database.database import DatabaseController
-from data_api.exceptions.common import ObjectNotFoundException
-from data_api.orm.common.queries import WORK_ITEM_QUERIES
+from app.database.database import DatabaseController
+from app.exceptions.common import ObjectNotFoundException
+from app.database.common.queries import WORK_ITEM_QUERIES
 
 
 class WorkItemController:

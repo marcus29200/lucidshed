@@ -3,7 +3,8 @@ from typing import Any, List, Optional
 
 import asyncpg
 
-from data_api.orm.common.queries import INIT_STATEMENTS
+from app.database.common.queries import INIT_STATEMENTS
+from app.api.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -12,8 +13,12 @@ class DatabaseController:
     def __init__(self, dsn: str) -> None:
         self.__dsn = dsn
 
-    async def init(self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5) -> None:
-        self.__pool = await asyncpg.create_pool(self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5)
+    async def init(
+        self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5
+    ) -> None:
+        self.__pool = await asyncpg.create_pool(
+            self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5
+        )
 
         await self.init_database_tables()
 
