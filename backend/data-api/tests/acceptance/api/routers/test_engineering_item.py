@@ -78,5 +78,5 @@ async def test_should_get_engineering_item(data_api: TestClient):
 
 
 async def test_should_not_get_engineering_item(data_api: TestClient):
-    response = await data_api.get(f"/engineeringItem/0")
+    response = await data_api.get("/engineeringItem/0")
     assert response.status_code == 404
