@@ -4,7 +4,6 @@ from typing import Any, List, Optional
 import asyncpg
 
 from app.database.common.queries import INIT_STATEMENTS
-from app.api.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -13,17 +12,13 @@ class DatabaseController:
     def __init__(self, dsn: str) -> None:
         self.__dsn = dsn
 
-    async def init(
-        self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5
-    ) -> None:
-        self.__pool = await asyncpg.create_pool(
-            self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5
-        )
+    async def init(self, min_pool_size: Optional[int] = 2, max_pool_size: Optional[int] = 5) -> None:
+        self.pool = await asyncpg.create_pool(self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5)
 
         await self.init_database_tables()
 
     async def init_database_tables(self):
-        async with self.__pool.acquire() as conn:
+        async with self.pool.acquire() as conn:
             async with conn.transaction():
                 for init_statement in INIT_STATEMENTS:
                     logger.info(f"Executing query: {init_statement}")
@@ -31,14 +26,14 @@ class DatabaseController:
                     await conn.execute(init_statement)
 
     async def close(self) -> None:
-        if self.__pool:
-            await self.__pool.close()
+        if self.pool:
+            await self.pool.close()
 
     async def execute(self, query: str, *args: Any) -> str:
-        return await self.__pool.execute(query, *args)
+        return await self.pool.execute(query, *args)
 
     async def fetch(self, query: str, *args: Any) -> List[asyncpg.Record]:
-        return await self.__pool.fetch(query, *args)
+        return await self.pool.fetch(query, *args)
 
     async def fetchrow(self, query: str, *args: Any) -> asyncpg.Record:
-        return await self.__pool.fetchrow(query, *args)
+        return await self.pool.fetchrow(query, *args)

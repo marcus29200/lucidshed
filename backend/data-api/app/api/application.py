@@ -1,11 +1,39 @@
-from fastapi import APIRouter, FastAPI
+from contextvars import ContextVar
 
-from app.database.database import DatabaseController
-from app.database.work_items.controllers.engineering_item import EngineeringController
+from fastapi import APIRouter, FastAPI, Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
+
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.settings import Settings
+from app.database.database import DatabaseController
+from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 
 router = APIRouter()
+
+
+db_context: ContextVar = ContextVar("db_context")
+
+
+class DBMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = None
+        async with request.app.db.pool.acquire() as conn:
+            try:
+                db_context.set(conn)
+
+                async with conn.transaction():
+                    response = await call_next(request)
+
+                    if not str(response.status_code).startswith("2"):
+                        raise AbortDBTransaction()
+            except AbortDBTransaction:
+                pass
+            finally:
+                db_context.set(None)
+
+        return response
 
 
 class DataApplication(FastAPI):
@@ -16,6 +44,10 @@ class DataApplication(FastAPI):
 
         self.include_router(router)
         self.include_router(engineering_item_router)
+
+        self.add_middleware(DBMiddleware)
+
+        self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
 
     async def __aenter__(self):
         await self.init()
@@ -33,6 +65,9 @@ class DataApplication(FastAPI):
 
     async def close(self) -> None:
         await self.db.close()
+
+    async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
+        return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
 
 
 app = DataApplication(Settings())

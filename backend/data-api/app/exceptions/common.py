@@ -1,6 +1,10 @@
 from typing import Optional, Union
 
 
+class AbortDBTransaction(Exception):
+    pass
+
+
 class ObjectNotFoundException(Exception):
     def __init__(
         self,

@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
+from app.database.common.queries import WORK_ITEM_QUERIES
 from app.database.database import DatabaseController
 from app.exceptions.common import ObjectNotFoundException
-from app.database.common.queries import WORK_ITEM_QUERIES
 
 
 class WorkItemController:
@@ -24,12 +24,12 @@ class WorkItemController:
     async def update(self, obj: Any):
         raise NotImplementedError()
 
-    async def delete(self, *, organization_id: str, id: int) -> bool:
+    async def delete(self, *, organization_id: str, id: int, current_user: str) -> bool:
         result = await self.db.execute(
             WORK_ITEM_QUERIES["DELETE_ENGINEERING_ITEM"],
             organization_id,
             id,
-            "test@test.com",  # TODO Needs to be current user
+            current_user,
         )
 
         if result != "UPDATE 1":

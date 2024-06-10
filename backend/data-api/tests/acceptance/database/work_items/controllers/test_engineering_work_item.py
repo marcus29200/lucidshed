@@ -2,9 +2,9 @@ from typing import Optional
 
 import pytest
 
-from app.exceptions.common import ObjectNotFoundException
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
+from app.exceptions.common import ObjectNotFoundException
 
 pytestmark = pytest.mark.asyncio
 
@@ -19,7 +19,9 @@ async def create_engineering_item(
         item_type=item_type,
     )
 
-    engineering_item = await engineering_controller.create(base_engineering_item)
+    engineering_item = await engineering_controller.create(
+        new_engineering_item=base_engineering_item, current_user="test@test.com"
+    )
 
     assert engineering_item.id
 
@@ -79,7 +81,12 @@ async def test_update_engineering_work_item(
     assert engineering_item.modified_at
     old_modified_at = engineering_item.modified_at
 
-    engineering_item = await engineering_controller.update(engineering_item)
+    engineering_item = await engineering_controller.update(
+        organization_id="test",
+        id=engineering_item.id,
+        updated_engineering_item=engineering_item,
+        current_user="test@test.com",
+    )
 
     assert engineering_item.title == "Test Updated"
     assert engineering_item.description == "Test description"
@@ -92,7 +99,9 @@ async def test_delete_engineering_work_item(
     engineering_item = await create_engineering_item(engineering_controller)
 
     result = await engineering_controller.delete(
-        organization_id=engineering_item.organization_id, id=engineering_item.id
+        organization_id=engineering_item.organization_id,
+        id=engineering_item.id,
+        current_user="test@test.com",
     )
 
     assert result is True
@@ -102,4 +111,4 @@ async def test_delete_engineering_work_item_fails_when_doesnt_exist(
     engineering_controller: EngineeringController,
 ):
     with pytest.raises(ObjectNotFoundException):
-        await engineering_controller.delete(organization_id="t", id=0)
+        await engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com")
