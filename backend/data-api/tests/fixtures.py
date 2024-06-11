@@ -7,6 +7,7 @@ from app.api.application import DataApplication
 from app.api.settings import Settings
 from app.database.database import DatabaseController
 from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.database.users.controllers.user import UserController
 
 
 @pytest_asyncio.fixture
@@ -15,6 +16,12 @@ async def data_application() -> DataApplication:
         await app.init()
 
         yield app
+
+
+@pytest_asyncio.fixture
+async def data_api(data_application):
+    async with AsyncClient(app=data_application, base_url="http://localhost:8080") as test_client:
+        yield test_client
 
 
 @pytest_asyncio.fixture
@@ -30,14 +37,14 @@ async def engineering_controller():
 
 
 @pytest_asyncio.fixture
-async def data_api(data_application):
-    async with AsyncClient(app=data_application, base_url="http://localhost:8080") as test_client:
-        yield test_client
+async def user_controller():
+    database = DatabaseController(Settings().database_dsn)
+
+    await database.init()
+
+    try:
+        yield UserController(database)
+    finally:
+        await database.close()
 
 
-class UserPermission():
-    id: str  # UUID for permissions
-    organization_id: str
-    user_id: str
-    engineering_permission_level: str
-    support_permission_level: str

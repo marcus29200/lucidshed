@@ -1,16 +1,23 @@
 from app.database.users.models.user import BaseUser, User
 from app.database.common.queries import QUERIES
+from app.database.database import DatabaseController
 
 
 class UserController:
+    def __init__(self, db: DatabaseController):
+        self.db: DatabaseController = db
+
     async def create(self, *, user: BaseUser):
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
             "test",  # TODO Org id, needs to come from the jwt token, and also, might need to control the db we access
+            user.email,
             user.first_name,
             user.last_name,
             user.disabled,
+            user.email,
+            user.email,
         )
 
         # TODO Create history entry

@@ -7,6 +7,7 @@ USER_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS users (
     {BASE_MODEL_FIELDS},
+    email VARCHAR({MAX_ID_LENGTH}) UNIQUE,
     first_name VARCHAR({MAX_ID_LENGTH}),
     last_name VARCHAR({MAX_ID_LENGTH}),
     disabled BOOLEAN DEFAULT FALSE
@@ -21,13 +22,14 @@ USER_QUERIES[
 INSERT INTO users
 (
     organization_id,
+    email,
     first_name,
     last_name,
     disabled,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 """
 
