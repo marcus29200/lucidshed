@@ -32,13 +32,13 @@ RETURNING *;
 """
 
 
-WORK_ITEM_QUERIES[
+USER_QUERIES[
     "GET_USER"
 ] = """
 SELECT * FROM users WHERE organization_id = $1 AND id = $2;
 """
 
-WORK_ITEM_QUERIES[
+USER_QUERIES[
     "UPDATE_USER"
 ] = """
 UPDATE users
@@ -56,7 +56,7 @@ WHERE
 RETURNING *;
 """
 
-WORK_ITEM_QUERIES[
+USER_QUERIES[
     "DELETE_USER"
 ] = """
 UPDATE users
