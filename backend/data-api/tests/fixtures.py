@@ -33,3 +33,11 @@ async def engineering_controller():
 async def data_api(data_application):
     async with AsyncClient(app=data_application, base_url="http://localhost:8080") as test_client:
         yield test_client
+
+
+class UserPermission():
+    id: str  # UUID for permissions
+    organization_id: str
+    user_id: str
+    engineering_permission_level: str
+    support_permission_level: str

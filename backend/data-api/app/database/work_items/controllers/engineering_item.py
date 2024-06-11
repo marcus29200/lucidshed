@@ -3,17 +3,15 @@ from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
     EngineeringItem,
 )
-from app.database.work_items.queries import WORK_ITEM_QUERIES
+from app.database.common.queries import QUERIES
 
 
 class EngineeringController(WorkItemController):
-    async def create(
-        self, *, new_engineering_item: BaseEngineeringItem, current_user: str
-    ):
+    async def create(self, *, new_engineering_item: BaseEngineeringItem, current_user: str):
         # Create db record
         # How do we handle if completed is set right away?
         record = await self.db.fetchrow(
-            WORK_ITEM_QUERIES["CREATE_ENGINEERING_ITEM"],
+            QUERIES["CREATE_ENGINEERING_ITEM"],
             "test",  # TODO Org id, needs to come from the jwt token, and also, might need to control the db we access
             new_engineering_item.title,
             new_engineering_item.description,
@@ -54,7 +52,7 @@ class EngineeringController(WorkItemController):
         old_item_json.update(**new_item_json)
 
         record = await self.db.fetchrow(
-            WORK_ITEM_QUERIES["UPDATE_ENGINEERING_ITEM"],
+            QUERIES["UPDATE_ENGINEERING_ITEM"],
             organization_id,  # TODO Org id, come from the jwt token, and might need to control the db we access
             id,
             old_item_json["title"],

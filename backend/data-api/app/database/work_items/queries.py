@@ -1,22 +1,16 @@
 from app.database.common.models import MAX_ID_LENGTH
+from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 WORK_ITEM_QUERIES = {}
 
 BASE_WORK_ITEM_FIELDS = f"""
-    id SERIAL PRIMARY KEY,
-    organization_id VARCHAR({MAX_ID_LENGTH}),
+    {BASE_MODEL_FIELDS},
     title VARCHAR(40),
     description TEXT,
     status VARCHAR(15),
     priority VARCHAR(15),
-    created_at timestamp without time zone DEFAULT NOW(),
-    created_by_id VARCHAR({MAX_ID_LENGTH}),
-    modified_at timestamp without time zone DEFAULT NOW(),
-    modified_by_id VARCHAR({MAX_ID_LENGTH}),
     archived_at timestamp without time zone DEFAULT NULL,
     archived_by_id VARCHAR({MAX_ID_LENGTH}),
-    deleted_at timestamp without time zone DEFAULT NULL,
-    deleted_by_id VARCHAR({MAX_ID_LENGTH}),
     completed_at timestamp without time zone DEFAULT NULL,
     completed_by_id VARCHAR({MAX_ID_LENGTH})
 """
