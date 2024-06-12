@@ -21,4 +21,4 @@ class BaseUserPermission(BaseModel):
 
 
 class UserPermission(Model, BaseUserPermission):
-    pass
+    organization_id: str

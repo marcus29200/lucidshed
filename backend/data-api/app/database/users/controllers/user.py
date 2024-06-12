@@ -11,7 +11,7 @@ class UserController:
     def __init__(self, db: DatabaseController):
         self.db: DatabaseController = db
 
-    async def create(self, *, user: BaseUser):
+    async def create(self, *, user: BaseUser, current_user: str):
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
@@ -20,8 +20,8 @@ class UserController:
             user.first_name,
             user.last_name,
             user.disabled,
-            user.email,
-            user.email,
+            current_user,
+            current_user,
         )
 
         # TODO Create history entry
@@ -38,6 +38,8 @@ class UserController:
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+
+        # TODO Create history
 
         return User(**record)
 
@@ -67,6 +69,24 @@ class UserController:
             old_item_json["deleted_by_id"],
         )
 
-        # TODO Create history entry on new user changes
+        # TODO Create history entry
 
         return User(**record)
+
+    async def delete(self, *, id: int, current_user: str, organization_id: Optional[str] = None) -> bool:
+        if organization_id:
+            # TODO Need to delete user permissions, maybe delete full user if no permissions are left? Later problem
+            pass
+        else:
+            result = await self.db.execute(
+                QUERIES["DELETE_USER"],
+                id,
+                current_user,
+            )
+
+        # TODO Create history entry
+
+        if result != "UPDATE 1":
+            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+
+        return True

@@ -13,7 +13,20 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR({MAX_ID_LENGTH}),
     disabled BOOLEAN DEFAULT FALSE
 )
-    """
+    """,
+    f"""
+CREATE TABLE IF NOT EXISTS user_permissions (
+    id VARCHAR({MAX_ID_LENGTH}),
+    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
+    {BASE_MODEL_FIELDS},
+    user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
+    disabled BOOLEAN DEFAULT FALSE,
+    engineering_permission_level VARCHAR({MAX_ID_LENGTH}),
+    support_permission_level VARCHAR({MAX_ID_LENGTH}),
+    UNIQUE (organization_id, user_id),
+    PRIMARY KEY (organization_id, user_id)
+)
+    """,
 ]
 
 
@@ -46,16 +59,15 @@ USER_QUERIES[
 ] = """
 UPDATE users
 SET
-    first_name = $3,
-    last_name = $4,
-    disabled = $5,
-    created_by_id = $6,
+    first_name = $2,
+    last_name = $3,
+    disabled = $4,
+    created_by_id = $5,
     modified_at = NOW(),
-    modified_by_id = $7,
-    deleted_at = $8,
-    deleted_by_id = $9,
-WHERE
-    organization_id = $1 AND id = $2
+    modified_by_id = $6,
+    deleted_at = $7,
+    deleted_by_id = $8
+WHERE id = $1
 RETURNING *;
 """
 
@@ -65,7 +77,58 @@ USER_QUERIES[
 UPDATE users
 SET
     deleted_at = NOW(),
+    deleted_by_id = $2
+WHERE id = $1;
+"""
+
+
+USER_QUERIES[
+    "CREATE_USER_PERMISSION"
+] = """
+INSERT INTO user_permissions
+(
+    organization_id,
+    id,
+    user_id,
+    disabled,
+    engineering_permission_level,
+    support_permission_level,
+    created_by_id,
+    modified_by_id
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING *;
+"""
+
+
+USER_QUERIES[
+    "GET_USER_PERMISSION"
+] = """
+SELECT * FROM user_permissions WHERE organization_id = $1 AND user_id = $2;
+"""
+
+USER_QUERIES[
+    "UPDATE_USER_PERMISSION"
+] = """
+UPDATE user_permissions
+SET
+    disabled = $3,
+    engineering_permission_level = $4,
+    support_permission_level = $5,
+    modified_at = NOW(),
+    modified_by_id = $6,
+    deleted_at = $7,
+    deleted_by_id = $8
+WHERE organization_id = $1 AND user_id = $2
+RETURNING *;
+"""
+
+USER_QUERIES[
+    "DELETE_USER_PERMISSION"
+] = """
+UPDATE user_permissions
+SET
+    deleted_at = NOW(),
     deleted_by_id = $3
-WHERE
-    organization_id = $1 AND id = $2
+WHERE organization_id = $1 AND user_id = $2;
 """

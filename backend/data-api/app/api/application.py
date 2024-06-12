@@ -6,6 +6,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.organization import router as organization_router
+from app.api.routers.user import router as user_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
 from app.database.organizations.controllers.organization import OrganizationController
@@ -47,7 +49,9 @@ class DataApplication(FastAPI):
         self.settings = settings
 
         self.include_router(router)
-        self.include_router(engineering_item_router)
+        self.include_router(organization_router, prefix="")
+        self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
+        self.include_router(user_router, prefix="/users")
 
         self.add_middleware(DBMiddleware)
 
@@ -68,7 +72,7 @@ class DataApplication(FastAPI):
         self.engineering_controller = EngineeringController(self.db)
         self.user_controller = UserController(self.db)
         self.organization_controller = OrganizationController(self.db)
-        self.user_permissions_controller = UserPermissionController(self.db)
+        self.user_permission_controller = UserPermissionController(self.db)
 
     async def close(self) -> None:
         await self.db.close()
