@@ -1,54 +1,37 @@
-from typing import Optional
-
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.users.models.user import BaseUser, User
-from app.exceptions.common import ObjectNotFoundException
-from uuid import uuid4
+from app.database.work_items.controllers.work_item import WorkItemController
 
 
-class UserController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
+class UserPermissionController(WorkItemController):
     async def create(self, *, user: BaseUser):
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
-            uuid4().hex,
-            user.email,
+            "test",  # TODO Org id, needs to come from the jwt token, and also, might need to control the db we access
             user.first_name,
             user.last_name,
             user.disabled,
-            user.email,
-            user.email,
         )
 
         # TODO Create history entry
 
         return User(**record)
 
-    async def get(self, *, id: int, organization_id: Optional[str] = None):
-        # Get item record here
-        if organization_id:
-            # TODO Get user with permissions
-            pass
-        else:
-            record = await self.db.fetchrow(QUERIES["GET_USER"], id)
-
-        if not record:
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+    async def get(self, *, organization_id: str, id: int):
+        record = await super().get(organization_id=organization_id, id=id)
 
         return User(**record)
 
     async def update(
         self,
         *,
+        organization_id: str,
         id: str,
         updated_user: User,
         current_user: str,
     ):
-        old_user = await self.get(id=id)
+        old_user = await self.get(organization_id=organization_id, id=id)
 
         new_item_json = updated_user.model_dump(exclude_unset=True)
         old_item_json = old_user.model_dump()
@@ -57,6 +40,7 @@ class UserController:
 
         record = await self.db.fetchrow(
             QUERIES["UPDATE_USER"],
+            organization_id,  # TODO Org id, come from the jwt token, and might need to control the db we access
             id,
             old_item_json["first_name"],
             old_item_json["last_name"],

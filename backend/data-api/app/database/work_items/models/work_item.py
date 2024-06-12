@@ -24,4 +24,5 @@ class BaseWorkItem(BaseModel):
 
 
 class WorkItem(Model, BaseWorkItem):
-    pass
+    id: int
+    organization_id: str = Field(max_length=MAX_ID_LENGTH)

@@ -1,6 +1,9 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
 from app.database.common.models import Model
+from app.database.users.models.user_permission import UserPermission
 
 
 class BaseUser(BaseModel):
@@ -11,4 +14,4 @@ class BaseUser(BaseModel):
 
 
 class User(Model, BaseUser):
-    pass
+    permissions: Optional[UserPermission] = None

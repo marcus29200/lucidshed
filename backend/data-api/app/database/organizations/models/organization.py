@@ -1,5 +1,7 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
 from app.database.common.models import Model
 
 

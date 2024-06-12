@@ -1,5 +1,6 @@
 from contextvars import ContextVar
 
+from typing import Optional
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -7,6 +8,9 @@ from starlette.responses import JSONResponse
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
+from app.database.organizations.controllers.organization import OrganizationController
+from app.database.users.controllers.user import UserController
+from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 
@@ -57,11 +61,14 @@ class DataApplication(FastAPI):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
 
-    async def init(self) -> None:
+    async def init(self, reinit: Optional[bool] = False) -> None:
         self.db = DatabaseController(self.settings.database_dsn)
-        await self.db.init()
+        await self.db.init(reinit=reinit)
 
         self.engineering_controller = EngineeringController(self.db)
+        self.user_controller = UserController(self.db)
+        self.organization_controller = OrganizationController(self.db)
+        self.user_permissions_controller = UserPermissionController(self.db)
 
     async def close(self) -> None:
         await self.db.close()

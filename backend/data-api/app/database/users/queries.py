@@ -6,6 +6,7 @@ USER_QUERIES = {}
 USER_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
     email VARCHAR({MAX_ID_LENGTH}) UNIQUE,
     first_name VARCHAR({MAX_ID_LENGTH}),
@@ -21,7 +22,7 @@ USER_QUERIES[
 ] = """
 INSERT INTO users
 (
-    organization_id,
+    id,
     email,
     first_name,
     last_name,
@@ -37,7 +38,7 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT * FROM users WHERE organization_id = $1 AND id = $2;
+SELECT * FROM users WHERE id = $1;
 """
 
 USER_QUERIES[

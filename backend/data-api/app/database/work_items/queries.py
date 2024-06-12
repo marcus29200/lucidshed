@@ -4,6 +4,8 @@ from app.database.common.shared_queries import BASE_MODEL_FIELDS
 WORK_ITEM_QUERIES = {}
 
 BASE_WORK_ITEM_FIELDS = f"""
+    id SERIAL PRIMARY KEY,
+    organization_id VARCHAR({MAX_ID_LENGTH}),
     {BASE_MODEL_FIELDS},
     title VARCHAR(40),
     description TEXT,

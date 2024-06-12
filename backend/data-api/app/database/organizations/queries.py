@@ -3,9 +3,10 @@ from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 ORGANIZATION_QUERIES = {}
 
-USER_INIT_STATEMENTS = [
+ORGANIZATION_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS organizations (
+    id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
     title VARCHAR({MAX_ID_LENGTH})
 )

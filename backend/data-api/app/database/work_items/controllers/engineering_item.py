@@ -1,9 +1,6 @@
-from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.engineering_item import (
-    BaseEngineeringItem,
-    EngineeringItem,
-)
 from app.database.common.queries import QUERIES
+from app.database.work_items.controllers.work_item import WorkItemController
+from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 
 
 class EngineeringController(WorkItemController):

@@ -15,4 +15,4 @@ RUN poetry config virtualenvs.create false
 # Eventually we want a dev and prod build, one to run tests against and another to release
 RUN poetry install --no-dev
 
-CMD ["poetry", "run", "api"]
+ENTRYPOINT ["poetry", "run", "api"]

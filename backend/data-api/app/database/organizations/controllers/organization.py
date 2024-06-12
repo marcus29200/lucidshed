@@ -1,15 +1,17 @@
-from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.common.queries import QUERIES
+from app.database.database import DatabaseController
+from app.database.organizations.models.organization import BaseOrganization, Organization
 
 
 class OrganizationController:
+    def __init__(self, db: DatabaseController):
+        self.db: DatabaseController = db
+
     async def create(self, *, user: BaseOrganization, current_user: str):
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_ORGANIZATION"],
             "test",  # TODO Org id, needs to come from the jwt token, and also, might need to control the db we access
-            user.first_name,
-            user.last_name,
             user.disabled,
             current_user,
             current_user,

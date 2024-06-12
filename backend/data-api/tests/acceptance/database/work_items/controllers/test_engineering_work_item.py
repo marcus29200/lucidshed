@@ -2,7 +2,6 @@ from typing import Optional
 
 import pytest
 
-from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 
@@ -10,7 +9,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_engineering_item(
-    engineering_controller: EngineeringController,
+    data_app,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
 ) -> EngineeringItem:
     base_engineering_item = BaseEngineeringItem(
@@ -19,7 +18,7 @@ async def create_engineering_item(
         item_type=item_type,
     )
 
-    engineering_item = await engineering_controller.create(
+    engineering_item = await data_app.engineering_controller.create(
         new_engineering_item=base_engineering_item, current_user="test@test.com"
     )
 
@@ -28,8 +27,8 @@ async def create_engineering_item(
     return engineering_item
 
 
-async def test_add_engineering_work_item(engineering_controller):
-    engineering_item = await create_engineering_item(engineering_controller)
+async def test_add_engineering_work_item(data_app):
+    engineering_item = await create_engineering_item(data_app)
 
     assert isinstance(engineering_item, EngineeringItem)
 
@@ -40,10 +39,8 @@ async def test_add_engineering_work_item(engineering_controller):
     assert engineering_item.item_type == EngineeringItemType.STORY
 
 
-async def test_add_engineering_work_item_defaults_item_type_to_valid_value(
-    engineering_controller,
-):
-    engineering_item = await create_engineering_item(engineering_controller, item_type=None)
+async def test_add_engineering_work_item_defaults_item_type_to_valid_value(data_app):
+    engineering_item = await create_engineering_item(data_app, item_type=None)
 
     assert isinstance(engineering_item, EngineeringItem)
 
@@ -55,33 +52,27 @@ async def test_add_engineering_work_item_defaults_item_type_to_valid_value(
     assert engineering_item.item_type == EngineeringItemType.STORY
 
 
-async def test_get_engineering_work_item(
-    engineering_controller: EngineeringController,
-):
-    engineering_item = await create_engineering_item(engineering_controller)
+async def test_get_engineering_work_item(data_app):
+    engineering_item = await create_engineering_item(data_app)
 
-    engineering_item = await engineering_controller.get(organization_id="test", id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(organization_id="test", id=engineering_item.id)
 
     assert engineering_item.id
 
 
-async def test_get_engineering_work_item_raises_not_found_exception(
-    engineering_controller: EngineeringController,
-):
+async def test_get_engineering_work_item_raises_not_found_exception(data_app):
     with pytest.raises(ObjectNotFoundException):
-        await engineering_controller.get(organization_id="test", id=0)
+        await data_app.engineering_controller.get(organization_id="test", id=0)
 
 
-async def test_update_engineering_work_item(
-    engineering_controller: EngineeringController,
-):
-    engineering_item = await create_engineering_item(engineering_controller)
+async def test_update_engineering_work_item(data_app):
+    engineering_item = await create_engineering_item(data_app)
 
     engineering_item.title = "Test Updated"
     assert engineering_item.modified_at
     old_modified_at = engineering_item.modified_at
 
-    engineering_item = await engineering_controller.update(
+    engineering_item = await data_app.engineering_controller.update(
         organization_id="test",
         id=engineering_item.id,
         updated_engineering_item=engineering_item,
@@ -93,12 +84,10 @@ async def test_update_engineering_work_item(
     assert engineering_item.modified_at > old_modified_at
 
 
-async def test_delete_engineering_work_item(
-    engineering_controller: EngineeringController,
-):
-    engineering_item = await create_engineering_item(engineering_controller)
+async def test_delete_engineering_work_item(data_app):
+    engineering_item = await create_engineering_item(data_app)
 
-    result = await engineering_controller.delete(
+    result = await data_app.engineering_controller.delete(
         organization_id=engineering_item.organization_id,
         id=engineering_item.id,
         current_user="test@test.com",
@@ -107,8 +96,6 @@ async def test_delete_engineering_work_item(
     assert result is True
 
 
-async def test_delete_engineering_work_item_fails_when_doesnt_exist(
-    engineering_controller: EngineeringController,
-):
+async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
     with pytest.raises(ObjectNotFoundException):
-        await engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com")
+        await data_app.engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com")
