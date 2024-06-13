@@ -1,8 +1,9 @@
-from app.database.common.queries import QUERIES
-from app.database.users.models.user_permission import BaseUserPermission, UserPermission
-from app.database.database import DatabaseController
-from app.exceptions.common import ObjectNotFoundException
 from uuid import uuid4
+
+from app.database.common.queries import QUERIES
+from app.database.database import DatabaseController
+from app.database.users.models.user_permission import BaseUserPermission, UserPermission
+from app.exceptions.common import ObjectNotFoundException
 
 
 class UserPermissionController:
@@ -46,10 +47,10 @@ class UserPermissionController:
         updated_user_permission: BaseUserPermission,
         current_user: str,
     ):
-        old_user = await self.get(organization_id=organization_id, id=id)
+        old_user_permission = await self.get(organization_id=organization_id, id=id)
 
         new_item_json = updated_user_permission.model_dump(exclude_unset=True)
-        old_item_json = old_user.model_dump()
+        old_item_json = old_user_permission.model_dump()
 
         old_item_json.update(**new_item_json)
 

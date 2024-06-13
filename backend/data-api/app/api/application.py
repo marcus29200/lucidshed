@@ -1,6 +1,6 @@
 from contextvars import ContextVar
-
 from typing import Optional
+
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -15,6 +15,7 @@ from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
+from asyncpg.exceptions import UniqueViolationError
 
 router = APIRouter()
 
@@ -56,6 +57,7 @@ class DataApplication(FastAPI):
         self.add_middleware(DBMiddleware)
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
+        self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
 
     async def __aenter__(self):
         await self.init()
@@ -76,6 +78,9 @@ class DataApplication(FastAPI):
 
     async def close(self) -> None:
         await self.db.close()
+
+    async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
+        return JSONResponse(status_code=412, content={"detail": f"Unable to create object"})
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request
 
 from app.database.users.models.user import BaseUser, User
-from typing import Optional
 
 user_router = APIRouter
 
@@ -18,13 +17,13 @@ async def add_user(request: Request, body: BaseUser) -> User:
 
 
 @router.get("/{id}", status_code=200, response_model=User)
-async def get_user(request: Request, id: int) -> User:
+async def get_user(request: Request, id: str) -> User:
     return await request.app.user_controller.get(id=id)
 
 
 @router.patch("/{id}", status_code=200, response_model=User)
 async def update_user(request: Request, id: str, body: BaseUser) -> User:
-    return await request.app.user_controller.update(id=id, updated_user=body)
+    return await request.app.user_controller.update(id=id, updated_user=body, current_user="test@test.com")
 
 
 @router.delete("/{id}", status_code=200)

@@ -59,7 +59,7 @@ RETURNING *;
 WORK_ITEM_QUERIES[
     "GET_ENGINEERING_ITEM"
 ] = """
-SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2;
+SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
 """
 
 WORK_ITEM_QUERIES[

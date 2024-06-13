@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.database.work_items.models.engineering_item import EngineeringItemType
+from tests.acceptance.api.routers.test_organization import add_organization
 
 pytestmark = pytest.mark.asyncio
 
@@ -13,6 +14,8 @@ async def add_engineering_item(
     overrides: Optional[Dict[str, Any]] = {},
     expected_status_code: Optional[int] = 201,
 ):
+    org = await add_organization(data_api)
+
     data = {
         "title": "test",
         "description": "test description",
@@ -21,7 +24,7 @@ async def add_engineering_item(
     }
     data.update(**overrides)
 
-    response = await data_api.post("test/engineering", json=data)
+    response = await data_api.post(f"{org['id']}/engineering", json=data)
 
     assert response.status_code == expected_status_code
 
@@ -83,8 +86,20 @@ async def test_should_not_get_engineering_item(data_api: TestClient):
 
 
 async def test_should_update_engineering_item(data_api: TestClient):
-    pytest.fail()
+    item = await add_engineering_item(data_api)
+
+    response = await data_api.patch(f"test/engineering/{item['id']}", json={"title": "Test Updated"})
+    assert response.status_code == 200
+
+    item = response.json()
+    assert item["title"] == "Test Updated"
 
 
 async def test_should_delete_engineering_item(data_api: TestClient):
-    pytest.fail()
+    item = await add_engineering_item(data_api)
+
+    response = await data_api.delete(f"test/engineering/{item['id']}")
+    assert response.status_code == 200
+
+    response = await data_api.get(f"test/engineering/{item['id']}")
+    assert response.status_code == 404

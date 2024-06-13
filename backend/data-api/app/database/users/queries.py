@@ -51,8 +51,61 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT * FROM users WHERE id = $1;
+SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL;
 """
+
+USER_QUERIES[
+    "GET_USERS"
+] = """
+SELECT * FROM users WHERE deleted_at IS NULL;
+"""
+
+
+USER_QUERIES[
+    "GET_ORGANIZATION_USER"
+] = """
+SELECT
+    *,
+    (
+        SELECT to_jsonb(user_permissions)
+        FROM user_permissions
+        WHERE user_permissions.user_id = users.id AND user_permissions.organization_id = $1 AND deleted_at IS NULL
+        LIMIT 1
+    ) AS permissions
+FROM
+    users
+WHERE
+    id = $2
+    AND deleted_at IS NULL
+    AND EXISTS (
+        SELECT 1
+        FROM user_permissions
+        WHERE
+            user_permissions.user_id = users.id
+            AND user_permissions.organization_id = $1
+            AND user_permissions.deleted_at IS NULL
+        LIMIT 1
+    );
+"""
+
+
+USER_QUERIES[
+    "GET_ORGANIZATION_USERS"
+] = """
+SELECT
+    *,
+    (
+        SELECT to_jsonb(user_permissions)
+        FROM user_permissions
+        WHERE user_permissions.user_id = users.id AND user_permissions.organization_id = $1
+        LIMIT 1
+    ) AS permissions
+FROM
+    users
+WHERE
+    deleted_at IS NULL
+"""
+
 
 USER_QUERIES[
     "UPDATE_USER"

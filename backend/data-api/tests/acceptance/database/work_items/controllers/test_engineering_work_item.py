@@ -4,6 +4,7 @@ import pytest
 
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
+from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
 
 pytestmark = pytest.mark.asyncio
 
@@ -12,6 +13,8 @@ async def create_engineering_item(
     data_app,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
 ) -> EngineeringItem:
+    org = await create_organization(data_app)
+
     base_engineering_item = BaseEngineeringItem(
         title="Test",
         description="Test description",
@@ -19,7 +22,7 @@ async def create_engineering_item(
     )
 
     engineering_item = await data_app.engineering_controller.create(
-        new_engineering_item=base_engineering_item, current_user="test@test.com"
+        organization_id=org.id, new_engineering_item=base_engineering_item, current_user="test@test.com"
     )
 
     assert engineering_item.id

@@ -1,17 +1,20 @@
 import pytest
 
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserPermissionType
-from tests.acceptance.database.users.controllers.test_users import create_user
 from app.exceptions.common import ObjectNotFoundException
+from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
+from tests.acceptance.database.users.controllers.test_users import create_user
 
 pytestmark = pytest.mark.asyncio
 
 
 async def create_user_permission(data_app, user_id: str) -> UserPermission:
+    org = await create_organization(data_app)
+
     base_user_permission = BaseUserPermission(user_id=user_id, engineering_permission_level=UserPermissionType.ADMIN)
 
     user_permission = await data_app.user_permission_controller.create(
-        user_permission=base_user_permission, current_user=user_id
+        organization_id=org.id, user_permission=base_user_permission, current_user=user_id
     )
 
     assert user_permission.id

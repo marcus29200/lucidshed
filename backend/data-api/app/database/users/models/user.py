@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from pydantic import BaseModel
@@ -16,3 +17,9 @@ class BaseUser(BaseModel):
 
 class User(Model, BaseUser):
     permissions: Optional[UserPermission] = None
+
+    def __init__(self, **data):
+        if isinstance(data.get("permissions"), str):
+            data["permissions"] = json.loads(data.get("permissions"))
+
+        super().__init__(**data)

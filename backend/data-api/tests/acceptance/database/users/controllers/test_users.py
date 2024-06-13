@@ -8,7 +8,7 @@ pytestmark = pytest.mark.asyncio
 async def create_user(data_app) -> User:
     base_user = BaseUser(email="test@test.com", first_name="Test", last_name="Tester")
 
-    user = await data_app.user_controller.create(user=base_user)
+    user = await data_app.user_controller.create(user=base_user, current_user="test@test.com")
 
     assert user.id
 

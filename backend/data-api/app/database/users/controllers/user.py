@@ -1,10 +1,10 @@
 from typing import Optional
+from uuid import uuid4
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
-from uuid import uuid4
 
 
 class UserController:
@@ -31,8 +31,7 @@ class UserController:
     async def get(self, *, id: int, organization_id: Optional[str] = None):
         # Get item record here
         if organization_id:
-            # TODO Get user with permissions
-            pass
+            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, id)
         else:
             record = await self.db.fetchrow(QUERIES["GET_USER"], id)
 
@@ -42,6 +41,17 @@ class UserController:
         # TODO Create history
 
         return User(**record)
+
+    async def get_all(self, *, organization_id: Optional[str] = None):
+        # Get item record here
+        if organization_id:
+            records = await self.db.fetch(QUERIES["GET_ORGANIZATION_USERS"], organization_id)
+        else:
+            records = await self.db.fetch(QUERIES["GET_USERS"])
+
+        # TODO Create history
+
+        return [User(**record) for record in records]
 
     async def update(
         self,

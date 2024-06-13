@@ -28,7 +28,7 @@ async def update_engineering_item(
     request: Request, organization_id: str, id: int, body: BaseEngineeringItem
 ) -> EngineeringItem:
     return await request.app.engineering_controller.update(
-        organization_id=organization_id, id=id, updated_engineering_item=body
+        organization_id=organization_id, id=id, updated_engineering_item=body, current_user="test@test.com"
     )
 
 

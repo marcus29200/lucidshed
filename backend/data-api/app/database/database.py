@@ -7,8 +7,8 @@ from app.database.common.queries import INIT_STATEMENTS
 
 logger = logging.getLogger(__name__)
 
-clear_database_sql = f"""
-DO $$ 
+clear_database_sql = """
+DO $$
 DECLARE
     r RECORD;
 BEGIN
@@ -29,9 +29,15 @@ class DatabaseController:
         self.pool = await asyncpg.create_pool(self.__dsn, min_size=min_pool_size or 2, max_size=max_pool_size or 5)
 
         if reinit:
+            logger.warning("Clearing Database")
+
             await self.clear_database_tables()
 
+            logger.warning("Database Cleared")
+
         await self.init_database_tables()
+
+        logger.warning("Database initialized")
 
     async def clear_database_tables(self):
         async with self.pool.acquire() as conn:
