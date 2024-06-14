@@ -2,6 +2,7 @@ from enum import StrEnum
 from typing import List, Optional
 
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
+from datetime import datetime
 
 
 class EngineeringItemType(StrEnum):
@@ -10,13 +11,21 @@ class EngineeringItemType(StrEnum):
     TASK: str = "task"
 
 
+class EngineeringItemSubType(StrEnum):
+    BUG: str = "bug"
+    TASK: str = "task"
+    FEATURE: str = "feature"
+
+
 class BaseEngineeringItem(BaseWorkItem):
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY
+    item_sub_type: Optional[EngineeringItemSubType] = EngineeringItemSubType.FEATURE
     estimate: Optional[int] = None
     iteration_id: Optional[str] = None
-    tags: Optional[List[str]] = []  # Maybe should be a list of ids
-    related_tickets: Optional[List[str]] = []  # List of ids
-    related_files: Optional[List[str]] = []  # List of ids
+    due_date: Optional[datetime] = None
+    acceptance_criteria: Optional[List[str]] = []
+    # iteration: Optional[Iteration] = None  # TODO Create db models and relationships
+    # watchers: Optional[List[Watcher]] = []  # TODO Create db models and relationships
 
     def __init__(self, **data):
         data["item_type"] = data.get("item_type") or EngineeringItemType.STORY.value  # no None values

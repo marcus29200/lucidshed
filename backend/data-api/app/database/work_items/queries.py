@@ -11,6 +11,8 @@ BASE_WORK_ITEM_FIELDS = f"""
     description TEXT,
     status VARCHAR(15),
     priority VARCHAR(15),
+    estimated_completion_date timestamp without time zone DEFAULT NULL,
+    starred BOOLEAN DEFAULT FALSE,
     archived_at timestamp without time zone DEFAULT NULL,
     archived_by_id VARCHAR({MAX_ID_LENGTH}),
     completed_at timestamp without time zone DEFAULT NULL,
@@ -21,12 +23,12 @@ WORK_ITEM_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS engineering_items (
     {BASE_WORK_ITEM_FIELDS},
-    item_type VARCHAR(10),
+    item_type VARCHAR(30),
+    item_sub_type VARCHAR(30),
     estimate INT,
     iteration_id VARCHAR({MAX_ID_LENGTH}),
-    tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-    related_tickets TEXT[] DEFAULT ARRAY[]::TEXT[],
-    related_files TEXT[] DEFAULT ARRAY[]::TEXT[]
+    due_date timestamp without time zone DEFAULT NULL,
+    acceptance_criteria TEXT[]
 )
     """
 ]
@@ -42,16 +44,18 @@ INSERT INTO engineering_items
     description,
     status,
     priority,
+    estimated_completion_date,
+    starred,
     item_type,
+    item_sub_type,
     estimate,
     iteration_id,
-    tags,
-    related_tickets,
-    related_files,
+    due_date,
+    acceptance_criteria,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 RETURNING *;
 """
 
@@ -71,21 +75,23 @@ SET
     description = $4,
     status = $5,
     priority = $6,
-    item_type = $7,
-    estimate = $8,
-    iteration_id = $9,
-    tags = $10,
-    related_tickets = $11,
-    related_files = $12,
-    created_by_id = $13,
+    estimated_completion_date = $7,
+    starred = $8,
+    item_type = $9,
+    item_sub_type = $10,
+    estimate = $11,
+    iteration_id = $12,
+    due_date = $13,
+    acceptance_criteria = $14,
+    created_by_id = $15,
     modified_at = NOW(),
-    modified_by_id = $14,
-    archived_at = $15,
-    archived_by_id = $16,
-    deleted_at = $17,
-    deleted_by_id = $18,
-    completed_at = $19,
-    completed_by_id = $20
+    modified_by_id = $16,
+    archived_at = $17,
+    archived_by_id = $18,
+    deleted_at = $19,
+    deleted_by_id = $20,
+    completed_at = $21,
+    completed_by_id = $22
 WHERE
     organization_id = $1 AND id = $2
 RETURNING *;
