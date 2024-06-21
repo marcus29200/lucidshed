@@ -5,6 +5,7 @@ from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
+from app.database.utils import compress_and_b64encode
 
 
 class UserController:
@@ -12,6 +13,10 @@ class UserController:
         self.db: DatabaseController = db
 
     async def create(self, *, user: BaseUser, current_user: str):
+
+        # If picture included, base64 encode to enter into DB
+        if user.picture:
+            encoded_string = await self.compress_and_b64encode(user.picture)
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
@@ -22,6 +27,12 @@ class UserController:
             user.disabled,
             current_user,
             current_user,
+            user.title,
+            user.team,
+            user.phone,
+            user.location,
+            user.bio,
+            encoded_string
         )
 
         # TODO Create history entry
@@ -65,6 +76,10 @@ class UserController:
         new_item_json = updated_user.model_dump(exclude_unset=True)
         old_item_json = old_user.model_dump()
 
+        #check for picture update and re-encode
+        if(new_item_json["picture"]):
+            new_item_json["picture"] = compress_and_b64encode(new_item_json["picture"])
+
         old_item_json.update(**new_item_json)
 
         record = await self.db.fetchrow(
@@ -77,6 +92,13 @@ class UserController:
             current_user,
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],
+            old_item_json["title"],
+            old_item_json["team"],
+            old_item_json["phone"],
+            old_item_json["location"],
+            old_item_json["timezone"],
+            old_item_json["bio"],
+            old_item_json["picture"]
         )
 
         # TODO Create history entry
