@@ -16,7 +16,7 @@ class UserController:
 
         # If picture included, base64 encode to enter into DB
         if user.picture:
-            encoded_string = await self.compress_and_b64encode(user.picture)
+            encoded_string = await compress_and_b64encode(user.picture)
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
@@ -78,7 +78,7 @@ class UserController:
 
         #check for picture update and re-encode
         if(new_item_json["picture"]):
-            new_item_json["picture"] = compress_and_b64encode(new_item_json["picture"])
+            new_item_json["picture"] = await compress_and_b64encode(new_item_json["picture"])
 
         old_item_json.update(**new_item_json)
 
