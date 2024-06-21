@@ -32,7 +32,7 @@ class FileTooLargeException(Exception):
         self,
         file_path: Optional[str] = None,
         file_size: Optional[int] = None
-    )
+    ):
         self.file_path = file_path
         self.file_size = file_size
 
