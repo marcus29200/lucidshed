@@ -70,13 +70,13 @@ SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2 AND delet
 WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = """
-SELECT * FROM engineering_items 
-WHERE 
+SELECT * FROM engineering_items
+WHERE
     organization_id = $1
     AND deleted_at IS NULL
-ORDER BY title
-LIMIT $2
-OFFSET $3;
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
 """
 
 

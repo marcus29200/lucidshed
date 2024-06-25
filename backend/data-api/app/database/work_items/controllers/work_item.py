@@ -1,8 +1,9 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Tuple, List, Optional
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
 from app.exceptions.common import ObjectNotFoundException
+from app.api.utils import generate_cursor, parse_cursor
 
 
 class WorkItemController:
@@ -27,12 +28,20 @@ class WorkItemController:
         organization_id: str,
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
-        offset: Optional[int] = 0
-    ) -> List[Dict[str, Any]]:
-        # Get item record here
-        records = await self.db.fetch(QUERIES["GET_ALL_ENGINEERING_ITEM"], organization_id, limit, offset)
+        cursor: Optional[str] = None
+    ) -> Tuple[List[Dict[str, Any]], str]:
+        offset = 0
+        if cursor:
+            sort, offset = parse_cursor(cursor)
 
-        return records
+        # Get item record here
+        records = await self.db.fetch(QUERIES["GET_ALL_ENGINEERING_ITEM"], organization_id, sort, limit, offset)
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit)
+
+        return records, cursor
 
     async def update(self, obj: Any):
         raise NotImplementedError()
