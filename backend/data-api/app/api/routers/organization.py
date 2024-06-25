@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 
 from app.database.organizations.models.organization import BaseOrganization, Organization
-from app.database.users.models.user import BaseUser, User
+from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 engineering_item_router = APIRouter
@@ -64,8 +64,14 @@ async def get_organization_user(request: Request, id: str, user_id: str) -> User
 
 
 @router.get("/{id}/users", status_code=200, response_model=List[User])
-async def get_all_organization_user(request: Request, id: str) -> List[User]:
-    users = await request.app.user_controller.get_all(organization_id=id)
+async def get_all_organization_user(
+    request: Request,
+    id: str,
+    sort: Optional[UserSortableField] = UserSortableField.EMAIL,
+    limit: Optional[int] = 1000,
+    offset: Optional[int] = 0,
+) -> List[User]:
+    users = await request.app.user_controller.get_all(organization_id=id, sort=sort, limit=limit, offset=offset)
 
     return users
 

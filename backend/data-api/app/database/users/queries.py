@@ -58,7 +58,7 @@ USER_QUERIES[
     "GET_USERS"
 ] = """
 SELECT * FROM users
-WHERE 
+WHERE
     deleted_at IS NULL
 ORDER BY $1
 LIMIT $2
@@ -97,19 +97,17 @@ USER_QUERIES[
     "GET_ORGANIZATION_USERS"
 ] = """
 SELECT
-    *,
-    (
-        SELECT to_jsonb(user_permissions)
-        FROM user_permissions
-        WHERE user_permissions.user_id = users.id AND user_permissions.organization_id = $1
-        LIMIT 1
-    ) AS permissions
+	users.*,
+	to_jsonb (up) AS permissions
 FROM
-    users
+	users
+	LEFT JOIN user_permissions AS up ON users.id = up.user_id
 WHERE
-    deleted_at IS NULL
-LIMIT $2
-OFFSET $3;
+	up.organization_id = $1
+	AND users.deleted_at IS NULL
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
 """
 
 
