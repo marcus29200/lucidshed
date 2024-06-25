@@ -80,7 +80,7 @@ class DataApplication(FastAPI):
         await self.db.close()
 
     async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
-        return JSONResponse(status_code=412, content={"detail": f"Unable to create object"})
+        return JSONResponse(status_code=412, content={"detail": "Unable to create object"})
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})

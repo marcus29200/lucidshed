@@ -74,7 +74,7 @@ async def test_get_all_user_paging_with_limit(data_api):
     await add_user(data_api, overrides={"email": "test2@test.com"})
     await add_user(data_api, overrides={"email": "test1@test.com"})
 
-    response = await data_api.get(f"users?limit=1")
+    response = await data_api.get("users?limit=1")
     assert response.status_code == 200
 
     users = response.json()
@@ -86,7 +86,7 @@ async def test_get_all_user_paging_with_limit_and_offset(data_api):
     await add_user(data_api, overrides={"email": "test2@test.com"})
     await add_user(data_api, overrides={"email": "test1@test.com"})
 
-    response = await data_api.get(f"users?limit=1&offset=1")
+    response = await data_api.get("users?limit=1&offset=1")
     assert response.status_code == 200
 
     users = response.json()

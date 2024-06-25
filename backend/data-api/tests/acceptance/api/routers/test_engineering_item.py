@@ -86,7 +86,7 @@ async def test_should_get_all_engineering_item(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get(f"test/engineering")
+    response = await data_api.get("test/engineering")
     assert response.status_code == 200
 
     engineering_items = response.json()
@@ -98,7 +98,7 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get(f"test/engineering?limit=1")
+    response = await data_api.get("test/engineering?limit=1")
     assert response.status_code == 200
 
     engineering_items = response.json()
@@ -111,7 +111,7 @@ async def test_should_get_all_engineering_item_limit_with_offset(data_api: TestC
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get(f"test/engineering?limit=1&offset=1")
+    response = await data_api.get("test/engineering?limit=1&offset=1")
     assert response.status_code == 200
 
     engineering_items = response.json()
@@ -125,7 +125,7 @@ async def _test_should_get_all_engineering_item_with_sort(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
 
-    response = await data_api.get(f"test/engineering?limit=1&sort=title")
+    response = await data_api.get("test/engineering?limit=1&sort=title")
     assert response.status_code == 200
 
     engineering_items = response.json()
