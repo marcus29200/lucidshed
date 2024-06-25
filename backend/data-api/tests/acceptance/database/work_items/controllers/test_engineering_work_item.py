@@ -2,8 +2,8 @@ from typing import Optional
 
 import pytest
 
-from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.database.work_items.controllers.engineering_item import SortableFields
+from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
 
