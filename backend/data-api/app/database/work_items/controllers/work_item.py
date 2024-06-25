@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
@@ -20,6 +20,19 @@ class WorkItemController:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
 
         return record
+
+    async def get_all(
+        self,
+        *,
+        organization_id: str,
+        sort: Optional[str] = "id",
+        limit: Optional[int] = 1000,
+        offset: Optional[int] = 0
+    ) -> List[Dict[str, Any]]:
+        # Get item record here
+        records = await self.db.fetch(QUERIES["GET_ALL_ENGINEERING_ITEM"], organization_id, limit, offset)
+
+        return records
 
     async def update(self, obj: Any):
         raise NotImplementedError()
