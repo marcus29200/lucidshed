@@ -19,7 +19,7 @@ class BaseUser(BaseModel):
     location: Optional[str] = None
     timezone: Optional[str] = None
     bio: Optional[str] = None
-    picture: Optional[str] = None
+    picture: Optional[bytes] = None
     #TODO:
     #preferences: (list of booleans indicating which options are enabled/disabled?)
     #passwordManagement: (is this 2FA settings/SSO?)

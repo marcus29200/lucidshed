@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone VARCHAR({MAX_ID_LENGTH}),
     location VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
-    picture TEXT 
+    picture BYTEA CHECK (OCTET_LENGTH(data) <= 5000000)
 )
     """,
     f"""
