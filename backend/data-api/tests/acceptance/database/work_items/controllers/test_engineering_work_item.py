@@ -2,7 +2,7 @@ from typing import Optional
 
 import pytest
 
-from app.database.work_items.controllers.engineering_item import SortableFields
+from app.database.work_items.controllers.engineering_item import WorkItemSortableField
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
@@ -108,14 +108,14 @@ async def test_get_all_engineering_work_item_paging_sorting(data_app):
     await create_engineering_item(data_app, org.id, title="Test1")
 
     engineering_items = await data_app.engineering_controller.get_all(
-        organization_id="test", sort=SortableFields.TITLE, limit=1, offset=0
+        organization_id="test", sort=WorkItemSortableField.TITLE, limit=1, offset=0
     )
 
     assert len(engineering_items) == 1
     assert engineering_items[0].title == "Test1"
 
     engineering_items = await data_app.engineering_controller.get_all(
-        organization_id="test", sort=SortableFields.TITLE, limit=1, offset=1
+        organization_id="test", sort=WorkItemSortableField.TITLE, limit=1, offset=1
     )
 
     assert len(engineering_items) == 1

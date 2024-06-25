@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
-from app.database.users.models.user import BaseUser, SortableFields, User
+from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
@@ -46,7 +46,7 @@ class UserController:
         self,
         *,
         organization_id: Optional[str] = None,
-        sort: Optional[SortableFields] = SortableFields.EMAIL,
+        sort: Optional[UserSortableField] = UserSortableField.EMAIL,
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
     ):

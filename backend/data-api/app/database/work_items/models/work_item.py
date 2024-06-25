@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from app.database.common.models import MAX_ID_LENGTH, Model
 
 
-class SortableFields(StrEnum):
+class WorkItemSortableField(StrEnum):
     ID: str = "id"
     TITLE: str = "title"
     STATUS: str = "status"

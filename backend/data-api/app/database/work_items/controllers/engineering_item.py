@@ -3,7 +3,7 @@ from typing import List, Optional
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
-from app.database.work_items.models.work_item import SortableFields
+from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class EngineeringController(WorkItemController):
@@ -44,11 +44,11 @@ class EngineeringController(WorkItemController):
         self,
         *,
         organization_id: str,
-        sort: Optional[SortableFields] = SortableFields.ID,
+        sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
     ) -> List[EngineeringItem]:
-        if sort and sort not in SortableFields:
+        if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
 
         records = await super().get_all(organization_id=organization_id, sort=sort.value, limit=limit, offset=offset)

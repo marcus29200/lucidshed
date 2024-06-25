@@ -1,6 +1,7 @@
 from contextvars import ContextVar
 from typing import Optional
 
+from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -15,7 +16,6 @@ from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
-from asyncpg.exceptions import UniqueViolationError
 
 router = APIRouter()
 
@@ -50,9 +50,10 @@ class DataApplication(FastAPI):
         self.settings = settings
 
         self.include_router(router)
+        self.include_router(user_router, prefix="/users")
         self.include_router(organization_router, prefix="")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
-        self.include_router(user_router, prefix="/users")
+        # self.include_router(iteration_router, prefix="/{organization_id}/iterations")
 
         self.add_middleware(DBMiddleware)
 

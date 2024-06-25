@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Request
 
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
-from app.database.work_items.models.work_item import SortableFields
+from app.database.work_items.models.work_item import WorkItemSortableField
 
 engineering_item_router = APIRouter
 
@@ -30,7 +30,7 @@ async def get_engineering_item(request: Request, organization_id: str, id: int) 
 async def get_engineering_items(
     request: Request,
     organization_id: str,
-    sort: Optional[SortableFields] = SortableFields.TITLE,
+    sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
     limit: Optional[int] = 1000,
     offset: Optional[int] = 0,
 ) -> List[EngineeringItem]:

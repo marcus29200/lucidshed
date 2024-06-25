@@ -8,7 +8,7 @@ from app.database.common.models import Model
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 
-class SortableFields(StrEnum):
+class UserSortableField(StrEnum):
     ID: str = "id"
     CREATED_AT: str = "created_at"
     EMAIL: str = "email"

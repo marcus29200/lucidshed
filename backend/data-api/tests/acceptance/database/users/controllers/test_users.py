@@ -2,7 +2,7 @@ from typing import Dict
 
 import pytest
 
-from app.database.users.models.user import BaseUser, SortableFields, User
+from app.database.users.models.user import BaseUser, User, UserSortableField
 
 pytestmark = pytest.mark.asyncio
 
@@ -74,12 +74,12 @@ async def test_get_all_user_work_item_paging_sorting(data_app):
     await create_user(data_app, overrides={"email": "test2@test.com"})
     await create_user(data_app, overrides={"email": "test1@test.com"})
 
-    user_items = await data_app.user_controller.get_all(sort=SortableFields.EMAIL, limit=1, offset=0)
+    user_items = await data_app.user_controller.get_all(sort=UserSortableField.EMAIL, limit=1, offset=0)
 
     assert len(user_items) == 1
     assert user_items[0].email == "test1@test.com"
 
-    user_items = await data_app.user_controller.get_all(sort=SortableFields.EMAIL, limit=1, offset=1)
+    user_items = await data_app.user_controller.get_all(sort=UserSortableField.EMAIL, limit=1, offset=1)
 
     assert len(user_items) == 1
     assert user_items[0].email == "test2@test.com"
