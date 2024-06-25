@@ -16,6 +16,9 @@ def generate_cursor(sort_field: str, offset: int) -> str:
 
 
 def parse_cursor(cursor: str) -> Tuple[str, int]:
+    if cursor is None:
+        return None, 0
+
     # Decode the base64 string to JSON
     cursor_bytes = base64.urlsafe_b64decode(cursor)
     cursor_str = cursor_bytes.decode("utf-8")

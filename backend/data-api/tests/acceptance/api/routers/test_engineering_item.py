@@ -81,16 +81,46 @@ async def test_should_get_engineering_item(data_api: TestClient):
     assert engineering_item["id"] == item["id"]
 
 
-async def test_should_get_all_engineering_item(data_api: TestClient):
+async def page_results(
+    data_api,
+    sort: Optional[str] = None,
+    limit: Optional[int] = 1000,
+):
+    page_limit = 100
+    pages = 0
+    items = []
+    cursor = None
+
+    while True:
+        response = await data_api.get(
+            f"test/engineering?sort={sort if sort else ''}&limit={limit}&cursor={cursor if cursor else ''}"
+        )
+        assert response.status_code == 200
+
+        data = response.json()
+
+        assert len(data["items"]) <= limit
+        items.extend(data.get("items") or [])
+
+        cursor = data.get("cursor")
+
+        if pages > page_limit:
+            raise Exception("Too many pages, possible issue with cursor/paging")
+
+        if not cursor:
+            break
+
+    return items
+
+
+async def test_should_get_engineering_items(data_api: TestClient):
     org = await add_organization(data_api)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get("test/engineering")
-    assert response.status_code == 200
+    items = await page_results(data_api)
 
-    engineering_items = response.json()
-    assert len(engineering_items) == 2
+    assert len(items) == 2
 
 
 async def test_should_get_all_engineering_item_limit(data_api: TestClient):
@@ -101,9 +131,14 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     response = await data_api.get("test/engineering?limit=1")
     assert response.status_code == 200
 
-    engineering_items = response.json()
-    assert len(engineering_items) == 1
-    assert engineering_items[0]["title"] == "test1"
+    data = response.json()
+
+    items = data["items"]
+    cursor = data["cursor"]
+    assert len(items) == 1
+    assert items[0]["title"] == "test1"
+
+    assert cursor
 
 
 async def test_should_get_all_engineering_item_limit_with_offset(data_api: TestClient):
@@ -111,12 +146,9 @@ async def test_should_get_all_engineering_item_limit_with_offset(data_api: TestC
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get("test/engineering?limit=1&offset=1")
-    assert response.status_code == 200
+    items = await page_results(data_api, limit=1)
 
-    engineering_items = response.json()
-    assert len(engineering_items) == 1
-    assert engineering_items[0]["title"] == "test2"
+    assert len(items) == 2
 
 
 # TODO implement later when sorting is better
@@ -125,12 +157,11 @@ async def _test_should_get_all_engineering_item_with_sort(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
 
-    response = await data_api.get("test/engineering?limit=1&sort=title")
-    assert response.status_code == 200
+    items = await page_results(data_api, limit=1)
 
-    engineering_items = response.json()
-    assert len(engineering_items) == 1
-    assert engineering_items[0]["title"] == "test1"
+    assert len(items) == 2
+    assert items[0]["id"] == "test1"
+    assert items[1]["id"] == "test2"
 
 
 async def test_should_not_get_engineering_item(data_api: TestClient):

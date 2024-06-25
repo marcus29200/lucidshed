@@ -86,33 +86,37 @@ async def test_get_all_engineering_work_item(data_app):
     assert cursor is None
 
 
+async def page_results(data_app, sort: Optional[str] = WorkItemSortableField.ID, limit: Optional[int] = 1000):
+    limit = 100
+    pages = 0
+    items = []
+    cursor = None
+
+    while True:
+        engineering_items, cursor = await data_app.engineering_controller.get_all(
+            organization_id="test", sort=sort, limit=limit, cursor=cursor
+        )
+        items.extend(engineering_items)
+
+        if pages > limit:
+            raise Exception("Too many pages, possible issue with cursor/paging")
+
+        if not cursor:
+            break
+
+    return items
+
+
 async def test_get_all_engineering_work_item_paging(data_app):
     org = await create_organization(data_app)
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    engineering_items, cursor = await data_app.engineering_controller.get_all(organization_id="test", limit=1)
+    items = await page_results(data_app, page_size=1)
 
-    assert len(engineering_items) == 1
-    assert isinstance(engineering_items[0], EngineeringItem)
-    first_id = engineering_items[0].id
-    assert cursor
-
-    engineering_items, cursor = await data_app.engineering_controller.get_all(
-        organization_id="test", limit=1, cursor=cursor
-    )
-
-    assert len(engineering_items) == 1
-    assert isinstance(engineering_items[0], EngineeringItem)
-    assert engineering_items[0].id != first_id
-    assert cursor
-
-    engineering_items, cursor = await data_app.engineering_controller.get_all(
-        organization_id="test", limit=1, cursor=cursor
-    )
-
-    assert len(engineering_items) == 0
-    assert cursor is None
+    assert len(items) == 2
+    assert isinstance(items[0], EngineeringItem)
+    assert items[0].id != items[1].id
 
 
 # NOTE This test is out of order right now because we don't have the sort param fully implemented
@@ -121,19 +125,11 @@ async def _test_get_all_engineering_work_item_paging_sorting(data_app):
     await create_engineering_item(data_app, org.id, title="Test2")
     await create_engineering_item(data_app, org.id, title="Test1")
 
-    engineering_items, cursor = await data_app.engineering_controller.get_all(
-        organization_id="test", sort=WorkItemSortableField.TITLE, limit=1
-    )
+    items = await page_results(data_app, sort=WorkItemSortableField.TITLE, page_size=1)
 
-    assert len(engineering_items) == 1
-    assert engineering_items[0].title == "Test1"
-
-    engineering_items, cursor = await data_app.engineering_controller.get_all(
-        organization_id="test", sort=WorkItemSortableField.TITLE, limit=1, cursor=cursor
-    )
-
-    assert len(engineering_items) == 1
-    assert engineering_items[0].title == "Test2"
+    assert len(items) == 2
+    assert items[0].title == "Test1"
+    assert items[1].title == "Test2"
 
 
 async def test_update_engineering_work_item(data_app):
