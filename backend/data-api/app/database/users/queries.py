@@ -57,9 +57,13 @@ SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL;
 USER_QUERIES[
     "GET_USERS"
 ] = """
-SELECT * FROM users WHERE deleted_at IS NULL;
+SELECT * FROM users
+WHERE 
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
-
 
 USER_QUERIES[
     "GET_ORGANIZATION_USER"
@@ -104,6 +108,8 @@ FROM
     users
 WHERE
     deleted_at IS NULL
+LIMIT $2
+OFFSET $3;
 """
 
 

@@ -27,7 +27,7 @@ async def get_engineering_item(request: Request, organization_id: str, id: int) 
 
 
 @router.get("", status_code=200, response_model=List[EngineeringItem])
-async def get_all_engineering_item(
+async def get_engineering_items(
     request: Request,
     organization_id: str,
     sort: Optional[SortableFields] = SortableFields.TITLE,

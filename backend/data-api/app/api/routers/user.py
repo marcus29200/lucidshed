@@ -1,6 +1,8 @@
+from typing import List, Optional
+
 from fastapi import APIRouter, Request
 
-from app.database.users.models.user import BaseUser, User
+from app.database.users.models.user import BaseUser, SortableFields, User
 
 user_router = APIRouter
 
@@ -19,6 +21,13 @@ async def add_user(request: Request, body: BaseUser) -> User:
 @router.get("/{id}", status_code=200, response_model=User)
 async def get_user(request: Request, id: str) -> User:
     return await request.app.user_controller.get(id=id)
+
+
+@router.get("", status_code=200, response_model=List[User])
+async def get_users(
+    request: Request, sort: Optional[str] = SortableFields.EMAIL, limit: Optional[int] = 1000, offset: Optional[int] = 0
+) -> List[User]:
+    return await request.app.user_controller.get_all(sort=sort, limit=limit, offset=offset)
 
 
 @router.patch("/{id}", status_code=200, response_model=User)

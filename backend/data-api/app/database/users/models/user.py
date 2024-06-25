@@ -1,10 +1,19 @@
 import json
+from enum import StrEnum
 from typing import Optional
 
 from pydantic import BaseModel
 
 from app.database.common.models import Model
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
+
+
+class SortableFields(StrEnum):
+    ID: str = "id"
+    CREATED_AT: str = "created_at"
+    EMAIL: str = "email"
+    FIRST_NAME: str = "first_name"
+    LAST_NAME: str = "last_name"
 
 
 class BaseUser(BaseModel):

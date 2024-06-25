@@ -48,6 +48,52 @@ async def test_should_not_get_user(data_api: TestClient):
     assert response.status_code == 404
 
 
+async def test_get_all_users(data_api):
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+
+    response = await data_api.get("users")
+    assert response.status_code == 200
+
+    users = response.json()
+    assert len(users) == 2
+
+
+async def test_get_all_user_paging(data_api):
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+
+    response = await data_api.get("users")
+    assert response.status_code == 200
+
+    users = response.json()
+    assert len(users) == 2
+
+
+async def test_get_all_user_paging_with_limit(data_api):
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+
+    response = await data_api.get(f"users?limit=1")
+    assert response.status_code == 200
+
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["email"] == "test2@test.com"
+
+
+async def test_get_all_user_paging_with_limit_and_offset(data_api):
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+
+    response = await data_api.get(f"users?limit=1&offset=1")
+    assert response.status_code == 200
+
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["email"] == "test1@test.com"
+
+
 async def test_should_update_user(data_api: TestClient):
     item = await add_user(data_api)
 
