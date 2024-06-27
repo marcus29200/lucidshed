@@ -87,7 +87,7 @@ async def test_get_all_engineering_work_item(data_app):
 
 
 async def page_results(data_app, sort: Optional[str] = WorkItemSortableField.ID, limit: Optional[int] = 1000):
-    limit = 100
+    page_limit = 100
     pages = 0
     items = []
     cursor = None
@@ -98,7 +98,7 @@ async def page_results(data_app, sort: Optional[str] = WorkItemSortableField.ID,
         )
         items.extend(engineering_items)
 
-        if pages > limit:
+        if pages > page_limit:
             raise Exception("Too many pages, possible issue with cursor/paging")
 
         if not cursor:
