@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
@@ -14,6 +15,11 @@ router = APIRouter(
     tags=["organization"],
     dependencies=[],  # Depends(check_auth)]
 )
+
+
+class PagedResponse(BaseModel):
+    items: List[User]
+    cursor: Optional[str] = None
 
 
 @router.post("/", status_code=201, response_model=Organization)
@@ -63,17 +69,17 @@ async def get_organization_user(request: Request, id: str, user_id: str) -> User
     return user
 
 
-@router.get("/{id}/users", status_code=200, response_model=List[User])
+@router.get("/{id}/users", status_code=200, response_model=PagedResponse)
 async def get_all_organization_user(
     request: Request,
     id: str,
     sort: Optional[UserSortableField] = UserSortableField.EMAIL,
     limit: Optional[int] = 1000,
-    offset: Optional[int] = 0,
-) -> List[User]:
-    users = await request.app.user_controller.get_all(organization_id=id, sort=sort, limit=limit, offset=offset)
+    cursor: Optional[str] = None,
+) -> PagedResponse:
+    users, cursor = await request.app.user_controller.get_all(organization_id=id, sort=sort, limit=limit, cursor=cursor)
 
-    return users
+    return PagedResponse(items=users, cursor=cursor)
 
 
 @router.patch("/{id}/users/{user_id}/permissions", status_code=200, response_model=UserPermission)

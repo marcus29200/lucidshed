@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app.database.work_items.models.engineering_item import EngineeringItemType
 from tests.acceptance.api.routers.test_organization import add_organization
+from tests.acceptance.api.utils import page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -81,44 +82,12 @@ async def test_should_get_engineering_item(data_api: TestClient):
     assert engineering_item["id"] == item["id"]
 
 
-async def page_results(
-    data_api,
-    sort: Optional[str] = None,
-    limit: Optional[int] = 1000,
-):
-    page_limit = 100
-    pages = 0
-    items = []
-    cursor = None
-
-    while True:
-        response = await data_api.get(
-            f"test/engineering?sort={sort if sort else ''}&limit={limit}&cursor={cursor if cursor else ''}"
-        )
-        assert response.status_code == 200
-
-        data = response.json()
-
-        assert len(data["items"]) <= limit
-        items.extend(data.get("items") or [])
-
-        cursor = data.get("cursor")
-
-        if pages > page_limit:
-            raise Exception("Too many pages, possible issue with cursor/paging")
-
-        if not cursor:
-            break
-
-    return items
-
-
 async def test_should_get_engineering_items(data_api: TestClient):
     org = await add_organization(data_api)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    items = await page_results(data_api)
+    items = await page_results(data_api, "test/engineering")
 
     assert len(items) == 2
 
@@ -128,25 +97,7 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
 
-    response = await data_api.get("test/engineering?limit=1")
-    assert response.status_code == 200
-
-    data = response.json()
-
-    items = data["items"]
-    cursor = data["cursor"]
-    assert len(items) == 1
-    assert items[0]["title"] == "test1"
-
-    assert cursor
-
-
-async def test_should_get_all_engineering_item_limit_with_offset(data_api: TestClient):
-    org = await add_organization(data_api)
-    await add_engineering_item(data_api, org["id"], overrides={"title": "test1"})
-    await add_engineering_item(data_api, org["id"], overrides={"title": "test2"})
-
-    items = await page_results(data_api, limit=1)
+    items = await page_results(data_api, "test/engineering", limit=1)
 
     assert len(items) == 2
 
