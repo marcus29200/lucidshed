@@ -1,9 +1,9 @@
-from typing import Any, Dict, Tuple, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
 from app.exceptions.common import ObjectNotFoundException
-from app.api.utils import generate_cursor, parse_cursor
 
 
 class WorkItemController:

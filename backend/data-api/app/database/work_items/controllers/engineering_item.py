@@ -1,4 +1,4 @@
-from typing import Tuple, List, Optional
+from typing import List, Optional, Tuple
 
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
@@ -44,7 +44,7 @@ class EngineeringController(WorkItemController):
         self,
         *,
         organization_id: str,
-        sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
+        sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[EngineeringItem], str]:
@@ -52,7 +52,10 @@ class EngineeringController(WorkItemController):
             raise Exception("Invalid sort parameter")
 
         records, cursor = await super().get_all(
-            organization_id=organization_id, sort=sort.value, limit=limit, cursor=cursor
+            organization_id=organization_id,
+            sort=sort.value if sort else WorkItemSortableField.ID.value,
+            limit=limit,
+            cursor=cursor,
         )
 
         return [EngineeringItem(**record) for record in records], cursor

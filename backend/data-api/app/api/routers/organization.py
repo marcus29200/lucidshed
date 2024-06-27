@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Request
-from starlette.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.responses import JSONResponse
 
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField

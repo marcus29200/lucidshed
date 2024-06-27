@@ -47,13 +47,16 @@ class UserController:
         self,
         *,
         organization_id: Optional[str] = None,
-        sort: Optional[UserSortableField] = UserSortableField.EMAIL,
+        sort: Optional[UserSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[User], str]:
         offset = 0
         if cursor:
             sort, offset = parse_cursor(cursor)
+
+        if not sort:
+            sort = UserSortableField.EMAIL
 
         # Get item record here
         if organization_id:

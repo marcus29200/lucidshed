@@ -6,6 +6,7 @@ from app.database.work_items.controllers.engineering_item import WorkItemSortabl
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
+from tests.acceptance.database.utils import page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -77,34 +78,11 @@ async def test_get_all_engineering_work_item(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    engineering_items, cursor = await data_app.engineering_controller.get_all(organization_id="test")
+    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
 
-    assert len(engineering_items) == 2
-    assert isinstance(engineering_items[0], EngineeringItem)
-    assert isinstance(engineering_items[1], EngineeringItem)
-
-    assert cursor is None
-
-
-async def page_results(data_app, sort: Optional[str] = WorkItemSortableField.ID, limit: Optional[int] = 1000):
-    page_limit = 100
-    pages = 0
-    items = []
-    cursor = None
-
-    while True:
-        engineering_items, cursor = await data_app.engineering_controller.get_all(
-            organization_id="test", sort=sort, limit=limit, cursor=cursor
-        )
-        items.extend(engineering_items)
-
-        if pages > page_limit:
-            raise Exception("Too many pages, possible issue with cursor/paging")
-
-        if not cursor:
-            break
-
-    return items
+    assert len(items) == 2
+    assert isinstance(items[0], EngineeringItem)
+    assert isinstance(items[1], EngineeringItem)
 
 
 async def test_get_all_engineering_work_item_paging(data_app):
@@ -112,7 +90,7 @@ async def test_get_all_engineering_work_item_paging(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app, page_size=1)
+    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -125,7 +103,9 @@ async def _test_get_all_engineering_work_item_paging_sorting(data_app):
     await create_engineering_item(data_app, org.id, title="Test2")
     await create_engineering_item(data_app, org.id, title="Test1")
 
-    items = await page_results(data_app, sort=WorkItemSortableField.TITLE, page_size=1)
+    items = await page_results(
+        data_app.engineering_controller, organization_id="test", sort=WorkItemSortableField.TITLE, page_size=1
+    )
 
     assert len(items) == 2
     assert items[0].title == "Test1"

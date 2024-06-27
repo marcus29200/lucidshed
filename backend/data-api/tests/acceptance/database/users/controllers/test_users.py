@@ -1,8 +1,9 @@
-from typing import Dict, Optional
+from typing import Dict
 
 import pytest
 
-from app.database.users.models.user import BaseUser, User, UserSortableField
+from app.database.users.models.user import BaseUser, User
+from tests.acceptance.database.utils import page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -41,30 +42,11 @@ async def test_get_user(data_app):
     assert user.id
 
 
-async def page_results(data_app, sort: Optional[str] = UserSortableField.ID, limit: Optional[int] = 1000):
-    page_limit = 100
-    pages = 0
-    users = []
-    cursor = None
-
-    while True:
-        items, cursor = await data_app.user_controller.get_all(sort=sort, limit=limit, cursor=cursor)
-        users.extend(items)
-
-        if pages > page_limit:
-            raise Exception("Too many pages, possible issue with cursor/paging")
-
-        if not cursor:
-            break
-
-    return users
-
-
 async def test_get_all_users(data_app):
     await create_user(data_app, overrides={"email": "test1@test.com"})
     await create_user(data_app, overrides={"email": "test2@test.com"})
 
-    items = await page_results(data_app)
+    items = await page_results(data_app.user_controller)
 
     assert len(items) == 2
     assert isinstance(items[0], User)
@@ -75,7 +57,7 @@ async def test_get_all_user_paging(data_app):
     await create_user(data_app, overrides={"email": "test1@test.com"})
     await create_user(data_app, overrides={"email": "test2@test.com"})
 
-    items = await page_results(data_app, limit=1)
+    items = await page_results(data_app.user_controller, limit=1)
 
     assert len(items) == 2
     assert items[0].id != items[1].id
@@ -86,7 +68,7 @@ async def test_get_all_user_work_item_paging_sorting(data_app):
     await create_user(data_app, overrides={"email": "test2@test.com"})
     await create_user(data_app, overrides={"email": "test1@test.com"})
 
-    items = await page_results(data_app, limit=1)
+    items = await page_results(data_app.user_controller, limit=1)
 
     assert len(items) == 2
     assert items[0].email == "test1@test.com"
