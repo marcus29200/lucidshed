@@ -38,12 +38,14 @@ class UserController:
 
         return User(**record)
 
-    async def get(self, *, id: int, organization_id: Optional[str] = None):
+    async def get(self, *, id: Optional[str], organization_id: Optional[str] = None, email: Optional[str] = None):
+        identifier = email or id or "none"
+
         # Get item record here
         if organization_id:
-            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, id)
+            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, identifier)
         else:
-            record = await self.db.fetchrow(QUERIES["GET_USER"], id)
+            record = await self.db.fetchrow(QUERIES["GET_USER"], identifier)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)

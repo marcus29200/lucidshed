@@ -3,6 +3,7 @@ from typing import Dict
 import pytest
 
 from app.database.users.models.user import BaseUser, User
+from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.utils import page_results
 
 pytestmark = pytest.mark.asyncio
@@ -40,6 +41,21 @@ async def test_get_user(data_app):
     user = await data_app.user_controller.get(id=user.id)
 
     assert user.id
+
+
+async def test_get_user_by_email(data_app):
+    user = await create_user(data_app)
+
+    user = await data_app.user_controller.get(id=None, email="test@test.com")
+
+    assert user.id
+
+
+async def test_get_user_fails_if_no_id_or_email_provide(data_app):
+    await create_user(data_app)
+
+    with pytest.raises(ObjectNotFoundException):
+        await data_app.user_controller.get(id=None)
 
 
 async def test_get_all_users(data_app):
