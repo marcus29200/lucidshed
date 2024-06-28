@@ -23,6 +23,7 @@ class UserController:
             user.first_name,
             user.last_name,
             user.disabled,
+            user.get_hashed_password(),
             current_user,
             current_user,
             user.title,
@@ -97,6 +98,10 @@ class UserController:
 
         old_item_json.update(**new_item_json)
 
+        if new_item_json.get("password"):
+            # TODO validate password, and probably validate using some sort of validated token using email
+            old_item_json["password"] = updated_user.get_hashed_password()
+
         record = await self.db.fetchrow(
             QUERIES["UPDATE_USER"],
             id,
@@ -113,7 +118,8 @@ class UserController:
             old_item_json["location"],
             old_item_json["timezone"],
             old_item_json["bio"],
-            old_item_json["picture"]
+            old_item_json["picture"],
+            old_item_json["password"],
         )
 
         # TODO Create history entry

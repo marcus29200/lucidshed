@@ -10,7 +10,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_user(data_app, overrides: Dict[str, str] = {}) -> User:
-    user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester"}
+    user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester", "password": "test"}
     user_obj.update(**overrides)
 
     base_user = BaseUser(**user_obj)
@@ -33,6 +33,7 @@ async def test_create_user(data_app):
     assert user.last_name == "Tester"
     assert user.created_at
     assert user.modified_at
+    assert user.password
 
 
 async def test_get_user(data_app):
@@ -99,6 +100,16 @@ async def test_update_user(data_app):
 
     assert user.id
     assert user.first_name == "Test Updated"
+
+
+async def test_update_user_password(data_app):
+    user = await create_user(data_app)
+    old_password = user.password
+
+    user.password = "Test2"
+    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id)
+
+    assert user.password != old_password
 
 
 async def test_delete_user(data_app):

@@ -1,3 +1,4 @@
+import bcrypt
 import json
 from enum import StrEnum
 from typing import Optional
@@ -29,11 +30,18 @@ class BaseUser(BaseModel):
     timezone: Optional[str] = None
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
-    #TODO:
-    #preferences: (list of booleans indicating which options are enabled/disabled?)
-    #passwordManagement: (is this 2FA settings/SSO?)
-    #integrationPreferences: (how does this differ from preferences)
-    #skills: (list of strings?)
+    password: str = Field(None, return_in_api=False)  # Need to validate this
+    # TODO:
+    # preferences: (list of booleans indicating which options are enabled/disabled?)
+    # passwordManagement: (is this 2FA settings/SSO?)
+    # integrationPreferences: (how does this differ from preferences)
+    # skills: (list of strings?)
+
+    def get_hashed_password(self):
+        return bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+    def password_matches(self, password: str):
+        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
 
 
 class User(Model, BaseUser):

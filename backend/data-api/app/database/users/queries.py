@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     timezone VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
     picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE})
+    password VARCHAR(256)
 )
     """,
     f"""
@@ -47,6 +48,7 @@ INSERT INTO users
     first_name,
     last_name,
     disabled,
+    password,
     created_by_id,
     modified_by_id,
     title,
@@ -57,7 +59,7 @@ INSERT INTO users
     bio,
     picture
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 RETURNING *;
 """
 
@@ -65,7 +67,7 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL;
+SELECT * FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
 """
 
 USER_QUERIES[
@@ -93,7 +95,7 @@ SELECT
 FROM
     users
 WHERE
-    id = $2
+    (id = $2 or email = $2)
     AND deleted_at IS NULL
     AND EXISTS (
         SELECT 1
@@ -144,7 +146,8 @@ SET
     location = $12,
     timezone = $13,
     bio = $14,
-    picture = $15
+    picture = $15,
+    password = $16
 WHERE id = $1
 RETURNING *;
 """
