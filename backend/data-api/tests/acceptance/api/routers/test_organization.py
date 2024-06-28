@@ -4,37 +4,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.acceptance.api.routers.test_user import add_user
-from tests.acceptance.api.utils import page_results
+from tests.acceptance.api.utils import page_results, add_organization, add_organization_user
 
 pytestmark = pytest.mark.asyncio
-
-
-async def add_organization(
-    data_api: TestClient,
-    overrides: Optional[Dict[str, Any]] = {},
-    expected_status_code: Optional[int] = 201,
-):
-    data = {
-        "id": "test",
-        "title": "Test",
-    }
-    data.update(**overrides)
-
-    response = await data_api.post("", json=data)
-
-    assert response.status_code == expected_status_code
-
-    return response.json()
-
-
-async def add_organization_user(data_api: TestClient, organization_id: str):
-    response = await data_api.post(
-        f"{organization_id}/users",
-        json={"first_name": "Test", "permissions": {"engineering_permission_level": "admin"}},
-    )
-    assert response.status_code == 200
-
-    return response.json()
 
 
 async def test_should_add_organization(data_api: TestClient):

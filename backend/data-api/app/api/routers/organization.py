@@ -13,7 +13,7 @@ engineering_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["organization"],
-    dependencies=[],  # Depends(check_auth)]
+    dependencies=[],
 )
 
 

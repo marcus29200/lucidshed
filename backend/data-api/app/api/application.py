@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.user import router as user_router
+from app.api.routers.auth import router as auth_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
 from app.database.organizations.controllers.organization import OrganizationController
@@ -54,6 +55,7 @@ class DataApplication(FastAPI):
         self.settings = settings
 
         self.include_router(router)
+        self.include_router(auth_router, prefix="/auth")
         self.include_router(user_router, prefix="/users")
         self.include_router(organization_router, prefix="")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")

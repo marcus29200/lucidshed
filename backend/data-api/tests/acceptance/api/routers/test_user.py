@@ -1,26 +1,10 @@
-from typing import Any, Dict, Optional
-
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.utils import page_results
+from tests.acceptance.api.utils import add_user, page_results
 
 pytestmark = pytest.mark.asyncio
 
-
-async def add_user(
-    data_api: TestClient,
-    overrides: Optional[Dict[str, Any]] = {},
-    expected_status_code: Optional[int] = 201,
-):
-    data = {"first_name": "Test", "last_name": "Tester", "title": "Engineer", "team": "Operations", "phone": "123-456-7890", "location": "USA", "timezone": "EST", "bio": "I am an engineer", "picture": "SGVsbG8sIHdvcmxkIQ=="}
-    data.update(**overrides)
-
-    response = await data_api.post("users", json=data)
-
-    assert response.status_code == expected_status_code
-
-    return response.json()
 
 async def test_should_add_user(data_api: TestClient):
     user = await add_user(data_api)
@@ -39,7 +23,6 @@ async def test_should_add_user(data_api: TestClient):
     assert user["timezone"] == "EST"
     assert user["bio"] == "I am an engineer"
     assert user["picture"] == "SGVsbG8sIHdvcmxkIQ=="
-
 
 
 async def test_should_get_user(data_api: TestClient):
@@ -96,11 +79,12 @@ async def test_should_update_user(data_api: TestClient):
     item = response.json()
     assert item["first_name"] == "Test Updated"
 
+
 async def test_should_not_update_user_picture(data_api: TestClient):
     item = await add_user(data_api)
 
     test_too_long = "a" * 5000002
-    
+
     response = await data_api.patch(f"users/{item['id']}", json={"picture": f"{test_too_long}"})
     assert response.status_code == 422
 
