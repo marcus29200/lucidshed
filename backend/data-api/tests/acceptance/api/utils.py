@@ -9,48 +9,59 @@ expired_headers = {
 
 async def add_organization(
     data_api: TestClient,
+    headers: Optional[Dict[str, str]] = {},
     overrides: Optional[Dict[str, Any]] = {},
     expected_status_code: Optional[int] = 201,
 ):
     data = {"id": "test", "title": "Test"}
     data.update(**overrides)
 
-    response = await data_api.post("", json=data)
+    response = await data_api.post("", json=data, headers=headers)
 
     assert response.status_code == expected_status_code
 
     return response.json()
 
 
-async def add_organization_user(data_api: TestClient, organization_id: str):
-    response = await data_api.post(
-        f"{organization_id}/users",
-        json={
-            "first_name": "Test",
-            "last_name": "Tester",
-            "email": "test@test.com",
-            "password": "test",
-            "permissions": {"engineering_permission_level": "admin"},
-        },
-    )
+async def add_organization_user(
+    data_api: TestClient,
+    organization_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    headers: Optional[Dict[str, str]] = {},
+):
+    data = {
+        "first_name": "Test",
+        "last_name": "Tester",
+        "email": "test@test.com",
+        "password": "test",
+        "permissions": {"role": "admin"},
+    }
+    data.update(**overrides)
+
+    response = await data_api.post(f"{organization_id}/users", json=data, headers=headers)
     assert response.status_code == 200
 
     return response.json()
 
 
-async def authenticate(data_api, user_email: Optional[str] = "test@test.com"):
-    org = await add_organization(data_api)
-    user = await add_organization_user(data_api, organization_id=org["id"])
+async def authenticate(data_api, user_email: Optional[str] = "test@test.com", create_org: bool = True):
+    user = await add_user(data_api, {"email": user_email})
 
     response = await data_api.post("auth/login", json={"username": user_email, "password": "test", "scopes": []})
+    headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
 
-    return org, user, {"Authorization": f"Bearer {response.json()['access_token']}"}
+    org = None
+    if create_org:
+        org = await add_organization(data_api, headers=headers)
+
+    return org, user, headers
 
 
 async def add_user(
     data_api: TestClient,
     overrides: Optional[Dict[str, Any]] = {},
     expected_status_code: Optional[int] = 201,
+    headers: Optional[Dict[str, Any]] = {},
 ):
     data = {
         "first_name": "Test",
@@ -66,7 +77,7 @@ async def add_user(
     }
     data.update(**overrides)
 
-    response = await data_api.post("users", json=data)
+    response = await data_api.post("users", json=data, headers=headers)
 
     assert response.status_code == expected_status_code
 

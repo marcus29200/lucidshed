@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR({MAX_ID_LENGTH}),
     timezone VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
-    picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE})
-    password VARCHAR(256)
+    picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE}),
+    password VARCHAR(256),
+    super_admin BOOLEAN DEFAULT FALSE
 )
     """,
     f"""
@@ -29,8 +30,8 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     {BASE_MODEL_FIELDS},
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     disabled BOOLEAN DEFAULT FALSE,
-    engineering_permission_level VARCHAR({MAX_ID_LENGTH}),
-    support_permission_level VARCHAR({MAX_ID_LENGTH}),
+    role VARCHAR({MAX_ID_LENGTH}),
+    org_admin BOOLEAN DEFAULT FALSE,
     UNIQUE (organization_id, user_id),
     PRIMARY KEY (organization_id, user_id)
 )
@@ -172,12 +173,11 @@ INSERT INTO user_permissions
     id,
     user_id,
     disabled,
-    engineering_permission_level,
-    support_permission_level,
+    role,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 """
 
@@ -194,12 +194,11 @@ USER_QUERIES[
 UPDATE user_permissions
 SET
     disabled = $3,
-    engineering_permission_level = $4,
-    support_permission_level = $5,
+    role = $4,
     modified_at = NOW(),
-    modified_by_id = $6,
-    deleted_at = $7,
-    deleted_by_id = $8
+    modified_by_id = $5,
+    deleted_at = $6,
+    deleted_by_id = $7
 WHERE organization_id = $1 AND user_id = $2
 RETURNING *;
 """

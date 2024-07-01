@@ -31,6 +31,7 @@ class BaseUser(BaseModel):
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
     password: str = Field(None, return_in_api=False)  # Need to validate this
+    super_admin: bool = False
     # TODO:
     # preferences: (list of booleans indicating which options are enabled/disabled?)
     # passwordManagement: (is this 2FA settings/SSO?)
@@ -38,10 +39,11 @@ class BaseUser(BaseModel):
     # skills: (list of strings?)
 
     def get_hashed_password(self):
-        return bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        return bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8") if self.password else ""
 
     def password_matches(self, password: str):
-        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8"))
+        # TODO Will need to change when we have oauth probably
+        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8")) if self.password else False
 
 
 class User(Model, BaseUser):

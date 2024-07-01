@@ -4,27 +4,38 @@ import pytest
 from fastapi.testclient import TestClient
 
 from tests.acceptance.api.routers.test_user import add_user
-from tests.acceptance.api.utils import page_results, add_organization, add_organization_user
+from tests.acceptance.api.utils import authenticate, page_results, add_organization, add_organization_user
 
 pytestmark = pytest.mark.asyncio
 
+# TODO add unauthed tests for orgs
+
 
 async def test_should_add_organization(data_api: TestClient):
-    organization = await add_organization(data_api)
+    _, user, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
 
     assert organization["id"] == "test"
     assert organization["title"] == "Test"
     assert organization["created_at"]
-    assert organization["created_by_id"] == "test@test.com"
+    assert organization["created_by_id"] == user["id"]
     assert organization["modified_at"]
-    assert organization["modified_by_id"] == "test@test.com"
+    assert organization["modified_by_id"] == user["id"]
+
+    # Check to make sure current user was granted access
+    response = await data_api.get(f"{organization['id']}/users/{user['id']}", headers=headers)
+    assert response.status_code == 200
+
+    user = response.json()
+    assert user["id"]
 
 
 async def test_should_get_organization(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
     assert item["id"] == "test"
 
-    response = await data_api.get(f"{item['id']}")
+    response = await data_api.get(f"{item['id']}", headers=headers)
     assert response.status_code == 200
 
     organization = response.json()
@@ -32,37 +43,44 @@ async def test_should_get_organization(data_api: TestClient):
 
 
 async def test_should_not_get_organization(data_api: TestClient):
-    response = await data_api.get("test")
+    _, _, headers = await authenticate(data_api, create_org=False)
+
+    response = await data_api.get("test", headers=headers)
     assert response.status_code == 404
 
 
 async def test_should_update_organization(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
     assert item["title"] == "Test"
 
-    response = await data_api.patch(f"{item['id']}", json={"title": "Test Updated"})
+    response = await data_api.patch(f"{item['id']}", json={"title": "Test Updated"}, headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.get(item["id"])
+    response = await data_api.get(item["id"], headers=headers)
     organization = response.json()
     assert organization["title"] == "Test Updated"
 
 
 async def test_should_delete_organization(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    response = await data_api.delete(f"{item['id']}")
+    response = await data_api.delete(f"{item['id']}", headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.get(f"{item['id']}")
+    response = await data_api.get(f"{item['id']}", headers=headers)
     assert response.status_code == 404
 
 
 async def test_add_organization_user(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
     response = await data_api.post(
-        f"{item['id']}/users", json={"first_name": "Test", "permissions": {"engineering_permission_level": "admin"}}
+        f"{item['id']}/users",
+        json={"first_name": "Test", "permissions": {"role": "admin"}},
+        headers=headers,
     )
     assert response.status_code == 200
 
@@ -71,32 +89,33 @@ async def test_add_organization_user(data_api: TestClient):
     assert user["id"]
     assert user["permissions"]["user_id"] == user["id"]
     assert user["permissions"]["organization_id"] == item["id"]
-    assert user["permissions"]["engineering_permission_level"] == "admin"
+    assert user["permissions"]["role"] == "admin"
 
 
 async def test_get_organization_user(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    user = await add_organization_user(data_api, item["id"])
+    user = await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    response = await data_api.get(f"{item['id']}/users/{user['id']}")
+    response = await data_api.get(f"{item['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 200
 
     user = response.json()
     assert user["id"]
     assert user["permissions"]["user_id"] == user["id"]
     assert user["permissions"]["organization_id"] == item["id"]
-    assert user["permissions"]["engineering_permission_level"] == "admin"
+    assert user["permissions"]["role"] == "admin"
 
 
 async def test_get_organization_users(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    await add_organization_user(data_api, item["id"])
-    await add_organization_user(data_api, item["id"])
-    await add_user(data_api)
+    await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
+    await add_user(data_api, overrides={"email": "test3@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users")
+    users = await page_results(data_api, "test/users", headers=headers)
 
     assert len(users) == 2
 
@@ -106,64 +125,67 @@ async def test_get_organization_users(data_api: TestClient):
 
 
 async def test_get_organization_users_with_limit(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    await add_organization_user(data_api, item["id"])
-    await add_organization_user(data_api, item["id"])
+    await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users", limit=1)
+    users = await page_results(data_api, "test/users", limit=1, headers=headers)
 
     assert len(users) == 2
 
 
 async def test_get_organization_users_with_limit_and_offset(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    await add_organization_user(data_api, item["id"])
-    await add_organization_user(data_api, item["id"])
+    await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users", limit=1)
+    users = await page_results(data_api, "test/users", limit=1, headers=headers)
 
     assert len(users) == 2
     assert users[0]["id"] != users[1]["id"]
 
 
 async def test_update_organization_users_permission(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    user = await add_organization_user(data_api, item["id"])
+    user = await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
     response = await data_api.patch(
-        f"{item['id']}/users/{user['id']}/permissions", json={"engineering_permission_level": "member"}
+        f"{item['id']}/users/{user['id']}/permissions", json={"role": "member"}, headers=headers
     )
     assert response.status_code == 200
 
     user_permissions = response.json()
-    assert user_permissions["engineering_permission_level"] == "member"
+    assert user_permissions["role"] == "member"
 
 
 async def test_delete_organization_user(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    user = await add_organization_user(data_api, item["id"])
+    user = await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    response = await data_api.delete(f"{item['id']}/users/{user['id']}")
+    response = await data_api.delete(f"{item['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.get(f"{item['id']}/users/{user['id']}")
+    response = await data_api.get(f"{item['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 404
 
 
 async def test_delete_organization_user_doesnt_delete_user_entirely(data_api: TestClient):
-    item = await add_organization(data_api)
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
 
-    user = await add_organization_user(data_api, item["id"])
+    user = await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    response = await data_api.delete(f"{item['id']}/users/{user['id']}")
+    response = await data_api.delete(f"{item['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.get(f"{item['id']}/users/{user['id']}")
+    response = await data_api.get(f"{item['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 404
 
-    response = await data_api.get(f"users/{user['id']}")
+    response = await data_api.get(f"users/{user['id']}", headers=headers)
     assert response.status_code == 200

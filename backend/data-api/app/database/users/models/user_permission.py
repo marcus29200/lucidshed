@@ -1,12 +1,12 @@
 from enum import StrEnum
-from typing import Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
 from app.database.common.models import Model
 
 
-class UserPermissionType(StrEnum):
+class UserRoleType(StrEnum):
     ADMIN: str = "admin"
     MEMBER: str = "member"
     GUEST: str = "guest"
@@ -16,8 +16,7 @@ class BaseUserPermission(BaseModel):
     organization_id: Optional[str] = None
     user_id: Optional[str] = None
     disabled: Optional[bool] = False
-    engineering_permission_level: Optional[UserPermissionType] = None
-    support_permission_level: Optional[UserPermissionType] = None
+    role: Optional[UserRoleType] = None
 
 
 class UserPermission(Model, BaseUserPermission):

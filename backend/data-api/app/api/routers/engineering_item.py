@@ -12,7 +12,7 @@ engineering_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["engineering"],
-    dependencies=[Security(get_current_user, scopes=["organization", "engineering", "member"])],
+    dependencies=[Security(get_current_user, scopes=["member"])],
 )
 
 
