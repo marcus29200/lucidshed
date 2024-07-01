@@ -28,6 +28,7 @@ class UserController:
             user.team,
             user.phone,
             user.location,
+            user.timezone,
             user.bio,
             user.picture
         )

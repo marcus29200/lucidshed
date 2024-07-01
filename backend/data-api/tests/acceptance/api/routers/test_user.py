@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 
 import pytest
 from fastapi.testclient import TestClient
+from asyncpg.exceptions import CheckViolationError
 
 pytestmark = pytest.mark.asyncio
 
@@ -11,7 +12,7 @@ async def add_user(
     overrides: Optional[Dict[str, Any]] = {},
     expected_status_code: Optional[int] = 201,
 ):
-    data = {"first_name": "Test", "last_name": "Tester"}
+    data = {"first_name": "Test", "last_name": "Tester", "title": "Engineer", "team": "Operations", "phone": "123-456-7890", "location": "USA", "timezone": "EST", "bio": "I am an engineer", "picture": "SGVsbG8sIHdvcmxkIQ=="}
     data.update(**overrides)
 
     response = await data_api.post("users", json=data)
@@ -19,7 +20,6 @@ async def add_user(
     assert response.status_code == expected_status_code
 
     return response.json()
-
 
 async def test_should_add_user(data_api: TestClient):
     user = await add_user(data_api)
@@ -31,6 +31,14 @@ async def test_should_add_user(data_api: TestClient):
     assert user["created_by_id"] == "test@test.com"
     assert user["modified_at"]
     assert user["modified_by_id"] == "test@test.com"
+    assert user["title"] == "Engineer"
+    assert user["team"] == "Operations"
+    assert user["phone"] == "123-456-7890"
+    assert user["location"] == "USA"
+    assert user["timezone"] == "EST"
+    assert user["bio"] == "I am an engineer"
+    assert user["picture"] == "SGVsbG8sIHdvcmxkIQ=="
+
 
 
 async def test_should_get_user(data_api: TestClient):
@@ -56,6 +64,17 @@ async def test_should_update_user(data_api: TestClient):
 
     item = response.json()
     assert item["first_name"] == "Test Updated"
+
+async def test_should_not_update_user_picture(data_api: TestClient):
+    item = await add_user(data_api)
+
+    test_too_long = "a" * 5000002
+    try:
+        response = await data_api.patch(f"users/{item['id']}", json={"picture": f"{test_too_long}"})
+    except CheckViolationError as e:
+        response = {"status_code": 422}
+
+    assert response["status_code"] == 422
 
 
 async def test_should_delete_user(data_api: TestClient):

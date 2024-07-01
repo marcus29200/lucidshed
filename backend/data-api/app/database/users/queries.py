@@ -16,8 +16,9 @@ CREATE TABLE IF NOT EXISTS users (
     team VARCHAR({MAX_ID_LENGTH}),
     phone VARCHAR({MAX_ID_LENGTH}),
     location VARCHAR({MAX_ID_LENGTH}),
+    timezone VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
-    picture BYTEA CHECK (OCTET_LENGTH(data) <= 5000000)
+    picture BYTEA CHECK (OCTET_LENGTH(picture) <= 5000000)
 )
     """,
     f"""
@@ -52,10 +53,11 @@ INSERT INTO users
     team,
     phone,
     location,
+    timezone,
     bio,
     picture
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 """
 
