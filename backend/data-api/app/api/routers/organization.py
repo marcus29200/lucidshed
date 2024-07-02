@@ -27,7 +27,7 @@ class PagedResponse(BaseModel):
     "/",
     status_code=201,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes="authenticated")],
+    dependencies=[Security(get_current_user, scopes=["authenticated"])],
 )
 async def add_organization(
     request: Request,
@@ -48,39 +48,39 @@ async def add_organization(
 
 
 @router.get(
-    "/{id}",
+    "/{organization_id}",
     status_code=200,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes="member")],
+    dependencies=[Security(get_current_user, scopes=["member"])],
 )
-async def get_organization(request: Request, id: str) -> Organization:
-    return await request.app.organization_controller.get(id=id)
+async def get_organization(request: Request, organization_id: str) -> Organization:
+    return await request.app.organization_controller.get(id=organization_id)
 
 
 @router.patch(
-    "/{id}",
+    "/{organization_id}",
     status_code=200,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def update_organization(request: Request, id: str, body: BaseOrganization) -> Organization:
+async def update_organization(request: Request, organization_id: str, body: BaseOrganization) -> Organization:
     return await request.app.organization_controller.update(
-        id=id, updated_organization=body, current_user=request.state.user.id
+        id=organization_id, updated_organization=body, current_user=request.state.user.id
     )
 
 
-@router.delete("/{id}", status_code=200, dependencies=[Security(get_current_user, scopes="admin")])
-async def delete_organization(request: Request, id: str):
-    return await request.app.organization_controller.delete(id=id, current_user=request.state.user.id)
+@router.delete("/{organization_id}", status_code=200, dependencies=[Security(get_current_user, scopes=["admin"])])
+async def delete_organization(request: Request, organization_id: str):
+    return await request.app.organization_controller.delete(id=organization_id, current_user=request.state.user.id)
 
 
 @router.post(
-    "/{id}/users",
+    "/{organization_id}/users",
     status_code=200,
     response_model=User,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def add_organization_user(request: Request, id: str, body: BaseUser) -> User:
+async def add_organization_user(request: Request, organization_id: str, body: BaseUser) -> User:
     if not body.permissions:
         # TODO Raise a useful exception here if no permissions were defined
         raise Exception()
@@ -89,7 +89,7 @@ async def add_organization_user(request: Request, id: str, body: BaseUser) -> Us
 
     body.permissions.user_id = user.id
     user_permission = await request.app.user_permission_controller.create(
-        organization_id=id, user_permission=body.permissions, current_user=request.state.user.id
+        organization_id=organization_id, user_permission=body.permissions, current_user=request.state.user.id
     )
 
     user.permissions = user_permission
@@ -98,57 +98,59 @@ async def add_organization_user(request: Request, id: str, body: BaseUser) -> Us
 
 
 @router.get(
-    "/{id}/users/{user_id}",
+    "/{organization_id}/users/{user_id}",
     status_code=200,
     response_model=User,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def get_organization_user(request: Request, id: str, user_id: str) -> User:
-    user = await request.app.user_controller.get(id=user_id, organization_id=id)
+async def get_organization_user(request: Request, organization_id: str, user_id: str) -> User:
+    user = await request.app.user_controller.get(id=user_id, organization_id=organization_id)
 
     return user
 
 
 @router.get(
-    "/{id}/users",
+    "/{organization_id}/users",
     status_code=200,
     response_model=PagedResponse,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
 async def get_organization_users(
     request: Request,
-    id: str,
+    organization_id: str,
     sort: Optional[UserSortableField] = UserSortableField.EMAIL,
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> PagedResponse:
-    users, cursor = await request.app.user_controller.get_all(organization_id=id, sort=sort, limit=limit, cursor=cursor)
+    users, cursor = await request.app.user_controller.get_all(
+        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
+    )
 
     return PagedResponse(items=users, cursor=cursor)
 
 
 @router.patch(
-    "/{id}/users/{user_id}/permissions",
+    "/{organization_id}/users/{user_id}/permissions",
     status_code=200,
     response_model=UserPermission,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
 async def update_organization_user_permissions(
-    request: Request, id: str, user_id: str, body: BaseUserPermission
+    request: Request, organization_id: str, user_id: str, body: BaseUserPermission
 ) -> User:
     return await request.app.user_permission_controller.update(
-        id=user_id, organization_id=id, updated_user_permission=body, current_user=request.state.user.id
+        id=user_id, organization_id=organization_id, updated_user_permission=body, current_user=request.state.user.id
     )
 
 
 @router.delete(
-    "/{id}/users/{user_id}",
+    "/{organization_id}/users/{user_id}",
     status_code=200,
-    dependencies=[Security(get_current_user, scopes="admin")],
+    dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def delete_organization_user(request: Request, id: str, user_id: str) -> None:
+async def delete_organization_user(request: Request, organization_id: str, user_id: str) -> None:
     result = await request.app.user_permission_controller.delete(
-        id=user_id, organization_id=id, current_user=request.state.user.id
+        id=user_id, organization_id=organization_id, current_user=request.state.user.id
     )
 
     if not result:
