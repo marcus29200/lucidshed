@@ -8,11 +8,13 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
+
 class UserController:
     def __init__(self, db: DatabaseController):
         self.db: DatabaseController = db
 
     async def create(self, *, user: BaseUser, current_user: str):
+
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],
@@ -23,6 +25,13 @@ class UserController:
             user.disabled,
             current_user,
             current_user,
+            user.title,
+            user.team,
+            user.phone,
+            user.location,
+            user.timezone,
+            user.bio,
+            user.picture
         )
 
         # TODO Create history entry
@@ -96,6 +105,13 @@ class UserController:
             current_user,
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],
+            old_item_json["title"],
+            old_item_json["team"],
+            old_item_json["phone"],
+            old_item_json["location"],
+            old_item_json["timezone"],
+            old_item_json["bio"],
+            old_item_json["picture"]
         )
 
         # TODO Create history entry

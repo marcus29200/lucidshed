@@ -11,7 +11,14 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR({MAX_ID_LENGTH}) UNIQUE,
     first_name VARCHAR({MAX_ID_LENGTH}),
     last_name VARCHAR({MAX_ID_LENGTH}),
-    disabled BOOLEAN DEFAULT FALSE
+    disabled BOOLEAN DEFAULT FALSE,
+    title VARCHAR({MAX_ID_LENGTH}),
+    team VARCHAR({MAX_ID_LENGTH}),
+    phone VARCHAR({MAX_ID_LENGTH}),
+    location VARCHAR({MAX_ID_LENGTH}),
+    timezone VARCHAR({MAX_ID_LENGTH}),
+    bio VARCHAR({MAX_ID_LENGTH}),
+    picture BYTEA CHECK (OCTET_LENGTH(picture) <= 5000000)
 )
     """,
     f"""
@@ -41,9 +48,16 @@ INSERT INTO users
     last_name,
     disabled,
     created_by_id,
-    modified_by_id
+    modified_by_id,
+    title,
+    team,
+    phone,
+    location,
+    timezone,
+    bio,
+    picture
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 """
 
@@ -123,7 +137,14 @@ SET
     modified_at = NOW(),
     modified_by_id = $6,
     deleted_at = $7,
-    deleted_by_id = $8
+    deleted_by_id = $8,
+    title = $9,
+    team = $10,
+    phone = $11,
+    location = $12,
+    timezone = $13,
+    bio = $14,
+    picture = $15
 WHERE id = $1
 RETURNING *;
 """
