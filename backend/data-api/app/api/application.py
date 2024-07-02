@@ -15,7 +15,7 @@ from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
-from asyncpg.exceptions import UniqueViolationError
+from asyncpg.exceptions import UniqueViolationError, CheckViolationError
 
 router = APIRouter()
 
@@ -58,6 +58,7 @@ class DataApplication(FastAPI):
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
+        self.add_exception_handler(CheckViolationError, self.too_large_handler)
 
     async def __aenter__(self):
         await self.init()
@@ -85,5 +86,7 @@ class DataApplication(FastAPI):
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
 
+    async def too_large_handler(self, request: Request, exc: CheckViolationError):
+        return JSONResponse(status_code=422, content={"detail": f"{exc.message}"})
 
 app = DataApplication(Settings())

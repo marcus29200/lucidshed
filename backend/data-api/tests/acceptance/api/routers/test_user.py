@@ -2,7 +2,6 @@ from typing import Any, Dict, Optional
 
 import pytest
 from fastapi.testclient import TestClient
-from asyncpg.exceptions import CheckViolationError
 
 pytestmark = pytest.mark.asyncio
 
@@ -69,12 +68,9 @@ async def test_should_not_update_user_picture(data_api: TestClient):
     item = await add_user(data_api)
 
     test_too_long = "a" * 5000002
-    try:
-        response = await data_api.patch(f"users/{item['id']}", json={"picture": f"{test_too_long}"})
-    except CheckViolationError as e:
-        response = {"status_code": 422}
-
-    assert response["status_code"] == 422
+    
+    response = await data_api.patch(f"users/{item['id']}", json={"picture": f"{test_too_long}"})
+    assert response.status_code == 422
 
 
 async def test_should_delete_user(data_api: TestClient):
