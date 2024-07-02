@@ -1,12 +1,11 @@
 import logging
+
 from fastapi import APIRouter, HTTPException, Request
 
-from app.api.models.users import Token, LoginRequest
-from app.exceptions.common import ObjectNotFoundException
-
 from app.api.dependencies.authorization import authenticate_user, create_access_token
-
+from app.api.models.users import LoginRequest, Token
 from app.database.users.models.user import User
+from app.exceptions.common import ObjectNotFoundException
 
 logger = logging.getLogger(__name__)
 

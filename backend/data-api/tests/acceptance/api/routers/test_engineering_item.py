@@ -4,7 +4,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.database.work_items.models.engineering_item import EngineeringItemType
-from tests.acceptance.api.routers.test_organization import add_organization
 from tests.acceptance.api.utils import authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio

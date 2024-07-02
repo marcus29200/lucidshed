@@ -1,8 +1,7 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 
 from tests.acceptance.api.routers.test_user import add_user
-
 
 pytestmark = pytest.mark.asyncio
 

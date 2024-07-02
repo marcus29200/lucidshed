@@ -4,10 +4,10 @@ from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
+from app.api.dependencies.authorization import get_current_user
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
-from app.api.dependencies.authorization import get_current_user
 
 engineering_item_router = APIRouter
 

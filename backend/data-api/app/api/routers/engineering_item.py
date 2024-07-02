@@ -3,9 +3,9 @@ from typing import List, Optional
 from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 
+from app.api.dependencies.authorization import get_current_user
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 from app.database.work_items.models.work_item import WorkItemSortableField
-from app.api.dependencies.authorization import get_current_user
 
 engineering_item_router = APIRouter
 

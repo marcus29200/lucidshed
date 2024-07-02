@@ -1,6 +1,10 @@
-from typing import Optional
+import os
+from typing import List, Optional
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
+from starlette.config import Config
+from starlette.datastructures import CommaSeparatedStrings
 
 
 class Settings(BaseModel):
@@ -9,13 +13,6 @@ class Settings(BaseModel):
 
     database_dsn: Optional[str] = "postgres://postgres:password@localhost:5432/data-api?sslmode=disable"
 
-
-import os
-from typing import List
-
-from dotenv import load_dotenv
-from starlette.config import Config
-from starlette.datastructures import CommaSeparatedStrings
 
 load_dotenv(".env")
 

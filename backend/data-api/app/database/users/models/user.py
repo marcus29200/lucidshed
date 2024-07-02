@@ -1,11 +1,11 @@
-import bcrypt
 import json
 from enum import StrEnum
 from typing import Optional
 
+import bcrypt
 from pydantic import BaseModel, Field
 
-from app.database.common.models import Model, MAX_IMAGE_SIZE
+from app.database.common.models import MAX_IMAGE_SIZE, Model
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 

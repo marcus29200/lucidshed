@@ -1,5 +1,5 @@
-from uuid import uuid4
 from typing import List
+from uuid import uuid4
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController

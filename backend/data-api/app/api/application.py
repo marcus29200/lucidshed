@@ -1,4 +1,3 @@
-from asyncpg.exceptions import UniqueViolationError, CheckViolationError
 from contextvars import ContextVar
 from typing import Optional
 
@@ -7,10 +6,10 @@ from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from app.api.routers.auth import router as auth_router
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.user import router as user_router
-from app.api.routers.auth import router as auth_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
 from app.database.organizations.controllers.organization import OrganizationController
@@ -18,9 +17,6 @@ from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
-
-from asyncpg.exceptions import UniqueViolationError
-
 
 router = APIRouter()
 
@@ -91,5 +87,6 @@ class DataApplication(FastAPI):
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
+
 
 app = DataApplication(Settings())

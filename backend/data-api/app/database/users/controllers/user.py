@@ -8,7 +8,6 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
-
 class UserController:
     def __init__(self, db: DatabaseController):
         self.db: DatabaseController = db
@@ -32,7 +31,7 @@ class UserController:
             user.location,
             user.timezone,
             user.bio,
-            user.picture
+            user.picture,
         )
 
         # TODO Create history entry

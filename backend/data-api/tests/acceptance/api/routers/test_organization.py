@@ -1,15 +1,13 @@
-from typing import Any, Dict, Optional
-
 import pytest
 from fastapi.testclient import TestClient
 
 from tests.acceptance.api.routers.test_user import add_user
 from tests.acceptance.api.utils import (
-    authenticate,
-    page_results,
     add_organization,
     add_organization_user,
+    authenticate,
     expired_headers,
+    page_results,
 )
 
 pytestmark = pytest.mark.asyncio
@@ -263,7 +261,7 @@ async def test_get_organization_users(data_api: TestClient):
 
 async def test_should_not_get_organization_users_with_expired_token(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
-    item = await add_organization(data_api, headers=headers)
+    await add_organization(data_api, headers=headers)
 
     await page_results(data_api, "test/users", headers=expired_headers, expected_status_code=401)
 
@@ -358,8 +356,7 @@ async def test_member_should_not_delete_organization_user_permission(data_api: T
     _, user, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
 
-
-    member_headers = await authenticate_as_member(data_api, item['id'], headers=headers)
+    member_headers = await authenticate_as_member(data_api, item["id"], headers=headers)
 
     response = await data_api.delete(f"{item['id']}/users/{user['id']}", headers=member_headers)
     assert response.status_code == 401

@@ -1,20 +1,18 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from jwt import decode, encode
-from jwt.exceptions import ExpiredSignatureError
 from fastapi import HTTPException, Request
 from fastapi.security import SecurityScopes
+from jwt import decode, encode
+from jwt.exceptions import ExpiredSignatureError
 from passlib.exc import InvalidTokenError
 from pydantic import ValidationError
 
 from app.api.models.users import TokenData
+from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
 from app.exceptions.common import ObjectNotFoundException
-from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
-
-from app.database.users.models.user import User
-
 
 PERMISSION_LEVELS = {
     UserRoleType.ADMIN: 3,
