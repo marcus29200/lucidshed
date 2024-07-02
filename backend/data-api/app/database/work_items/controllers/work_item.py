@@ -1,5 +1,6 @@
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple
 
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
 from app.exceptions.common import ObjectNotFoundException
@@ -20,6 +21,27 @@ class WorkItemController:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
 
         return record
+
+    async def get_all(
+        self,
+        *,
+        organization_id: str,
+        sort: Optional[str] = "id",
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None
+    ) -> Tuple[List[Dict[str, Any]], str]:
+        offset = 0
+        if cursor:
+            sort, offset = parse_cursor(cursor)
+
+        # Get item record here
+        records = await self.db.fetch(QUERIES["GET_ALL_ENGINEERING_ITEM"], organization_id, sort, limit, offset)
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit)
+
+        return records, cursor
 
     async def update(self, obj: Any):
         raise NotImplementedError()

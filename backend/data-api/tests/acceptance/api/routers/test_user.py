@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.acceptance.api.utils import page_results
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -53,6 +55,36 @@ async def test_should_get_user(data_api: TestClient):
 async def test_should_not_get_user(data_api: TestClient):
     response = await data_api.get("users/0")
     assert response.status_code == 404
+
+
+async def test_get_all_users(data_api):
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+
+    response = await data_api.get("users")
+    assert response.status_code == 200
+
+    users = response.json()
+    assert len(users) == 2
+
+
+async def test_get_all_user_paging(data_api):
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+
+    users = await page_results(data_api, "users")
+
+    assert len(users) == 2
+
+
+async def test_get_all_user_paging_with_limit(data_api):
+    await add_user(data_api, overrides={"email": "test2@test.com"})
+    await add_user(data_api, overrides={"email": "test1@test.com"})
+
+    users = await page_results(data_api, "users", limit=1)
+
+    assert len(users) == 2
+    assert users[0]["email"] == "test2@test.com"
 
 
 async def test_should_update_user(data_api: TestClient):

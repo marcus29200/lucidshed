@@ -66,6 +66,20 @@ WORK_ITEM_QUERIES[
 SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
 """
 
+
+WORK_ITEM_QUERIES[
+    "GET_ALL_ENGINEERING_ITEM"
+] = """
+SELECT * FROM engineering_items
+WHERE
+    organization_id = $1
+    AND deleted_at IS NULL
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
+"""
+
+
 WORK_ITEM_QUERIES[
     "UPDATE_ENGINEERING_ITEM"
 ] = """

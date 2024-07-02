@@ -1,8 +1,8 @@
+from datetime import datetime
 from enum import StrEnum
 from typing import List, Optional
 
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
-from datetime import datetime
 
 
 class EngineeringItemType(StrEnum):

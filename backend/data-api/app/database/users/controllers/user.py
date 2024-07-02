@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import List, Optional, Tuple
 from uuid import uuid4
 
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
-from app.database.users.models.user import BaseUser, User
+from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
@@ -51,16 +52,34 @@ class UserController:
 
         return User(**record)
 
-    async def get_all(self, *, organization_id: Optional[str] = None):
+    async def get_all(
+        self,
+        *,
+        organization_id: Optional[str] = None,
+        sort: Optional[UserSortableField] = None,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
+    ) -> Tuple[List[User], str]:
+        offset = 0
+        if cursor:
+            sort, offset = parse_cursor(cursor)
+
+        if not sort:
+            sort = UserSortableField.EMAIL
+
         # Get item record here
         if organization_id:
-            records = await self.db.fetch(QUERIES["GET_ORGANIZATION_USERS"], organization_id)
+            records = await self.db.fetch(QUERIES["GET_ORGANIZATION_USERS"], organization_id, sort, limit, offset)
         else:
-            records = await self.db.fetch(QUERIES["GET_USERS"])
+            records = await self.db.fetch(QUERIES["GET_USERS"], sort, limit, offset)
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit)
 
         # TODO Create history
 
-        return [User(**record) for record in records]
+        return [User(**record) for record in records], cursor
 
     async def update(
         self,
