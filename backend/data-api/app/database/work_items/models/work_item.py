@@ -1,10 +1,20 @@
 from datetime import datetime
-from typing import Optional
 from enum import StrEnum
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
 from app.database.common.models import MAX_ID_LENGTH, Model
+
+
+class WorkItemSortableField(StrEnum):
+    ID: str = "id"
+    TITLE: str = "title"
+    STATUS: str = "status"
+    PRIORITY: str = "priority"
+    DUE_DATE: str = "due_date"
+    CREATED_AT: str = "created_at"
+    MODIFIED_AT: str = "modified_at"
 
 
 class Priority(StrEnum):
@@ -22,7 +32,7 @@ class CheckinFrequency(StrEnum):
 
 
 class BaseWorkItem(BaseModel):
-    title: Optional[str] = ""
+    title: Optional[str] = Field("", max_length=40)
     description: Optional[str] = ""
     status: Optional[str] = None
     priority: Optional[Priority] = None

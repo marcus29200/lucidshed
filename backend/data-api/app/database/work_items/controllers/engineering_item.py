@@ -1,10 +1,15 @@
+from typing import List, Optional, Tuple
+
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
+from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class EngineeringController(WorkItemController):
-    async def create(self, *, organization_id: str, new_engineering_item: BaseEngineeringItem, current_user: str):
+    async def create(
+        self, *, organization_id: str, new_engineering_item: BaseEngineeringItem, current_user: str
+    ) -> EngineeringItem:
         # Create db record
         # How do we handle if completed is set right away?
         record = await self.db.fetchrow(
@@ -30,10 +35,30 @@ class EngineeringController(WorkItemController):
 
         return EngineeringItem(**record)
 
-    async def get(self, *, organization_id: str, id: int):
+    async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
         record = await super().get(organization_id=organization_id, id=id)
 
         return EngineeringItem(**record)
+
+    async def get_all(
+        self,
+        *,
+        organization_id: str,
+        sort: Optional[WorkItemSortableField] = None,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
+    ) -> Tuple[List[EngineeringItem], str]:
+        if sort and sort not in WorkItemSortableField:
+            raise Exception("Invalid sort parameter")
+
+        records, cursor = await super().get_all(
+            organization_id=organization_id,
+            sort=sort.value if sort else WorkItemSortableField.ID.value,
+            limit=limit,
+            cursor=cursor,
+        )
+
+        return [EngineeringItem(**record) for record in records], cursor
 
     async def update(
         self,
@@ -42,7 +67,7 @@ class EngineeringController(WorkItemController):
         id: str,
         updated_engineering_item: EngineeringItem,
         current_user: str,
-    ):
+    ) -> EngineeringItem:
         old_engineering_item = await self.get(organization_id=organization_id, id=id)
 
         new_item_json = updated_engineering_item.model_dump(exclude_unset=True)

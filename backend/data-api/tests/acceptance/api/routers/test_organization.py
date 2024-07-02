@@ -3,6 +3,9 @@ from typing import Any, Dict, Optional
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.acceptance.api.routers.test_user import add_user
+from tests.acceptance.api.utils import page_results
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -119,16 +122,38 @@ async def test_get_organization_users(data_api: TestClient):
 
     await add_organization_user(data_api, item["id"])
     await add_organization_user(data_api, item["id"])
+    await add_user(data_api)
 
-    response = await data_api.get(f"{item['id']}/users")
-    assert response.status_code == 200
+    users = await page_results(data_api, "test/users")
 
-    users = response.json()
     assert len(users) == 2
 
     for user in users:
         assert user["id"]
         assert user["permissions"]
+
+
+async def test_get_organization_users_with_limit(data_api: TestClient):
+    item = await add_organization(data_api)
+
+    await add_organization_user(data_api, item["id"])
+    await add_organization_user(data_api, item["id"])
+
+    users = await page_results(data_api, "test/users", limit=1)
+
+    assert len(users) == 2
+
+
+async def test_get_organization_users_with_limit_and_offset(data_api: TestClient):
+    item = await add_organization(data_api)
+
+    await add_organization_user(data_api, item["id"])
+    await add_organization_user(data_api, item["id"])
+
+    users = await page_results(data_api, "test/users", limit=1)
+
+    assert len(users) == 2
+    assert users[0]["id"] != users[1]["id"]
 
 
 async def test_update_organization_users_permission(data_api: TestClient):
