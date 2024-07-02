@@ -29,6 +29,6 @@ async def login_for_access_token(request: Request, body: LoginRequest) -> Token:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token = create_access_token(data={"subject": user.email, "scopes": body.scopes})
+    access_token = create_access_token(data={"subject": user.email})
 
     return Token(access_token=access_token, token_type="bearer")

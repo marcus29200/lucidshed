@@ -1,4 +1,5 @@
 from uuid import uuid4
+from typing import List
 
 from app.database.common.queries import QUERIES
 from app.database.database import DatabaseController
@@ -37,6 +38,11 @@ class UserPermissionController:
         # TODO Create history
 
         return UserPermission(**record)
+
+    async def get_user_organizations(self, *, user_id: int) -> List[str]:
+        records = await self.db.fetch(QUERIES["GET_USER_ORGANIZATIONS"], user_id)
+
+        return records
 
     async def update(
         self,

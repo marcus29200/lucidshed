@@ -188,6 +188,14 @@ USER_QUERIES[
 SELECT * FROM user_permissions WHERE organization_id = $1 AND user_id = $2;
 """
 
+
+USER_QUERIES[
+    "GET_USER_ORGANIZATIONS"
+] = """
+SELECT organization_id FROM user_permissions WHERE user_id = $1;
+"""
+
+
 USER_QUERIES[
     "UPDATE_USER_PERMISSION"
 ] = """
