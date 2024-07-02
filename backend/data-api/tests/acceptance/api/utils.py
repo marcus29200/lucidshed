@@ -66,6 +66,7 @@ async def add_user(
     data = {
         "first_name": "Test",
         "last_name": "Tester",
+        "email": "test@test.com",
         "title": "Engineer",
         "team": "Operations",
         "phone": "123-456-7890",
