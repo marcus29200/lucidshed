@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 MAX_ID_LENGTH = 64
+MAX_IMAGE_SIZE = 5000000
 
 
 class Model(BaseModel):

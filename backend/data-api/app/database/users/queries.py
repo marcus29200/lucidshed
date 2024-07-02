@@ -1,4 +1,4 @@
-from app.database.common.models import MAX_ID_LENGTH
+from app.database.common.models import MAX_ID_LENGTH, MAX_IMAGE_SIZE
 from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 USER_QUERIES = {}
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR({MAX_ID_LENGTH}),
     timezone VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
-    picture BYTEA CHECK (OCTET_LENGTH(picture) <= 5000000)
+    picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE})
 )
     """,
     f"""

@@ -2,9 +2,9 @@ import json
 from enum import StrEnum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from app.database.common.models import Model
+from app.database.common.models import Model, MAX_IMAGE_SIZE
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 
@@ -28,7 +28,7 @@ class BaseUser(BaseModel):
     location: Optional[str] = None
     timezone: Optional[str] = None
     bio: Optional[str] = None
-    picture: Optional[bytes] = None
+    picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
     #TODO:
     #preferences: (list of booleans indicating which options are enabled/disabled?)
     #passwordManagement: (is this 2FA settings/SSO?)
