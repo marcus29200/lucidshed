@@ -46,7 +46,7 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
 
     token = request.headers.get("authorization")
     if not token or not isinstance(token, str):
-        raise credentials_exception
+        raise HTTPException(status_code=401, detail="Missing Token")
 
     try:
         payload = decode(token.split("Bearer ")[-1], SECRET_KEY, algorithms=[ALGORITHM])
