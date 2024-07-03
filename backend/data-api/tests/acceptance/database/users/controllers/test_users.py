@@ -3,13 +3,14 @@ from typing import Dict
 import pytest
 
 from app.database.users.models.user import BaseUser, User
+from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.utils import page_results
 
 pytestmark = pytest.mark.asyncio
 
 
 async def create_user(data_app, overrides: Dict[str, str] = {}) -> User:
-    user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester"}
+    user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester", "password": "test"}
     user_obj.update(**overrides)
 
     base_user = BaseUser(**user_obj)
@@ -32,6 +33,7 @@ async def test_create_user(data_app):
     assert user.last_name == "Tester"
     assert user.created_at
     assert user.modified_at
+    assert user.password
 
 
 async def test_get_user(data_app):
@@ -40,6 +42,21 @@ async def test_get_user(data_app):
     user = await data_app.user_controller.get(id=user.id)
 
     assert user.id
+
+
+async def test_get_user_by_email(data_app):
+    user = await create_user(data_app)
+
+    user = await data_app.user_controller.get(id=None, email="test@test.com")
+
+    assert user.id
+
+
+async def test_get_user_fails_if_no_id_or_email_provide(data_app):
+    await create_user(data_app)
+
+    with pytest.raises(ObjectNotFoundException):
+        await data_app.user_controller.get(id=None)
 
 
 async def test_get_all_users(data_app):
@@ -64,7 +81,7 @@ async def test_get_all_user_paging(data_app):
 
 
 # TODO Doesn't pass because of the sort property being included as a string in the query
-async def test_get_all_user_work_item_paging_sorting(data_app):
+async def test_get_all_user_paging_sorting(data_app):
     await create_user(data_app, overrides={"email": "test2@test.com"})
     await create_user(data_app, overrides={"email": "test1@test.com"})
 
@@ -83,6 +100,16 @@ async def test_update_user(data_app):
 
     assert user.id
     assert user.first_name == "Test Updated"
+
+
+async def test_update_user_password(data_app):
+    user = await create_user(data_app)
+    old_password = user.password
+
+    user.password = "Test2"
+    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id)
+
+    assert user.password != old_password
 
 
 async def test_delete_user(data_app):

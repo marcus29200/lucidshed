@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS users (
     location VARCHAR({MAX_ID_LENGTH}),
     timezone VARCHAR({MAX_ID_LENGTH}),
     bio VARCHAR({MAX_ID_LENGTH}),
-    picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE})
+    picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE}),
+    password VARCHAR(256),
+    super_admin BOOLEAN DEFAULT FALSE
 )
     """,
     f"""
@@ -28,8 +30,8 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     {BASE_MODEL_FIELDS},
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     disabled BOOLEAN DEFAULT FALSE,
-    engineering_permission_level VARCHAR({MAX_ID_LENGTH}),
-    support_permission_level VARCHAR({MAX_ID_LENGTH}),
+    role VARCHAR({MAX_ID_LENGTH}),
+    org_admin BOOLEAN DEFAULT FALSE,
     UNIQUE (organization_id, user_id),
     PRIMARY KEY (organization_id, user_id)
 )
@@ -47,6 +49,7 @@ INSERT INTO users
     first_name,
     last_name,
     disabled,
+    password,
     created_by_id,
     modified_by_id,
     title,
@@ -57,7 +60,7 @@ INSERT INTO users
     bio,
     picture
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 RETURNING *;
 """
 
@@ -65,7 +68,7 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT * FROM users WHERE id = $1 AND deleted_at IS NULL;
+SELECT * FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
 """
 
 USER_QUERIES[
@@ -93,7 +96,7 @@ SELECT
 FROM
     users
 WHERE
-    id = $2
+    (id = $2 or email = $2)
     AND deleted_at IS NULL
     AND EXISTS (
         SELECT 1
@@ -144,7 +147,8 @@ SET
     location = $12,
     timezone = $13,
     bio = $14,
-    picture = $15
+    picture = $15,
+    password = $16
 WHERE id = $1
 RETURNING *;
 """
@@ -169,12 +173,11 @@ INSERT INTO user_permissions
     id,
     user_id,
     disabled,
-    engineering_permission_level,
-    support_permission_level,
+    role,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 """
 
@@ -185,18 +188,25 @@ USER_QUERIES[
 SELECT * FROM user_permissions WHERE organization_id = $1 AND user_id = $2;
 """
 
+
+USER_QUERIES[
+    "GET_USER_ORGANIZATIONS"
+] = """
+SELECT organization_id FROM user_permissions WHERE user_id = $1;
+"""
+
+
 USER_QUERIES[
     "UPDATE_USER_PERMISSION"
 ] = """
 UPDATE user_permissions
 SET
     disabled = $3,
-    engineering_permission_level = $4,
-    support_permission_level = $5,
+    role = $4,
     modified_at = NOW(),
-    modified_by_id = $6,
-    deleted_at = $7,
-    deleted_by_id = $8
+    modified_by_id = $5,
+    deleted_at = $6,
+    deleted_by_id = $7
 WHERE organization_id = $1 AND user_id = $2
 RETURNING *;
 """

@@ -1,3 +1,4 @@
+from typing import List
 from uuid import uuid4
 
 from app.database.common.queries import QUERIES
@@ -18,8 +19,7 @@ class UserPermissionController:
             uuid4().hex,
             user_permission.user_id,
             user_permission.disabled,
-            user_permission.engineering_permission_level,
-            user_permission.support_permission_level,
+            user_permission.role,
             current_user,
             current_user,
         )
@@ -38,6 +38,11 @@ class UserPermissionController:
         # TODO Create history
 
         return UserPermission(**record)
+
+    async def get_user_organizations(self, *, user_id: int) -> List[str]:
+        records = await self.db.fetch(QUERIES["GET_USER_ORGANIZATIONS"], user_id)
+
+        return records
 
     async def update(
         self,
@@ -59,8 +64,7 @@ class UserPermissionController:
             organization_id,
             id,
             old_item_json["disabled"],
-            old_item_json["engineering_permission_level"],
-            old_item_json["support_permission_level"],
+            old_item_json["role"],
             current_user,
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],
