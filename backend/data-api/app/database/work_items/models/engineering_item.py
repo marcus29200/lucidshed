@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from app.database.iterations.models.iteration import Iteration
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
+from app.database.teams.models.team import Team
 
 
 class EngineeringItemType(StrEnum):
@@ -27,13 +28,17 @@ class BaseEngineeringItem(BaseWorkItem):
     acceptance_criteria: Optional[List[str]] = []
     iteration_id: Optional[int] = None
     iteration: Optional[Iteration] = None
+    team_id: Optional[int] = None
+    team: Optional[Team] = None
     # watchers: Optional[List[Watcher]] = []  # TODO Create db models and relationships
 
     def __init__(self, **data):
         data["item_type"] = data.get("item_type") or EngineeringItemType.STORY.value  # no None values
 
         if isinstance(data.get("iteration"), str):
-            data["iteration"] = json.loads(data.get("iteration"))
+            data["iteration"] = json.loads(data["iteration"])
+        if isinstance(data.get("team"), str):
+            data["team"] = json.loads(data["team"])
 
         super().__init__(**data)
 
