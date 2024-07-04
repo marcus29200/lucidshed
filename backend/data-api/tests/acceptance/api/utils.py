@@ -124,3 +124,22 @@ async def page_results(
             break
 
     return items
+
+
+async def add_iteration(
+    data_api,
+    organization_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
+    headers: Optional[Dict[str, Any]] = {},
+):
+    data = {
+        "title": "Test",
+    }
+    data.update(**overrides)
+
+    response = await data_api.post(f"{organization_id}/iterations", json=data, headers=headers)
+
+    assert response.status_code == expected_status_code
+
+    return response.json()

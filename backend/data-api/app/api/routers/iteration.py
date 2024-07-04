@@ -1,8 +1,9 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 
+from app.api.dependencies.authorization import get_current_user
 from app.database.iterations.models.iteration import BaseIteration, Iteration
 
 iteration_item_router = APIRouter
@@ -10,7 +11,7 @@ iteration_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["iteration"],
-    dependencies=[],
+    dependencies=[Security(get_current_user, scopes=["member"])],
 )
 
 
