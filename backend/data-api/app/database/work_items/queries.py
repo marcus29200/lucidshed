@@ -26,17 +26,29 @@ CREATE TABLE IF NOT EXISTS engineering_items (
     item_type VARCHAR(30),
     item_sub_type VARCHAR(30),
     estimate INT,
-    iteration_id VARCHAR({MAX_ID_LENGTH}),
+    iteration_id INT REFERENCES iterations(id) ON DELETE SET NULL,
     due_date timestamp without time zone DEFAULT NULL,
     acceptance_criteria TEXT[]
 )
     """
 ]
 
+LOAD_ITERATION = """
+(
+    SELECT to_jsonb(iterations)
+    FROM iterations
+    WHERE
+        iterations.id = engineering_items.iteration_id
+        AND iterations.organization_id = $1
+        AND iterations.deleted_at IS NULL
+    LIMIT 1
+) AS iteration
+"""
+
 
 WORK_ITEM_QUERIES[
     "CREATE_ENGINEERING_ITEM"
-] = """
+] = f"""
 INSERT INTO engineering_items
 (
     organization_id,
@@ -56,14 +68,17 @@ INSERT INTO engineering_items
     modified_by_id
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-RETURNING *;
+RETURNING *, {LOAD_ITERATION};
 """
 
 
 WORK_ITEM_QUERIES[
     "GET_ENGINEERING_ITEM"
-] = """
-SELECT * FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+] = f"""
+SELECT
+    *,
+    {LOAD_ITERATION}
+FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
 """
 
 
@@ -82,7 +97,7 @@ OFFSET $4;
 
 WORK_ITEM_QUERIES[
     "UPDATE_ENGINEERING_ITEM"
-] = """
+] = f"""
 UPDATE engineering_items
 SET
     title = $3,
@@ -108,7 +123,7 @@ SET
     completed_by_id = $22
 WHERE
     organization_id = $1 AND id = $2
-RETURNING *;
+RETURNING *, {LOAD_ITERATION};
 """
 
 WORK_ITEM_QUERIES[

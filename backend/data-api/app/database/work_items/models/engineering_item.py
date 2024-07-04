@@ -1,7 +1,9 @@
+import json
 from datetime import datetime
 from enum import StrEnum
 from typing import List, Optional
 
+from app.database.iterations.models.iteration import Iteration
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 
@@ -21,14 +23,17 @@ class BaseEngineeringItem(BaseWorkItem):
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY
     item_sub_type: Optional[EngineeringItemSubType] = EngineeringItemSubType.FEATURE
     estimate: Optional[int] = None
-    iteration_id: Optional[str] = None
     due_date: Optional[datetime] = None
     acceptance_criteria: Optional[List[str]] = []
-    # iteration: Optional[Iteration] = None  # TODO Create db models and relationships
+    iteration_id: Optional[int] = None
+    iteration: Optional[Iteration] = None
     # watchers: Optional[List[Watcher]] = []  # TODO Create db models and relationships
 
     def __init__(self, **data):
         data["item_type"] = data.get("item_type") or EngineeringItemType.STORY.value  # no None values
+
+        if isinstance(data.get("iteration"), str):
+            data["iteration"] = json.loads(data.get("iteration"))
 
         super().__init__(**data)
 

@@ -74,7 +74,7 @@ async def test_should_not_get_organization(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
 
     response = await data_api.get("test", headers=headers)
-    assert response.status_code == 404
+    assert response.status_code == 401
 
 
 async def test_should_not_get_organization_with_expired_token(data_api: TestClient):
