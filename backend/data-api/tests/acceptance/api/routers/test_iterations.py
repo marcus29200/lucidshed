@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.utils import add_organization, add_iteration, authenticate, expired_headers, page_results
+from tests.acceptance.api.utils import add_iteration, add_organization, authenticate, expired_headers
 
 pytestmark = pytest.mark.asyncio
 
@@ -60,7 +60,9 @@ async def test_should_not_update_iteration_with_expired_headers(data_api: TestCl
     iteration = await add_iteration(data_api, organization_id=organization["id"], headers=headers)
 
     data = {"title": "Test Updated"}
-    response = await data_api.patch(f"{organization['id']}/iterations/{iteration['id']}", json=data, headers=expired_headers)
+    response = await data_api.patch(
+        f"{organization['id']}/iterations/{iteration['id']}", json=data, headers=expired_headers
+    )
 
     assert response.status_code == 401
 

@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Any, Dict
 
@@ -10,8 +11,6 @@ from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
 from app.exceptions.common import ObjectNotFoundException
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,7 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
 
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(scopes=token_scopes, username=username)
-    except Exception as e:
+    except Exception:
         logger.exception("Unable to verify access token")
 
         raise credentials_exception
