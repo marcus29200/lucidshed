@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.utils import add_iteration, add_organization, authenticate, expired_headers
+from tests.acceptance.api.utils import add_iteration, add_organization, authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -39,6 +39,39 @@ async def test_should_not_get_iteration_with_expired_token(data_api: TestClient)
 
     response = await data_api.get(f"{organization['id']}/iterations/{iteration['id']}", headers=expired_headers)
     assert response.status_code == 401
+
+
+async def test_should_get_iterations(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    await add_iteration(data_api, organization_id=organization["id"], headers=headers)
+    await add_iteration(data_api, organization_id=organization["id"], overrides={"title": "Test2"}, headers=headers)
+
+    iterations = await page_results(data_api, f"{organization['id']}/iterations", headers=headers)
+
+    assert len(iterations) == 2
+    assert iterations[0]["id"] != iterations[1]["id"]
+
+
+async def test_should_not_get_iterations_limit(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+
+    await add_iteration(data_api, organization_id=organization["id"], headers=headers)
+    await add_iteration(data_api, organization_id=organization["id"], overrides={"title": "Test2"}, headers=headers)
+
+    iterations = await page_results(data_api, f"{organization['id']}/iterations", headers=headers, limit=1)
+
+    assert len(iterations) == 2
+    assert iterations[0]["id"] != iterations[1]["id"]
+
+
+async def test_should_not_get_iterations_with_expired_token(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    await add_iteration(data_api, organization_id=organization["id"], headers=headers)
+
+    await page_results(data_api, f"{organization['id']}/iterations", headers=expired_headers, expected_status_code=401)
 
 
 async def test_should_update_iteration(data_api: TestClient):

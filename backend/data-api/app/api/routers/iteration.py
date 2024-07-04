@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
-from app.database.iterations.models.iteration import BaseIteration, Iteration
+from app.database.iterations.models.iteration import BaseIteration, Iteration, IterationSortableField
 
 iteration_item_router = APIRouter
 
@@ -32,18 +32,18 @@ async def get_iteration(request: Request, organization_id: str, id: int) -> Iter
     return await request.app.iteration_controller.get(organization_id=organization_id, id=id)
 
 
-# @router.get("", status_code=200, response_model=PagedResponse)
-# async def get_iterations(
-#     request: Request,
-#     organization_id: str,
-#     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
-#     limit: Optional[int] = 1000,
-#     cursor: Optional[str] = None,
-# ) -> PagedResponse:
-#     items, cursor = await request.app.iteration_controller.get_all(
-#         organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
-#     )
-#     return PagedResponse(items=items, cursor=cursor)
+@router.get("", status_code=200, response_model=PagedResponse)
+async def get_iterations(
+    request: Request,
+    organization_id: str,
+    sort: Optional[IterationSortableField] = IterationSortableField.TITLE,
+    limit: Optional[int] = 1000,
+    cursor: Optional[str] = None,
+) -> PagedResponse:
+    items, cursor = await request.app.iteration_controller.get_all(
+        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
+    )
+    return PagedResponse(items=items, cursor=cursor)
 
 
 @router.patch("/{id}", status_code=200, response_model=Iteration)

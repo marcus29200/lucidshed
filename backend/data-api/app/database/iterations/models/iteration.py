@@ -1,9 +1,20 @@
 from datetime import datetime
+from enum import StrEnum
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 from app.database.common.models import MAX_ID_LENGTH, Model
+
+
+class IterationSortableField(StrEnum):
+    ID: str = "id"
+    TITLE: str = "title"
+    STATUS: str = "status"
+    START_DATE: str = "start_date"
+    END_DATE: str = "end_date"
+    CREATED_AT: str = "created_at"
+    MODIFIED_AT: str = "modified_at"
 
 
 class BaseIteration(BaseModel):
