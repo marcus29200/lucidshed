@@ -6,7 +6,7 @@ from app.database.work_items.controllers.engineering_item import WorkItemSortabl
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
-from tests.acceptance.database.utils import page_results
+from tests.acceptance.database.utils import create_iteration, page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -15,12 +15,11 @@ async def create_engineering_item(
     data_app,
     org_id,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
+    iteration_id: Optional[str] = None,
     title: Optional[str] = "Test",
 ) -> EngineeringItem:
     base_engineering_item = BaseEngineeringItem(
-        title=title,
-        description="Test description",
-        item_type=item_type,
+        title=title, description="Test description", item_type=item_type, iteration_id=iteration_id
     )
 
     engineering_item = await data_app.engineering_controller.create(
@@ -148,3 +147,37 @@ async def test_delete_engineering_work_item(data_app):
 async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
     with pytest.raises(ObjectNotFoundException):
         await data_app.engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com")
+
+
+async def test_create_engineering_item_with_iteration(data_app):
+    org = await create_organization(data_app)
+    iteration = await create_iteration(data_app, org.id)
+    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+
+    assert engineering_item.iteration == iteration
+
+
+async def test_assign_iteration_to_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+    iteration = await create_iteration(data_app, org.id)
+
+    engineering_item.iteration_id = iteration.id
+    engineering_item = await data_app.engineering_controller.update(
+        organization_id=org.id,
+        id=engineering_item.id,
+        updated_engineering_item=engineering_item,
+        current_user="test@test.com",
+    )
+
+    assert engineering_item.iteration == iteration
+
+
+async def test_get_engineering_item_with_iteration(data_app):
+    org = await create_organization(data_app)
+    iteration = await create_iteration(data_app, org.id)
+    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+
+    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+
+    assert engineering_item.iteration == iteration

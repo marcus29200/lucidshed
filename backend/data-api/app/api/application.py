@@ -8,10 +8,12 @@ from starlette.responses import JSONResponse
 
 from app.api.routers.auth import router as auth_router
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.user import router as user_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
+from app.database.iterations.controllers.iteration import IterationController
 from app.database.organizations.controllers.organization import OrganizationController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
@@ -55,7 +57,7 @@ class DataApplication(FastAPI):
         self.include_router(user_router, prefix="/users")
         self.include_router(organization_router, prefix="")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
-        # self.include_router(iteration_router, prefix="/{organization_id}/iterations")
+        self.include_router(iteration_router, prefix="/{organization_id}/iterations")
 
         self.add_middleware(DBMiddleware)
 
@@ -78,6 +80,7 @@ class DataApplication(FastAPI):
         self.user_controller = UserController(self.db)
         self.organization_controller = OrganizationController(self.db)
         self.user_permission_controller = UserPermissionController(self.db)
+        self.iteration_controller = IterationController(self.db)
 
     async def close(self) -> None:
         await self.db.close()
