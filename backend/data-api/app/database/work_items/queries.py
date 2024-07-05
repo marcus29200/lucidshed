@@ -27,11 +27,13 @@ CREATE TABLE IF NOT EXISTS engineering_items (
     item_sub_type VARCHAR(30),
     estimate INT,
     iteration_id INT REFERENCES iterations(id) ON DELETE SET NULL,
+    team_id INT REFERENCES teams(id) ON DELETE SET NULL,
     due_date timestamp without time zone DEFAULT NULL,
     acceptance_criteria TEXT[]
 )
     """
 ]
+
 
 LOAD_ITERATION = """
 (
@@ -43,6 +45,19 @@ LOAD_ITERATION = """
         AND iterations.deleted_at IS NULL
     LIMIT 1
 ) AS iteration
+"""
+
+
+LOAD_TEAM = """
+(
+    SELECT to_jsonb(teams)
+    FROM teams
+    WHERE
+        teams.id = engineering_items.team_id
+        AND teams.organization_id = $1
+        AND teams.deleted_at IS NULL
+    LIMIT 1
+) AS team
 """
 
 
@@ -62,13 +77,14 @@ INSERT INTO engineering_items
     item_sub_type,
     estimate,
     iteration_id,
+    team_id,
     due_date,
     acceptance_criteria,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-RETURNING *, {LOAD_ITERATION};
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
 
@@ -77,15 +93,21 @@ WORK_ITEM_QUERIES[
 ] = f"""
 SELECT
     *,
-    {LOAD_ITERATION}
+    {LOAD_ITERATION},
+    {LOAD_TEAM}
 FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
 """
 
 
+# TODO Need to add iteration and team loading here
 WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
-] = """
-SELECT * FROM engineering_items
+] = f"""
+SELECT 
+    *,
+    {LOAD_ITERATION},
+    {LOAD_TEAM}
+FROM engineering_items
 WHERE
     organization_id = $1
     AND deleted_at IS NULL
@@ -110,20 +132,21 @@ SET
     item_sub_type = $10,
     estimate = $11,
     iteration_id = $12,
-    due_date = $13,
-    acceptance_criteria = $14,
-    created_by_id = $15,
+    team_id = $13,
+    due_date = $14,
+    acceptance_criteria = $15,
+    created_by_id = $16,
     modified_at = NOW(),
-    modified_by_id = $16,
-    archived_at = $17,
-    archived_by_id = $18,
-    deleted_at = $19,
-    deleted_by_id = $20,
-    completed_at = $21,
-    completed_by_id = $22
+    modified_by_id = $17,
+    archived_at = $18,
+    archived_by_id = $19,
+    deleted_at = $20,
+    deleted_by_id = $21,
+    completed_at = $22,
+    completed_by_id = $23
 WHERE
     organization_id = $1 AND id = $2
-RETURNING *, {LOAD_ITERATION};
+RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
 WORK_ITEM_QUERIES[
