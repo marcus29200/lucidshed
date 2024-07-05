@@ -143,3 +143,22 @@ async def add_iteration(
     assert response.status_code == expected_status_code
 
     return response.json()
+
+
+async def add_team(
+    data_api,
+    organization_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
+    headers: Optional[Dict[str, Any]] = {},
+):
+    data = {
+        "title": "Test",
+    }
+    data.update(**overrides)
+
+    response = await data_api.post(f"{organization_id}/teams", json=data, headers=headers)
+
+    assert response.status_code == expected_status_code
+
+    return response.json()

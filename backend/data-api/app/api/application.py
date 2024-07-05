@@ -11,6 +11,7 @@ from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.user import router as user_router
+from app.api.routers.team import router as team_router
 from app.api.settings import Settings
 from app.database.database import DatabaseController
 from app.database.iterations.controllers.iteration import IterationController
@@ -19,7 +20,7 @@ from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
-
+from app.database.teams.controllers.team import TeamController
 router = APIRouter()
 
 
@@ -58,6 +59,7 @@ class DataApplication(FastAPI):
         self.include_router(organization_router, prefix="")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
+        self.include_router(team_router, prefix="/{organization_id}/teams")
 
         self.add_middleware(DBMiddleware)
 
@@ -81,6 +83,7 @@ class DataApplication(FastAPI):
         self.organization_controller = OrganizationController(self.db)
         self.user_permission_controller = UserPermissionController(self.db)
         self.iteration_controller = IterationController(self.db)
+        self.team_controller = TeamController(self.db)
 
     async def close(self) -> None:
         await self.db.close()

@@ -6,7 +6,7 @@ from app.database.work_items.controllers.engineering_item import WorkItemSortabl
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
-from tests.acceptance.database.utils import create_iteration, page_results
+from tests.acceptance.database.utils import create_iteration, create_team, page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -16,10 +16,11 @@ async def create_engineering_item(
     org_id,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
     iteration_id: Optional[str] = None,
+    team_id: Optional[str] = None,
     title: Optional[str] = "Test",
 ) -> EngineeringItem:
     base_engineering_item = BaseEngineeringItem(
-        title=title, description="Test description", item_type=item_type, iteration_id=iteration_id
+        title=title, description="Test description", item_type=item_type, iteration_id=iteration_id, team_id=team_id
     )
 
     engineering_item = await data_app.engineering_controller.create(
@@ -181,3 +182,65 @@ async def test_get_engineering_item_with_iteration(data_app):
     engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
 
     assert engineering_item.iteration == iteration
+
+
+async def test_get_all_engineering_work_item_with_iteration(data_app):
+    org = await create_organization(data_app)
+    iteration = await create_iteration(data_app, org.id)
+    await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+    await create_engineering_item(data_app, org.id)
+
+    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+
+    assert len(items) == 2
+
+    assert items[0].iteration.id == iteration.id
+    assert not items[1].iteration
+
+
+async def test_create_engineering_item_with_team(data_app):
+    org = await create_organization(data_app)
+    team = await create_team(data_app, org.id)
+    engineering_item = await create_engineering_item(data_app, org.id, team_id=team.id)
+
+    assert engineering_item.team == team
+
+
+async def test_assign_team_to_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+    team = await create_team(data_app, org.id)
+
+    engineering_item.team_id = team.id
+    engineering_item = await data_app.engineering_controller.update(
+        organization_id=org.id,
+        id=engineering_item.id,
+        updated_engineering_item=engineering_item,
+        current_user="test@test.com",
+    )
+
+    assert engineering_item.team == team
+
+
+async def test_get_engineering_item_with_team(data_app):
+    org = await create_organization(data_app)
+    team = await create_team(data_app, org.id)
+    engineering_item = await create_engineering_item(data_app, org.id, team_id=team.id)
+
+    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+
+    assert engineering_item.team == team
+
+
+async def test_get_all_engineering_work_item_with_team(data_app):
+    org = await create_organization(data_app)
+    team = await create_team(data_app, org.id)
+    await create_engineering_item(data_app, org.id, team_id=team.id)
+    await create_engineering_item(data_app, org.id)
+
+    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+
+    assert len(items) == 2
+
+    assert items[0].team.id == team.id
+    assert not items[1].team
