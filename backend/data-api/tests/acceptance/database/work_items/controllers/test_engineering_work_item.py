@@ -140,6 +140,7 @@ async def test_delete_engineering_work_item(data_app):
         organization_id=engineering_item.organization_id,
         id=engineering_item.id,
         current_user="test@test.com",
+        scope="ENGINEERING"
     )
 
     assert result is True
@@ -147,4 +148,4 @@ async def test_delete_engineering_work_item(data_app):
 
 async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
     with pytest.raises(ObjectNotFoundException):
-        await data_app.engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com")
+        await data_app.engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com", scope="ENGINEERING")

@@ -36,7 +36,7 @@ class EngineeringController(WorkItemController):
         return EngineeringItem(**record)
 
     async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
-        record = await super().get(organization_id=organization_id, id=id)
+        record = await super().get(organization_id=organization_id, id=id, scope="ENGINEERING")
 
         return EngineeringItem(**record)
 
@@ -56,6 +56,7 @@ class EngineeringController(WorkItemController):
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
+            scope="ENGINEERING"
         )
 
         return [EngineeringItem(**record) for record in records], cursor
