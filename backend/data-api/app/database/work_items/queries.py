@@ -30,8 +30,18 @@ CREATE TABLE IF NOT EXISTS engineering_items (
     team_id INT REFERENCES teams(id) ON DELETE SET NULL,
     due_date timestamp without time zone DEFAULT NULL,
     acceptance_criteria TEXT[]
-)
-    """
+);
+    """,
+    f"""
+CREATE TABLE IF NOT EXISTS work_item_comments (
+    id VARCHAR({MAX_ID_LENGTH}),
+    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
+    work_item_id INT NOT NULL,
+    {BASE_MODEL_FIELDS},
+    description TEXT,
+    PRIMARY KEY (organization_id, id, work_item_id)
+);
+    """,
 ]
 
 
@@ -103,7 +113,7 @@ FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS 
 WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
-SELECT 
+SELECT
     *,
     {LOAD_ITERATION},
     {LOAD_TEAM}
@@ -158,4 +168,93 @@ SET
     deleted_by_id = $3
 WHERE
     organization_id = $1 AND id = $2
+"""
+
+
+WORK_ITEM_QUERIES[
+    "CREATE_WORK_ITEM_COMMENT"
+] = """
+INSERT INTO work_item_comments
+(
+    id,
+    organization_id,
+    work_item_id,
+    description,
+    created_by_id,
+    modified_by_id
+)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
+"""
+
+
+WORK_ITEM_QUERIES[
+    "GET_WORK_ITEM_COMMENT"
+] = """
+SELECT *
+FROM work_item_comments
+WHERE
+    organization_id = $1
+    AND work_item_id = $2
+    AND id = $3
+    AND deleted_at IS NULL;
+"""
+
+
+WORK_ITEM_QUERIES[
+    "GET_ALL_WORK_ITEM_COMMENTS"
+] = """
+SELECT *
+FROM work_item_comments
+WHERE
+    organization_id = $1
+    AND work_item_id = $2
+    AND deleted_at IS NULL
+ORDER BY $3
+LIMIT $4
+OFFSET $5;
+"""
+
+
+WORK_ITEM_QUERIES[
+    "UPDATE_WORK_ITEM_COMMENT"
+] = """
+UPDATE work_item_comments
+SET
+    description = $4,
+    modified_at = NOW(),
+    modified_by_id = $5,
+    deleted_at = $6,
+    deleted_by_id = $7
+WHERE
+    organization_id = $1
+    AND work_item_id = $2
+    AND id = $3
+RETURNING *;
+"""
+
+WORK_ITEM_QUERIES[
+    "DELETE_WORK_ITEM_COMMENT"
+] = """
+UPDATE work_item_comments
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $4
+WHERE
+    organization_id = $1
+    AND work_item_id = $2
+    AND id = $3
+"""
+
+
+WORK_ITEM_QUERIES[
+    "DELETE_WORK_ITEM_COMMENTS"
+] = """
+UPDATE work_item_comments
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $3
+WHERE
+    organization_id = $1
+    AND work_item_id = $2
 """

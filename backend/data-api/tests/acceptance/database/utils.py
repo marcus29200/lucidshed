@@ -55,9 +55,7 @@ async def create_team(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}
 
     team = BaseTeam(**data)
 
-    team = await data_app.team_controller.create(
-        organization_id=org_id, team=team, current_user="test@test.com"
-    )
+    team = await data_app.team_controller.create(organization_id=org_id, team=team, current_user="test@test.com")
 
     assert team.id
 

@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.utils import add_team, add_organization, authenticate, expired_headers
+from tests.acceptance.api.utils import add_organization, add_team, authenticate, expired_headers
 
 pytestmark = pytest.mark.asyncio
 
@@ -60,9 +60,7 @@ async def test_should_not_update_team_with_expired_headers(data_api: TestClient)
     team = await add_team(data_api, organization_id=organization["id"], headers=headers)
 
     data = {"title": "Test Updated"}
-    response = await data_api.patch(
-        f"{organization['id']}/teams/{team['id']}", json=data, headers=expired_headers
-    )
+    response = await data_api.patch(f"{organization['id']}/teams/{team['id']}", json=data, headers=expired_headers)
 
     assert response.status_code == 401
 

@@ -3,6 +3,7 @@ from typing import Optional
 import pytest
 
 from app.database.work_items.controllers.engineering_item import WorkItemSortableField
+from app.database.work_items.models.comment import BaseWorkItemComment
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
@@ -244,3 +245,84 @@ async def test_get_all_engineering_work_item_with_team(data_app):
 
     assert items[0].team.id == team.id
     assert not items[1].team
+
+
+async def test_create_comment_on_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    new_comment = BaseWorkItemComment(description="Testing 123")
+    comment = await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+
+    assert comment.id
+
+
+async def test_get_comment_on_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    new_comment = BaseWorkItemComment(description="Testing 123")
+    comment = await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+
+    comment = await data_app.engineering_controller.get_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, id=comment.id
+    )
+    assert comment.id
+
+
+async def test_update_comment_on_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    new_comment = BaseWorkItemComment(description="Testing 123")
+    comment = await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+
+    comment.description = "Test Updated 123"
+    updated_comment = await data_app.engineering_controller.update_comment(
+        organization_id=org.id,
+        work_item_id=engineering_item.id,
+        id=comment.id,
+        updated_comment=comment,
+        current_user="test@test.com",
+    )
+    assert updated_comment.description == comment.description
+    assert updated_comment.modified_at > comment.modified_at
+
+
+async def test_delete_comment_on_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    new_comment = BaseWorkItemComment(description="Testing 123")
+    comment = await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+
+    result = await data_app.engineering_controller.delete_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, id=comment.id, current_user="test@test.com"
+    )
+    assert result
+
+
+async def test_delete_comments_on_engineering_item(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    new_comment = BaseWorkItemComment(description="Testing 123")
+    await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+    await data_app.engineering_controller.create_comment(
+        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+    )
+
+    result = await data_app.engineering_controller.delete_comments(
+        organization_id=org.id, work_item_id=engineering_item.id, current_user="test@test.com"
+    )
+    assert result == "2"

@@ -4,8 +4,8 @@ from enum import StrEnum
 from typing import List, Optional
 
 from app.database.iterations.models.iteration import Iteration
-from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 from app.database.teams.models.team import Team
+from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 
 class EngineeringItemType(StrEnum):
