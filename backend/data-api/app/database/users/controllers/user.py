@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 from uuid import uuid4
+from asyncpg import Pool
 
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
@@ -9,11 +10,11 @@ from app.exceptions.common import ObjectNotFoundException
 
 
 class UserController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
+    def __init__(self, pool: Pool):
+        self.pool = pool
+        # self.db: DatabaseController = db
 
     async def create(self, *, user: BaseUser, current_user: str):
-
         # Create db record
         record = await self.db.fetchrow(
             QUERIES["CREATE_USER"],

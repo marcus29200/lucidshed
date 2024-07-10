@@ -12,6 +12,11 @@ class Settings(BaseModel):
     port: int = 8080
 
     database_dsn: Optional[str] = "postgres://postgres:password@localhost:5432/data-api?sslmode=disable"
+    database_host: str = "localhost"
+    database_port: int = 5432
+    database_name: str = "default"
+    database_user: str = "postgres"
+    database_password: str = "secret"
 
 
 load_dotenv(".env")

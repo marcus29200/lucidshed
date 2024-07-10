@@ -1,6 +1,7 @@
 from contextvars import ContextVar
 from typing import Optional
 
+from asyncpg import create_pool
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,25 +26,50 @@ from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 router = APIRouter()
 
 
-db_context: ContextVar = ContextVar("db_context")
+data_db_context: ContextVar = ContextVar("data_db_context")
+user_db_context: ContextVar = ContextVar("user_db_context")
 
 
 class DBMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = None
-        async with request.app.db.pool.acquire() as conn:
-            try:
-                db_context.set(conn)
+        db_name = request.path_params.get("organization_id")
+        if db_name:
+            async with create_pool(
+                host="localhost", port="5432", name=db_name, user="postgres", password="password"
+            ) as data_pool, data_pool.acquire() as data_conn, create_pool(
+                host="localhost", port="5432", name="users", user="postgres", password="password"
+            ) as user_pool, user_pool.acquire() as user_conn:
+                try:
+                    data_db_context.set(data_conn)
+                    user_db_context.set(user_conn)
 
-                async with conn.transaction():
-                    response = await call_next(request)
+                    async with data_conn.transaction(), user_conn.transaction():
+                        response = await call_next(request)
 
-                    if not str(response.status_code).startswith("2"):
-                        raise AbortDBTransaction()
-            except AbortDBTransaction:
-                pass
-            finally:
-                db_context.set(None)
+                        if not str(response.status_code).startswith("2"):
+                            raise AbortDBTransaction()
+                except AbortDBTransaction:
+                    pass
+                finally:
+                    data_db_context.set(None)
+                    user_db_context.set(None)
+        else:
+            async with create_pool(
+                host="localhost", port="5432", name="users", user="postgres", password="password"
+            ) as user_pool, user_pool.acquire() as user_conn:
+                try:
+                    user_db_context.set(user_conn)
+
+                    async with user_conn.transaction():
+                        response = await call_next(request)
+
+                        if not str(response.status_code).startswith("2"):
+                            raise AbortDBTransaction()
+                except AbortDBTransaction:
+                    pass
+                finally:
+                    user_db_context.set(None)
 
         return response
 

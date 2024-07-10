@@ -56,6 +56,11 @@ class DatabaseController:
         if self.pool:
             await self.pool.close()
 
+    async def create_database(self, db_name: str):
+        async with self.pool.acquire() as conn:
+            async with conn.transaction():
+                await conn.execute(f"CREATE DATABASE {db_name};")
+
     async def execute(self, query: str, *args: Any) -> str:
         return await self.pool.execute(query, *args)
 

@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from asyncpg import create_pool
 from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
@@ -27,22 +28,45 @@ class PagedResponse(BaseModel):
     "/",
     status_code=201,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes=["authenticated"])],
+    dependencies=[],
 )
 async def add_organization(
     request: Request,
     body: BaseOrganization,
 ) -> Organization:
-    org = await request.app.organization_controller.create(organization=body, current_user=request.state.user.id)
+    # await request.app.db.init_database_tables()
 
-    # Grant current user access to org
-    await request.app.user_permission_controller.create(
-        organization_id=org.id,
-        user_permission=BaseUserPermission(
-            organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
-        ),
-        current_user=request.state.user.id,
-    )
+    async with create_pool(
+        host="localhost", port="5432", user="postgres", password="password"
+    ) as pool, pool.acquire() as conn:
+        try:
+            # Create database
+            # NOTE: Users... since we have a global user this makes it more difficult to manage, maybe we need to get rid of this. Move
+            # org user, then just auto authenticate if switching orgs? But what if auth settings are different?
+            await conn.execute(f"CREATE DATABASE {body.id};")
+
+            # Initialize database tables
+            # NOTE: How do we apply upgrades, right now they'd apply at app startup from init statements since they're always called,
+            # but we won't be able to do it this way.
+            async with conn.transaction():
+
+                org = await request.app.organization_controller.create(
+                    organization=body, current_user=request.state.user.id
+                )
+
+                # Grant current user access to org
+                await request.app.user_permission_controller.create(
+                    organization_id=org.id,
+                    user_permission=BaseUserPermission(
+                        organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
+                    ),
+                    current_user=request.state.user.id,
+                )
+        # except AbortDBTransaction:
+        #     pass
+        finally:
+            # db_context.set(None)
+            pass
 
     return org
 
