@@ -33,6 +33,16 @@ CREATE TABLE IF NOT EXISTS engineering_items (
 );
     """,
     f"""
+CREATE TABLE IF NOT EXISTS support_items (
+    {BASE_WORK_ITEM_FIELDS},
+    owner VARCHAR({MAX_ID_LENGTH}),
+    customer VARCHAR(30),
+    primary_contact VARCHAR(30),
+    secondary_contact TEXT[],
+    next_response_due timestamp without time zone DEFAULT NULL
+);
+    """,
+    f"""
 CREATE TABLE IF NOT EXISTS work_item_comments (
     id VARCHAR({MAX_ID_LENGTH}),
     organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
@@ -163,6 +173,90 @@ WORK_ITEM_QUERIES[
     "DELETE_ENGINEERING_ITEM"
 ] = """
 UPDATE engineering_items
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $3
+WHERE
+    organization_id = $1 AND id = $2
+"""
+
+
+WORK_ITEM_QUERIES[
+    "CREATE_SUPPORT_ITEM"
+] = """
+INSERT INTO support_items
+(
+    organization_id,
+    title,
+    description,
+    status,
+    priority,
+    estimated_completion_date,
+    starred,
+    owner,
+    customer,
+    primary_contact,
+    secondary_contact,
+    next_response_due,
+    created_by_id,
+    modified_by_id
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+RETURNING *;
+"""
+
+WORK_ITEM_QUERIES[
+    "UPDATE_SUPPORT_ITEM"
+] = """
+UPDATE support_items
+SET
+    title = $3,
+    description = $4,
+    status = $5,
+    priority = $6,
+    estimated_completion_date = $7,
+    starred = $8,
+    owner = $9,
+    customer = $10,
+    primary_contact = $11,
+    secondary_contact = $12,
+    next_response_due = $13,
+    created_by_id = $14,
+    modified_at = NOW(),
+    modified_by_id = $15,
+    archived_at = $16,
+    archived_by_id = $17,
+    deleted_at = $18,
+    deleted_by_id = $19,
+    completed_at = $20,
+    completed_by_id = $21
+WHERE
+    organization_id = $1 AND id = $2
+RETURNING *;
+"""
+
+WORK_ITEM_QUERIES[
+    "GET_SUPPORT_ITEM"
+] = """
+SELECT * FROM support_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+"""
+
+WORK_ITEM_QUERIES[
+    "GET_ALL_SUPPORT_ITEM"
+] = """
+SELECT * FROM support_items
+WHERE
+    organization_id = $1
+    AND deleted_at IS NULL
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
+"""
+
+WORK_ITEM_QUERIES[
+    "DELETE_SUPPORT_ITEM"
+] = """
+UPDATE support_items
 SET
     deleted_at = NOW(),
     deleted_by_id = $3

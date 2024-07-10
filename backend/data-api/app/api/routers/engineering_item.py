@@ -66,7 +66,7 @@ async def update_engineering_item(
 @router.delete("/{id}", status_code=200)
 async def delete_engineering_item(request: Request, organization_id: str, id: int):
     return await request.app.engineering_controller.delete(
-        organization_id=organization_id, id=id, current_user=request.state.user.id
+        organization_id=organization_id, id=id, current_user=request.state.user.id scope="ENGINEERING"
     )
 
 
