@@ -8,7 +8,6 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
-
 class UserController:
     def __init__(self, db: DatabaseController):
         self.db: DatabaseController = db
@@ -23,6 +22,7 @@ class UserController:
             user.first_name,
             user.last_name,
             user.disabled,
+            user.get_hashed_password(),
             current_user,
             current_user,
             user.title,
@@ -31,19 +31,21 @@ class UserController:
             user.location,
             user.timezone,
             user.bio,
-            user.picture
+            user.picture,
         )
 
         # TODO Create history entry
 
         return User(**record)
 
-    async def get(self, *, id: int, organization_id: Optional[str] = None):
+    async def get(self, *, id: Optional[str], organization_id: Optional[str] = None, email: Optional[str] = None):
+        identifier = email or id or "none"
+
         # Get item record here
         if organization_id:
-            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, id)
+            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, identifier)
         else:
-            record = await self.db.fetchrow(QUERIES["GET_USER"], id)
+            record = await self.db.fetchrow(QUERIES["GET_USER"], identifier)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -95,6 +97,10 @@ class UserController:
 
         old_item_json.update(**new_item_json)
 
+        if new_item_json.get("password"):
+            # TODO validate password, and probably validate using some sort of validated token using email
+            old_item_json["password"] = updated_user.get_hashed_password()
+
         record = await self.db.fetchrow(
             QUERIES["UPDATE_USER"],
             id,
@@ -111,7 +117,8 @@ class UserController:
             old_item_json["location"],
             old_item_json["timezone"],
             old_item_json["bio"],
-            old_item_json["picture"]
+            old_item_json["picture"],
+            old_item_json["password"],
         )
 
         # TODO Create history entry
