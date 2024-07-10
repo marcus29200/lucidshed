@@ -15,9 +15,9 @@ class WorkItemController:
     async def create(self, obj: Any):
         raise NotImplementedError()
 
-    async def get(self, *, organization_id: str, id: int) -> Dict[str, Any]:
+    async def get(self, *, organization_id: str, id: int, scope: str) -> Dict[str, Any]:
         # Get item record here
-        record = await self.db.fetchrow(QUERIES["GET_ENGINEERING_ITEM"], organization_id, id)
+        record = await self.db.fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -28,6 +28,7 @@ class WorkItemController:
         self,
         *,
         organization_id: str,
+        scope: str,
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -37,7 +38,7 @@ class WorkItemController:
             sort, offset = parse_cursor(cursor)
 
         # Get item record here
-        records = await self.db.fetch(QUERIES["GET_ALL_ENGINEERING_ITEM"], organization_id, sort, limit, offset)
+        records = await self.db.fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -48,9 +49,9 @@ class WorkItemController:
     async def update(self, obj: Any):
         raise NotImplementedError()
 
-    async def delete(self, *, organization_id: str, id: int, current_user: str) -> bool:
+    async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
         result = await self.db.execute(
-            QUERIES["DELETE_ENGINEERING_ITEM"],
+            QUERIES[f"DELETE_{scope}_ITEM"],
             organization_id,
             id,
             current_user,
