@@ -21,23 +21,23 @@ async def create_user_permission(data_app, user_id: str) -> UserPermission:
 
     assert user_permission.id
 
-    return user_permission
+    return user_permission, org
 
 
 async def test_add_user_permission(data_app):
     user = await create_user(data_app)
-    user_permission = await create_user_permission(data_app, user_id=user.id)
+    user_permission, org = await create_user_permission(data_app, user_id=user.id)
 
     assert isinstance(user_permission, UserPermission)
 
-    assert user_permission.organization_id == "test"
+    assert user_permission.organization_id == org.id
     assert user_permission.user_id == user.id
     assert user_permission.role == UserRoleType.ADMIN
 
 
 async def test_get_user_permission(data_app):
     user = await create_user(data_app)
-    await create_user_permission(data_app, user_id=user.id)
+    _, org = await create_user_permission(data_app, user_id=user.id)
 
     user_permission = await data_app.user_permission_controller.get(id=user.id, organization_id=org.id)
 
@@ -49,12 +49,12 @@ async def test_get_user_permission_return_not_found(data_app):
     # await create_user_permission(data_app, user_id=user.id)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.user_permission_controller.get(id=user.id, organization_id=org.id)
+        await data_app.user_permission_controller.get(id=user.id, organization_id=data_app.test_org_id)
 
 
 async def test_update_user_permission(data_app):
     user = await create_user(data_app)
-    user_permission = await create_user_permission(data_app, user_id=user.id)
+    user_permission, org = await create_user_permission(data_app, user_id=user.id)
 
     user_permission.role = None
     user_permission = await data_app.user_permission_controller.update(
@@ -66,7 +66,7 @@ async def test_update_user_permission(data_app):
 
 async def test_delete_user_permission(data_app):
     user = await create_user(data_app)
-    await create_user_permission(data_app, user_id=user.id)
+    _, org = await create_user_permission(data_app, user_id=user.id)
 
     result = await data_app.user_permission_controller.delete(
         id=user.id, organization_id=org.id, current_user="test@test.com"
