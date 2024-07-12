@@ -4,6 +4,7 @@ from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.api.settings import data_db
 
 
 class EngineeringController(WorkItemController):
@@ -12,7 +13,7 @@ class EngineeringController(WorkItemController):
     ) -> EngineeringItem:
         # Create db record
         # How do we handle if completed is set right away?
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_ENGINEERING_ITEM"],
             organization_id,
             new_engineering_item.title,
@@ -77,7 +78,7 @@ class EngineeringController(WorkItemController):
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_ENGINEERING_ITEM"],
             organization_id,
             id,

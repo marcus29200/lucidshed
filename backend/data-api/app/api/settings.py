@@ -1,10 +1,14 @@
 import os
 from typing import List, Optional
-
+from contextvars import ContextVar
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from starlette.config import Config
 from starlette.datastructures import CommaSeparatedStrings
+
+
+data_db: ContextVar = ContextVar("data_db")
+user_db: ContextVar = ContextVar("user_db")
 
 
 class Settings(BaseModel):
@@ -14,7 +18,7 @@ class Settings(BaseModel):
     database_dsn: Optional[str] = "postgres://postgres:password@localhost:5432/data-api?sslmode=disable"
     database_host: str = "localhost"
     database_port: int = 5432
-    database_name: str = "default"
+    database_name: str = "users"
     database_user: str = "postgres"
     database_password: str = "secret"
 

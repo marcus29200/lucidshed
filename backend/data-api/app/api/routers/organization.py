@@ -1,11 +1,14 @@
 from typing import List, Optional
 
-from asyncpg import create_pool
+from asyncpg import create_pool, InvalidCatalogNameError
 from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
+from app.api.settings import data_db
+from app.database.common.queries import INIT_STATEMENTS
 from app.api.dependencies.authorization import get_current_user
+from app.database.utils import create_database, init_database_tables
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
@@ -28,7 +31,7 @@ class PagedResponse(BaseModel):
     "/",
     status_code=201,
     response_model=Organization,
-    dependencies=[],
+    dependencies=[Security(get_current_user, scopes=["authenticated"])],
 )
 async def add_organization(
     request: Request,
@@ -43,30 +46,34 @@ async def add_organization(
             # Create database
             # NOTE: Users... since we have a global user this makes it more difficult to manage, maybe we need to get rid of this. Move
             # org user, then just auto authenticate if switching orgs? But what if auth settings are different?
-            await conn.execute(f"CREATE DATABASE {body.id};")
+            await create_database(conn, body.id)
+        except InvalidCatalogNameError:
+            raise Exception()  # TODO Fix
 
-            # Initialize database tables
-            # NOTE: How do we apply upgrades, right now they'd apply at app startup from init statements since they're always called,
-            # but we won't be able to do it this way.
-            async with conn.transaction():
+    async with create_pool(
+        host="localhost", port="5432", user="postgres", password="password", database=body.id
+    ) as pool, pool.acquire() as conn:
+        data_db.set(conn)
 
-                org = await request.app.organization_controller.create(
-                    organization=body, current_user=request.state.user.id
-                )
+        await init_database_tables(conn, INIT_STATEMENTS)
 
-                # Grant current user access to org
-                await request.app.user_permission_controller.create(
-                    organization_id=org.id,
-                    user_permission=BaseUserPermission(
-                        organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
-                    ),
-                    current_user=request.state.user.id,
-                )
-        # except AbortDBTransaction:
-        #     pass
-        finally:
-            # db_context.set(None)
-            pass
+        # Initialize database tables
+        # NOTE: How do we apply upgrades, right now they'd apply at app startup from init statements since they're always called,
+        # but we won't be able to do it this way.
+        async with conn.transaction():
+
+            org = await request.app.organization_controller.create(
+                organization=body, current_user=request.state.user.id
+            )
+
+            # Grant current user access to org
+            await request.app.user_permission_controller.create(
+                organization_id=org.id,
+                user_permission=BaseUserPermission(
+                    organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
+                ),
+                current_user=request.state.user.id,
+            )
 
     return org
 

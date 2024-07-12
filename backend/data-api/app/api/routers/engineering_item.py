@@ -4,7 +4,6 @@ from fastapi import APIRouter, Request, Security
 from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
-from app.api.dependencies.database import get_db_connection
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 from app.database.work_items.models.work_item import WorkItemSortableField
@@ -66,7 +65,7 @@ async def update_engineering_item(
 @router.delete("/{id}", status_code=200)
 async def delete_engineering_item(request: Request, organization_id: str, id: int):
     return await request.app.engineering_controller.delete(
-        organization_id=organization_id, id=id, current_user=request.state.user.id scope="ENGINEERING"
+        organization_id=organization_id, id=id, current_user=request.state.user.id, scope="ENGINEERING"
     )
 
 

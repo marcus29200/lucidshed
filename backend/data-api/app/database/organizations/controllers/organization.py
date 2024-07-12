@@ -1,16 +1,13 @@
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.exceptions.common import ObjectNotFoundException
+from app.api.settings import data_db
 
 
 class OrganizationController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, *, organization: BaseOrganization, current_user: str):
         # Create db record
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_ORGANIZATION"],
             organization.id,
             organization.title,
@@ -25,7 +22,7 @@ class OrganizationController:
 
     async def get(self, *, id: str):
         # Get item record here
-        record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION"], id)
+        record = await data_db.get().fetchrow(QUERIES["GET_ORGANIZATION"], id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=id, object_id=id)
@@ -42,7 +39,7 @@ class OrganizationController:
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_ORGANIZATION"],
             id,
             old_item_json["title"],
@@ -57,7 +54,7 @@ class OrganizationController:
         return Organization(**record)
 
     async def delete(self, *, id: int, current_user: str) -> bool:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES["DELETE_ORGANIZATION"],
             id,
             current_user,

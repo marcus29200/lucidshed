@@ -1,6 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.fixtures import org_id
 from tests.acceptance.api.routers.test_user import add_user
 from tests.acceptance.api.utils import (
     add_organization,
@@ -33,7 +34,7 @@ async def test_should_add_organization(data_api: TestClient):
     _, user, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
 
-    assert organization["id"] == "test"
+    assert organization["id"] == data_api.test_org_id
     assert organization["title"] == "Test"
     assert organization["created_at"]
     assert organization["created_by_id"] == user["id"]
@@ -61,7 +62,7 @@ async def test_should_not_add_organization_without_token(data_api: TestClient):
 async def test_should_get_organization(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
-    assert item["id"] == "test"
+    assert item["id"] == data_api.test_org_id
 
     response = await data_api.get(f"{item['id']}", headers=headers)
     assert response.status_code == 200
@@ -80,7 +81,7 @@ async def test_should_not_get_organization(data_api: TestClient):
 async def test_should_not_get_organization_with_expired_token(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
-    assert item["id"] == "test"
+    assert item["id"] == data_api.test_org_id
 
     response = await data_api.get(f"{item['id']}", headers=expired_headers)
     assert response.status_code == 401
@@ -250,7 +251,7 @@ async def test_get_organization_users(data_api: TestClient):
     await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
     await add_user(data_api, overrides={"email": "test3@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users", headers=headers)
+    users = await page_results(data_api, f"{data_api.test_org_id}/users", headers=headers)
 
     assert len(users) == 2
 
@@ -263,7 +264,7 @@ async def test_should_not_get_organization_users_with_expired_token(data_api: Te
     _, _, headers = await authenticate(data_api, create_org=False)
     await add_organization(data_api, headers=headers)
 
-    await page_results(data_api, "test/users", headers=expired_headers, expected_status_code=401)
+    await page_results(data_api, f"{data_api.test_org_id}/users", headers=expired_headers, expected_status_code=401)
 
 
 async def test_get_organization_users_with_limit(data_api: TestClient):
@@ -272,7 +273,7 @@ async def test_get_organization_users_with_limit(data_api: TestClient):
 
     await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users", limit=1, headers=headers)
+    users = await page_results(data_api, f"{data_api.test_org_id}/users", limit=1, headers=headers)
 
     assert len(users) == 2
 
@@ -283,7 +284,7 @@ async def test_get_organization_users_with_limit_and_offset(data_api: TestClient
 
     await add_organization_user(data_api, item["id"], overrides={"email": "test2@test.com"}, headers=headers)
 
-    users = await page_results(data_api, "test/users", limit=1, headers=headers)
+    users = await page_results(data_api, f"{data_api.test_org_id}/users", limit=1, headers=headers)
 
     assert len(users) == 2
     assert users[0]["id"] != users[1]["id"]

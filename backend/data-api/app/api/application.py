@@ -14,8 +14,9 @@ from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import Settings
-from app.database.database import DatabaseController
+from app.api.settings import Settings, user_db, data_db
+from app.database.utils import init_database_tables
+from app.database.common.queries import USER_INIT_STATEMENTS
 from app.database.iterations.controllers.iteration import IterationController
 from app.database.organizations.controllers.organization import OrganizationController
 from app.database.teams.controllers.team import TeamController
@@ -28,8 +29,13 @@ from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 router = APIRouter()
 
 
-data_db_context: ContextVar = ContextVar("data_db_context")
-user_db_context: ContextVar = ContextVar("user_db_context")
+async def get_pool(db_name: Optional[str] = None):
+    settings = Settings()
+
+    async with create_pool(
+        host="localhost", port="5432", name=db_name or settings.database_name, user="postgres", password="password"
+    ) as pool:
+        yield pool
 
 
 class DBMiddleware(BaseHTTPMiddleware):
@@ -39,12 +45,10 @@ class DBMiddleware(BaseHTTPMiddleware):
         if db_name:
             async with create_pool(
                 host="localhost", port="5432", name=db_name, user="postgres", password="password"
-            ) as data_pool, data_pool.acquire() as data_conn, create_pool(
-                host="localhost", port="5432", name="users", user="postgres", password="password"
-            ) as user_pool, user_pool.acquire() as user_conn:
+            ) as data_pool, data_pool.acquire() as data_conn, request.app.db.pool.acquire() as user_conn:
                 try:
-                    data_db_context.set(data_conn)
-                    user_db_context.set(user_conn)
+                    data_db.set(data_conn)
+                    user_db.set(user_conn)
 
                     async with data_conn.transaction(), user_conn.transaction():
                         response = await call_next(request)
@@ -54,14 +58,12 @@ class DBMiddleware(BaseHTTPMiddleware):
                 except AbortDBTransaction:
                     pass
                 finally:
-                    data_db_context.set(None)
-                    user_db_context.set(None)
+                    data_db.set(None)
+                    user_db.set(None)
         else:
-            async with create_pool(
-                host="localhost", port="5432", name="users", user="postgres", password="password"
-            ) as user_pool, user_pool.acquire() as user_conn:
+            async with request.app.user_pool.acquire() as user_conn:
                 try:
-                    user_db_context.set(user_conn)
+                    user_db.set(user_conn)
 
                     async with user_conn.transaction():
                         response = await call_next(request)
@@ -71,7 +73,7 @@ class DBMiddleware(BaseHTTPMiddleware):
                 except AbortDBTransaction:
                     pass
                 finally:
-                    user_db_context.set(None)
+                    user_db.set(None)
 
         return response
 
@@ -104,20 +106,23 @@ class DataApplication(FastAPI):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         await self.close()
 
-    async def init(self, reinit: Optional[bool] = False) -> None:
-        self.db = DatabaseController(self.settings.database_dsn)
-        await self.db.init(reinit=reinit)
+    async def init(self) -> None:
+        self.user_pool = await create_pool(
+            host="localhost", database=self.settings.database_name, port="5432", user="postgres", password="password"
+        )
+        async with self.user_pool.acquire() as conn:
+            await init_database_tables(conn, USER_INIT_STATEMENTS)
 
-        self.engineering_controller = EngineeringController(self.db)
-        self.support_controller = SupportController(self.db)
-        self.user_controller = UserController(self.db)
-        self.organization_controller = OrganizationController(self.db)
-        self.user_permission_controller = UserPermissionController(self.db)
-        self.iteration_controller = IterationController(self.db)
-        self.team_controller = TeamController(self.db)
+        self.engineering_controller = EngineeringController()
+        self.support_controller = SupportController()
+        self.user_controller = UserController()
+        self.organization_controller = OrganizationController()
+        self.user_permission_controller = UserPermissionController()
+        self.iteration_controller = IterationController()
+        self.team_controller = TeamController()
 
     async def close(self) -> None:
-        await self.db.close()
+        await self.user_pool.close()
 
     async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
         return JSONResponse(status_code=412, content={"detail": "Unable to create object"})

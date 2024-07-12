@@ -2,19 +2,16 @@ from typing import List, Optional, Tuple
 
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.iterations.models.iteration import BaseIteration, Iteration
 from app.exceptions.common import ObjectNotFoundException
+from app.api.settings import data_db
 
 
 class IterationController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, organization_id: str, iteration: BaseIteration, current_user: str) -> Iteration:
         # Create db record
         # How do we handle if completed is set right away?
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_ITERATION"],
             organization_id,
             iteration.title,
@@ -32,7 +29,7 @@ class IterationController:
 
     async def get(self, *, organization_id: str, id: int) -> Iteration:
         # Get item record here
-        record = await self.db.fetchrow(QUERIES["GET_ITERATION"], organization_id, id)
+        record = await data_db.get().fetchrow(QUERIES["GET_ITERATION"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -52,7 +49,7 @@ class IterationController:
             sort, offset = parse_cursor(cursor)
 
         # Get item record here
-        records = await self.db.fetch(QUERIES["GET_ALL_ITERATIONS"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(QUERIES["GET_ALL_ITERATIONS"], organization_id, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -75,7 +72,7 @@ class IterationController:
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_ITERATION"],
             organization_id,
             id,
@@ -94,7 +91,7 @@ class IterationController:
         return Iteration(**record)
 
     async def delete(self, *, organization_id: str, id: int, current_user: str) -> bool:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES["DELETE_ITERATION"],
             organization_id,
             id,
