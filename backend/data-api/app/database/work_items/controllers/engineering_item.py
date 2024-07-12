@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple
 
+from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 from app.database.work_items.models.work_item import WorkItemSortableField
-from app.api.settings import data_db
 
 
 class EngineeringController(WorkItemController):
@@ -58,7 +58,7 @@ class EngineeringController(WorkItemController):
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
-            scope="ENGINEERING"
+            scope="ENGINEERING",
         )
 
         return [EngineeringItem(**record) for record in records], cursor

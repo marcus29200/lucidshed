@@ -139,10 +139,7 @@ async def test_delete_support_work_item(data_app):
     support_item = await create_support_item(data_app, org.id)
 
     result = await data_app.support_controller.delete(
-        organization_id=support_item.organization_id,
-        id=support_item.id,
-        current_user="test@test.com",
-        scope="SUPPORT"
+        organization_id=support_item.organization_id, id=support_item.id, current_user="test@test.com", scope="SUPPORT"
     )
 
     assert result is True

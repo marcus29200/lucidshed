@@ -1,9 +1,10 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Request, Security
+from fastapi import APIRouter, Depends, Request, Security
 from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
+from app.api.dependencies.database import data_db_conn
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
 from app.database.work_items.models.work_item import WorkItemSortableField
@@ -13,7 +14,7 @@ engineering_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["engineering"],
-    dependencies=[Security(get_current_user, scopes=["member"])],
+    dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
 )
 
 
@@ -73,7 +74,7 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
 async def create_engineering_item_comment(
     request: Request, organization_id: str, work_item_id: int, body: BaseWorkItemComment
 ) -> WorkItemComment:
-    # NOTE Test for if engineering item doesn't exist what happens with the foreign constraint exception? Can we return a 404?
+    # NOTE If engineering item doesn't exist what happens with the foreign constraint exception? Can we return a 404?
     return await request.app.engineering_controller.create_comment(
         organization_id=organization_id,
         work_item_id=work_item_id,

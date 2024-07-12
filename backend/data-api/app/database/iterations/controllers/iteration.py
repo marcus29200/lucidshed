@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple
 
+from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.iterations.models.iteration import BaseIteration, Iteration
 from app.exceptions.common import ObjectNotFoundException
-from app.api.settings import data_db
 
 
 class IterationController:

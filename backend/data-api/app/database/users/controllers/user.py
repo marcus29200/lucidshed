@@ -1,12 +1,11 @@
 from typing import List, Optional, Tuple
 from uuid import uuid4
-from asyncpg import Pool
 
+from app.api.settings import user_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
-from app.api.settings import user_db
 
 
 class UserController:

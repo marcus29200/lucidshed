@@ -1,7 +1,7 @@
+from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.exceptions.common import ObjectNotFoundException
-from app.api.settings import data_db
 
 
 class OrganizationController:

@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 
 from asyncpg import create_pool
-from tests.fixtures import org_id
 from fastapi.testclient import TestClient
+
 from app.api.settings import data_db
 
 expired_headers = {

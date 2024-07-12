@@ -1,14 +1,14 @@
-import pytest_asyncio
-from httpx import AsyncClient
 import random
 import string
 from contextvars import ContextVar
 
-from asyncpg import create_pool, InvalidCatalogNameError
+import pytest_asyncio
+from asyncpg import InvalidCatalogNameError, create_pool
+from httpx import AsyncClient
+
 from app.api.application import DataApplication
 from app.api.settings import Settings, data_db, user_db
-from app.database.utils import clear_database, create_database
-from uuid import uuid4
+from app.database.utils import clear_database
 
 org_id = ContextVar("org_id")
 

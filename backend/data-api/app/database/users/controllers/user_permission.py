@@ -1,10 +1,10 @@
 from typing import List
 from uuid import uuid4
 
+from app.api.settings import user_db
 from app.database.common.queries import QUERIES
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 from app.exceptions.common import ObjectNotFoundException
-from app.api.settings import user_db
 
 
 class UserPermissionController:

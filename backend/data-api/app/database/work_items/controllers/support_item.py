@@ -1,15 +1,15 @@
 from typing import List, Optional, Tuple
 
+from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.support_item import BaseSupportItem, SupportItem
 from app.database.work_items.models.work_item import WorkItemSortableField
-from app.api.settings import data_db
 
 
 class SupportController(WorkItemController):
     async def create(
-        self, *, organization_id: str, new_support_item:BaseSupportItem, current_user: str
+        self, *, organization_id: str, new_support_item: BaseSupportItem, current_user: str
     ) -> SupportItem:
 
         # How do we handle if completed is set right away?
@@ -56,7 +56,7 @@ class SupportController(WorkItemController):
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
-            scope="SUPPORT"
+            scope="SUPPORT",
         )
 
         return [SupportItem(**record) for record in records], cursor
@@ -103,4 +103,4 @@ class SupportController(WorkItemController):
 
         # TODO Create history entry on new engineering item changes
 
-        return SupportItem(**record)    
+        return SupportItem(**record)

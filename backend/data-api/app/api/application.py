@@ -1,27 +1,24 @@
-from contextvars import ContextVar
-from typing import Optional
-
-from asyncpg import create_pool
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from app.api.dependencies.database import get_pool
 from app.api.routers.auth import router as auth_router
 from app.api.routers.engineering_item import router as engineering_item_router
-from app.api.routers.support_item import router as support_item_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
+from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import Settings, user_db, data_db
-from app.database.utils import init_database_tables
+from app.api.settings import Settings, user_db
 from app.database.common.queries import USER_INIT_STATEMENTS
 from app.database.iterations.controllers.iteration import IterationController
 from app.database.organizations.controllers.organization import OrganizationController
 from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
+from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
@@ -29,58 +26,30 @@ from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 router = APIRouter()
 
 
-async def get_pool(db_name: Optional[str] = None):
-    settings = Settings()
-
-    async with create_pool(
-        host="localhost", port="5432", name=db_name or settings.database_name, user="postgres", password="password"
-    ) as pool:
-        yield pool
-
-
 class DBMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = None
-        db_name = request.path_params.get("organization_id")
-        if db_name:
-            async with create_pool(
-                host="localhost", port="5432", name=db_name, user="postgres", password="password"
-            ) as data_pool, data_pool.acquire() as data_conn, request.app.db.pool.acquire() as user_conn:
-                try:
-                    data_db.set(data_conn)
-                    user_db.set(user_conn)
+        # Setup user database connection
+        async with request.app.user_pool.acquire() as user_conn:
+            try:
+                user_db.set(user_conn)
 
-                    async with data_conn.transaction(), user_conn.transaction():
-                        response = await call_next(request)
+                async with user_conn.transaction():
+                    response = await call_next(request)
 
-                        if not str(response.status_code).startswith("2"):
-                            raise AbortDBTransaction()
-                except AbortDBTransaction:
-                    pass
-                finally:
-                    data_db.set(None)
-                    user_db.set(None)
-        else:
-            async with request.app.user_pool.acquire() as user_conn:
-                try:
-                    user_db.set(user_conn)
-
-                    async with user_conn.transaction():
-                        response = await call_next(request)
-
-                        if not str(response.status_code).startswith("2"):
-                            raise AbortDBTransaction()
-                except AbortDBTransaction:
-                    pass
-                finally:
-                    user_db.set(None)
+                    if not str(response.status_code).startswith("2"):
+                        raise AbortDBTransaction()
+            except AbortDBTransaction:
+                pass
+            finally:
+                user_db.set(None)
 
         return response
 
 
 class DataApplication(FastAPI):
     def __init__(self, settings, *args, **kwargs):
-        super().__init__(title="LucidShed Data API")
+        super().__init__(title="LucidShed API")
 
         self.settings = settings
 
@@ -107,9 +76,7 @@ class DataApplication(FastAPI):
         await self.close()
 
     async def init(self) -> None:
-        self.user_pool = await create_pool(
-            host="localhost", database=self.settings.database_name, port="5432", user="postgres", password="password"
-        )
+        self.user_pool = await get_pool(self.settings.database_name)
         async with self.user_pool.acquire() as conn:
             await init_database_tables(conn, USER_INIT_STATEMENTS)
 

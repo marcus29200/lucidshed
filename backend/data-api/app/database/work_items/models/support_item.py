@@ -4,16 +4,19 @@ from typing import List, Optional
 
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
+
 class SupportItemStatus(StrEnum):
     NEW: str = "new"
     OPEN: str = "open"
     PENDING: str = "pending"
     ONHOLD: str = "on-hold"
 
+
 class SupportItemType(StrEnum):
     PROBLEM: str = "problem"
     QUESTION: str = "question"
     REQUEST: str = "request"
+
 
 class BaseSupportItem(BaseWorkItem):
     status: Optional[SupportItemStatus] = SupportItemStatus.NEW
@@ -27,9 +30,10 @@ class BaseSupportItem(BaseWorkItem):
     # solution: Optional[str] = None  # TODO Possible config value, needs definition
 
     def __init__(self, **data):
-        data["status"] = data.get("status") or SupportItemStatus.NEW.value # No None Status
+        data["status"] = data.get("status") or SupportItemStatus.NEW.value  # No None Status
 
         super().__init__(**data)
+
 
 class SupportItem(WorkItem, BaseSupportItem):
     pass

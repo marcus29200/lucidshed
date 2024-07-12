@@ -1,10 +1,10 @@
 import pytest
-
 from asyncpg import create_pool
-from app.database.utils import create_database, init_database_tables
-from app.database.common.queries import INIT_STATEMENTS
+
 from app.api.settings import data_db
+from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
+from app.database.utils import create_database, init_database_tables
 
 pytestmark = pytest.mark.asyncio
 

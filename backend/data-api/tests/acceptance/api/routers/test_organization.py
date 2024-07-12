@@ -1,7 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.fixtures import org_id
 from tests.acceptance.api.routers.test_user import add_user
 from tests.acceptance.api.utils import (
     add_organization,

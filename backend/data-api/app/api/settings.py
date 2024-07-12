@@ -1,11 +1,11 @@
 import os
-from typing import List, Optional
 from contextvars import ContextVar
+from typing import List, Optional
+
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from starlette.config import Config
 from starlette.datastructures import CommaSeparatedStrings
-
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")

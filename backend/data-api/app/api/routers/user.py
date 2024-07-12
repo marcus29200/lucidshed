@@ -7,11 +7,8 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 
 user_router = APIRouter
 
-router = APIRouter(
-    prefix="",
-    tags=["user"],
-    dependencies=[],  # Depends(check_auth)]
-)
+
+router = APIRouter(prefix="", tags=["user"])
 
 
 class PagedResponse(BaseModel):

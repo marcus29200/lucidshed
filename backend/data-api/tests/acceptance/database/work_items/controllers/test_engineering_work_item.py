@@ -146,7 +146,7 @@ async def test_delete_engineering_work_item(data_app):
         organization_id=engineering_item.organization_id,
         id=engineering_item.id,
         current_user="test@test.com",
-        scope="ENGINEERING"
+        scope="ENGINEERING",
     )
 
     assert result is True

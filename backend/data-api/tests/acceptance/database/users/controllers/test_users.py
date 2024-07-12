@@ -4,7 +4,6 @@ import pytest
 from asyncpg import create_pool
 
 from app.api.settings import user_db
-
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.utils import page_results
