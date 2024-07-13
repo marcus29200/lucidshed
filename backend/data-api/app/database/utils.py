@@ -18,8 +18,10 @@ END $$;
 async def clear_database(conn, db_name):
     async with conn.transaction():
         await conn.execute(CLEAR_DATABASE_SQL)
-    # TODO Need to figure out how to drop a database when connections are still active
-    # await conn.execute(f"DROP DATABASE {db_name}")
+
+
+async def delete_database(conn, db_name):
+    await conn.execute(f"DROP DATABASE {db_name}")
 
 
 async def create_database(conn, db_name):

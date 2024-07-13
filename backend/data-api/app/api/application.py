@@ -1,3 +1,5 @@
+from copy import copy
+
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -18,7 +20,7 @@ from app.database.organizations.controllers.organization import OrganizationCont
 from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
-from app.database.utils import init_database_tables
+from app.database.utils import clear_database, init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
@@ -67,6 +69,10 @@ class DataApplication(FastAPI):
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
 
+        self.database_pools = {}
+
+        self.testing = kwargs.get("testing", False)
+
     async def __aenter__(self):
         await self.init()
 
@@ -76,8 +82,11 @@ class DataApplication(FastAPI):
         await self.close()
 
     async def init(self) -> None:
-        self.user_pool = await get_pool(self.settings.database_name)
+        self.user_pool = await get_pool(self.database_pools, self.settings.database_name)
         async with self.user_pool.acquire() as conn:
+            if self.testing is True:
+                await clear_database(conn, "users")
+
             await init_database_tables(conn, USER_INIT_STATEMENTS)
 
         self.engineering_controller = EngineeringController()
@@ -89,7 +98,32 @@ class DataApplication(FastAPI):
         self.team_controller = TeamController()
 
     async def close(self) -> None:
+
+        pools = copy(self.database_pools)
+        for key, pool in pools.items():
+            if key == "users":
+                continue
+
+            # TODO Remove after we fix the delete database test code
+            if self.testing:
+                async with pool.acquire() as conn:
+                    await clear_database(conn, key)
+
+            await pool.close()
+
+            del self.database_pools[key]
+
+            # TODO We should delete the db, but currently having an issue where there are open connections and we can't
+            # Where are these open connections?
+            # if self.testing:
+            #     try:
+            #         async with self.user_pool.acquire() as conn:
+            #             await delete_database(conn, key)
+            #     except Exception as e:
+            #         print()
+
         await self.user_pool.close()
+        del self.database_pools["users"]
 
     async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
         return JSONResponse(status_code=412, content={"detail": "Unable to create object"})

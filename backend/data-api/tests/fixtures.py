@@ -1,47 +1,19 @@
 import random
 import string
-from contextvars import ContextVar
 
 import pytest_asyncio
-from asyncpg import InvalidCatalogNameError, create_pool
 from httpx import AsyncClient
 
 from app.api.application import DataApplication
-from app.api.settings import Settings, data_db, user_db
-from app.database.utils import clear_database
-
-org_id = ContextVar("org_id")
+from app.api.settings import Settings
 
 
 @pytest_asyncio.fixture
 async def data_app() -> DataApplication:  # type: ignore
-    async with create_pool(
-        host="localhost", port="5432", user="postgres", password="password", database="users"
-    ) as pool, pool.acquire() as conn:
-        await clear_database(conn, "users")
+    async with DataApplication(Settings(), testing=True) as app:
+        app.test_org_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
 
-        # await create_database(conn, "users")
-
-        async with DataApplication(Settings()) as app:
-            app.test_org_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
-
-            yield app
-
-        try:
-            try:
-                data_db.get().close()
-            except Exception:
-                pass
-
-            try:
-                user_db.get().close()
-            except Exception:
-                pass
-
-            # TODO Need to figure out what sessions are still using this, can't delete otherwise
-            await clear_database(conn, app.test_org_id)
-        except InvalidCatalogNameError:
-            pass
+        yield app
 
 
 @pytest_asyncio.fixture
