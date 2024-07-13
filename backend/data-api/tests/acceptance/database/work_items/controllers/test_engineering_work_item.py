@@ -64,14 +64,16 @@ async def test_get_engineering_work_item(data_app):
     org = await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app, org.id)
 
-    engineering_item = await data_app.engineering_controller.get(organization_id="test", id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
 
     assert engineering_item.id
 
 
 async def test_get_engineering_work_item_raises_not_found_exception(data_app):
+    org = await create_organization(data_app)
+
     with pytest.raises(ObjectNotFoundException):
-        await data_app.engineering_controller.get(organization_id="test", id=0)
+        await data_app.engineering_controller.get(organization_id=org.id, id=0)
 
 
 async def test_get_all_engineering_work_item(data_app):
@@ -79,7 +81,7 @@ async def test_get_all_engineering_work_item(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.engineering_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -91,7 +93,7 @@ async def test_get_all_engineering_work_item_paging(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.engineering_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -105,7 +107,10 @@ async def _test_get_all_engineering_work_item_paging_sorting(data_app):
     await create_engineering_item(data_app, org.id, title="Test1")
 
     items = await page_results(
-        data_app.engineering_controller, organization_id="test", sort=WorkItemSortableField.TITLE, page_size=1
+        data_app.engineering_controller,
+        organization_id=org.id,
+        sort=WorkItemSortableField.TITLE,
+        page_size=1,
     )
 
     assert len(items) == 2
@@ -122,7 +127,7 @@ async def test_update_engineering_work_item(data_app):
     old_modified_at = engineering_item.modified_at
 
     engineering_item = await data_app.engineering_controller.update(
-        organization_id="test",
+        organization_id=org.id,
         id=engineering_item.id,
         updated_engineering_item=engineering_item,
         current_user="test@test.com",
@@ -141,15 +146,19 @@ async def test_delete_engineering_work_item(data_app):
         organization_id=engineering_item.organization_id,
         id=engineering_item.id,
         current_user="test@test.com",
-        scope="ENGINEERING"
+        scope="ENGINEERING",
     )
 
     assert result is True
 
 
 async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
+    org = await create_organization(data_app)
+
     with pytest.raises(ObjectNotFoundException):
-        await data_app.engineering_controller.delete(organization_id="t", id=0, current_user="test@test.com", scope="ENGINEERING")
+        await data_app.engineering_controller.delete(
+            organization_id=org.id, id=0, current_user="test@test.com", scope="ENGINEERING"
+        )
 
 
 async def test_create_engineering_item_with_iteration(data_app):
@@ -192,7 +201,7 @@ async def test_get_all_engineering_work_item_with_iteration(data_app):
     await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.engineering_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
 
@@ -240,7 +249,7 @@ async def test_get_all_engineering_work_item_with_team(data_app):
     await create_engineering_item(data_app, org.id, team_id=team.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.engineering_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
 

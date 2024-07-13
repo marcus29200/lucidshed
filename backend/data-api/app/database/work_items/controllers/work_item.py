@@ -1,23 +1,20 @@
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
+from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
 
 
 class WorkItemController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, obj: Any):
         raise NotImplementedError()
 
     async def get(self, *, organization_id: str, id: int, scope: str) -> Dict[str, Any]:
         # Get item record here
-        record = await self.db.fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
+        record = await data_db.get().fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -38,7 +35,7 @@ class WorkItemController:
             sort, offset = parse_cursor(cursor)
 
         # Get item record here
-        records = await self.db.fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -50,7 +47,7 @@ class WorkItemController:
         raise NotImplementedError()
 
     async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES[f"DELETE_{scope}_ITEM"],
             organization_id,
             id,
@@ -70,7 +67,7 @@ class WorkItemController:
         new_comment: BaseWorkItemComment,
         current_user: str,
     ) -> WorkItemComment:
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_WORK_ITEM_COMMENT"],
             uuid4().hex,
             organization_id,
@@ -85,7 +82,7 @@ class WorkItemController:
         return WorkItemComment(**record)
 
     async def get_comment(self, *, organization_id: str, work_item_id: int, id: str) -> WorkItemComment:
-        record = await self.db.fetchrow(QUERIES["GET_WORK_ITEM_COMMENT"], organization_id, work_item_id, id)
+        record = await data_db.get().fetchrow(QUERIES["GET_WORK_ITEM_COMMENT"], organization_id, work_item_id, id)
 
         if not record:
             # TODO, will need to do better here, could be confusing
@@ -96,7 +93,7 @@ class WorkItemController:
         return WorkItemComment(**record)
 
     async def get_comments(self, *, organization_id: str, id: int) -> List[WorkItemComment]:
-        records = await self.db.fetch(QUERIES["GET_WORK_ITEM_COMMENTS"], organization_id, id)
+        records = await data_db.get().fetch(QUERIES["GET_WORK_ITEM_COMMENTS"], organization_id, id)
 
         # TODO Create history entry
 
@@ -118,7 +115,7 @@ class WorkItemController:
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_WORK_ITEM_COMMENT"],
             organization_id,
             work_item_id,
@@ -138,7 +135,7 @@ class WorkItemController:
         return WorkItemComment(**record)
 
     async def delete_comment(self, *, organization_id: str, work_item_id: int, id: str, current_user: str) -> bool:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES["DELETE_WORK_ITEM_COMMENT"],
             organization_id,
             work_item_id,
@@ -152,7 +149,7 @@ class WorkItemController:
         return True
 
     async def delete_comments(self, *, organization_id: str, work_item_id: int, current_user: str) -> int:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES["DELETE_WORK_ITEM_COMMENTS"],
             organization_id,
             work_item_id,

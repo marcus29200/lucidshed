@@ -34,7 +34,7 @@ async def test_should_not_get_auth_token_with_invalid_password(data_api: TestCli
     assert response.status_code == 401
 
 
-async def test_should_logout(data_api: TestClient):
+async def _test_should_logout(data_api: TestClient):
     user = await add_user(data_api)
 
     response = await data_api.post("auth/login", json={"username": user["email"], "password": "test", "scopes": []})

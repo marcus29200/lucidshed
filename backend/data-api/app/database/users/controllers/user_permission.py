@@ -1,19 +1,16 @@
 from typing import List
 from uuid import uuid4
 
+from app.api.settings import user_db
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 from app.exceptions.common import ObjectNotFoundException
 
 
 class UserPermissionController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, *, organization_id: str, user_permission: BaseUserPermission, current_user: str):
         # Create db record
-        record = await self.db.fetchrow(
+        record = await user_db.get().fetchrow(
             QUERIES["CREATE_USER_PERMISSION"],
             organization_id,
             uuid4().hex,
@@ -30,7 +27,7 @@ class UserPermissionController:
 
     async def get(self, *, organization_id: str, id: int):
         # Get item record here
-        record = await self.db.fetchrow(QUERIES["GET_USER_PERMISSION"], organization_id, id)
+        record = await user_db.get().fetchrow(QUERIES["GET_USER_PERMISSION"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -40,7 +37,7 @@ class UserPermissionController:
         return UserPermission(**record)
 
     async def get_user_organizations(self, *, user_id: int) -> List[str]:
-        records = await self.db.fetch(QUERIES["GET_USER_ORGANIZATIONS"], user_id)
+        records = await user_db.get().fetch(QUERIES["GET_USER_ORGANIZATIONS"], user_id)
 
         return records
 
@@ -59,7 +56,7 @@ class UserPermissionController:
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await user_db.get().fetchrow(
             QUERIES["UPDATE_USER_PERMISSION"],
             organization_id,
             id,
@@ -75,7 +72,7 @@ class UserPermissionController:
         return UserPermission(**record)
 
     async def delete(self, *, id: int, current_user: str, organization_id: str) -> bool:
-        result = await self.db.execute(
+        result = await user_db.get().execute(
             QUERIES["DELETE_USER_PERMISSION"],
             organization_id,
             id,

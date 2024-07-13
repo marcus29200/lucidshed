@@ -102,7 +102,7 @@ async def test_should_get_engineering_item(data_api: TestClient):
 
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    response = await data_api.get(f"test/engineering/{item['id']}", headers=headers)
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     assert response.status_code == 200
 
     engineering_item = response.json()
@@ -121,7 +121,7 @@ async def test_should_not_get_engineering_item_with_expired_token(data_api: Test
 
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    response = await data_api.get(f"test/engineering/{item['id']}", headers=expired_headers)
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=expired_headers)
     assert response.status_code == 401
 
 
@@ -131,7 +131,7 @@ async def test_should_get_engineering_items(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"}, headers=headers)
 
-    items = await page_results(data_api, "test/engineering", headers=headers)
+    items = await page_results(data_api, f"{data_api.test_org_id}/engineering", headers=headers)
 
     assert len(items) == 2
 
@@ -142,7 +142,7 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"}, headers=headers)
 
-    items = await page_results(data_api, "test/engineering", limit=1, headers=headers)
+    items = await page_results(data_api, f"{data_api.test_org_id}/engineering", limit=1, headers=headers)
 
     assert len(items) == 2
 
@@ -167,7 +167,9 @@ async def test_should_not_get_engineering_items_with_expired_token(data_api: Tes
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"}, headers=headers)
 
-    items = await page_results(data_api, "test/engineering", headers=expired_headers, expected_status_code=401)
+    items = await page_results(
+        data_api, f"{data_api.test_org_id}engineering", headers=expired_headers, expected_status_code=401
+    )
 
     assert len(items) == 0
 
@@ -177,7 +179,9 @@ async def test_should_update_engineering_item(data_api: TestClient):
 
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    response = await data_api.patch(f"test/engineering/{item['id']}", json={"title": "Test Updated"}, headers=headers)
+    response = await data_api.patch(
+        f"{data_api.test_org_id}/engineering/{item['id']}", json={"title": "Test Updated"}, headers=headers
+    )
     assert response.status_code == 200
 
     item = response.json()
@@ -190,11 +194,11 @@ async def test_should_not_update_engineering_item_with_expired_token(data_api: T
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
     response = await data_api.patch(
-        f"test/engineering/{item['id']}", json={"title": "Test Updated"}, headers=expired_headers
+        f"{data_api.test_org_id}/engineering/{item['id']}", json={"title": "Test Updated"}, headers=expired_headers
     )
     assert response.status_code == 401
 
-    response = await data_api.get(f"test/engineering/{item['id']}", headers=headers)
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     item = response.json()
     assert item["title"] != "Test Updated"
 
@@ -204,10 +208,10 @@ async def test_should_delete_engineering_item(data_api: TestClient):
 
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    response = await data_api.delete(f"test/engineering/{item['id']}", headers=headers)
+    response = await data_api.delete(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.get(f"test/engineering/{item['id']}", headers=headers)
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     assert response.status_code == 404
 
 
@@ -216,8 +220,8 @@ async def test_should_not_delete_engineering_item_with_expired_token(data_api: T
 
     item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    response = await data_api.delete(f"test/engineering/{item['id']}", headers=expired_headers)
+    response = await data_api.delete(f"{data_api.test_org_id}/engineering/{item['id']}", headers=expired_headers)
     assert response.status_code == 401
 
-    response = await data_api.get(f"test/engineering/{item['id']}", headers=headers)
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     assert response.status_code == 200

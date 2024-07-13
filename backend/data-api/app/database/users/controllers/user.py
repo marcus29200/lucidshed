@@ -1,21 +1,17 @@
 from typing import List, Optional, Tuple
 from uuid import uuid4
 
+from app.api.settings import user_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 
 class UserController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, *, user: BaseUser, current_user: str):
-
         # Create db record
-        record = await self.db.fetchrow(
+        record = await user_db.get().fetchrow(
             QUERIES["CREATE_USER"],
             uuid4().hex,
             user.email,
@@ -43,9 +39,9 @@ class UserController:
 
         # Get item record here
         if organization_id:
-            record = await self.db.fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, identifier)
+            record = await user_db.get().fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, identifier)
         else:
-            record = await self.db.fetchrow(QUERIES["GET_USER"], identifier)
+            record = await user_db.get().fetchrow(QUERIES["GET_USER"], identifier)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -71,9 +67,9 @@ class UserController:
 
         # Get item record here
         if organization_id:
-            records = await self.db.fetch(QUERIES["GET_ORGANIZATION_USERS"], organization_id, sort, limit, offset)
+            records = await user_db.get().fetch(QUERIES["GET_ORGANIZATION_USERS"], organization_id, sort, limit, offset)
         else:
-            records = await self.db.fetch(QUERIES["GET_USERS"], sort, limit, offset)
+            records = await user_db.get().fetch(QUERIES["GET_USERS"], sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -101,7 +97,7 @@ class UserController:
             # TODO validate password, and probably validate using some sort of validated token using email
             old_item_json["password"] = updated_user.get_hashed_password()
 
-        record = await self.db.fetchrow(
+        record = await user_db.get().fetchrow(
             QUERIES["UPDATE_USER"],
             id,
             old_item_json["first_name"],
@@ -130,7 +126,7 @@ class UserController:
             # TODO Need to delete user permissions, maybe delete full user if no permissions are left? Later problem
             pass
         else:
-            result = await self.db.execute(
+            result = await user_db.get().execute(
                 QUERIES["DELETE_USER"],
                 id,
                 current_user,

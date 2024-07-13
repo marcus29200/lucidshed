@@ -1,21 +1,22 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Request, Security
+from asyncpg import InvalidCatalogNameError, create_pool
+from fastapi import APIRouter, Depends, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
+from app.api.dependencies.database import data_db_conn
+from app.api.settings import data_db
+from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
+from app.database.utils import create_database, init_database_tables
 
 engineering_item_router = APIRouter
 
-router = APIRouter(
-    prefix="",
-    tags=["organization"],
-    dependencies=[],
-)
+router = APIRouter(prefix="", tags=["organization"])
 
 
 class PagedResponse(BaseModel):
@@ -33,16 +34,39 @@ async def add_organization(
     request: Request,
     body: BaseOrganization,
 ) -> Organization:
-    org = await request.app.organization_controller.create(organization=body, current_user=request.state.user.id)
+    # await request.app.db.init_database_tables()
 
-    # Grant current user access to org
-    await request.app.user_permission_controller.create(
-        organization_id=org.id,
-        user_permission=BaseUserPermission(
-            organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
-        ),
-        current_user=request.state.user.id,
-    )
+    async with create_pool(
+        host="localhost", port="5432", user="postgres", password="password"
+    ) as pool, pool.acquire() as conn:
+        try:
+            # Create database
+            await create_database(conn, body.id)
+        except InvalidCatalogNameError:
+            raise Exception()  # TODO Fix
+
+    async with create_pool(
+        host="localhost", port="5432", user="postgres", password="password", database=body.id
+    ) as pool, pool.acquire() as conn:
+        data_db.set(conn)
+
+        await init_database_tables(conn, INIT_STATEMENTS)
+
+        # Initialize database tables
+        async with conn.transaction():
+
+            org = await request.app.organization_controller.create(
+                organization=body, current_user=request.state.user.id
+            )
+
+            # Grant current user access to org
+            await request.app.user_permission_controller.create(
+                organization_id=org.id,
+                user_permission=BaseUserPermission(
+                    organization_id=org.id, user_id=request.state.user.id, role=UserRoleType.ADMIN
+                ),
+                current_user=request.state.user.id,
+            )
 
     return org
 
@@ -51,7 +75,7 @@ async def add_organization(
     "/{organization_id}",
     status_code=200,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes=["member"])],
+    dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
 )
 async def get_organization(request: Request, organization_id: str) -> Organization:
     return await request.app.organization_controller.get(id=organization_id)
@@ -61,7 +85,7 @@ async def get_organization(request: Request, organization_id: str) -> Organizati
     "/{organization_id}",
     status_code=200,
     response_model=Organization,
-    dependencies=[Security(get_current_user, scopes=["admin"])],
+    dependencies=[Security(get_current_user, scopes=["admin"]), Depends(data_db_conn)],
 )
 async def update_organization(request: Request, organization_id: str, body: BaseOrganization) -> Organization:
     return await request.app.organization_controller.update(
@@ -69,7 +93,11 @@ async def update_organization(request: Request, organization_id: str, body: Base
     )
 
 
-@router.delete("/{organization_id}", status_code=200, dependencies=[Security(get_current_user, scopes=["admin"])])
+@router.delete(
+    "/{organization_id}",
+    status_code=200,
+    dependencies=[Security(get_current_user, scopes=["admin"]), Depends(data_db_conn)],
+)
 async def delete_organization(request: Request, organization_id: str):
     return await request.app.organization_controller.delete(id=organization_id, current_user=request.state.user.id)
 

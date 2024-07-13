@@ -1,20 +1,17 @@
 from typing import List, Optional, Tuple
 
+from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.database import DatabaseController
 from app.database.teams.models.team import BaseTeam, Team
 from app.exceptions.common import ObjectNotFoundException
 
 
 class TeamController:
-    def __init__(self, db: DatabaseController):
-        self.db: DatabaseController = db
-
     async def create(self, organization_id: str, team: BaseTeam, current_user: str) -> Team:
         # Create db record
         # How do we handle if completed is set right away?
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_TEAM"], organization_id, team.title, team.description, current_user, current_user
         )
 
@@ -24,7 +21,7 @@ class TeamController:
 
     async def get(self, *, organization_id: str, id: int) -> Team:
         # Get item record here
-        record = await self.db.fetchrow(QUERIES["GET_TEAM"], organization_id, id)
+        record = await data_db.get().fetchrow(QUERIES["GET_TEAM"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
@@ -44,7 +41,7 @@ class TeamController:
             sort, offset = parse_cursor(cursor)
 
         # Get item record here
-        records = await self.db.fetch(QUERIES["GET_ALL_TEAMS"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(QUERIES["GET_ALL_TEAMS"], organization_id, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -67,7 +64,7 @@ class TeamController:
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_TEAM"],
             organization_id,
             id,
@@ -83,7 +80,7 @@ class TeamController:
         return Team(**record)
 
     async def delete(self, *, organization_id: str, id: int, current_user: str) -> bool:
-        result = await self.db.execute(
+        result = await data_db.get().execute(
             QUERIES["DELETE_TEAM"],
             organization_id,
             id,

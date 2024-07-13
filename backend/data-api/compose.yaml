@@ -28,7 +28,7 @@ services:
     restart: always
     user: postgres
     environment:
-      - POSTGRES_DB=data-api
+      - POSTGRES_DB=users
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     ports:

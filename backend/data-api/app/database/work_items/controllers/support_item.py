@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.support_item import BaseSupportItem, SupportItem
@@ -8,11 +9,11 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 class SupportController(WorkItemController):
     async def create(
-        self, *, organization_id: str, new_support_item:BaseSupportItem, current_user: str
+        self, *, organization_id: str, new_support_item: BaseSupportItem, current_user: str
     ) -> SupportItem:
-        
+
         # How do we handle if completed is set right away?
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["CREATE_SUPPORT_ITEM"],
             organization_id,
             new_support_item.title,
@@ -33,12 +34,12 @@ class SupportController(WorkItemController):
         # TODO Create history entry?
 
         return SupportItem(**record)
-    
+
     async def get(self, *, organization_id: str, id: int) -> SupportItem:
         record = await super().get(organization_id=organization_id, id=id, scope="SUPPORT")
 
         return SupportItem(**record)
-    
+
     async def get_all(
         self,
         *,
@@ -55,7 +56,7 @@ class SupportController(WorkItemController):
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
-            scope="SUPPORT"
+            scope="SUPPORT",
         )
 
         return [SupportItem(**record) for record in records], cursor
@@ -75,7 +76,7 @@ class SupportController(WorkItemController):
 
         old_item_json.update(**new_item_json)
 
-        record = await self.db.fetchrow(
+        record = await data_db.get().fetchrow(
             QUERIES["UPDATE_SUPPORT_ITEM"],
             organization_id,
             id,
@@ -102,4 +103,4 @@ class SupportController(WorkItemController):
 
         # TODO Create history entry on new engineering item changes
 
-        return SupportItem(**record)    
+        return SupportItem(**record)

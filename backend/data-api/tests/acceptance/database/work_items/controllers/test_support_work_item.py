@@ -63,14 +63,16 @@ async def test_get_support_work_item(data_app):
     org = await create_organization(data_app)
     support_item = await create_support_item(data_app, org.id)
 
-    support_item = await data_app.support_controller.get(organization_id="test", id=support_item.id)
+    support_item = await data_app.support_controller.get(organization_id=org.id, id=support_item.id)
 
     assert support_item.id
 
 
 async def test_get_support_work_item_raises_not_found_exception(data_app):
+    org = await create_organization(data_app)
+
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.get(organization_id="test", id=0)
+        await data_app.support_controller.get(organization_id=org.id, id=0)
 
 
 async def test_get_all_support_work_item(data_app):
@@ -78,7 +80,7 @@ async def test_get_all_support_work_item(data_app):
     await create_support_item(data_app, org.id)
     await create_support_item(data_app, org.id)
 
-    items = await page_results(data_app.support_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.support_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], SupportItem)
@@ -90,7 +92,7 @@ async def test_get_all_support_work_item_paging(data_app):
     await create_support_item(data_app, org.id)
     await create_support_item(data_app, org.id)
 
-    items = await page_results(data_app.support_controller, organization_id="test", limit=1)
+    items = await page_results(data_app.support_controller, organization_id=org.id, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], SupportItem)
@@ -104,7 +106,7 @@ async def _test_get_all_support_work_item_paging_sorting(data_app):
     await create_support_item(data_app, org.id, title="Test1")
 
     items = await page_results(
-        data_app.support_controller, organization_id="test", sort=WorkItemSortableField.TITLE, page_size=1
+        data_app.support_controller, organization_id=org.id, sort=WorkItemSortableField.TITLE, page_size=1
     )
 
     assert len(items) == 2
@@ -121,7 +123,7 @@ async def test_update_support_work_item(data_app):
     old_modified_at = support_item.modified_at
 
     support_item = await data_app.support_controller.update(
-        organization_id="test",
+        organization_id=org.id,
         id=support_item.id,
         updated_support_item=support_item,
         current_user="test@test.com",
@@ -137,15 +139,16 @@ async def test_delete_support_work_item(data_app):
     support_item = await create_support_item(data_app, org.id)
 
     result = await data_app.support_controller.delete(
-        organization_id=support_item.organization_id,
-        id=support_item.id,
-        current_user="test@test.com",
-        scope="SUPPORT"
+        organization_id=support_item.organization_id, id=support_item.id, current_user="test@test.com", scope="SUPPORT"
     )
 
     assert result is True
 
 
 async def test_delete_support_work_item_fails_when_doesnt_exist(data_app):
+    org = await create_organization(data_app)
+
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.delete(organization_id="t", id=0, current_user="test@test.com", scope="SUPPORT")
+        await data_app.support_controller.delete(
+            organization_id=org.id, id=0, current_user="test@test.com", scope="SUPPORT"
+        )

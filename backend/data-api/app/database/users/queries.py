@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
     f"""
 CREATE TABLE IF NOT EXISTS user_permissions (
     id VARCHAR({MAX_ID_LENGTH}),
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
+    organization_id VARCHAR({MAX_ID_LENGTH}),
     {BASE_MODEL_FIELDS},
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     disabled BOOLEAN DEFAULT FALSE,
