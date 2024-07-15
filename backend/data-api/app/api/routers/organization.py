@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
+from uuid import uuid4
 
 from asyncpg import InvalidCatalogNameError, create_pool
 from fastapi import APIRouter, Depends, Request, Security
@@ -13,6 +14,7 @@ from app.database.organizations.models.organization import BaseOrganization, Org
 from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
 from app.database.utils import create_database, init_database_tables
+from app.exceptions.common import ObjectNotFoundException
 
 engineering_item_router = APIRouter
 
@@ -22,6 +24,9 @@ router = APIRouter(prefix="", tags=["organization"])
 class PagedResponse(BaseModel):
     items: List[User]
     cursor: Optional[str] = None
+
+
+BLOCKED_ORG_IDS = ["users", "auth", "signup", "register"]
 
 
 @router.post(
@@ -34,7 +39,13 @@ async def add_organization(
     request: Request,
     body: BaseOrganization,
 ) -> Organization:
-    # await request.app.db.init_database_tables()
+    if body.id in BLOCKED_ORG_IDS:
+        raise JSONResponse({"detail": "Unable to create organization"}, status_code=412)
+
+    if request.state.user.created_org_count > request.state.user.created_org_limit:
+        raise JSONResponse(
+            {"detail": f"Organization limit [{request.state.user.created_org_limit}] reached"}, status_code=412
+        )
 
     async with create_pool(
         host="localhost", port="5432", user="postgres", password="password"
@@ -105,15 +116,19 @@ async def delete_organization(request: Request, organization_id: str):
 @router.post(
     "/{organization_id}/users",
     status_code=200,
-    response_model=User,
+    response_model=Dict[str, str],
     dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def add_organization_user(request: Request, organization_id: str, body: BaseUser) -> User:
+async def add_organization_user(request: Request, organization_id: str, body: BaseUser) -> Dict[str, str]:
     if not body.permissions:
         # TODO Raise a useful exception here if no permissions were defined
         raise Exception()
 
-    user = await request.app.user_controller.create(user=body, current_user=request.state.user.id)
+    # TODO This needs to be fixed, if the user already exists, don't create, or catch the error
+    try:
+        user = await request.app.user_controller.get(id=None, email=body.email)
+    except ObjectNotFoundException:
+        user = await request.app.user_controller.create(user=body, current_user=request.state.user.id)
 
     body.permissions.user_id = user.id
     user_permission = await request.app.user_permission_controller.create(
@@ -122,7 +137,19 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
 
     user.permissions = user_permission
 
-    return user
+    # TODO Send email to user with link to organization if verified, else send them to the verify page with the
+    # verification code
+    if not user.verified:
+        if not user.reset_code:
+            user.reset_code = uuid4().hex
+            user = await request.app.user_controller.update(
+                id=user.id, updated_user=user, current_user=request.state.user.id
+            )
+
+        if request.app.settings.testing is True:
+            return {"id": user.id, "reset_code": user.reset_code}
+
+    return {"id": user.id}
 
 
 @router.get(

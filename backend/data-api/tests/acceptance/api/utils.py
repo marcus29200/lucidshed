@@ -9,6 +9,8 @@ expired_headers = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoidGVzdEB0ZXN0LmNvbSIsInNjb3BlcyI6W10sImV4cCI6MTcxOTU4ODc5Mi4zNjUxN30.15fa1fwuhx-FQLHPzbxOmZ35afvyxzJYFs6c-cIt_o4"  # noqa
 }
 
+DEFAULT_PASSWORD = "WeL!keStr0ngpasswordsHere"
+
 
 async def add_organization(
     data_api: TestClient,
@@ -21,7 +23,8 @@ async def add_organization(
 
     response = await data_api.post("", json=data, headers=headers)
 
-    assert response.status_code == expected_status_code
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
     if response.status_code == 201:
         pool = await create_pool(
@@ -48,31 +51,38 @@ async def add_organization_user(
     data.update(**overrides)
 
     response = await data_api.post(f"{organization_id}/users", json=data, headers=headers)
-    assert response.status_code == 200
+
+    if response.status_code != 200:
+        raise AssertionError(f"{response.status_code} != {200}")
 
     return response.json()
 
 
 async def authenticate(data_api, user_email: Optional[str] = "test@test.com", create_org: bool = True):
-    user = await add_user(data_api, {"email": user_email})
+    await add_user(data_api, {"email": user_email})
 
-    response = await data_api.post("auth/login", json={"username": user_email, "password": "test", "scopes": []})
-    headers = {"Authorization": f"Bearer {response.json()['access_token']}"}
+    response = await data_api.post(
+        "users/login", json={"username": user_email, "password": DEFAULT_PASSWORD, "scopes": []}
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+    headers = {"Authorization": f"Bearer {data['token']['access_token']}"}
 
     org = None
     if create_org:
         org = await add_organization(data_api, headers=headers)
 
-    return org, user, headers
+    return org, data["user"], headers
 
 
 async def add_user(
     data_api: TestClient,
     overrides: Optional[Dict[str, Any]] = {},
-    expected_status_code: Optional[int] = 201,
+    expected_status_code: Optional[int] = 200,
     headers: Optional[Dict[str, Any]] = {},
 ):
-    data = {
+    user_data = {
         "first_name": "Test",
         "last_name": "Tester",
         "email": "test@test.com",
@@ -85,13 +95,23 @@ async def add_user(
         "picture": "SGVsbG8sIHdvcmxkIQ==",
         "password": "test",
     }
-    data.update(**overrides)
+    user_data.update(**overrides)
 
-    response = await data_api.post("users", json=data, headers=headers)
+    response = await data_api.post("users/register", json=user_data)
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
-    assert response.status_code == expected_status_code
+    if response.status_code != 200:
+        return None
 
-    return response.json()
+    user = response.json()
+    assert user["reset_code"]
+
+    response = await data_api.post("users/reset", json={"reset_code": user["reset_code"], "password": DEFAULT_PASSWORD})
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}")
+
+    return user_data
 
 
 async def page_results(
@@ -111,7 +131,9 @@ async def page_results(
         response = await data_api.get(
             f"{endpoint}?sort={sort if sort else 'id'}&limit={limit}&cursor={cursor if cursor else ''}", headers=headers
         )
-        assert response.status_code == expected_status_code
+
+        if response.status_code != expected_status_code:
+            raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
         if response.status_code != 200:
             return items
@@ -149,7 +171,8 @@ async def add_iteration(
 
     response = await data_api.post(f"{organization_id}/iterations", json=data, headers=headers)
 
-    assert response.status_code == expected_status_code
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
     return response.json()
 
@@ -168,6 +191,7 @@ async def add_team(
 
     response = await data_api.post(f"{organization_id}/teams", json=data, headers=headers)
 
-    assert response.status_code == expected_status_code
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
     return response.json()

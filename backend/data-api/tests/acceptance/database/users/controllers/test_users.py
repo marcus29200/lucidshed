@@ -38,7 +38,19 @@ async def test_create_user(data_app):
     assert user.last_name == "Tester"
     assert user.created_at
     assert user.modified_at
-    assert user.password
+    assert user.reset_code
+
+
+async def test_create_user_excludes_fields_when_dumped(data_app):
+    user = await create_user(data_app)
+
+    assert isinstance(user, User)
+
+    assert user.reset_code
+
+    user = user.model_dump()
+    for key in ["reset_code", "password"]:
+        assert key not in user
 
 
 async def test_get_user(data_app):
@@ -111,10 +123,21 @@ async def test_update_user_password(data_app):
     user = await create_user(data_app)
     old_password = user.password
 
-    user.password = "Test2"
-    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id)
+    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id, password="Test2")
 
     assert user.password != old_password
+
+
+async def test_update_user_to_super_admin(data_app):
+    user = await create_user(data_app)
+
+    assert user.super_admin is False
+
+    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id, super_admin=True)
+
+    assert user.super_admin is True
+
+    # TODO need to create script to set user to super admin
 
 
 async def test_delete_user(data_app):

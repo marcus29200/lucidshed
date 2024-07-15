@@ -44,7 +44,6 @@ class BaseWorkItem(BaseModel):
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
     # related_tickets: Optional[List[str]] = []  # TODO Create DB models for these relationships
     # related_files: Optional[List[str]] = []  # TODO Create DB models for these relationships
-    # comments: Optional[List[Comment]] = []  # TODO Create DB models and relationships
     created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     archived_at: Optional[datetime] = None

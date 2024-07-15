@@ -6,7 +6,6 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import get_pool
-from app.api.routers.auth import router as auth_router
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
@@ -50,13 +49,12 @@ class DBMiddleware(BaseHTTPMiddleware):
 
 
 class DataApplication(FastAPI):
-    def __init__(self, settings, *args, **kwargs):
+    def __init__(self, settings: Settings, *args, **kwargs):
         super().__init__(title="LucidShed API")
 
         self.settings = settings
 
         self.include_router(router)
-        self.include_router(auth_router, prefix="/auth")
         self.include_router(user_router, prefix="/users")
         self.include_router(organization_router, prefix="")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
@@ -71,8 +69,6 @@ class DataApplication(FastAPI):
 
         self.database_pools = {}
 
-        self.testing = kwargs.get("testing", False)
-
     async def __aenter__(self):
         await self.init()
 
@@ -84,7 +80,7 @@ class DataApplication(FastAPI):
     async def init(self) -> None:
         self.user_pool = await get_pool(self.database_pools, self.settings.database_name)
         async with self.user_pool.acquire() as conn:
-            if self.testing is True:
+            if self.settings.testing is True:
                 await clear_database(conn, "users")
 
             await init_database_tables(conn, USER_INIT_STATEMENTS)
@@ -105,7 +101,7 @@ class DataApplication(FastAPI):
                 continue
 
             # TODO Remove after we fix the delete database test code
-            if self.testing:
+            if self.settings.testing:
                 async with pool.acquire() as conn:
                     await clear_database(conn, key)
 
@@ -115,7 +111,7 @@ class DataApplication(FastAPI):
 
             # TODO We should delete the db, but currently having an issue where there are open connections and we can't
             # Where are these open connections?
-            # if self.testing:
+            # if self.settings.testing:
             #     try:
             #         async with self.user_pool.acquire() as conn:
             #             await delete_database(conn, key)

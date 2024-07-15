@@ -8,7 +8,7 @@ USER_INIT_STATEMENTS = [
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
-    email VARCHAR({MAX_ID_LENGTH}) UNIQUE,
+    email VARCHAR({MAX_ID_LENGTH}) UNIQUE NOT NULL,
     first_name VARCHAR({MAX_ID_LENGTH}),
     last_name VARCHAR({MAX_ID_LENGTH}),
     disabled BOOLEAN DEFAULT FALSE,
@@ -20,7 +20,11 @@ CREATE TABLE IF NOT EXISTS users (
     bio VARCHAR({MAX_ID_LENGTH}),
     picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE}),
     password VARCHAR(256),
-    super_admin BOOLEAN DEFAULT FALSE
+    super_admin BOOLEAN DEFAULT FALSE,
+    verified BOOLEAN DEFAULT FALSE,
+    reset_code VARCHAR(256),
+    created_org_count INT,
+    created_org_limit INT
 )
     """,
     f"""
@@ -49,7 +53,6 @@ INSERT INTO users
     first_name,
     last_name,
     disabled,
-    password,
     created_by_id,
     modified_by_id,
     title,
@@ -58,9 +61,12 @@ INSERT INTO users
     location,
     timezone,
     bio,
-    picture
+    picture,
+    reset_code,
+    created_org_count,
+    created_org_limit
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 RETURNING *;
 """
 
@@ -148,10 +154,25 @@ SET
     timezone = $13,
     bio = $14,
     picture = $15,
-    password = $16
+    super_admin = $16,
+    password = $17,
+    reset_code = $18
 WHERE id = $1
 RETURNING *;
 """
+
+
+USER_QUERIES[
+    "SET_USER_PASSWORD"
+] = """
+UPDATE users
+SET
+    reset_code = NULL,
+    password = $2
+WHERE reset_code = $1
+RETURNING *;
+"""
+
 
 USER_QUERIES[
     "DELETE_USER"

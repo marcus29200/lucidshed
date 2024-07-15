@@ -2,7 +2,6 @@ import json
 from enum import StrEnum
 from typing import Optional
 
-import bcrypt
 from pydantic import BaseModel, Field
 
 from app.database.common.models import MAX_IMAGE_SIZE, Model
@@ -30,27 +29,36 @@ class BaseUser(BaseModel):
     timezone: Optional[str] = None
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
-    password: str = Field(None, return_in_api=False)  # Need to validate this
-    super_admin: bool = False
     # TODO:
     # preferences: (list of booleans indicating which options are enabled/disabled?)
     # passwordManagement: (is this 2FA settings/SSO?)
     # integrationPreferences: (how does this differ from preferences)
     # skills: (list of strings?)
 
-    def get_hashed_password(self):
-        return bcrypt.hashpw(self.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8") if self.password else ""
-
-    def password_matches(self, password: str):
-        # TODO Will need to change when we have oauth probably
-        return bcrypt.checkpw(password.encode("utf-8"), self.password.encode("utf-8")) if self.password else False
-
 
 class User(Model, BaseUser):
     permissions: Optional[UserPermission] = None
+    password: Optional[str] = Field(None, exclude=True)
+    super_admin: bool = False
+    reset_code: Optional[str] = Field(None, exclude=True)
+    created_org_limit: int = Field(1, exclude=True)
+    created_org_count: int = Field(0, exclude=True)
 
     def __init__(self, **data):
         if isinstance(data.get("permissions"), str):
             data["permissions"] = json.loads(data.get("permissions"))
 
         super().__init__(**data)
+
+    @property
+    def verified(self):
+        # Other things might be able to determine if a user is verified or not
+        return self.password_set
+
+    @property
+    def disabled(self):
+        return False
+
+    @property
+    def password_set(self):
+        return self.password and len(self.password) > 3

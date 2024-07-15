@@ -5,11 +5,15 @@ from app.api.settings import user_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.users.models.user import BaseUser, User, UserSortableField
+from app.database.users.utils import get_hashed_password
 from app.exceptions.common import ObjectNotFoundException
 
 
 class UserController:
     async def create(self, *, user: BaseUser, current_user: str):
+        if not user.email:
+            raise ValueError("User email is required")
+
         # Create db record
         record = await user_db.get().fetchrow(
             QUERIES["CREATE_USER"],
@@ -18,7 +22,6 @@ class UserController:
             user.first_name,
             user.last_name,
             user.disabled,
-            user.get_hashed_password(),
             current_user,
             current_user,
             user.title,
@@ -28,6 +31,9 @@ class UserController:
             user.timezone,
             user.bio,
             user.picture,
+            uuid4().hex,
+            0,  # Org count
+            1,  # Org limit
         )
 
         # TODO Create history entry
@@ -83,23 +89,23 @@ class UserController:
         self,
         *,
         id: str,
-        updated_user: User,
+        updated_user: BaseUser,
         current_user: str,
+        email: Optional[str] = None,
+        password: Optional[str] = None,
+        reset_code: Optional[str] = None,
+        super_admin: Optional[bool] = None,
     ):
-        old_user = await self.get(id=id)
+        old_user = await self.get(id=id, email=email)
 
         new_item_json = updated_user.model_dump(exclude_unset=True)
         old_item_json = old_user.model_dump()
 
         old_item_json.update(**new_item_json)
 
-        if new_item_json.get("password"):
-            # TODO validate password, and probably validate using some sort of validated token using email
-            old_item_json["password"] = updated_user.get_hashed_password()
-
         record = await user_db.get().fetchrow(
             QUERIES["UPDATE_USER"],
-            id,
+            old_user.id,
             old_item_json["first_name"],
             old_item_json["last_name"],
             old_item_json["disabled"],
@@ -114,8 +120,24 @@ class UserController:
             old_item_json["timezone"],
             old_item_json["bio"],
             old_item_json["picture"],
-            old_item_json["password"],
+            super_admin if super_admin is not None else old_user.super_admin,
+            get_hashed_password(password) if password else old_user.password,
+            reset_code if reset_code else old_user.reset_code,
         )
+
+        # TODO Create history entry
+
+        return User(**record)
+
+    async def set_user_password(self, *, reset_code: str, new_password: str) -> bool:
+        record = await user_db.get().fetchrow(
+            QUERIES["SET_USER_PASSWORD"],
+            reset_code,
+            get_hashed_password(new_password),
+        )
+
+        if not record:
+            raise ObjectNotFoundException(object_id=f"Reset Code: {reset_code}")
 
         # TODO Create history entry
 

@@ -22,6 +22,8 @@ class Settings(BaseModel):
     database_user: str = "postgres"
     database_password: str = "secret"
 
+    testing: bool = False
+
 
 load_dotenv(".env")
 

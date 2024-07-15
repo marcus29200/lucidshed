@@ -10,6 +10,7 @@ from app.api.models.users import TokenData
 from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
+from app.database.users.utils import password_matches
 from app.exceptions.common import ObjectNotFoundException
 
 logger = logging.getLogger(__name__)
@@ -25,8 +26,8 @@ PERMISSION_LEVELS = {
 async def authenticate_user(request, email: str, password: str) -> User:
     user = await request.app.user_controller.get(id=None, email=email)
 
-    if not user.password_matches(password):
-        return False
+    if not user or not password_matches(user.password, password):
+        return None
 
     return user
 
@@ -72,6 +73,11 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
     if user.super_admin or security_scopes.scopes[0] == "authenticated":
         request.state.user = user
         return user
+
+    if security_scopes.scopes[0] == "current_user" and "/users" in request.url.path:
+        if user.email == request.path_params["id"]:
+            request.state.user = user
+            return user
 
     if request.path_params.get("organization_id"):
         if not user.permissions:
