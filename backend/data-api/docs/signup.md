@@ -14,10 +14,10 @@ curl --request POST \
 
 The API will return your reset/confirmation code, but you can also see it in the logs (assuming `testing` is true)
 
-Next, set your password by calling the users/reset endpoint
+Next, set your password by calling the users/reset-password endpoint
 ```
 curl --request POST \
-  --url http://localhost:8080/users/reset \
+  --url http://localhost:8080/users/reset-password \
   --header 'Content-Type: application/json' \
   --data '{
   "reset_code": "code from previous call",
