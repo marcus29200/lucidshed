@@ -31,7 +31,7 @@ async def register(request: Request, body: BaseUser) -> Dict[str, Any]:
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 
 
-@router.post("/reset", status_code=200)
+@router.post("/reset-password", status_code=200)
 async def reset(request: Request, body: ResetPassword):
     try:
         await request.app.user_controller.set_user_password(reset_code=body.reset_code, new_password=body.password)
@@ -43,7 +43,7 @@ async def reset(request: Request, body: ResetPassword):
     return JSONResponse({"detail": "Password reset, proceed to login"})
 
 
-@router.post("/reset/request", status_code=200)
+@router.post("/reset-request", status_code=200)
 async def reset_request(request: Request, body: ResetPasswordRequest):
     user = await request.app.user_controller.update(
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"

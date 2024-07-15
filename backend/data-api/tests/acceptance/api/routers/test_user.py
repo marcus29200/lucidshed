@@ -116,14 +116,14 @@ async def test_should_not_update_user_to_super_admin(data_api: TestClient):
 async def test_reset_user_password(data_api: TestClient):
     _, user, _ = await authenticate(data_api)
 
-    response = await data_api.post("users/reset/request", json={"email": user["email"]})
+    response = await data_api.post("users/reset-request", json={"email": user["email"]})
     assert response.status_code == 200
 
     data = response.json()
     assert data["reset_code"]
 
     response = await data_api.post(
-        "users/reset", json={"reset_code": data["reset_code"], "password": "S0meotherStr0ngPassword!"}
+        "users/reset-password", json={"reset_code": data["reset_code"], "password": "S0meotherStr0ngPassword!"}
     )
     assert response.status_code == 200
 

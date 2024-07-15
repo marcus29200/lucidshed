@@ -107,7 +107,7 @@ async def add_user(
     user = response.json()
     assert user["reset_code"]
 
-    response = await data_api.post("users/reset", json={"reset_code": user["reset_code"], "password": DEFAULT_PASSWORD})
+    response = await data_api.post("users/reset-password", json={"reset_code": user["reset_code"], "password": DEFAULT_PASSWORD})
     if response.status_code != expected_status_code:
         raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
