@@ -24,7 +24,7 @@ async def test_should_register_user(data_api: TestClient):
     assert user["email"]
 
 
-async def test_should_not_register_user_duplicate_user(data_api: TestClient):
+async def test_should_not_register_duplicate_user(data_api: TestClient):
     await add_user(data_api)
     await add_user(data_api, expected_status_code=412)
 
@@ -86,7 +86,15 @@ async def test_should_get_user(data_api: TestClient):
     assert user["id"] == user["id"]
 
 
-async def test_should_not_get_user(data_api: TestClient):
+async def test_should_not_get_other_user(data_api: TestClient):
+    _, _, headers = await authenticate(data_api)
+    _, user, _ = await authenticate(data_api, user_email="test2@test.com", create_org=False)
+
+    response = await data_api.get(f"users/{user['id']}", headers=headers)
+    assert response.status_code == 401
+
+
+async def test_should_not_get_missing_user(data_api: TestClient):
     _, _, headers = await authenticate(data_api)
 
     response = await data_api.get("users/0", headers=headers)

@@ -75,9 +75,11 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         return user
 
     if security_scopes.scopes[0] == "current_user" and "/users" in request.url.path:
-        if user.email == request.path_params["id"]:
+        if user.id == request.path_params["id"]:
             request.state.user = user
             return user
+        else:
+            raise credentials_exception
 
     if request.path_params.get("organization_id"):
         if not user.permissions:
