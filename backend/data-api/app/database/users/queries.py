@@ -40,6 +40,15 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     PRIMARY KEY (organization_id, user_id)
 )
     """,
+    f"""
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id VARCHAR({MAX_ID_LENGTH}),
+    user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(256) UNIQUE,
+    expires_at timestamp without time zone DEFAULT NULL,
+    created_at timestamp without time zone DEFAULT NOW()
+)
+    """,
 ]
 
 
@@ -240,4 +249,46 @@ SET
     deleted_at = NOW(),
     deleted_by_id = $3
 WHERE organization_id = $1 AND user_id = $2;
+"""
+
+
+USER_QUERIES[
+    "CREATE_USER_SESSION"
+] = """
+INSERT INTO user_sessions
+(
+    id,
+    user_id,
+    token,
+    expires_at
+)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+"""
+
+
+USER_QUERIES[
+    "GET_USER_SESSION"
+] = """
+SELECT * FROM user_sessions
+WHERE
+    token = $1;
+"""
+
+
+USER_QUERIES[
+    "GET_USER_SESSIONS"
+] = """
+SELECT * FROM user_sessions
+WHERE
+    user_id = $1;
+"""
+
+
+USER_QUERIES[
+    "DELETE_USER_SESSION"
+] = """
+DELETE FROM user_sessions
+WHERE
+    token = $1 OR user_id = $1;
 """

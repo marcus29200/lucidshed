@@ -61,19 +61,30 @@ async def test_should_not_get_auth_token_with_invalid_password(data_api: TestCli
     assert response.status_code == 401
 
 
-async def _test_should_logout(data_api: TestClient):
-    user = await add_user(data_api)
+async def test_should_logout(data_api: TestClient):
+    _, user, headers = await authenticate(data_api, create_org=False)
 
-    response = await data_api.post(
-        "users/login", json={"username": user["email"], "password": DEFAULT_PASSWORD, "scopes": []}
-    )
-
+    response = await data_api.post("users/logout", headers=headers)
     assert response.status_code == 200
 
-    pytest.fail()
+    response = await data_api.get(f"users/{user['id']}", headers=headers)
+    assert response.status_code == 401
 
 
-# TODO Tests for password checks
+async def test_should_ignore_second_logout(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+
+    response = await data_api.post("users/logout", headers=headers)
+    assert response.status_code == 200
+
+    response = await data_api.post("users/logout", headers=headers)
+    assert response.status_code == 200
+    assert response.status_code == 200
+
+    response = await data_api.post(
+        "users/logout", headers=headers
+    )
+    assert response.status_code == 200
 
 
 async def test_should_get_user(data_api: TestClient):

@@ -27,7 +27,9 @@ async def authenticate_as_member(data_api, org_id: str, headers):
     user = response.json()
     assert user["reset_code"]
 
-    response = await data_api.post("users/reset-password", json={"reset_code": user["reset_code"], "password": DEFAULT_PASSWORD})
+    response = await data_api.post(
+        "users/reset-password", json={"reset_code": user["reset_code"], "password": DEFAULT_PASSWORD}
+    )
     assert response.status_code == 200
 
     response = await data_api.post(

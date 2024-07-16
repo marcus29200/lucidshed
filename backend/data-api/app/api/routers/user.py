@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
 from app.database.users.models.user import BaseUser, User
+from app.database.users.models.user_session import BaseUserSession
 from app.exceptions.common import ObjectNotFoundException
 
 user_router = APIRouter
@@ -75,7 +76,21 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
 
     access_token = create_access_token(data={"subject": user.email})
 
+    await request.app.user_session_controller.create(user_session=BaseUserSession(user_id=user.id, token=access_token))
+
     return LoginResponse(user=user, token=Token(access_token=access_token, token_type="bearer"))
+
+
+@router.post("/logout", response_model=None, dependencies=[Security(get_current_user, scopes=["authenticated"])])
+async def logout(request: Request) -> None:
+    token = None
+    try:
+        token = request.headers.get("authorization", "").split("Bearer ")[-1]
+        await request.app.user_session_controller.delete(identifier=token)
+    except ObjectNotFoundException:
+        logger.info(f"Could not invalidate not found user token {token[:5]}")
+
+        return
 
 
 @router.get(

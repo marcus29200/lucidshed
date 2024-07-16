@@ -10,6 +10,7 @@ from app.api.models.users import TokenData
 from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
+from app.database.users.models.user_session import UserSession
 from app.database.users.utils import password_matches
 from app.exceptions.common import ObjectNotFoundException
 
@@ -49,7 +50,8 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         raise HTTPException(status_code=401, detail="Missing Token")
 
     try:
-        payload = decode(token.split("Bearer ")[-1], SECRET_KEY, algorithms=[ALGORITHM])
+        token = token.split("Bearer ")[-1]
+        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         username: str = payload.get("subject")
         if username is None:
@@ -57,6 +59,10 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
 
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(scopes=token_scopes, username=username)
+
+        session: UserSession = await request.app.user_session_controller.get(token=token)
+        if session.expired:
+            raise credentials_exception
     except Exception:
         logger.exception("Unable to verify access token")
 
