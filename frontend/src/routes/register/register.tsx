@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Button, Container, Divider, TextField, Typography } from "@mui/material";
+import { Button, Container, TextField, Typography } from "@mui/material";
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from "@tanstack/react-query";
 import { register } from '../../api/auth'
@@ -7,16 +7,13 @@ import LogoHeader from "../../components/LogoHeader";
 
 const Register = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const beginGoogleOAuth = () => window.location.href = 'http://localhost:9999/api/auth/sso/login?provider=Google&redirectUrl="http://localhost:5173/home'
-
   const navigate = useNavigate();
   const { mutate } = useMutation({
     mutationFn: register,
-    onSuccess: () => {
+    onSuccess: ({ code }) => {
       // do nothing currently with the data
       // just go to login to finish logging in
-      navigate('/login');
+      navigate(`/reset-password?code=${code}`);
     },
     onError: (error) => {
       console.error(error)
@@ -25,7 +22,7 @@ const Register = () => {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    mutate({ email, password })
+    mutate(email);
   }
 
   return (
@@ -59,25 +56,6 @@ const Register = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              inputProps={{
-                minLength: '6',
-                // TODO: set up pattern check
-              }}
-              sx={{ marginTop: '0px', marginBottom: '32px' }}
-              size="small"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
             <Button
               type="submit"
               fullWidth
@@ -85,17 +63,6 @@ const Register = () => {
               color="primary"
             >
               Get started for free
-            </Button>
-
-            <Divider sx={{ marginY: '12px' }}>OR</Divider>
-            <Button
-              fullWidth
-              variant="contained"
-              color="neutral"
-              onClick={beginGoogleOAuth}
-              sx={{ bgcolor: "neutral.lighter", color: "black" }}
-            >
-              Sign up with Google
             </Button>
           </form>
         </div >

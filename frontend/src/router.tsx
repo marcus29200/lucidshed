@@ -8,6 +8,7 @@ import AppLayout from "./components/AppLayout";
 import Epics from "./routes/epics/epics";
 import Stories from "./routes/stories/stories";
 import Tasks from "./routes/tasks/tasks";
+import { ResetPassword } from "./routes/ResetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />
   },
   {
     element: <ProtectedRoute />,

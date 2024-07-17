@@ -15,6 +15,7 @@ const Login = () => {
   const { mutate } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
+      console.log("the data: ", data)
       storeUser(data);
       console.info("successfully registered. check your email")
       navigate('/dashboard');

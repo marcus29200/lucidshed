@@ -26,17 +26,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // attempt to set user on startup
 
 
+  // TODO: put these into types yo
   // TODO: better solution than local storage?
-  function storeUser({ token, refreshToken, username }: { token: string, refreshToken: string, username: string }) {
-    localStorage.setItem('token', token)
-    localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('username', username)
-    setUser(jwtDecode(token))
+  function storeUser({ token, user }: { token: any, user: any }) {
+    localStorage.setItem('token', token?.access_token)
+    setUser(user);
   }
 
   function clearUser() {
     localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
     localStorage.removeItem('username')
   }
 
