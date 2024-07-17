@@ -45,8 +45,8 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     id VARCHAR({MAX_ID_LENGTH}),
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(256) UNIQUE,
-    expires_at timestamp without time zone DEFAULT NULL,
-    created_at timestamp without time zone DEFAULT NOW()
+    expires_at timestamp with time zone DEFAULT NULL,
+    created_at timestamp with time zone DEFAULT NOW()
 )
     """,
 ]

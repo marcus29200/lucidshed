@@ -11,11 +11,11 @@ BASE_WORK_ITEM_FIELDS = f"""
     description TEXT,
     status VARCHAR(15),
     priority VARCHAR(15),
-    estimated_completion_date timestamp without time zone DEFAULT NULL,
+    estimated_completion_date timestamp with time zone DEFAULT NULL,
     starred BOOLEAN DEFAULT FALSE,
-    archived_at timestamp without time zone DEFAULT NULL,
+    archived_at timestamp with time zone DEFAULT NULL,
     archived_by_id VARCHAR({MAX_ID_LENGTH}),
-    completed_at timestamp without time zone DEFAULT NULL,
+    completed_at timestamp with time zone DEFAULT NULL,
     completed_by_id VARCHAR({MAX_ID_LENGTH})
 """
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS engineering_items (
     estimate INT,
     iteration_id INT REFERENCES iterations(id) ON DELETE SET NULL,
     team_id INT REFERENCES teams(id) ON DELETE SET NULL,
-    due_date timestamp without time zone DEFAULT NULL,
+    due_date timestamp with time zone DEFAULT NULL,
     acceptance_criteria TEXT[]
 );
     """,
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS support_items (
     customer VARCHAR(30),
     primary_contact VARCHAR(30),
     secondary_contact TEXT[],
-    next_response_due timestamp without time zone DEFAULT NULL
+    next_response_due timestamp with time zone DEFAULT NULL
 );
     """,
     f"""

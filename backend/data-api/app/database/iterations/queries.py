@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS iterations (
     title VARCHAR({MAX_ID_LENGTH}),
     description TEXT,
     status VARCHAR(30),
-    start_date timestamp without time zone DEFAULT NULL,
-    end_date timestamp without time zone DEFAULT NULL
+    start_date timestamp with time zone DEFAULT NULL,
+    end_date timestamp with time zone DEFAULT NULL
 )
     """
 ]

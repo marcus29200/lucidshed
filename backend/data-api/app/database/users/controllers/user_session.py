@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-from typing import List
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from app.api.dependencies.authorization import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -17,7 +16,7 @@ class UserSessionController:
             uuid4().hex,
             user_session.user_id,
             user_session.token,
-            datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
         )
 
         # TODO Create history entry
@@ -48,7 +47,8 @@ class UserSessionController:
 
         # TODO Create history entry
 
-        if result != "UPDATE 1":
+        delete_count = int(result.split("DELETE ")[-1])
+        if delete_count < 1:
             raise ObjectNotFoundException(object_id=identifier[:5])
 
         return True

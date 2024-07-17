@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Dict
 
 from fastapi import HTTPException, Request
@@ -36,7 +36,7 @@ async def authenticate_user(request, email: str, password: str) -> User:
 def create_access_token(data: Dict[str, Any]):
     to_encode = data.copy()
 
-    to_encode.update({"exp": datetime.now().timestamp() + ACCESS_TOKEN_EXPIRE_MINUTES})
+    to_encode.update({"exp": datetime.now(UTC).timestamp() + ACCESS_TOKEN_EXPIRE_MINUTES})
     encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     return encoded_jwt

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from pydantic import BaseModel
 
@@ -8,11 +8,11 @@ class BaseUserSession(BaseModel):
     token: str
 
 
-class UserSession(BaseModel):
+class UserSession(BaseUserSession):
     id: str
     created_at: datetime
     expires_at: datetime
 
     @property
     def expired(self):
-        return datetime.now() >= self.expires_at
+        return datetime.now(UTC) >= self.expires_at
