@@ -10,7 +10,8 @@ export const CreateOrganization = () => {
   const { mutate } = useMutation({
     mutationFn: createOrganization,
     onSuccess: (data) => {
-      navigate(`/${data.id}`)
+      localStorage.setItem("orgId", data.id);
+      navigate(`/setup/user`)
     },
     onError: (error) => {
       console.error(error);

@@ -8,8 +8,7 @@ const EpicsCreationForm = () => {
   const { orgId } = useParams();
   const { mutate } = useMutation({
     mutationFn: createEpic,
-    onSuccess: (data) => {
-      console.log("the epic I just created: ", data)
+    onSuccess: () => {
       navigate('..', { relative: 'path' });
     },
     onError: (error) => {
@@ -22,7 +21,6 @@ const EpicsCreationForm = () => {
   const onSubmit = (e) => {
     e.preventDefault();
     const form = e.target as any;
-    console.log(form.elements?.title?.value)
     mutate({
       orgId: orgId as string,
       data: {

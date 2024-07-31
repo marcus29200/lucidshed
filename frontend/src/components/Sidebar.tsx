@@ -34,12 +34,12 @@ const NAVIGATION_ITEMS = [
 ]
 
 // TODO: update the sidebar button to close/open sidebar
+// TODO: update active list item css
 const Sidebar = () => {
   const { orgId } = useParams()
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   const width = expanded ? '240px' : '72px';
-  console.log(location.pathname)
   return (
     <Drawer
       sx={{

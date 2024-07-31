@@ -10,7 +10,7 @@ const AppLayout = () => {
       <Sidebar />
       <Box sx={{ flexGrow: 1, backgroundColor: '#E9EAEC' }} >
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-          <AppHeader title="Dashboard"></AppHeader>
+          <AppHeader></AppHeader>
           <Box sx={{ padding: '1rem' }}>
             <Box sx={{ height: '100%', backgroundColor: 'white', borderRadius: '4px' }}>
               <Outlet />

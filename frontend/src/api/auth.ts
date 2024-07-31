@@ -54,5 +54,4 @@ export const resetPassword = async (data: { password: string, reset_code: string
     throw (await response.json());
   }
   return await response.json();
-
 }

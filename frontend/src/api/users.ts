@@ -42,17 +42,22 @@ export const mapUser = (apiUser): User => {
   }
 }
 
+// TODO: rename this to be getUserWithinOrganization
 export const getUser = async (id: string): Promise<User> => {
-  const res = await fetch(`${BASE_URL}/users/${id}`, { headers: getAuthHeaders() })
+  // TODO: this needs to be fixed
+  const orgId = localStorage.getItem('orgId');
+  const res = await fetch(`${BASE_URL}/${orgId}/users/${id}`, { headers: getAuthHeaders() })
   if (!res.ok) {
     throw (await res.json())
   }
   const user = await res.json();
+  console.log("the user: ", user)
   return mapUser(user);
 }
 
 export const patchUser = async ({ id, data }: EditUserPayload) => {
   const res = await fetch(`${BASE_URL}/users/${id}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       ...getAuthHeaders()

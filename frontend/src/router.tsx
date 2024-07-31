@@ -13,6 +13,8 @@ import { CreateOrganization } from "./routes/CreateOrganization";
 import { getOrganization } from "./api/organizations";
 import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
 import { getEpics } from "./api/epics";
+import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
+import { getUser } from "./api/users";
 // import { QueryClient } from "@tanstack/react-query";
 
 // const queryClient = new QueryClient({
@@ -51,10 +53,19 @@ export const router = createBrowserRouter([
   },
   {
     path: "/setup/user",
-    element: <>This will be user setup</>
+    loader: async () => {
+      const userId = localStorage.getItem('userId');
+      return getUser(userId);
+    },
+    element: <UserSignupAdditionalInfo />
   },
   {
     element: <ProtectedRoute />,
+    id: 'user',
+    loader: async () => {
+      const userId = localStorage.getItem('userId');
+      return getUser(userId as string)
+    },
     children: [
       {
         element: <AppLayout />,

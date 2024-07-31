@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { getUser as getUserFromApi } from "../api/users";
 
 // just a subset of fields on the JWT right now
 export type User = {
@@ -22,22 +23,26 @@ export const AuthContext = createContext<AuthContextValue | null>(null)
 
 // I need a (me) route
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(getUser())
+  const [user, setUser] = useState<any>()
   // attempt to set user on startup
 
 
   // TODO: put these into types yo
   // TODO: better solution than local storage?
-  function storeUser({ token, user }: { token: any, user: any }) {
+  function storeUserAndToken({ token, user }: { token: any, user: any }) {
     console.log(jwtDecode(token.access_token))
     localStorage.setItem('token', token?.access_token)
     localStorage.setItem('userId', user.id)
     setUser(user);
   }
 
+  function updateUser(user) {
+    setUser(user)
+  }
+
   function clearUser() {
     localStorage.removeItem('token')
-    localStorage.removeItem('username')
+    localStorage.removeItem('userId')
   }
 
   function updateUserPermissionsBlock(permissions) {
@@ -45,18 +50,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   // how to get user from the 
-  function getUser() {
-    const userToken = localStorage.getItem("token")
-    if (!userToken) {
+  async function getUser() {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       return null
     }
-
-    return jwtDecode(userToken)
+    return getUserFromApi(userId as string)
   }
 
   const value = {
     user,
-    storeUser,
+    storeUser: storeUserAndToken,
+    updateUser,
     getUser,
     clearUser,
     updateUserPermissionsBlock
