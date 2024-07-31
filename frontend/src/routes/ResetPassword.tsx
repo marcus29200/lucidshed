@@ -16,7 +16,7 @@ export const ResetPassword = () => {
     mutationFn: resetPassword,
     onSuccess: (data) => {
       console.log(data);
-      navigate('/login');
+      navigate('/setup/org');
     },
     onError: (error) => {
       console.error(error);

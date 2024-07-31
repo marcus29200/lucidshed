@@ -2,9 +2,9 @@ import { FormEvent, useState } from 'react';
 import { Button, Container, Divider, TextField, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from "../../hooks/auth";
-import { login } from '../../api/auth'
-import LogoHeader from '../../components/LogoHeader';
+import { useAuth } from "../hooks/auth";
+import { login } from '../api/auth'
+import LogoHeader from '../components/LogoHeader';
 
 const Login = () => {
   const [email, setEmail] = useState("");

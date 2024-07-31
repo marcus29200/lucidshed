@@ -7,16 +7,29 @@ import { Link, useLocation } from "react-router-dom";
 
 const NAVIGATION_ITEMS = [
   {
+    to: '/',
+    label: 'Dashboard',
+    icon: "dashboard"
+  },
+  {
     to: '/epics',
     label: 'Epics',
+    icon: "book"
   },
   {
     to: '/stories',
-    label: 'Stories'
+    label: 'Stories',
+    icon: 'book',
   },
   {
     to: '/tasks',
-    label: 'Tasks'
+    label: 'Tasks',
+    icon: 'tasks',
+  },
+  {
+    to: '/sprints',
+    label: 'Sprints',
+    icon: 'sprint'
   }
 ]
 

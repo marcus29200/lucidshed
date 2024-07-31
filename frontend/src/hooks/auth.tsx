@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // TODO: put these into types yo
   // TODO: better solution than local storage?
   function storeUser({ token, user }: { token: any, user: any }) {
+    console.log(jwtDecode(token.access_token))
     localStorage.setItem('token', token?.access_token)
     setUser(user);
   }
