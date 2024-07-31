@@ -1,7 +1,7 @@
 
 const Stories = () => {
   return (
-    <p>what</p>
+    <p>Stories TBD</p>
   )
 }
 

@@ -12,6 +12,7 @@ import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { getOrganization } from "./api/organizations";
 import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
+import { getEpics } from "./api/epics";
 // import { QueryClient } from "@tanstack/react-query";
 
 // const queryClient = new QueryClient({
@@ -59,7 +60,6 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         path: ':orgId',
         loader: async ({ params }) => {
-          console.log(params.orgId)
           return getOrganization(params.orgId);
         },
         children: [
@@ -73,18 +73,16 @@ export const router = createBrowserRouter([
 
               {
                 index: true,
-                element: <Epics />
+                element: <Epics />,
+                loader: async ({ params }) => {
+                  return getEpics({ orgId: params.orgId, });
+                },
               },
               {
                 path: 'new',
                 element: <EpicsCreationForm />
               }
             ],
-            loader: async ({ params }) => {
-              console.log(params)
-              return {}
-              // TODO: get epics
-            },
           },
           {
             path: 'stories',

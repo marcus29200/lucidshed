@@ -1,9 +1,16 @@
 import { BASE_URL } from '../environment'
 import { getAuthHeaders } from './utils'
 
+export type CreateEpicPayload = {
+  title: string;
+  description?: string;
+  estimated_completion_date?: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  item_type: 'epic';
+}
 
-export const createEpic = async ({ orgId, data }) => {
-  const res = await fetch(`${BASE_URL}/${data.orgId}/engineering`, {
+export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateEpicPayload }) => {
+  const res = await fetch(`${BASE_URL}/${orgId}/engineering`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -14,6 +21,7 @@ export const createEpic = async ({ orgId, data }) => {
     )
   })
   // TODO: add error handling of some kind here...
+  console.log('did the epic get made?', res.ok)
   return await res.json()
 
 }
@@ -37,7 +45,9 @@ export const getEpics = async ({ orgId, search }) => {
   }
 
   const results = await res.json();
-  return results.res.json();
+  console.log("the results: ", results)
+  // TODO: replace this by API filter
+  return results?.items?.filter(item => item.item_type === 'epic');
 }
 
 export const getEpic = async ({ orgId, epicId }) => {

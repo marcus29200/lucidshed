@@ -33,6 +33,7 @@ const NAVIGATION_ITEMS = [
   }
 ]
 
+// TODO: update the sidebar button to close/open sidebar
 const Sidebar = () => {
   const { orgId } = useParams()
   const [expanded, setExpanded] = useState(true);
@@ -74,7 +75,6 @@ const Sidebar = () => {
         }
       </List>
       <Divider variant="middle" />
-
     </Drawer>
   )
 }

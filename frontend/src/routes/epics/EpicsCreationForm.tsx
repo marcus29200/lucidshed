@@ -1,13 +1,38 @@
 import { Box, Button, Grid, TextField, Typography } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers"
-import { useNavigate } from "react-router-dom"
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate, useParams } from "react-router-dom"
+import { createEpic } from "../../api/epics";
 
 const EpicsCreationForm = () => {
+  const { orgId } = useParams();
+  const { mutate } = useMutation({
+    mutationFn: createEpic,
+    onSuccess: (data) => {
+      console.log("the epic I just created: ", data)
+      navigate('..', { relative: 'path' });
+    },
+    onError: (error) => {
+      // TODO: present some kind of error toast
+      console.error(error)
+    }
+  });
+
   // TODO: set up the mutation
   const onSubmit = (e) => {
     e.preventDefault();
     const form = e.target as any;
     console.log(form.elements?.title?.value)
+    mutate({
+      orgId: orgId as string,
+      data: {
+        title: form?.elements?.title?.value,
+        description: form?.elements?.description?.value,
+        // estimated_completion_date: new Date(form?.elements?.targetDate?.value).toISOString(),
+        priority: form?.elements?.priority?.value,
+        item_type: 'epic'
+      }
+    })
 
   }
   const navigate = useNavigate()

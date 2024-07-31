@@ -1,9 +1,11 @@
 
 import { Box, Button, TextField, Typography } from "@mui/material";
 import EpicsTable from "./EpicsTable";
-import { useNavigate } from "react-router-dom";
+import EpicRow from "./EpicRow";
+import { useLoaderData, useNavigate } from "react-router-dom";
 const Epics = () => {
   const navigate = useNavigate()
+  const epics = useLoaderData();
   // TODO: there needs to be a loader :)
   // TODO: fill top action bar (search/filter/create)
   // TODO: add table and row items
@@ -17,10 +19,10 @@ const Epics = () => {
           <Button variant="contained" onClick={() => navigate('new')}>Create Epic</Button>
         </Box>
       </Box>
-      <EpicsTable />
-
+      <EpicsTable>
+        {epics.map(epic => <EpicRow epic={epic} key={epic.id} />)}
+      </EpicsTable>
     </>
-
   )
 }
 
