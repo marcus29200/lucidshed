@@ -15,8 +15,8 @@ export const ResetPassword = () => {
   const { mutate } = useMutation({
     mutationFn: resetPassword,
     onSuccess: (data) => {
-      console.log(data);
-      navigate('/setup/org');
+      console.log('reset password data: ', data);
+      navigate('/login');
     },
     onError: (error) => {
       console.error(error);

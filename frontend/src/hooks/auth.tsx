@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 // just a subset of fields on the JWT right now
@@ -12,17 +12,17 @@ export type User = {
 }
 
 type AuthContextValue = {
-  user: User | null;
+  user: any;
   storeUser(userPayload: { token: string, refreshToken: string, username: string }): void;
   getUser(): void;
   clearUser(): void;
-
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
+// I need a (me) route
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(getUser())
+  const [user, setUser] = useState<any>(getUser())
   // attempt to set user on startup
 
 
@@ -31,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   function storeUser({ token, user }: { token: any, user: any }) {
     console.log(jwtDecode(token.access_token))
     localStorage.setItem('token', token?.access_token)
+    localStorage.setItem('userId', user.id)
     setUser(user);
   }
 
@@ -39,13 +40,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('username')
   }
 
+  function updateUserPermissionsBlock(permissions) {
+    setUser({ ...user, permissions })
+  }
+
+  // how to get user from the 
   function getUser() {
     const userToken = localStorage.getItem("token")
     if (!userToken) {
       return null
     }
 
-    return jwtDecode(userToken) as User
+    return jwtDecode(userToken)
   }
 
   const value = {
@@ -53,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storeUser,
     getUser,
     clearUser,
+    updateUserPermissionsBlock
   };
 
   return <AuthContext.Provider value={value}> {children} </AuthContext.Provider>;

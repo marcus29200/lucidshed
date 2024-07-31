@@ -50,7 +50,7 @@ export const theme = createTheme({
           borderRadius: 12
         }
       }
-    }
+    },
   },
   typography: {
     fontFamily: [

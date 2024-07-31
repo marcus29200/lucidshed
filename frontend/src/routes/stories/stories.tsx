@@ -1,11 +1,7 @@
 
-import AppHeader from "../../components/AppHeader";
 const Stories = () => {
-  const title = "Stories"
   return (
-    <>
-      <AppHeader title={title} />
-    </>
+    <p>what</p>
   )
 }
 

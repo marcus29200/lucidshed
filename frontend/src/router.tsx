@@ -5,12 +5,13 @@ import Register from "./routes/register/register";
 import Dashboard from "./routes/dashboard/dashboard";
 import ProtectedRoute from './routes/protectedRoute/protectedRoute'
 import AppLayout from "./components/AppLayout";
-import Epics from "./routes/epics/epics";
+import Epics from "./routes/epics/Epics";
 import Stories from "./routes/stories/stories";
 import Tasks from "./routes/tasks/tasks";
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { getOrganization } from "./api/organizations";
+import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
 // import { QueryClient } from "@tanstack/react-query";
 
 // const queryClient = new QueryClient({
@@ -58,20 +59,32 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         path: ':orgId',
         loader: async ({ params }) => {
+          console.log(params.orgId)
           return getOrganization(params.orgId);
         },
         children: [
           {
-            path: 'dashboard',
+            index: true,
             element: <Dashboard />
           },
           {
             path: 'epics',
+            children: [
+
+              {
+                index: true,
+                element: <Epics />
+              },
+              {
+                path: 'new',
+                element: <EpicsCreationForm />
+              }
+            ],
             loader: async ({ params }) => {
               console.log(params)
+              return {}
               // TODO: get epics
             },
-            element: <Epics />
           },
           {
             path: 'stories',

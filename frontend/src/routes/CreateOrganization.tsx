@@ -1,18 +1,16 @@
 import { Button, Container, TextField, Typography } from "@mui/material"
 import { useNavigate } from 'react-router-dom';
 import LogoHeader from "../components/LogoHeader"
-import { resetPassword } from "../api/auth";
 import { useMutation } from "@tanstack/react-query";
+import { createOrganization } from "../api/organizations";
 
 export const CreateOrganization = () => {
   const navigate = useNavigate();
 
   const { mutate } = useMutation({
-    mutationFn: resetPassword,
+    mutationFn: createOrganization,
     onSuccess: (data) => {
-      console.log(data);
-
-      navigate(`/dashboard/${data.id}`)
+      navigate(`/${data.id}`)
     },
     onError: (error) => {
       console.error(error);
@@ -22,8 +20,9 @@ export const CreateOrganization = () => {
   const onSubmit = (e) => {
     e.preventDefault()
     const form = e.target as any;
-    console.log(form.elements['organizationId'].value);
-    console.log(form.elements['title'].value);
+    const id = form.elements['id'].value;
+    const title = form.elements['title'].value;
+    mutate({ id, title });
   }
   return (
     <>
@@ -45,21 +44,21 @@ export const CreateOrganization = () => {
               sx={{ marginTop: '0px', marginBottom: '32px' }}
               size="small"
               label="Organization title"
-              id="organizationName"
+              id="title"
             />
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              name="organizationId"
+              name="id"
               inputProps={{
                 minLength: '4',
               }}
               sx={{ marginTop: '0px', marginBottom: '32px' }}
               size="small"
               label="lucidshed.com/"
-              id="organizationId"
+              id="id"
             />
 
             <Button

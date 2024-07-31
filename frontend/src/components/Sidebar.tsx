@@ -1,42 +1,44 @@
 import { Box, Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import WidgetsOutlinedIcon from '@mui/icons-material/WidgetsOutlined';
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { BookIcon, DashboardIcon, EpicIcon, SprintIcon, TaskIcon } from "../icons/icons";
 
 
 const NAVIGATION_ITEMS = [
   {
     to: '/',
     label: 'Dashboard',
-    icon: "dashboard"
+    icon: () => <DashboardIcon />
   },
   {
-    to: '/epics',
+    to: 'epics',
     label: 'Epics',
-    icon: "book"
+    icon: () => <EpicIcon />,
   },
   {
-    to: '/stories',
+    to: 'stories',
     label: 'Stories',
-    icon: 'book',
+    icon: () => <BookIcon />,
   },
   {
-    to: '/tasks',
+    to: 'tasks',
     label: 'Tasks',
-    icon: 'tasks',
+    icon: () => <TaskIcon />,
   },
   {
-    to: '/sprints',
+    to: 'sprints',
     label: 'Sprints',
-    icon: 'sprint'
+    icon: () => <SprintIcon />
   }
 ]
 
 const Sidebar = () => {
+  const { orgId } = useParams()
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   const width = expanded ? '240px' : '72px';
+  console.log(location.pathname)
   return (
     <Drawer
       sx={{
@@ -57,13 +59,12 @@ const Sidebar = () => {
         ) : <img src="/mini-logo.svg" height="40" onClick={() => setExpanded(true)} />}
       </Box>
 
-      <Divider variant="middle" />
+      <Divider />
       <List>
         {NAVIGATION_ITEMS.map(item => (
-          <ListItemButton key={item.to} selected={location.pathname.includes(item.to)} color="primary" component={Link} to={item.to} style={{ textDecoration: 'none', paddingLeft: '22px' }}>
+          <ListItemButton key={item.to} selected={location.pathname.includes(item.to) && item.to != '/'} color="primary" component={Link} to={`/${orgId}/${item.to}`} style={{ textDecoration: 'none', paddingLeft: '22px' }}>
             <ListItemIcon>
-              {/* TODO: implement actual icons later */}
-              <WidgetsOutlinedIcon />
+              {item.icon()}
             </ListItemIcon>
             <ListItemText sx={{ color: 'black' }}>
               {item.label}

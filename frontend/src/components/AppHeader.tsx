@@ -2,7 +2,7 @@ import { AppBar, Box, Divider, Toolbar, Typography } from "@mui/material"
 
 const AppHeader = (props: { children?: React.ReactNode, title: string }) => {
   return (
-    <Toolbar sx={{ height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Toolbar sx={{ height: '80px', display: 'flex', backgroundColor: 'white', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
       <Typography variant="h6" component="div">
         {props.title}
       </Typography>
