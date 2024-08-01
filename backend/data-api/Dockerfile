@@ -9,9 +9,6 @@ COPY backend/data-api/ .
 # Install Poetry
 RUN pip install poetry
 
-# List files in the working directory to debug
-RUN ls -al /usr/src/app
-
 # Configure Poetry to not create virtual environments
 RUN poetry config virtualenvs.create false
 
