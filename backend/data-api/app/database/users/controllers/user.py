@@ -44,10 +44,7 @@ class UserController:
         identifier = email or id or "none"
 
         # Get item record here
-        if organization_id:
-            record = await user_db.get().fetchrow(QUERIES["GET_ORGANIZATION_USER"], organization_id, identifier)
-        else:
-            record = await user_db.get().fetchrow(QUERIES["GET_USER"], identifier)
+        record = await user_db.get().fetchrow(QUERIES["GET_USER"], identifier)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)

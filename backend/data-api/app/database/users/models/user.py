@@ -1,6 +1,6 @@
 import json
 from enum import StrEnum
-from typing import Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -37,7 +37,7 @@ class BaseUser(BaseModel):
 
 
 class User(Model, BaseUser):
-    permissions: Optional[UserPermission] = None
+    permissions: Optional[Dict[str, UserPermission]] = {}
     password: Optional[str] = Field(None, exclude=True)
     super_admin: bool = False
     reset_code: Optional[str] = Field(None, exclude=True)
@@ -47,6 +47,8 @@ class User(Model, BaseUser):
     def __init__(self, **data):
         if isinstance(data.get("permissions"), str):
             data["permissions"] = json.loads(data.get("permissions"))
+        elif not data.get("permissions"):
+            data["permissions"] = {}
 
         super().__init__(**data)
 

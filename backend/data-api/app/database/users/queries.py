@@ -83,7 +83,17 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT * FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
+SELECT 
+    *,
+    (
+        SELECT JSONB_OBJECT_AGG(up.organization_id, up.*)
+        FROM (
+            SELECT *
+            FROM user_permissions up
+            WHERE up.user_id = users.id AND up.deleted_at IS NULL
+        ) AS up
+    ) AS permissions
+FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
 """
 
 USER_QUERIES[
