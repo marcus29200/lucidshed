@@ -1,18 +1,22 @@
 FROM python:3.11.1-slim
 
+# Set the working directory
+WORKDIR /usr/src/app
 
-RUN mkdir /app 
-COPY /app /app
-COPY pyproject.toml /app 
+# Copy the project files to the working directory
+COPY backend/data-api/ .
 
-WORKDIR /app
+# Install Poetry
+RUN pip install poetry
 
-ENV PYTHONPATH=${PYTHONPATH}:${PWD} 
+# List files in the working directory to debug
+RUN ls -al /usr/src/app
 
-RUN pip3 install poetry
+# Configure Poetry to not create virtual environments
 RUN poetry config virtualenvs.create false
 
-# Eventually we want a dev and prod build, one to run tests against and another to release
+# Install dependencies (for production, excluding dev dependencies)
 RUN poetry install --no-dev
 
+# Set the entrypoint to run the application using Poetry
 ENTRYPOINT ["poetry", "run", "api"]
