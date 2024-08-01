@@ -1,11 +1,11 @@
 import base64
 import json
-from typing import Tuple
+from typing import Any, Dict, Optional, Tuple
 
 
-def generate_cursor(sort_field: str, offset: int) -> str:
+def generate_cursor(sort_field: str, offset: int, extra: Optional[Dict[str, Any]] = None) -> str:
     # Encode the sort field and offset as a JSON string
-    cursor_dict = {"sort_field": sort_field, "offset": offset}
+    cursor_dict = {"sort_field": sort_field, "offset": offset, "extra": extra}
     cursor_str = json.dumps(cursor_dict)
 
     # Encode the JSON string to base64
@@ -15,7 +15,7 @@ def generate_cursor(sort_field: str, offset: int) -> str:
     return cursor_base64.decode("utf-8")
 
 
-def parse_cursor(cursor: str) -> Tuple[str, int]:
+def parse_cursor(cursor: str) -> Tuple[str, int, Dict[str, Any]]:
     if cursor is None:
         return None, 0
 
@@ -24,4 +24,4 @@ def parse_cursor(cursor: str) -> Tuple[str, int]:
     cursor_str = cursor_bytes.decode("utf-8")
     cursor_dict = json.loads(cursor_str)
 
-    return cursor_dict["sort_field"], cursor_dict["offset"]
+    return cursor_dict["sort_field"], cursor_dict["offset"], cursor_dict["extra"]

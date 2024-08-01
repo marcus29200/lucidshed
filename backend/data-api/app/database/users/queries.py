@@ -113,10 +113,12 @@ USER_QUERIES[
 SELECT
     *,
     (
-        SELECT to_jsonb(user_permissions)
-        FROM user_permissions
-        WHERE user_permissions.user_id = users.id AND user_permissions.organization_id = $1 AND deleted_at IS NULL
-        LIMIT 1
+        SELECT JSONB_OBJECT_AGG(up.organization_id, up.*)
+        FROM (
+            SELECT *
+            FROM user_permissions up
+            WHERE up.user_id = users.id AND up.deleted_at IS NULL
+        ) AS up
     ) AS permissions
 FROM
     users
@@ -140,7 +142,14 @@ USER_QUERIES[
 ] = """
 SELECT
     users.*,
-    to_jsonb (up) AS permissions
+    (
+        SELECT JSONB_OBJECT_AGG(up.organization_id, up.*)
+        FROM (
+            SELECT *
+            FROM user_permissions up
+            WHERE up.user_id = users.id AND up.deleted_at IS NULL
+        ) AS up
+    ) AS permissions
 FROM
     users
     LEFT JOIN user_permissions AS up ON users.id = up.user_id
