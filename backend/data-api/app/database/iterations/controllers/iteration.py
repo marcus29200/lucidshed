@@ -46,7 +46,7 @@ class IterationController:
     ) -> Tuple[List[Iteration], str]:
         offset = 0
         if cursor:
-            sort, offset = parse_cursor(cursor)
+            sort, offset, _ = parse_cursor(cursor)
 
         # Get item record here
         records = await data_db.get().fetch(QUERIES["GET_ALL_ITERATIONS"], organization_id, sort, limit, offset)

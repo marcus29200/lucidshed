@@ -119,6 +119,7 @@ async def add_user(
 async def page_results(
     data_api,
     endpoint,
+    item_type: Optional[str] = None,
     sort: Optional[str] = None,
     limit: Optional[int] = 1000,
     headers: Optional[Dict[str, Any]] = {},
@@ -130,12 +131,18 @@ async def page_results(
     cursor = None
 
     while True:
+        query_params = {
+            "item_type": item_type if item_type else "",
+            "sort": sort if sort else "id",
+            "limit": limit,
+            "cursor": cursor if cursor else "",
+        }
         response = await data_api.get(
-            f"{endpoint}?sort={sort if sort else 'id'}&limit={limit}&cursor={cursor if cursor else ''}", headers=headers
+            endpoint, headers=headers, params={k: v for k, v in query_params.items() if v}
         )
 
         if response.status_code != expected_status_code:
-            raise AssertionError(f"{response.status_code} != {expected_status_code}")
+            raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
 
         if response.status_code != 200:
             return items

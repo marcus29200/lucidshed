@@ -131,9 +131,10 @@ FROM engineering_items
 WHERE
     organization_id = $1
     AND deleted_at IS NULL
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    AND item_type = $2
+ORDER BY $3
+LIMIT $4
+OFFSET $5;
 """
 
 

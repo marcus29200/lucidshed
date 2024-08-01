@@ -83,7 +83,7 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER"
 ] = """
-SELECT 
+SELECT
     *,
     (
         SELECT JSONB_OBJECT_AGG(up.organization_id, up.*)

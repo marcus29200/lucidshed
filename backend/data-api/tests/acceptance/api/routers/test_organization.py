@@ -262,9 +262,9 @@ async def test_get_organization_user(data_api: TestClient):
     user = response.json()
     assert user["id"]
     assert len(user["permissions"]) == 1
-    assert user["permissions"][org['id']]["user_id"] == user["id"]
-    assert user["permissions"][org['id']]["organization_id"] == org["id"]
-    assert user["permissions"][org['id']]["role"] == "admin"
+    assert user["permissions"][org["id"]]["user_id"] == user["id"]
+    assert user["permissions"][org["id"]]["organization_id"] == org["id"]
+    assert user["permissions"][org["id"]]["role"] == "admin"
 
 
 async def test_get_organization_user_fails_with_expired_token(data_api: TestClient):

@@ -7,6 +7,7 @@ from app.database.teams.models.team import BaseTeam, Team
 async def page_results(
     controller: Any,
     organization_id: Optional[str] = None,
+    item_type: Optional[str] = None,
     sort: Optional[str] = None,
     limit: Optional[int] = 1000,
 ):
@@ -17,9 +18,20 @@ async def page_results(
 
     while True:
         if organization_id:
-            page, cursor = await controller.get_all(
-                organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
-            )
+            if organization_id:
+                if item_type:
+                    page, cursor = await controller.get_all(
+                        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor, item_type=item_type
+                    )
+                else:
+                    page, cursor = await controller.get_all(
+                        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
+                    )
+            else:
+                if item_type:
+                    page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor, item_type=item_type)
+                else:
+                    page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor)
         else:
             page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor)
 

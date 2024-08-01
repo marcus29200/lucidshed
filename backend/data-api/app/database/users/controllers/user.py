@@ -63,7 +63,7 @@ class UserController:
     ) -> Tuple[List[User], str]:
         offset = 0
         if cursor:
-            sort, offset = parse_cursor(cursor)
+            sort, offset, _ = parse_cursor(cursor)
 
         if not sort:
             sort = UserSortableField.EMAIL

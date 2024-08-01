@@ -131,7 +131,7 @@ async def test_should_get_engineering_items(data_api: TestClient):
     await add_engineering_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
     await add_engineering_item(data_api, org["id"], overrides={"title": "test2"}, headers=headers)
 
-    items = await page_results(data_api, f"{data_api.test_org_id}/engineering", headers=headers)
+    items = await page_results(data_api, f"{data_api.test_org_id}/engineering?item_type={EngineeringItemType.STORY.value}", headers=headers)
 
     assert len(items) == 2
 
@@ -145,6 +145,17 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     items = await page_results(data_api, f"{data_api.test_org_id}/engineering", limit=1, headers=headers)
 
     assert len(items) == 2
+
+
+async def test_should_get_epics(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    await add_engineering_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
+    await add_engineering_item(data_api, org["id"], overrides={"title": "test2", "item_type": EngineeringItemType.EPIC.value}, headers=headers)
+
+    items = await page_results(data_api, f"{data_api.test_org_id}/engineering?item_type={EngineeringItemType.EPIC.value}", headers=headers)
+
+    assert len(items) == 1
 
 
 # TODO implement later when sorting is better

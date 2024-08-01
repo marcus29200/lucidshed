@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
-from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
+from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 engineering_item_router = APIRouter
@@ -44,12 +44,13 @@ async def get_engineering_item(request: Request, organization_id: str, id: int) 
 async def get_engineering_items(
     request: Request,
     organization_id: str,
+    item_type: EngineeringItemType,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> EngineeringItemPagedResponse:
     items, cursor = await request.app.engineering_controller.get_all(
-        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
+        organization_id=organization_id, item_type=item_type, sort=sort, limit=limit, cursor=cursor
     )
     return EngineeringItemPagedResponse(items=items, cursor=cursor)
 

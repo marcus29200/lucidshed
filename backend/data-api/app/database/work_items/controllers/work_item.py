@@ -27,19 +27,24 @@ class WorkItemController:
         organization_id: str,
         scope: str,
         sort: Optional[str] = "id",
+        item_type: Optional[str] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Dict[str, Any]], str]:
         offset = 0
         if cursor:
-            sort, offset = parse_cursor(cursor)
+            sort, offset, extra = parse_cursor(cursor)
+
+            item_type = extra.get("item_type") or item_type
 
         # Get item record here
-        records = await data_db.get().fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(
+            QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, sort, limit, offset
+        )
 
         cursor = None
         if len(records) == limit:
-            cursor = generate_cursor(sort, offset + limit)
+            cursor = generate_cursor(sort, offset + limit, {"item_type": item_type})
 
         return records, cursor
 

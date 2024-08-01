@@ -91,10 +91,10 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
     if org_id:
         permission = user.permissions.get(org_id)
         if permission and PERMISSION_LEVELS.get(permission.role, -1) >= PERMISSION_LEVELS.get(
-                security_scopes.scopes[0], 100
-            ):
-                request.state.user = user
-                return user
+            security_scopes.scopes[0], 100
+        ):
+            request.state.user = user
+            return user
 
         raise credentials_exception
 

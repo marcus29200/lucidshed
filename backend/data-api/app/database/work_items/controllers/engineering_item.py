@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem
+from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 
@@ -49,6 +49,7 @@ class EngineeringController(WorkItemController):
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
+        item_type: Optional[EngineeringItemType] = None,
     ) -> Tuple[List[EngineeringItem], str]:
         if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
@@ -56,6 +57,7 @@ class EngineeringController(WorkItemController):
         records, cursor = await super().get_all(
             organization_id=organization_id,
             sort=sort.value if sort else WorkItemSortableField.ID.value,
+            item_type=item_type,
             limit=limit,
             cursor=cursor,
             scope="ENGINEERING",

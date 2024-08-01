@@ -40,7 +40,7 @@ class BaseWorkItem(BaseModel):
     checkin_frequency: Optional[CheckinFrequency] = None
     starred: Optional[bool] = False
     # TODO Implement relationships for stories/tasks, also the category like related/dependant
-    # product_area: Optional[str] = None  # TODO Possible config value, needs definition
+    # product_area: Optional[str] = None  # TODO Possible config value, needs definition, should be like priority
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
     # related_tickets: Optional[List[str]] = []  # TODO Create DB models for these relationships
     # related_files: Optional[List[str]] = []  # TODO Create DB models for these relationships

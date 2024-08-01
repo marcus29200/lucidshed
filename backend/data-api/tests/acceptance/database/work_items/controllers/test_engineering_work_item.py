@@ -81,7 +81,24 @@ async def test_get_all_engineering_work_item(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id=org.id, limit=1)
+    items = await page_results(
+        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
+    )
+
+    assert len(items) == 2
+    assert isinstance(items[0], EngineeringItem)
+    assert isinstance(items[1], EngineeringItem)
+
+
+async def test_get_all_engineering_work_item_filtered_by_stories(data_app):
+    org = await create_organization(data_app)
+    await create_engineering_item(data_app, org.id)
+    await create_engineering_item(data_app, org.id)
+    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+
+    items = await page_results(
+        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
+    )
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
