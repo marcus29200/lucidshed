@@ -157,18 +157,19 @@ async def test_update_engineering_work_item(data_app):
     org = await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app, org.id)
 
-    engineering_item.title = "Test Updated"
     assert engineering_item.modified_at
     old_modified_at = engineering_item.modified_at
 
+    update = BaseEngineeringItem(title="Test Updated")
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=engineering_item,
+        updated_engineering_item=update,
         current_user="test@test.com",
     )
 
     assert engineering_item.title == "Test Updated"
+    # This should not change
     assert engineering_item.description == "Test description"
     assert engineering_item.modified_at > old_modified_at
 
