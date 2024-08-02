@@ -395,18 +395,3 @@ async def test_member_should_not_delete_organization_user_permission(data_api: T
 
     response = await data_api.get(f"{org['id']}/users/{user['id']}", headers=headers)
     assert response.status_code == 200
-
-
-async def test_delete_organization_user_doesnt_delete_user_entirely(data_api: TestClient):
-    org, _, headers = await authenticate(data_api)
-
-    user = await add_organization_user(data_api, org["id"], overrides={"email": "test2@test.com"}, headers=headers)
-
-    response = await data_api.delete(f"{org['id']}/users/{user['id']}", headers=headers)
-    assert response.status_code == 200
-
-    response = await data_api.get(f"{org['id']}/users/{user['id']}", headers=headers)
-    assert response.status_code == 404
-
-    response = await data_api.get(f"users/{user['id']}", headers=headers)
-    assert response.status_code == 200

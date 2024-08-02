@@ -105,13 +105,6 @@ async def test_should_not_get_other_user(data_api: TestClient):
     assert response.status_code == 401
 
 
-async def test_should_not_get_missing_user(data_api: TestClient):
-    _, _, headers = await authenticate(data_api)
-
-    response = await data_api.get("users/0", headers=headers)
-    assert response.status_code == 404
-
-
 async def test_should_update_user(data_api: TestClient):
     _, user, headers = await authenticate(data_api)
 

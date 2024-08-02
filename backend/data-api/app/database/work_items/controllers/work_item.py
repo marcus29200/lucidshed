@@ -37,10 +37,14 @@ class WorkItemController:
 
             item_type = extra.get("item_type") or item_type
 
-        # Get item record here
-        records = await data_db.get().fetch(
-            QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, sort, limit, offset
-        )
+        if item_type:
+            # Get item record here
+            records = await data_db.get().fetch(
+                QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, sort, limit, offset
+            )
+        else:
+            # Get item record here
+            records = await data_db.get().fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
