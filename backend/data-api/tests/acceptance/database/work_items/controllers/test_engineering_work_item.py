@@ -110,7 +110,9 @@ async def test_get_all_engineering_work_item_paging(data_app):
     await create_engineering_item(data_app, org.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY,limit=1)
+    items = await page_results(
+        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
+    )
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -218,7 +220,9 @@ async def test_get_all_engineering_work_item_with_iteration(data_app):
     await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1)
+    items = await page_results(
+        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
+    )
 
     assert len(items) == 2
 
@@ -266,7 +270,9 @@ async def test_get_all_engineering_work_item_with_team(data_app):
     await create_engineering_item(data_app, org.id, team_id=team.id)
     await create_engineering_item(data_app, org.id)
 
-    items = await page_results(data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1)
+    items = await page_results(
+        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
+    )
 
     assert len(items) == 2
 

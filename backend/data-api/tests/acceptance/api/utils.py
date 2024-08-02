@@ -137,9 +137,7 @@ async def page_results(
             "limit": limit,
             "cursor": cursor if cursor else "",
         }
-        response = await data_api.get(
-            endpoint, headers=headers, params={k: v for k, v in query_params.items() if v}
-        )
+        response = await data_api.get(endpoint, headers=headers, params={k: v for k, v in query_params.items() if v})
 
         if response.status_code != expected_status_code:
             raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
