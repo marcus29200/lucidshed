@@ -22,7 +22,7 @@ class HistoryController:
             history.item_type,
             history.message,
             history.action,
-            json.dumps(history.metadata),
+            json.dumps(history.metadata, default=str),
             current_user,
             current_user,
         )
@@ -41,6 +41,8 @@ class HistoryController:
         self,
         *,
         organization_id: str,
+        item_id: str,
+        item_type: str,
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -50,7 +52,7 @@ class HistoryController:
             sort, offset, _ = parse_cursor(cursor)
 
         # Get item record here
-        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type, sort, limit, offset)
 
         cursor = None
         if len(records) == limit:

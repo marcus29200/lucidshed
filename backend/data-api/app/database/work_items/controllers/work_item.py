@@ -7,6 +7,7 @@ from app.database.common.queries import QUERIES
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
 from app.database.history.controllers.history import HistoryController
+from app.database.history.models.history import BaseHistory
 
 
 class WorkItemController:
@@ -67,6 +68,16 @@ class WorkItemController:
 
         if result != "UPDATE 1":
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+    
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(
+                item_id=str(id),
+                item_type="engineering",
+                action="delete"
+            ),
+            current_user,
+        )
 
         return True
 

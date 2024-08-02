@@ -14,8 +14,11 @@ CREATE TABLE IF NOT EXISTS history (
     message VARCHAR(255),
     action VARCHAR(16),
     metadata JSON,
-    PRIMARY KEY (id, item_id, item_type),
+    PRIMARY KEY (id, item_id, item_type)
 )
+    """,
+    """
+CREATE INDEX IF NOT EXISTS idx_item_id_item_type ON history (item_id, item_type);
     """
 ]
 
@@ -54,8 +57,9 @@ SELECT * FROM history
 WHERE
     organization_id = $1
     AND deleted_at IS NULL
-    {extra_conditions}
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    AND item_id = $2
+    AND item_type = $3
+ORDER BY $4
+LIMIT $5
+OFFSET $6;
 """

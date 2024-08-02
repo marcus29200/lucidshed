@@ -34,13 +34,11 @@ class EngineeringController(WorkItemController):
             current_user,
         )
 
-        # TODO Create history entry
         await self.history_controller.create(
             organization_id,
             BaseHistory(
                 item_id=record["id"],
                 item_type="engineering",
-                message=f"{new_engineering_item.item_type} created",
                 action="create",
                 metadata=new_engineering_item.model_dump(exclude_unset=True),
             ),
@@ -119,6 +117,15 @@ class EngineeringController(WorkItemController):
             old_item_json["completed_by_id"],
         )
 
-        # TODO Create history entry on new engineering item changes
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(
+                item_id=record["id"],
+                item_type="engineering",
+                action="update",
+                metadata=new_item_json
+            ),
+            current_user,
+        )
 
         return EngineeringItem(**record)
