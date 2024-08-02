@@ -1,26 +1,42 @@
 import { Box, Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import WidgetsOutlinedIcon from '@mui/icons-material/WidgetsOutlined';
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import { BookIcon, DashboardIcon, EpicIcon, SprintIcon, TaskIcon } from "../icons/icons";
 
 
 const NAVIGATION_ITEMS = [
   {
-    to: '/epics',
+    to: '/',
+    label: 'Dashboard',
+    icon: () => <DashboardIcon />
+  },
+  {
+    to: 'epics',
     label: 'Epics',
+    icon: () => <EpicIcon />,
   },
   {
-    to: '/stories',
-    label: 'Stories'
+    to: 'stories',
+    label: 'Stories',
+    icon: () => <BookIcon />,
   },
   {
-    to: '/tasks',
-    label: 'Tasks'
+    to: 'tasks',
+    label: 'Tasks',
+    icon: () => <TaskIcon />,
+  },
+  {
+    to: 'sprints',
+    label: 'Sprints',
+    icon: () => <SprintIcon />
   }
 ]
 
+// TODO: update the sidebar button to close/open sidebar
+// TODO: update active list item css
 const Sidebar = () => {
+  const { orgId } = useParams()
   const [expanded, setExpanded] = useState(true);
   const location = useLocation();
   const width = expanded ? '240px' : '72px';
@@ -44,13 +60,12 @@ const Sidebar = () => {
         ) : <img src="/mini-logo.svg" height="40" onClick={() => setExpanded(true)} />}
       </Box>
 
-      <Divider variant="middle" />
+      <Divider />
       <List>
         {NAVIGATION_ITEMS.map(item => (
-          <ListItemButton key={item.to} selected={location.pathname.includes(item.to)} color="primary" component={Link} to={item.to} style={{ textDecoration: 'none', paddingLeft: '22px' }}>
+          <ListItemButton key={item.to} selected={location.pathname.includes(item.to) && item.to != '/'} color="primary" component={Link} to={`/${orgId}/${item.to}`} style={{ textDecoration: 'none', paddingLeft: '22px' }}>
             <ListItemIcon>
-              {/* TODO: implement actual icons later */}
-              <WidgetsOutlinedIcon />
+              {item.icon()}
             </ListItemIcon>
             <ListItemText sx={{ color: 'black' }}>
               {item.label}
@@ -60,7 +75,6 @@ const Sidebar = () => {
         }
       </List>
       <Divider variant="middle" />
-
     </Drawer>
   )
 }

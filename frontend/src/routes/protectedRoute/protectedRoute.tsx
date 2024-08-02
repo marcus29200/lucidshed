@@ -1,8 +1,7 @@
-import { useAuth } from '../../hooks/auth.tsx';
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLoaderData } from "react-router-dom";
 
 const ProtectedRoute = () => {
-  const { user } = useAuth();
+  const user = useLoaderData();
   return user ? <Outlet /> : <Navigate to="/login" replace />
 };
 

@@ -1,4 +1,4 @@
-const USER_API_BASE = "http://localhost:9999/api"
+import { BASE_URL } from '../environment'
 
 type StandardAuthParams = {
   email: string
@@ -6,13 +6,13 @@ type StandardAuthParams = {
 }
 
 export const login = async ({ email, password }: StandardAuthParams) => {
-  const response = await fetch(`${USER_API_BASE}/auth/login`, {
+  const response = await fetch(`${BASE_URL}/users/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      email,
+      username: email,
       password
     })
   })
@@ -23,15 +23,31 @@ export const login = async ({ email, password }: StandardAuthParams) => {
 
 }
 
-export const register = async ({ email, password }: StandardAuthParams) => {
-  const response = await fetch(`${USER_API_BASE}/auth/registration`, {
+export const register = async (email: string) => {
+  const response = await fetch(`${BASE_URL}/users/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       email,
-      password
+    })
+  })
+  if (!response.ok) {
+    throw (await response.json());
+  }
+  return await response.json();
+}
+
+export const resetPassword = async (data: { password: string, reset_code: string }) => {
+  const response = await fetch(`${BASE_URL}/users/reset-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      password: data.password,
+      reset_code: data.reset_code
     })
   })
   if (!response.ok) {

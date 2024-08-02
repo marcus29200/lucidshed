@@ -1,10 +1,13 @@
-import { AppBar, Box, Divider, Toolbar, Typography } from "@mui/material"
+import { Box, Divider, Toolbar, Typography } from "@mui/material"
+import UserComponent from "./UserComponent"
+import { useLoaderData } from "react-router-dom"
 
-const AppHeader = (props: { children?: React.ReactNode, title: string }) => {
+const AppHeader = (props: { children?: React.ReactNode }) => {
+  const org = useLoaderData();
   return (
-    <Toolbar sx={{ height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Toolbar sx={{ height: '80px', display: 'flex', backgroundColor: 'white', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.12)' }}>
       <Typography variant="h6" component="div">
-        {props.title}
+        {org.title}
       </Typography>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -12,8 +15,7 @@ const AppHeader = (props: { children?: React.ReactNode, title: string }) => {
       object for each page this is used on */}
         {props.children}
         <Divider orientation="vertical" flexItem />
-        {/* this box is really just a placeholder for a user avatar/menu likely */}
-        <Box sx={{ backgroundColor: 'neutral.lighter', height: '36px', width: '36px', borderRadius: '8px' }} />
+        <UserComponent />
       </Box>
     </Toolbar>
   )

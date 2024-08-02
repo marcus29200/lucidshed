@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import { getUser as getUserFromApi } from "../api/users";
 
 // just a subset of fields on the JWT right now
 export type User = {
@@ -12,48 +13,58 @@ export type User = {
 }
 
 type AuthContextValue = {
-  user: User | null;
+  user: any;
   storeUser(userPayload: { token: string, refreshToken: string, username: string }): void;
   getUser(): void;
   clearUser(): void;
-
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
+// I need a (me) route
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(getUser())
+  const [user, setUser] = useState<any>()
   // attempt to set user on startup
 
 
+  // TODO: put these into types yo
   // TODO: better solution than local storage?
-  function storeUser({ token, refreshToken, username }: { token: string, refreshToken: string, username: string }) {
-    localStorage.setItem('token', token)
-    localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('username', username)
-    setUser(jwtDecode(token))
+  function storeUserAndToken({ token, user }: { token: any, user: any }) {
+    console.log(jwtDecode(token.access_token))
+    localStorage.setItem('token', token?.access_token)
+    localStorage.setItem('userId', user.id)
+    setUser(user);
+  }
+
+  function updateUser(user) {
+    setUser(user)
   }
 
   function clearUser() {
     localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('username')
+    localStorage.removeItem('userId')
   }
 
-  function getUser() {
-    const userToken = localStorage.getItem("token")
-    if (!userToken) {
+  function updateUserPermissionsBlock(permissions) {
+    setUser({ ...user, permissions })
+  }
+
+  // how to get user from the 
+  async function getUser() {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       return null
     }
-
-    return jwtDecode(userToken) as User
+    return getUserFromApi(userId as string)
   }
 
   const value = {
     user,
-    storeUser,
+    storeUser: storeUserAndToken,
+    updateUser,
     getUser,
     clearUser,
+    updateUserPermissionsBlock
   };
 
   return <AuthContext.Provider value={value}> {children} </AuthContext.Provider>;

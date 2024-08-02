@@ -1,6 +1,6 @@
-import { useAuth } from "../../hooks/auth";
+import { useRouteLoaderData } from "react-router-dom";
 const Dashboard = () => {
-  const { user } = useAuth();
+  const user = useRouteLoaderData("user");
   return <p>Welcome {user.email}!</p>
 }
 

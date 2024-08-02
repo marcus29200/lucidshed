@@ -1,23 +1,27 @@
 import { FormEvent, useState } from 'react';
-import { Button, Container, Divider, TextField, Typography } from "@mui/material";
+import { Button, Container, TextField, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from "../../hooks/auth";
-import { login } from '../../api/auth'
-import LogoHeader from '../../components/LogoHeader';
+import { useAuth } from "../hooks/auth";
+import { login } from '../api/auth'
+import LogoHeader from '../components/LogoHeader';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { storeUser } = useAuth();
-  const beginGoogleOAuth = () => window.location.href = 'http://localhost:9999/api/auth/sso/login?provider=Google&redirectUrl="http://localhost:5173/home'
   const { mutate } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
+      console.log("the data: ", data)
       storeUser(data);
-      console.info("successfully registered. check your email")
-      navigate('/dashboard');
+      if (!data?.user?.permissions) {
+        navigate('/setup/org');
+      } else {
+        navigate(`/${data?.user?.permissions?.organizationId}`)
+        console.log(data.user.permissions)
+      }
     },
     onError: (error) => {
       console.error(error)
@@ -86,17 +90,6 @@ const Login = () => {
               color="primary"
             >
               Sign in
-            </Button>
-
-            <Divider sx={{ marginY: '12px' }}>OR</Divider>
-            <Button
-              fullWidth
-              variant="contained"
-              color="neutral"
-              onClick={beginGoogleOAuth}
-              sx={{ bgcolor: "neutral.lighter", color: "black" }}
-            >
-              Sign in with Google
             </Button>
           </form>
         </div >
