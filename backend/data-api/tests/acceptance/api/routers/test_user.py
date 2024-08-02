@@ -79,11 +79,15 @@ async def test_should_ignore_second_logout(data_api: TestClient):
 
     response = await data_api.post("users/logout", headers=headers)
     assert response.status_code == 401
+
+
+async def test_should_mark_unauthorized_for_expired_token_in_db(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+
+    response = await data_api.post("users/logout", headers=headers)
     assert response.status_code == 200
 
-    response = await data_api.post(
-        "users/logout", headers=headers
-    )
+    response = await data_api.post("users/logout", headers=headers)
     assert response.status_code == 200
 
 

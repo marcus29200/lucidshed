@@ -5,6 +5,7 @@ from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.database.history.models.history import BaseHistory
 
 
 class EngineeringController(WorkItemController):
@@ -34,6 +35,17 @@ class EngineeringController(WorkItemController):
         )
 
         # TODO Create history entry
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(
+                item_id=record["id"],
+                item_type="engineering",
+                message=f"{new_engineering_item.item_type} created",
+                action="create",
+                metadata=new_engineering_item.model_dump(exclude_unset=True),
+            ),
+            current_user,
+        )
 
         return EngineeringItem(**record)
 
