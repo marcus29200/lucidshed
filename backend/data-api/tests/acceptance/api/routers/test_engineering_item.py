@@ -59,6 +59,17 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
 
 
+async def test_should_add_engineering_item_with_estimated_completion_date_in_iso_format_with_timezone(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    engineering_item = await add_engineering_item(
+        data_api, org["id"], {"estimated_completion_date": "2021-01-01T00:00:00+00:00"}, headers=headers
+    )
+
+    assert engineering_item["id"] > 0
+    assert engineering_item["estimated_completion_date"] == "2021-01-01T00:00:00Z"
+
+
 async def test_should_fail_to_add_invalid_engineering_item_type(data_api: TestClient):
     org, _, headers = await authenticate(data_api)
 
