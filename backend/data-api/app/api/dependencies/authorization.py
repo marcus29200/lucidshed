@@ -81,7 +81,10 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         return user
 
     if security_scopes.scopes[0] == "current_user" and "/users" in request.url.path:
-        if user.id == request.path_params["id"]:
+        if "/users/me" in request.url.path:
+            request.state.user = user
+            return user
+        elif user.id == request.path_params["id"]:
             request.state.user = user
             return user
         else:

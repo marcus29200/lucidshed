@@ -93,6 +93,11 @@ async def logout(request: Request) -> None:
         return
 
 
+@router.get("/me", status_code=200, response_model=User, dependencies=[Security(get_current_user, scopes=["current_user"])])
+async def me(request: Request) -> User:
+    return request.state.user
+
+
 @router.get(
     "/{id}", status_code=200, response_model=User, dependencies=[Security(get_current_user, scopes=["current_user"])]
 )

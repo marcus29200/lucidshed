@@ -91,6 +91,16 @@ async def test_should_mark_unauthorized_for_expired_token_in_db(data_api: TestCl
     assert response.status_code == 200
 
 
+async def test_should_get_current_user(data_api: TestClient):
+    _, user, headers = await authenticate(data_api)
+
+    response = await data_api.get("users/me", headers=headers)
+    assert response.status_code == 200
+
+    current_user = response.json()
+    assert current_user["id"] == user["id"]
+    assert len(current_user["permissions"]) == 1
+
 async def test_should_get_user(data_api: TestClient):
     _, user, headers = await authenticate(data_api)
 
