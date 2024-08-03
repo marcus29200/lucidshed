@@ -23,8 +23,6 @@ class IterationController:
             current_user,
         )
 
-        # TODO Create history entry
-
         return Iteration(**record)
 
     async def get(self, *, organization_id: str, id: int) -> Iteration:
@@ -85,8 +83,6 @@ class IterationController:
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],
         )
-
-        # TODO Create history entry on new engineering item changes
 
         return Iteration(**record)
 

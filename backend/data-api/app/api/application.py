@@ -14,11 +14,11 @@ from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import Settings, user_db
 from app.database.common.queries import USER_INIT_STATEMENTS
+from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
 from app.database.organizations.controllers.organization import OrganizationController
 from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
-from app.database.history.controllers.history import HistoryController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import clear_database, init_database_tables

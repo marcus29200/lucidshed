@@ -1,11 +1,11 @@
+import json
 from typing import List, Optional, Tuple
 from uuid import uuid4
-import json
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
-from app.database.history.models.history import History, BaseHistory
 from app.database.common.queries import QUERIES
+from app.database.history.models.history import BaseHistory, History
 from app.exceptions.common import ObjectNotFoundException
 
 
@@ -52,7 +52,9 @@ class HistoryController:
             sort, offset, _ = parse_cursor(cursor)
 
         # Get item record here
-        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type, sort, limit, offset)
+        records = await data_db.get().fetch(
+            QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type, sort, limit, offset
+        )
 
         cursor = None
         if len(records) == limit:

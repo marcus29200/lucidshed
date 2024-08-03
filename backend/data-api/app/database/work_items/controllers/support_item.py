@@ -2,6 +2,7 @@ from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
 from app.database.common.queries import QUERIES
+from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.support_item import BaseSupportItem, SupportItem
 from app.database.work_items.models.work_item import WorkItemSortableField
@@ -31,7 +32,16 @@ class SupportController(WorkItemController):
             current_user,
         )
 
-        # TODO Create history entry?
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(
+                item_id=record["id"],
+                item_type="support",
+                action="create",
+                metadata=new_support_item.model_dump(exclude_unset=True),
+            ),
+            current_user,
+        )
 
         return SupportItem(**record)
 
@@ -101,6 +111,13 @@ class SupportController(WorkItemController):
             old_item_json["completed_by_id"],
         )
 
-        # TODO Create history entry on new engineering item changes
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(item_id=record["id"], item_type="support", action="update", metadata=new_item_json),
+            current_user,
+        )
 
         return SupportItem(**record)
+
+    async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
+        return await super().delete(organization_id=organization_id, id=id, current_user=current_user, scope=scope)

@@ -27,8 +27,6 @@ class OrganizationController:
         if not record:
             raise ObjectNotFoundException(organization_id=id, object_id=id)
 
-        # TODO Create history
-
         return Organization(**record)
 
     async def update(self, *, id: str, updated_organization: Organization, current_user: str):
@@ -49,8 +47,6 @@ class OrganizationController:
             old_item_json["deleted_by_id"],
         )
 
-        # TODO Create history entry on new user changes
-
         return Organization(**record)
 
     async def delete(self, *, id: int, current_user: str) -> bool:
@@ -59,8 +55,6 @@ class OrganizationController:
             id,
             current_user,
         )
-
-        # TODO Create history entry
 
         if result != "UPDATE 1":
             raise ObjectNotFoundException(organization_id=id, object_id=id)

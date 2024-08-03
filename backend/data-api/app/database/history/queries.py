@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS history (
     """,
     """
 CREATE INDEX IF NOT EXISTS idx_item_id_item_type ON history (item_id, item_type);
-    """
+    """,
 ]
 
 

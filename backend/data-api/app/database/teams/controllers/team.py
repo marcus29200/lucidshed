@@ -15,8 +15,6 @@ class TeamController:
             QUERIES["CREATE_TEAM"], organization_id, team.title, team.description, current_user, current_user
         )
 
-        # TODO Create history entry
-
         return Team(**record)
 
     async def get(self, *, organization_id: str, id: int) -> Team:
@@ -74,8 +72,6 @@ class TeamController:
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],
         )
-
-        # TODO Create history entry on new engineering item changes
 
         return Team(**record)
 

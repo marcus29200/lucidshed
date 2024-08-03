@@ -101,6 +101,7 @@ async def test_should_get_current_user(data_api: TestClient):
     assert current_user["id"] == user["id"]
     assert len(current_user["permissions"]) == 1
 
+
 async def test_should_get_user(data_api: TestClient):
     _, user, headers = await authenticate(data_api)
 

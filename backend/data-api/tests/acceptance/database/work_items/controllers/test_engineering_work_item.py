@@ -77,7 +77,6 @@ async def test_add_engineering_work_item_creates_history(data_app):
     assert history_items[0].metadata["title"] == "Test"
 
 
-
 async def test_get_engineering_work_item(data_app):
     org = await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app, org.id)
@@ -185,9 +184,9 @@ async def test_update_engineering_work_item_creates_history(data_app):
         organization_id=org.id,
         id=engineering_item.id,
         updated_engineering_item=engineering_item,
-        current_user="test@test.com"
+        current_user="test@test.com",
     )
-    
+
     history_items, _ = await data_app.history_controller.get_all(
         organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
     )
@@ -197,7 +196,6 @@ async def test_update_engineering_work_item_creates_history(data_app):
     assert history_items[1].item_type == "engineering"
     assert history_items[1].action == "update"
     assert history_items[1].metadata["title"] == "Test Updated"
-
 
 
 async def test_delete_engineering_work_item(data_app):
@@ -231,7 +229,7 @@ async def test_delete_engineering_item_creates_history(data_app):
         organization_id=engineering_item.organization_id,
         id=engineering_item.id,
         current_user="test@test.com",
-        scope="ENGINEERING"
+        scope="ENGINEERING",
     )
 
     assert result
