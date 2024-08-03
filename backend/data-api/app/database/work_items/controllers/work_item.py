@@ -6,9 +6,14 @@ from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
+from app.database.history.controllers.history import HistoryController
+from app.database.history.models.history import BaseHistory
 
 
 class WorkItemController:
+    def __init__(self):
+        self.history_controller = HistoryController()
+
     async def create(self, obj: Any):
         raise NotImplementedError()
 
@@ -38,12 +43,10 @@ class WorkItemController:
             item_type = extra.get("item_type") or item_type
 
         if item_type:
-            # Get item record here
             records = await data_db.get().fetch(
                 QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, sort, limit, offset
             )
         else:
-            # Get item record here
             records = await data_db.get().fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
 
         cursor = None
@@ -65,6 +68,16 @@ class WorkItemController:
 
         if result != "UPDATE 1":
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+    
+        await self.history_controller.create(
+            organization_id,
+            BaseHistory(
+                item_id=str(id),
+                item_type="engineering",
+                action="delete"
+            ),
+            current_user,
+        )
 
         return True
 

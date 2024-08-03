@@ -60,6 +60,24 @@ async def test_add_engineering_work_item_defaults_item_type_to_valid_value(data_
     assert engineering_item.item_type == EngineeringItemType.STORY
 
 
+async def test_add_engineering_work_item_creates_history(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    assert engineering_item.id
+
+    history_items, _ = await data_app.history_controller.get_all(
+        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
+    )
+
+    assert len(history_items) == 1
+    assert history_items[0].item_id == str(engineering_item.id)
+    assert history_items[0].item_type == "engineering"
+    assert history_items[0].action == "create"
+    assert history_items[0].metadata["title"] == "Test"
+
+
+
 async def test_get_engineering_work_item(data_app):
     org = await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app, org.id)
@@ -141,20 +159,45 @@ async def test_update_engineering_work_item(data_app):
     org = await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app, org.id)
 
-    engineering_item.title = "Test Updated"
     assert engineering_item.modified_at
     old_modified_at = engineering_item.modified_at
 
+    update = BaseEngineeringItem(title="Test Updated")
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=engineering_item,
+        updated_engineering_item=update,
         current_user="test@test.com",
     )
 
     assert engineering_item.title == "Test Updated"
+    # This should not change
     assert engineering_item.description == "Test description"
     assert engineering_item.modified_at > old_modified_at
+
+
+async def test_update_engineering_work_item_creates_history(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    engineering_item.title = "Test Updated"
+    engineering_item = await data_app.engineering_controller.update(
+        organization_id=org.id,
+        id=engineering_item.id,
+        updated_engineering_item=engineering_item,
+        current_user="test@test.com"
+    )
+    
+    history_items, _ = await data_app.history_controller.get_all(
+        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
+    )
+
+    assert len(history_items) == 2
+    assert history_items[1].item_id == str(engineering_item.id)
+    assert history_items[1].item_type == "engineering"
+    assert history_items[1].action == "update"
+    assert history_items[1].metadata["title"] == "Test Updated"
+
 
 
 async def test_delete_engineering_work_item(data_app):
@@ -178,6 +221,29 @@ async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
         await data_app.engineering_controller.delete(
             organization_id=org.id, id=0, current_user="test@test.com", scope="ENGINEERING"
         )
+
+
+async def test_delete_engineering_item_creates_history(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+
+    result = await data_app.engineering_controller.delete(
+        organization_id=engineering_item.organization_id,
+        id=engineering_item.id,
+        current_user="test@test.com",
+        scope="ENGINEERING"
+    )
+
+    assert result
+
+    history_items, _ = await data_app.history_controller.get_all(
+        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
+    )
+
+    assert len(history_items) == 2
+    assert history_items[1].item_id == str(engineering_item.id)
+    assert history_items[1].item_type == "engineering"
+    assert history_items[1].action == "delete"
 
 
 async def test_create_engineering_item_with_iteration(data_app):
