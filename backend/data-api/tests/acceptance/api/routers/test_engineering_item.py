@@ -59,7 +59,9 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
 
 
-async def test_should_add_engineering_item_with_estimated_completion_date_in_iso_format_with_timezone(data_api: TestClient):
+async def test_should_add_engineering_item_with_estimated_completion_date_in_iso_format_with_timezone(
+    data_api: TestClient,
+):
     org, _, headers = await authenticate(data_api)
 
     engineering_item = await add_engineering_item(
@@ -106,6 +108,23 @@ async def test_should_not_add_engineering_item_without_token(data_api: TestClien
     await add_engineering_item(
         data_api, org["id"], {"created_by_id": "test2@test.com"}, headers={}, expected_status_code=401
     )
+
+
+async def test_should_add_engineering_item_to_get_history(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    engineering_item = await add_engineering_item(data_api, org["id"], headers=headers)
+
+    response = await data_api.get(f"{org['id']}/engineering/{engineering_item['id']}/history", headers=headers)
+    assert response.status_code == 200
+
+    history = response.json()
+    assert len(history) == 1
+    assert history[0]["item_id"] == str(engineering_item["id"])
+    assert history[0]["created_by_id"] == user["id"]
+    assert history[0]["created_at"]
+    assert history[0]["modified_at"]
+    assert history[0]["modified_by_id"] == user["id"]
 
 
 async def test_should_get_engineering_item(data_api: TestClient):

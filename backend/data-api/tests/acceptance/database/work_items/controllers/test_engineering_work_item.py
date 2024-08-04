@@ -66,7 +66,23 @@ async def test_add_engineering_work_item_creates_history(data_app):
 
     assert engineering_item.id
 
-    history_items, _ = await data_app.history_controller.get_all(
+    history_items = await data_app.history_controller.get_all(
+        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
+    )
+
+    assert len(history_items) == 1
+    assert history_items[0].item_id == str(engineering_item.id)
+    assert history_items[0].item_type == "engineering"
+    assert history_items[0].action == "create"
+    assert history_items[0].metadata["title"] == "Test"
+
+
+async def test_add_engineering_work_item_gets_only_story_history(data_app):
+    org = await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+
+    history_items = await data_app.history_controller.get_all(
         organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
     )
 

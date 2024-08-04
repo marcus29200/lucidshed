@@ -58,8 +58,5 @@ WHERE
     organization_id = $1
     AND deleted_at IS NULL
     AND item_id = $2
-    AND item_type = $3
-ORDER BY $4
-LIMIT $5
-OFFSET $6;
+    AND item_type = $3;
 """

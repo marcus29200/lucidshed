@@ -71,6 +71,13 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
     )
 
 
+@router.get("/{id}/history", status_code=200)
+async def get_engineering_item_history(request: Request, organization_id: str, id: int):
+    return await request.app.history_controller.get_all(
+        organization_id=organization_id, item_id=id, item_type="engineering"
+    )
+
+
 @router.post("/{work_item_id}/comments", status_code=201)
 async def create_engineering_item_comment(
     request: Request, organization_id: str, work_item_id: int, body: BaseWorkItemComment

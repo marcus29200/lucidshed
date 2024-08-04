@@ -1,9 +1,8 @@
 import json
-from typing import List, Optional, Tuple
+from typing import List
 from uuid import uuid4
 
 from app.api.settings import data_db
-from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory, History
 from app.exceptions.common import ObjectNotFoundException
@@ -37,27 +36,8 @@ class HistoryController:
 
         return History(**record)
 
-    async def get_all(
-        self,
-        *,
-        organization_id: str,
-        item_id: str,
-        item_type: str,
-        sort: Optional[str] = "id",
-        limit: Optional[int] = 1000,
-        cursor: Optional[str] = None,
-    ) -> Tuple[List[History], str]:
-        offset = 0
-        if cursor:
-            sort, offset, _ = parse_cursor(cursor)
-
+    async def get_all(self, *, organization_id: str, item_id: str, item_type: str) -> List[History]:
         # Get item record here
-        records = await data_db.get().fetch(
-            QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type, sort, limit, offset
-        )
+        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type)
 
-        cursor = None
-        if len(records) == limit:
-            cursor = generate_cursor(sort, offset + limit)
-
-        return [History(**record) for record in records], cursor
+        return [History(**record) for record in records]

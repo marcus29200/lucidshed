@@ -76,6 +76,23 @@ async def test_should_add_support_item_with_created_by_override(data_api: TestCl
     assert support_item["created_by_id"] == "test2@test.com"
 
 
+async def test_should_add_support_item_to_get_history(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    support_item = await add_support_item(data_api, org["id"], headers=headers)
+
+    response = await data_api.get(f"{org['id']}/support/{support_item['id']}/history", headers=headers)
+    assert response.status_code == 200
+
+    history = response.json()
+    assert len(history) == 1
+    assert history[0]["item_id"] == str(support_item["id"])
+    assert history[0]["created_by_id"] == user["id"]
+    assert history[0]["created_at"]
+    assert history[0]["modified_at"]
+    assert history[0]["modified_by_id"] == user["id"]
+
+
 async def test_should_get_support_item(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
