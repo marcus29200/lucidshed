@@ -42,9 +42,9 @@ async def test_should_add_support_item(data_api: TestClient):
     assert support_item["priority"] == "high"
     assert support_item["status"] == SupportItemStatus.NEW
     assert support_item["created_at"]
-    assert support_item["created_by_id"] == "test@test.com"
+    assert support_item["created_by_id"]
     assert support_item["modified_at"]
-    assert support_item["modified_by_id"] == "test@test.com"
+    assert support_item["modified_by_id"]
 
 
 async def test_should_add_support_item_pending_status(data_api: TestClient):

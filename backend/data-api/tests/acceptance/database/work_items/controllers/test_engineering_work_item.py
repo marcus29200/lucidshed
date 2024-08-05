@@ -25,7 +25,7 @@ async def create_engineering_item(
     )
 
     engineering_item = await data_app.engineering_controller.create(
-        organization_id=org_id, new_engineering_item=base_engineering_item, current_user="test@test.com"
+        organization_id=org_id, new_item=base_engineering_item, current_user="test@test.com"
     )
 
     assert engineering_item.id
@@ -181,7 +181,7 @@ async def test_update_engineering_work_item(data_app):
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=update,
+        updated_item=update,
         current_user="test@test.com",
     )
 
@@ -199,11 +199,11 @@ async def test_update_engineering_work_item_creates_history(data_app):
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=engineering_item,
+        updated_item=engineering_item,
         current_user="test@test.com",
     )
 
-    history_items, _ = await data_app.history_controller.get_all(
+    history_items = await data_app.history_controller.get_all(
         organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
     )
 
@@ -250,7 +250,7 @@ async def test_delete_engineering_item_creates_history(data_app):
 
     assert result
 
-    history_items, _ = await data_app.history_controller.get_all(
+    history_items = await data_app.history_controller.get_all(
         organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
     )
 
@@ -277,7 +277,7 @@ async def test_assign_iteration_to_engineering_item(data_app):
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=engineering_item,
+        updated_item=engineering_item,
         current_user="test@test.com",
     )
 
@@ -327,7 +327,7 @@ async def test_assign_team_to_engineering_item(data_app):
     engineering_item = await data_app.engineering_controller.update(
         organization_id=org.id,
         id=engineering_item.id,
-        updated_engineering_item=engineering_item,
+        updated_item=engineering_item,
         current_user="test@test.com",
     )
 

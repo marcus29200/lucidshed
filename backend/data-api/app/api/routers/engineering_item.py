@@ -31,7 +31,7 @@ class WorkItemCommentPagedResponse(BaseModel):
 @router.post("", status_code=201, response_model=EngineeringItem)
 async def add_engineering_item(request: Request, organization_id: str, body: BaseEngineeringItem) -> EngineeringItem:
     return await request.app.engineering_controller.create(
-        organization_id=organization_id, new_engineering_item=body, current_user=request.state.user.id
+        organization_id=organization_id, new_item=body, current_user=request.state.user.id
     )
 
 
@@ -60,7 +60,7 @@ async def update_engineering_item(
     request: Request, organization_id: str, id: int, body: BaseEngineeringItem
 ) -> EngineeringItem:
     return await request.app.engineering_controller.update(
-        organization_id=organization_id, id=id, updated_engineering_item=body, current_user=request.state.user.id
+        organization_id=organization_id, id=id, updated_item=body, current_user=request.state.user.id
     )
 
 
@@ -123,7 +123,7 @@ async def update_engineering_item_comment(
         organization_id=organization_id,
         work_item_id=work_item_id,
         id=id,
-        updated_engineering_item=body,
+        updated_item=body,
         current_user=request.state.user.id,
     )
 

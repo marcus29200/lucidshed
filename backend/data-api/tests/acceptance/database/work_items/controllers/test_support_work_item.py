@@ -24,7 +24,7 @@ async def create_support_item(
     )
 
     support_item = await data_app.support_controller.create(
-        organization_id=org_id, new_support_item=base_support_item, current_user="test@test.com"
+        organization_id=org_id, new_item=base_support_item, current_user="test@test.com"
     )
 
     assert support_item.id
@@ -142,7 +142,7 @@ async def test_update_support_work_item(data_app):
     support_item = await data_app.support_controller.update(
         organization_id=org.id,
         id=support_item.id,
-        updated_support_item=support_item,
+        updated_item=support_item,
         current_user="test@test.com",
     )
 

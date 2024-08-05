@@ -25,7 +25,7 @@ class PagedResponse(BaseModel):
 @router.post("", status_code=201, response_model=SupportItem)
 async def add_support_item(request: Request, organization_id: str, body: BaseSupportItem) -> SupportItem:
     return await request.app.support_controller.create(
-        organization_id=organization_id, new_support_item=body, current_user=request.state.user.id
+        organization_id=organization_id, new_item=body, current_user=request.state.user.id
     )
 
 
@@ -51,7 +51,7 @@ async def get_support_items(
 @router.patch("/{id}", status_code=200, response_model=SupportItem)
 async def update_support_item(request: Request, organization_id: str, id: int, body: BaseSupportItem) -> SupportItem:
     return await request.app.support_controller.update(
-        organization_id=organization_id, id=id, updated_support_item=body, current_user=request.state.user.id
+        organization_id=organization_id, id=id, updated_item=body, current_user=request.state.user.id
     )
 
 

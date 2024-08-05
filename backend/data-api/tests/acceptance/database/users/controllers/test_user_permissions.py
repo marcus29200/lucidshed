@@ -56,12 +56,12 @@ async def test_update_user_permission(data_app):
     user = await create_user(data_app)
     user_permission, org = await create_user_permission(data_app, user_id=user.id)
 
-    user_permission.role = None
+    user_permission.role = UserRoleType.MEMBER
     user_permission = await data_app.user_permission_controller.update(
         id=user.id, organization_id=org.id, updated_user_permission=user_permission, current_user=user.id
     )
 
-    assert user_permission.role is None
+    assert user_permission.role is UserRoleType.MEMBER
 
 
 async def test_delete_user_permission(data_app):
