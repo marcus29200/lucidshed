@@ -21,3 +21,6 @@ class BaseUserPermission(BaseModel):
 
 class UserPermission(Model, BaseUserPermission):
     organization_id: str
+    user_id: str
+    disabled: bool
+    role: UserRoleType

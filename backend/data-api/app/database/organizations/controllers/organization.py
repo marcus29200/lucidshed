@@ -49,7 +49,7 @@ class OrganizationController:
 
         return Organization(**record)
 
-    async def delete(self, *, id: int, current_user: str) -> bool:
+    async def delete(self, *, id: str, current_user: str) -> bool:
         result = await data_db.get().execute(
             QUERIES["DELETE_ORGANIZATION"],
             id,

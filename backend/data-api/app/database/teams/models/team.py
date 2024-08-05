@@ -13,5 +13,5 @@ class BaseTeam(BaseModel):
 
 
 class Team(Model, BaseTeam):
-    id: int
+    id: int  # type: ignore
     organization_id: str = Field(max_length=MAX_ID_LENGTH)

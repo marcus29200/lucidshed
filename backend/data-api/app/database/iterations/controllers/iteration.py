@@ -41,7 +41,7 @@ class IterationController:
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> Tuple[List[Iteration], str]:
+    ) -> Tuple[List[Iteration], str | None]:
         offset = 0
         if cursor:
             sort, offset, _ = parse_cursor(cursor)
@@ -59,7 +59,7 @@ class IterationController:
         self,
         *,
         organization_id: str,
-        id: str,
+        id: int,
         updated_iteration: Iteration,
         current_user: str,
     ) -> Iteration:

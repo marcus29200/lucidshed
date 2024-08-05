@@ -1,6 +1,8 @@
 from copy import copy
+from typing import Dict
 
 from asyncpg.exceptions import UniqueViolationError
+from asyncpg.pool import Pool
 from fastapi import APIRouter, FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
@@ -69,7 +71,7 @@ class DataApplication(FastAPI):
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
 
-        self.database_pools = {}
+        self.database_pools: Dict[str, Pool] = {}
 
     async def __aenter__(self):
         await self.init()

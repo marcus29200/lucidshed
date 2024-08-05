@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 from uuid import uuid4
 
 from asyncpg import InvalidCatalogNameError, create_pool
-from fastapi import APIRouter, Depends, Request, Security
+from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
@@ -40,11 +40,11 @@ async def add_organization(
     body: BaseOrganization,
 ) -> Organization:
     if body.id in BLOCKED_ORG_IDS:
-        raise JSONResponse({"detail": "Unable to create organization"}, status_code=412)
+        raise HTTPException(status_code=412, detail="Unable to create organization")
 
     if request.state.user.created_org_count > request.state.user.created_org_limit:
-        raise JSONResponse(
-            {"detail": f"Organization limit [{request.state.user.created_org_limit}] reached"}, status_code=412
+        raise HTTPException(
+            status_code=412, detail=f"Organization limit [{request.state.user.created_org_limit}] reached"
         )
 
     async with create_pool(
@@ -203,10 +203,12 @@ async def update_organization_user_permissions(
     status_code=200,
     dependencies=[Security(get_current_user, scopes=["admin"])],
 )
-async def delete_organization_user(request: Request, organization_id: str, user_id: str) -> None:
+async def delete_organization_user(request: Request, organization_id: str, user_id: str) -> JSONResponse:
     result = await request.app.user_permission_controller.delete(
         id=user_id, organization_id=organization_id, current_user=request.state.user.id
     )
 
     if not result:
         return JSONResponse("Unable to delete user", status_code=412)
+
+    return JSONResponse({})

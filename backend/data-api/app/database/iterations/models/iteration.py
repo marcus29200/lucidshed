@@ -28,5 +28,5 @@ class BaseIteration(BaseModel):
 
 
 class Iteration(Model, BaseIteration):
-    id: int
+    id: int  # type: ignore
     organization_id: str = Field(max_length=MAX_ID_LENGTH)

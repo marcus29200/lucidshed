@@ -10,27 +10,27 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 class EngineeringController(WorkItemController):
     async def create(
-        self, *, organization_id: str, new_engineering_item: BaseEngineeringItem, current_user: str
+        self, *, organization_id: str, new_item: BaseEngineeringItem, current_user: str
     ) -> EngineeringItem:
         # Create db record
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_ENGINEERING_ITEM"],
             organization_id,
-            new_engineering_item.title,
-            new_engineering_item.description,
-            new_engineering_item.status,
-            new_engineering_item.priority,
-            new_engineering_item.estimated_completion_date,
-            new_engineering_item.starred,
-            new_engineering_item.item_type,
-            new_engineering_item.item_sub_type,
-            new_engineering_item.estimate,
-            new_engineering_item.iteration_id,
-            new_engineering_item.team_id,
-            new_engineering_item.due_date,
-            new_engineering_item.acceptance_criteria,
-            new_engineering_item.created_by_id or current_user,
+            new_item.title,
+            new_item.description,
+            new_item.status,
+            new_item.priority,
+            new_item.estimated_completion_date,
+            new_item.starred,
+            new_item.item_type,
+            new_item.item_sub_type,
+            new_item.estimate,
+            new_item.iteration_id,
+            new_item.team_id,
+            new_item.due_date,
+            new_item.acceptance_criteria,
+            new_item.created_by_id or current_user,
             current_user,
         )
 
@@ -40,7 +40,7 @@ class EngineeringController(WorkItemController):
                 item_id=record["id"],
                 item_type="engineering",
                 action="create",
-                metadata=new_engineering_item.model_dump(exclude_unset=True),
+                metadata=new_item.model_dump(exclude_unset=True),
             ),
             current_user,
         )
@@ -48,7 +48,7 @@ class EngineeringController(WorkItemController):
         return EngineeringItem(**record)
 
     async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
-        record = await super().get(organization_id=organization_id, id=id, scope="ENGINEERING")
+        record = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
 
         return EngineeringItem(**record)
 
@@ -56,15 +56,15 @@ class EngineeringController(WorkItemController):
         self,
         *,
         organization_id: str,
+        item_type: Optional[EngineeringItemType] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-        item_type: Optional[EngineeringItemType] = None,
-    ) -> Tuple[List[EngineeringItem], str]:
+    ) -> Tuple[List[EngineeringItem], str | None]:
         if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
 
-        records, cursor = await super().get_all(
+        records, cursor = await super()._get_all(
             organization_id=organization_id,
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             item_type=item_type,
@@ -79,13 +79,13 @@ class EngineeringController(WorkItemController):
         self,
         *,
         organization_id: str,
-        id: str,
-        updated_engineering_item: EngineeringItem,
+        id: int,
+        updated_item: EngineeringItem,
         current_user: str,
     ) -> EngineeringItem:
         old_engineering_item = await self.get(organization_id=organization_id, id=id)
 
-        new_item_json = updated_engineering_item.model_dump(exclude_unset=True)
+        new_item_json = updated_item.model_dump(exclude_unset=True)
         old_item_json = old_engineering_item.model_dump()
 
         old_item_json.update(**new_item_json)
@@ -124,6 +124,3 @@ class EngineeringController(WorkItemController):
         )
 
         return EngineeringItem(**record)
-
-    async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
-        return await super().delete(organization_id=organization_id, id=id, current_user=current_user, scope=scope)

@@ -3,7 +3,9 @@ import json
 from typing import Any, Dict, Optional, Tuple
 
 
-def generate_cursor(sort_field: str, offset: int, extra: Optional[Dict[str, Any]] = None) -> str:
+def generate_cursor(
+    sort_field: Optional[str] = None, offset: Optional[int] = 0, extra: Optional[Dict[str, Any]] = None
+) -> str:
     # Encode the sort field and offset as a JSON string
     cursor_dict = {"sort_field": sort_field, "offset": offset, "extra": extra}
     cursor_str = json.dumps(cursor_dict)

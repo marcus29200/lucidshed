@@ -33,7 +33,7 @@ class TeamController:
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> Tuple[List[Team], str]:
+    ) -> Tuple[List[Team], str | None]:
         offset = 0
         if cursor:
             sort, offset, _ = parse_cursor(cursor)
@@ -51,7 +51,7 @@ class TeamController:
         self,
         *,
         organization_id: str,
-        id: str,
+        id: int,
         updated_team: Team,
         current_user: str,
     ) -> Team:

@@ -1,8 +1,6 @@
-import asyncio
-from unittest.mock import AsyncMock, Mock, patch, MagicMock
+from unittest.mock import patch
 
 import pytest
-from asyncpg import create_pool
 
 from app.commands.organizations.vacuum import VacuumCommand
 

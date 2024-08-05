@@ -19,9 +19,7 @@ class VacuumCommand(BaseOrganizationCommand):
                 password="password",
                 database=organization_id,
             )
-            tables = await conn.fetch(
-                "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
-            )
+            tables = await conn.fetch("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
 
             for table in tables:
                 table_name = table["table_name"]
@@ -36,7 +34,7 @@ class VacuumCommand(BaseOrganizationCommand):
             print(f"Failed to vacuum {organization_id}: {e}")
         finally:
             await conn.close()
-        
+
         return objects_removed
 
 

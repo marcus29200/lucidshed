@@ -37,7 +37,7 @@ class BaseUser(BaseModel):
 
 
 class User(Model, BaseUser):
-    permissions: Optional[Dict[str, UserPermission]] = {}
+    permissions: Dict[str, UserPermission] = {}
     password: Optional[str] = Field(None, exclude=True)
     super_admin: bool = False
     reset_code: Optional[str] = Field(None, exclude=True)
@@ -56,10 +56,6 @@ class User(Model, BaseUser):
     def verified(self):
         # Other things might be able to determine if a user is verified or not
         return self.password_set
-
-    @property
-    def disabled(self):
-        return False
 
     @property
     def password_set(self):

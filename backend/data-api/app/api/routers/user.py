@@ -1,5 +1,4 @@
 import logging
-from typing import Any, Dict
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Security
@@ -20,7 +19,7 @@ router = APIRouter(prefix="", tags=["user"])
 
 
 @router.post("/register", status_code=200)
-async def register(request: Request, body: BaseUser) -> Dict[str, Any]:
+async def register(request: Request, body: BaseUser) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
     # Send email with verification code
@@ -33,7 +32,7 @@ async def register(request: Request, body: BaseUser) -> Dict[str, Any]:
 
 
 @router.post("/reset-password", status_code=200)
-async def reset(request: Request, body: ResetPassword):
+async def reset(request: Request, body: ResetPassword) -> JSONResponse:
     try:
         await request.app.user_controller.set_user_password(reset_code=body.reset_code, new_password=body.password)
     except Exception:
@@ -45,7 +44,7 @@ async def reset(request: Request, body: ResetPassword):
 
 
 @router.post("/reset-request", status_code=200)
-async def reset_request(request: Request, body: ResetPasswordRequest):
+async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONResponse:
     user = await request.app.user_controller.update(
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"
     )
@@ -65,11 +64,10 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
         user: User = await authenticate_user(request, body.username, body.password)
     except ObjectNotFoundException:
         logger.warning(f"{body.username} not found")
-        user = None
 
-    if not user:
         raise HTTPException(status_code=401, detail="Incorrect username or password")
-    elif not user.verified:
+
+    if not user.verified:
         raise HTTPException(status_code=401, detail="User is not verified")
     elif user.disabled:
         raise HTTPException(status_code=401, detail="User is not disabled")
@@ -88,7 +86,7 @@ async def logout(request: Request) -> None:
         token = request.headers.get("authorization", "").split("Bearer ")[-1]
         await request.app.user_session_controller.delete(identifier=token)
     except ObjectNotFoundException:
-        logger.info(f"Could not invalidate not found user token {token[:5]}")
+        logger.info(f"Could not invalidate not found user token {token[:5] if token else ''}")
 
         return
 

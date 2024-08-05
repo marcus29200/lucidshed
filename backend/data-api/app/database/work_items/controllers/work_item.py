@@ -14,10 +14,13 @@ class WorkItemController:
     def __init__(self):
         self.history_controller = HistoryController()
 
-    async def create(self, obj: Any):
+    async def create(self, *, organization_id: str, new_item: Any, current_user: str) -> Any:
         raise NotImplementedError()
 
-    async def get(self, *, organization_id: str, id: int, scope: str) -> Dict[str, Any]:
+    async def get(self, *, organization_id: str, id: int) -> Any:
+        raise NotImplementedError()
+
+    async def _get(self, *, organization_id: str, id: int, scope: str) -> Dict[str, Any]:
         # Get item record here
         record = await data_db.get().fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
 
@@ -30,12 +33,23 @@ class WorkItemController:
         self,
         *,
         organization_id: str,
+        sort: Optional[Any] = "id",
+        item_type: Optional[Any] = None,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
+    ) -> Tuple[List[Any], str | None]:
+        raise NotImplementedError()
+
+    async def _get_all(
+        self,
+        *,
+        organization_id: str,
         scope: str,
         sort: Optional[str] = "id",
         item_type: Optional[str] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> Tuple[List[Dict[str, Any]], str]:
+    ) -> Tuple[List[Dict[str, Any]], str | None]:
         offset = 0
         if cursor:
             sort, offset, extra = parse_cursor(cursor)
@@ -55,7 +69,7 @@ class WorkItemController:
 
         return records, cursor
 
-    async def update(self, obj: Any):
+    async def update(self, *, organization_id: str, id: int, updated_item: Any, current_user: str) -> Any:
         raise NotImplementedError()
 
     async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:

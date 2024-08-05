@@ -63,7 +63,7 @@ class UserController:
         sort: Optional[UserSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> Tuple[List[User], str]:
+    ) -> Tuple[List[User], str | None]:
         offset = 0
         if cursor:
             sort, offset, _ = parse_cursor(cursor)
@@ -129,7 +129,7 @@ class UserController:
 
         return User(**record)
 
-    async def set_user_password(self, *, reset_code: str, new_password: str) -> bool:
+    async def set_user_password(self, *, reset_code: str, new_password: str) -> User:
         record = await user_db.get().fetchrow(
             QUERIES["SET_USER_PASSWORD"],
             reset_code,

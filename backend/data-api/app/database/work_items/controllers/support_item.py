@@ -9,26 +9,24 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class SupportController(WorkItemController):
-    async def create(
-        self, *, organization_id: str, new_support_item: BaseSupportItem, current_user: str
-    ) -> SupportItem:
+    async def create(self, *, organization_id: str, new_item: BaseSupportItem, current_user: str) -> SupportItem:
 
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_SUPPORT_ITEM"],
             organization_id,
-            new_support_item.title,
-            new_support_item.description,
-            new_support_item.status,
-            new_support_item.priority,
-            new_support_item.estimated_completion_date,
-            new_support_item.starred,
-            new_support_item.owner,
-            new_support_item.customer,
-            new_support_item.primary_contact,
-            new_support_item.secondary_contact,
-            new_support_item.next_response_due,
-            new_support_item.created_by_id or current_user,
+            new_item.title,
+            new_item.description,
+            new_item.status,
+            new_item.priority,
+            new_item.estimated_completion_date,
+            new_item.starred,
+            new_item.owner,
+            new_item.customer,
+            new_item.primary_contact,
+            new_item.secondary_contact,
+            new_item.next_response_due,
+            new_item.created_by_id or current_user,
             current_user,
         )
 
@@ -38,7 +36,7 @@ class SupportController(WorkItemController):
                 item_id=record["id"],
                 item_type="support",
                 action="create",
-                metadata=new_support_item.model_dump(exclude_unset=True),
+                metadata=new_item.model_dump(exclude_unset=True),
             ),
             current_user,
         )
@@ -46,7 +44,7 @@ class SupportController(WorkItemController):
         return SupportItem(**record)
 
     async def get(self, *, organization_id: str, id: int) -> SupportItem:
-        record = await super().get(organization_id=organization_id, id=id, scope="SUPPORT")
+        record = await super()._get(organization_id=organization_id, id=id, scope="SUPPORT")
 
         return SupportItem(**record)
 
@@ -54,14 +52,15 @@ class SupportController(WorkItemController):
         self,
         *,
         organization_id: str,
+        item_type: Optional[str] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> Tuple[List[SupportItem], str]:
+    ) -> Tuple[List[SupportItem], str | None]:
         if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
 
-        records, cursor = await super().get_all(
+        records, cursor = await super()._get_all(
             organization_id=organization_id,
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
@@ -75,13 +74,13 @@ class SupportController(WorkItemController):
         self,
         *,
         organization_id: str,
-        id: str,
-        updated_support_item: SupportItem,
+        id: int,
+        updated_item: SupportItem,
         current_user: str,
     ) -> SupportItem:
         old_support_item = await self.get(organization_id=organization_id, id=id)
 
-        new_item_json = updated_support_item.model_dump(exclude_unset=True)
+        new_item_json = updated_item.model_dump(exclude_unset=True)
         old_item_json = old_support_item.model_dump()
 
         old_item_json.update(**new_item_json)

@@ -25,7 +25,7 @@ class UserPermissionController:
 
         return UserPermission(**record)
 
-    async def get(self, *, organization_id: str, id: int):
+    async def get(self, *, organization_id: str, id: str):
         # Get item record here
         record = await user_db.get().fetchrow(QUERIES["GET_USER_PERMISSION"], organization_id, id)
 
@@ -36,7 +36,7 @@ class UserPermissionController:
 
         return UserPermission(**record)
 
-    async def get_user_organizations(self, *, user_id: int) -> List[str]:
+    async def get_user_organizations(self, *, user_id: str) -> List[str]:
         records = await user_db.get().fetch(QUERIES["GET_USER_ORGANIZATIONS"], user_id)
 
         return records

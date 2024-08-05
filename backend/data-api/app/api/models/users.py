@@ -31,7 +31,7 @@ class ResetPassword(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def password(cls, v):
+    def password_validator(cls, v):
         min_length = 8
         required_patterns = [
             r"[A-Z]",  # At least one uppercase letter

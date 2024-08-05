@@ -28,7 +28,7 @@ async def authenticate_user(request, email: str, password: str) -> User:
     user = await request.app.user_controller.get(id=None, email=email)
 
     if not user or not password_matches(user.password, password):
-        return None
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
     return user
 
@@ -93,7 +93,7 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
     org_id = request.path_params.get("organization_id")
     if org_id:
         permission = user.permissions.get(org_id)
-        if permission and PERMISSION_LEVELS.get(permission.role, -1) >= PERMISSION_LEVELS.get(
+        if permission and PERMISSION_LEVELS.get(permission.role.value, -1) >= PERMISSION_LEVELS.get(
             security_scopes.scopes[0], 100
         ):
             request.state.user = user
