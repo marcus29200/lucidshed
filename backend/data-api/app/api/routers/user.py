@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
+from app.api.settings import settings
 from app.database.users.models.user import BaseUser, User
 from app.database.users.models.user_session import BaseUserSession
 from app.exceptions.common import ObjectNotFoundException
@@ -23,7 +24,7 @@ async def register(request: Request, body: BaseUser) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
     # Send email with verification code
-    if request.app.settings.testing:
+    if settings.testing:
         logger.warning(f"Reset code for user {user.email} {user.reset_code}")
 
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
@@ -50,7 +51,7 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
     )
 
     # Send email with verification code
-    if request.app.settings.testing:
+    if settings.testing:
         logger.warning(f"Reset code for user {user.email} {user.reset_code}")
 
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})

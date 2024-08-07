@@ -7,7 +7,7 @@ from fastapi.security import SecurityScopes
 from jwt import decode, encode
 
 from app.api.models.users import TokenData
-from app.api.settings import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
+from app.api.settings import settings
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
 from app.database.users.models.user_session import UserSession
@@ -36,8 +36,8 @@ async def authenticate_user(request, email: str, password: str) -> User:
 def create_access_token(data: Dict[str, Any]):
     to_encode = data.copy()
 
-    to_encode.update({"exp": datetime.now(UTC).timestamp() + ACCESS_TOKEN_EXPIRE_MINUTES})
-    encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    to_encode.update({"exp": datetime.now(UTC).timestamp() + float(settings.access_token_expire_minutes)})
+    encoded_jwt = encode(to_encode, settings.auth_secret_key, algorithm="HS256")
 
     return encoded_jwt
 
@@ -51,7 +51,7 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
 
     try:
         token = token.split("Bearer ")[-1]
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(token, settings.auth_secret_key, algorithms=["HS256"])
 
         username: str = payload.get("subject")
         if username is None:

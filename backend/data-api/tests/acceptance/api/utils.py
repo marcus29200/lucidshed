@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from asyncpg import create_pool
 from fastapi.testclient import TestClient
 
-from app.api.settings import data_db
+from app.api.settings import data_db, settings
 
 expired_headers = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoidGVzdEB0ZXN0LmNvbSIsInNjb3BlcyI6W10sImV4cCI6MTcxOTU4ODc5Mi4zNjUxN30.15fa1fwuhx-FQLHPzbxOmZ35afvyxzJYFs6c-cIt_o4"  # noqa
@@ -27,9 +27,7 @@ async def add_organization(
         raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
     if response.status_code == 201:
-        pool = await create_pool(
-            host="localhost", port="5432", database=data_api.test_org_id, user="postgres", password="password"
-        )
+        pool = await create_pool(**settings.database_settings, database=data_api.test_org_id)
         data_db.set(await pool.acquire())
 
     return response.json()

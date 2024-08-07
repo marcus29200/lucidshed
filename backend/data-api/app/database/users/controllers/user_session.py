@@ -1,8 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from app.api.dependencies.authorization import ACCESS_TOKEN_EXPIRE_MINUTES
-from app.api.settings import user_db
+from app.api.settings import Settings, user_db
 from app.database.common.queries import QUERIES
 from app.database.users.models.user_session import BaseUserSession, UserSession
 from app.exceptions.common import ObjectNotFoundException
@@ -10,13 +9,15 @@ from app.exceptions.common import ObjectNotFoundException
 
 class UserSessionController:
     async def create(self, *, user_session: BaseUserSession):
+        settings = Settings()
+
         # Create db record
         record = await user_db.get().fetchrow(
             QUERIES["CREATE_USER_SESSION"],
             uuid4().hex,
             user_session.user_id,
             user_session.token,
-            datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            datetime.now(UTC) + timedelta(minutes=settings.access_token_expire_minutes),
         )
 
         # TODO Create history entry

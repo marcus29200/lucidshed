@@ -1,7 +1,7 @@
 import pytest
 from asyncpg import create_pool
 
-from app.api.settings import data_db
+from app.api.settings import data_db, settings
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.utils import create_database, init_database_tables
@@ -12,14 +12,10 @@ pytestmark = pytest.mark.asyncio
 async def create_organization(data_app) -> Organization:
     base_organization = BaseOrganization(id=data_app.test_org_id, title="Test")
 
-    async with create_pool(
-        host="localhost", port="5432", user="postgres", password="password"
-    ) as pool, pool.acquire() as conn:
+    async with create_pool(**settings.database_settings) as pool, pool.acquire() as conn:
         await create_database(conn, data_app.test_org_id)
 
-    pool = await create_pool(
-        host="localhost", port="5432", database=data_app.test_org_id, user="postgres", password="password"
-    )
+    pool = await create_pool(**settings.database_settings, database=data_app.test_org_id)
     data_db.set(await pool.acquire())
     await init_database_tables(data_db.get(), INIT_STATEMENTS)
 

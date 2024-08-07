@@ -5,12 +5,13 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 from app.api.application import DataApplication
-from app.api.settings import Settings
+from app.api.settings import settings
 
 
 @pytest_asyncio.fixture
 async def data_app() -> DataApplication:  # type: ignore
-    async with DataApplication(Settings(testing=True)) as app:
+    settings.testing = True
+    async with DataApplication(settings) as app:
         app.test_org_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
 
         yield app

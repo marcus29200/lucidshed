@@ -3,7 +3,7 @@ import asyncio
 import uvicorn
 
 from app.api.application import DataApplication
-from app.api.settings import Settings
+from app.api.settings import settings
 
 
 def run_api():
@@ -11,7 +11,7 @@ def run_api():
 
 
 async def _run_api():
-    app = DataApplication(Settings())
+    app = DataApplication(settings)
 
     await app.init()
 

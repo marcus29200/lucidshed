@@ -3,19 +3,13 @@ from typing import Optional
 from asyncpg import create_pool
 from fastapi import Request
 
-from app.api.settings import Settings, data_db
+from app.api.settings import data_db, settings
 
 
 async def get_pool(database_pools, db_name: Optional[str] = None):
-    settings = Settings()
-
     if not database_pools.get(db_name):
         database_pools[db_name] = await create_pool(
-            host="localhost",
-            port="5432",
-            database=db_name or settings.database_name,
-            user="postgres",
-            password="password",
+            **settings.database_settings, database=db_name or settings.user_db_name
         )
 
     return database_pools[db_name]

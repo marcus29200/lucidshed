@@ -14,7 +14,7 @@ from app.api.routers.organization import router as organization_router
 from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import Settings, user_db
+from app.api.settings import settings, user_db
 from app.database.common.queries import USER_INIT_STATEMENTS
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
@@ -53,10 +53,8 @@ class DBMiddleware(BaseHTTPMiddleware):
 
 
 class DataApplication(FastAPI):
-    def __init__(self, settings: Settings, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(title="LucidShed API")
-
-        self.settings = settings
 
         self.include_router(router)
         self.include_router(user_router, prefix="/users")
@@ -82,9 +80,9 @@ class DataApplication(FastAPI):
         await self.close()
 
     async def init(self) -> None:
-        self.user_pool = await get_pool(self.database_pools, self.settings.database_name)
+        self.user_pool = await get_pool(self.database_pools, settings.user_db_name)
         async with self.user_pool.acquire() as conn:
-            if self.settings.testing is True:
+            if settings.testing is True:
                 await clear_database(conn, "users")
 
             await init_database_tables(conn, USER_INIT_STATEMENTS)
@@ -100,14 +98,13 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
 
     async def close(self) -> None:
-
         pools = copy(self.database_pools)
         for key, pool in pools.items():
             if key == "users":
                 continue
 
             # TODO Remove after we fix the delete database test code
-            if self.settings.testing:
+            if settings.testing:
                 async with pool.acquire() as conn:
                     await clear_database(conn, key)
 
@@ -117,7 +114,7 @@ class DataApplication(FastAPI):
 
             # TODO We should delete the db, but currently having an issue where there are open connections and we can't
             # Where are these open connections?
-            # if self.settings.testing:
+            # if settings.testing:
             #     try:
             #         async with self.user_pool.acquire() as conn:
             #             await delete_database(conn, key)
@@ -134,4 +131,4 @@ class DataApplication(FastAPI):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
 
 
-app = DataApplication(Settings())
+app = DataApplication(settings)

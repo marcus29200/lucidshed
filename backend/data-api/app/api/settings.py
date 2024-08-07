@@ -1,41 +1,33 @@
-import os
 from contextvars import ContextVar
-from typing import List, Optional
+from os import getenv
+from typing import Any, Dict, Optional
 
-from dotenv import load_dotenv
 from pydantic import BaseModel
-from starlette.config import Config
-from starlette.datastructures import CommaSeparatedStrings
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")
 
 
 class Settings(BaseModel):
-    host: str = "0.0.0.0"
-    port: int = 8080
+    host: str = getenv("APP_HOST", "0.0.0.0")
+    port: int = int(getenv("APP_PORT", 8080))
 
-    database_dsn: Optional[str] = "postgres://postgres:password@localhost:5432/data-api?sslmode=disable"
-    database_host: str = "localhost"
-    database_port: int = 5432
-    database_name: str = "users"
-    database_user: str = "postgres"
-    database_password: str = "secret"
+    database_settings: Dict[str, Any] = {
+        "host": getenv("DATABASE_HOST", "localhost"),
+        "port": getenv("DATABASE_PORT", 5432),
+        "user": getenv("DATABASE_USER", "postgres"),
+        "password": getenv("DATABASE_PASSWORD", "password"),
+    }
+    user_db_name: str = getenv("USER_DB_NAME", "users")
 
-    testing: bool = True
+    access_token_expire_minutes: Optional[int] = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+
+    auth_secret_key: Optional[str] = getenv("AUTH_SECRET_KEY", "test")
+
+    google_client_id: Optional[str] = getenv("GOOGLE_CLIENT_ID", None)
+    google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
+
+    testing: bool = bool(getenv("TESTING", True))
 
 
-load_dotenv(".env")
-
-config = Config(".env")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SECRET_KEY = config("SECRET_KEY")
-ALGORITHM = config("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(config("ACCESS_TOKEN_EXPIRE_MINUTES", default=30))
-
-ROUTE_PREFIX_V1 = "/v1"
-ALLOWED_HOSTS: List[str] = config(
-    "ALLOWED_HOSTS",
-    cast=CommaSeparatedStrings,
-    default="",
-)
+settings = Settings()

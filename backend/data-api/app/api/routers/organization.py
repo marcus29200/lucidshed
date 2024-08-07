@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
-from app.api.settings import data_db
+from app.api.settings import data_db, settings
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
@@ -47,18 +47,14 @@ async def add_organization(
             status_code=412, detail=f"Organization limit [{request.state.user.created_org_limit}] reached"
         )
 
-    async with create_pool(
-        host="localhost", port="5432", user="postgres", password="password"
-    ) as pool, pool.acquire() as conn:
+    async with create_pool(**settings.database_settings) as pool, pool.acquire() as conn:
         try:
             # Create database
             await create_database(conn, body.id)
         except InvalidCatalogNameError:
             raise Exception()  # TODO Fix
 
-    async with create_pool(
-        host="localhost", port="5432", user="postgres", password="password", database=body.id
-    ) as pool, pool.acquire() as conn:
+    async with create_pool(**settings.database_settings, database=body.id) as pool, pool.acquire() as conn:
         data_db.set(conn)
 
         await init_database_tables(conn, INIT_STATEMENTS)
@@ -146,7 +142,7 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
                 id=user.id, updated_user=user, current_user=request.state.user.id
             )
 
-        if request.app.settings.testing is True:
+        if settings.testing is True:
             return {"id": user.id, "reset_code": user.reset_code}
 
     return {"id": user.id}

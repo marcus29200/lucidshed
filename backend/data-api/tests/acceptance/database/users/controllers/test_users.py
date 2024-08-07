@@ -3,7 +3,7 @@ from typing import Dict
 import pytest
 from asyncpg import create_pool
 
-from app.api.settings import user_db
+from app.api.settings import settings, user_db
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.utils import page_results
@@ -12,7 +12,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_user(data_app, overrides: Dict[str, str] = {}) -> User:
-    pool = await create_pool(host="localhost", port="5432", database="users", user="postgres", password="password")
+    pool = await create_pool(**settings.database_settings, database=settings.user_db_name)
     user_db.set(await pool.acquire())
 
     user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester", "password": "test"}
