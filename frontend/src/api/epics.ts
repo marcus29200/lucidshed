@@ -21,15 +21,14 @@ export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateE
     )
   })
   // TODO: add error handling of some kind here...
-  console.log('did the epic get made?', res.ok)
   return await res.json()
 
 }
 
 export const getEpics = async ({ orgId, search }) => {
-  let url = `${BASE_URL}/${orgId}/engineering`
+  let url = `${BASE_URL}/${orgId}/engineering?item_type=epic`
   if (search) {
-    url += `?search=${search}`
+    url += `&search=${search}`
   }
 
   const res = await fetch(
@@ -45,9 +44,8 @@ export const getEpics = async ({ orgId, search }) => {
   }
 
   const results = await res.json();
-  console.log("the results: ", results)
-  // TODO: replace this by API filter
-  return results?.items?.filter(item => item.item_type === 'epic');
+  // TODO: handle pagination, return cursor
+  return results.items;
 }
 
 export const getEpic = async ({ orgId, epicId }) => {

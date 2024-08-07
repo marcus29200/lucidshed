@@ -13,7 +13,11 @@ export type User = {
   superAdmin: boolean;
 }
 
-export type UserPermissions = {
+export type Permissions = {
+  [key: string]: OrganizationPermissions
+}
+
+export type OrganizationPermissions = {
   organizationId?: string;
   id: string;
   role: string; // TODO: make this an enum
@@ -29,17 +33,30 @@ export type EditUserPayload = {
   }
 }
 
+export const isPermissionsEmpty = (permissions: UserPermissions) => {
+  return Object.keys(permissions).length === 0
+}
+
 // TODO: type the api response
 export const mapUser = (apiUser): User => {
+  // TODO: pull the proper org id based on the currently active org
+  const permissions = Object.values(apiUser.permissions)[0]
   return {
     email: apiUser.email,
     firstName: apiUser.first_name,
     lastName: apiUser.last_name,
-    role: apiUser?.permissions?.role,
-    organizationId: apiUser?.permissions?.organizationId,
+    role: permissions?.role,
+    organizationId: permissions?.organizationId,
     disabled: apiUser.disabled,
     superAdmin: apiUser.super_admin
   }
+}
+
+export const getMe = async (): Promise<User> => {
+  const res = await fetch(`${BASE_URL}/users/me`, { headers: getAuthHeaders() })
+  const user = await res.json();
+  console.log("me: ", user);
+  return mapUser(user);
 }
 
 // TODO: rename this to be getUserWithinOrganization

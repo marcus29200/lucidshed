@@ -4,8 +4,7 @@ import { Box, Avatar, Typography } from '@mui/material'
 import { User } from '../api/users';
 
 const UserComponent = () => {
-  const user: User = useRouteLoaderData('user');
-  console.log(user)
+  const user: User = useRouteLoaderData('user') as User;
   const initials = `${user?.firstName[0]}${user?.lastName[0]}`
   // TODO: add get user info here
   return (

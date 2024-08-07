@@ -12,9 +12,7 @@ const AppLayout = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
           <AppHeader></AppHeader>
           <Box sx={{ padding: '1rem' }}>
-            <Box sx={{ height: '100%', backgroundColor: 'white', borderRadius: '4px' }}>
-              <Outlet />
-            </Box>
+            <Outlet />
           </Box>
         </Box>
       </Box>

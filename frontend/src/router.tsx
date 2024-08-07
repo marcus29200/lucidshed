@@ -5,16 +5,20 @@ import Register from "./routes/register/register";
 import Dashboard from "./routes/dashboard/dashboard";
 import ProtectedRoute from './routes/protectedRoute/protectedRoute'
 import AppLayout from "./components/AppLayout";
-import Epics from "./routes/epics/Epics";
+import EpicsList from "./routes/epics/EpicsList";
+import EpicPage from "./routes/epics/EpicPage";
 import Stories from "./routes/stories/stories";
 import Tasks from "./routes/tasks/tasks";
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { getOrganization } from "./api/organizations";
 import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
-import { getEpics } from "./api/epics";
+import { getEpic, getEpics } from "./api/epics";
 import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
-import { getUser } from "./api/users";
+import { getMe } from "./api/users";
+
+
+// TODO: wrap loaders in query client
 // import { QueryClient } from "@tanstack/react-query";
 
 // const queryClient = new QueryClient({
@@ -54,8 +58,7 @@ export const router = createBrowserRouter([
   {
     path: "/setup/user",
     loader: async () => {
-      const userId = localStorage.getItem('userId');
-      return getUser(userId);
+      return getMe();
     },
     element: <UserSignupAdditionalInfo />
   },
@@ -63,8 +66,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     id: 'user',
     loader: async () => {
-      const userId = localStorage.getItem('userId');
-      return getUser(userId as string)
+      return getMe()
     },
     children: [
       {
@@ -84,10 +86,18 @@ export const router = createBrowserRouter([
 
               {
                 index: true,
-                element: <Epics />,
+                element: <EpicsList />,
                 loader: async ({ params }) => {
                   return getEpics({ orgId: params.orgId, });
                 },
+              },
+              {
+                path: ':id',
+                element: <EpicPage />,
+                loader: async ({ params }) => {
+                  return getEpic({ orgId: params.orgId, epicId: params.id })
+
+                }
               },
               {
                 path: 'new',
@@ -99,10 +109,6 @@ export const router = createBrowserRouter([
             path: 'stories',
             element: <Stories />
           },
-          {
-            path: 'tasks',
-            element: <Tasks />
-          }
         ]
       },
     ],

@@ -30,9 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // TODO: put these into types yo
   // TODO: better solution than local storage?
   function storeUserAndToken({ token, user }: { token: any, user: any }) {
-    console.log(jwtDecode(token.access_token))
     localStorage.setItem('token', token?.access_token)
-    localStorage.setItem('userId', user.id)
     setUser(user);
   }
 
@@ -42,7 +40,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   function clearUser() {
     localStorage.removeItem('token')
-    localStorage.removeItem('userId')
   }
 
   function updateUserPermissionsBlock(permissions) {

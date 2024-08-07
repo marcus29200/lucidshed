@@ -22,11 +22,6 @@ const NAVIGATION_ITEMS = [
     icon: () => <BookIcon />,
   },
   {
-    to: 'tasks',
-    label: 'Tasks',
-    icon: () => <TaskIcon />,
-  },
-  {
     to: 'sprints',
     label: 'Sprints',
     icon: () => <SprintIcon />

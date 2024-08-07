@@ -3,18 +3,16 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import EpicsTable from "./EpicsTable";
 import EpicRow from "./EpicRow";
 import { useLoaderData, useNavigate } from "react-router-dom";
+import FullHeightSection from "../../components/FullHeightSection";
 
-const Epics = () => {
+const EpicsList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('');
   // TODO: type the epics
   const epics = useLoaderData();
-  // TODO: implement search
-
-
   const filteredItems = epics.filter(epic => epic.title.toLowerCase().includes(searchTerm.toLowerCase()))
   return (
-    <>
+    <FullHeightSection>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: '12px', paddingY: '6px' }}>
         <Typography variant="h6">Epic Overview</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -25,8 +23,8 @@ const Epics = () => {
       <EpicsTable>
         {filteredItems.map(epic => <EpicRow epic={epic} key={epic.id} />)}
       </EpicsTable>
-    </>
+    </FullHeightSection>
   )
 }
 
-export default Epics;
+export default EpicsList;
