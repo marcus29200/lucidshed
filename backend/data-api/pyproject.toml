@@ -6,7 +6,7 @@ authors = ["Marcus Scaffidi", "Zach Durham"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 fastapi = "^0.111.0"
 pydantic = "^2.8.2"
 aiohttp = "^3.10.1"
@@ -16,7 +16,6 @@ uvicorn = "^0.30.1"
 bcrypt = "^4.2.0"
 passlib = "^1.7.4"
 pyjwt = "^2.9.0"
-
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
