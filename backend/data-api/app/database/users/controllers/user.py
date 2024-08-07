@@ -60,7 +60,7 @@ class UserController:
         self,
         *,
         organization_id: Optional[str] = None,
-        sort: Optional[UserSortableField] = None,
+        sort: Optional[UserSortableField] = UserSortableField.EMAIL,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[User], str | None]:

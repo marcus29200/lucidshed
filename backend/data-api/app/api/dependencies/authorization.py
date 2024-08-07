@@ -17,7 +17,7 @@ from app.exceptions.common import ObjectNotFoundException
 logger = logging.getLogger(__name__)
 
 
-PERMISSION_LEVELS = {
+PERMISSION_LEVELS: Dict[str, int] = {
     UserRoleType.ADMIN: 3,
     UserRoleType.MEMBER: 2,
     UserRoleType.GUEST: 1,
@@ -36,7 +36,7 @@ async def authenticate_user(request, email: str, password: str) -> User:
 def create_access_token(data: Dict[str, Any]):
     to_encode = data.copy()
 
-    to_encode.update({"exp": datetime.now(UTC).timestamp() + float(settings.access_token_expire_minutes)})
+    to_encode.update({"exp": datetime.now(UTC).timestamp() + settings.access_token_expire_minutes})
     encoded_jwt = encode(to_encode, settings.auth_secret_key, algorithm="HS256")
 
     return encoded_jwt

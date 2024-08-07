@@ -20,7 +20,7 @@ class Settings(BaseModel):
     }
     user_db_name: str = getenv("USER_DB_NAME", "users")
 
-    access_token_expire_minutes: Optional[int] = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))
+    access_token_expire_minutes: float = float(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30)
 
     auth_secret_key: Optional[str] = getenv("AUTH_SECRET_KEY", "test")
 

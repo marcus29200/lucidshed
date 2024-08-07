@@ -69,7 +69,7 @@ class DataApplication(FastAPI):
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
 
-        self.database_pools: Dict[str, Pool] = {}
+        self.database_pools: Dict[str, Pool] = {}  # type: ignore
 
     async def __aenter__(self):
         await self.init()

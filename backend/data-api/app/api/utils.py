@@ -17,7 +17,7 @@ def generate_cursor(
     return cursor_base64.decode("utf-8")
 
 
-def parse_cursor(cursor: str) -> Tuple[str, int, Dict[str, Any]]:
+def parse_cursor(cursor: str) -> Tuple[Any | None, int, Dict[str, Any]]:
     if cursor is None:
         return None, 0
 
