@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.database.work_items.models.engineering_item import EngineeringItemType
-from tests.acceptance.api.utils import authenticate, expired_headers, page_results
+from tests.acceptance.api.utils import add_iteration, authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio
 
@@ -70,6 +70,19 @@ async def test_should_add_engineering_item_with_estimated_completion_date_in_iso
 
     assert engineering_item["id"] > 0
     assert engineering_item["estimated_completion_date"] == "2021-01-01T00:00:00Z"
+
+
+async def test_should_add_engineering_item_with_iteration(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    iteration = await add_iteration(data_api, org["id"], headers=headers)
+    engineering_item = await add_engineering_item(
+        data_api, org["id"], {"iteration_id": iteration["id"]}, headers=headers
+    )
+
+    assert engineering_item["id"] > 0
+    assert engineering_item["iteration_id"] == iteration["id"]
+    assert engineering_item["iteration"]["id"] == iteration["id"]
 
 
 async def test_should_fail_to_add_invalid_engineering_item_type(data_api: TestClient):
@@ -155,6 +168,19 @@ async def test_should_not_get_engineering_item_with_expired_token(data_api: Test
     assert response.status_code == 401
 
 
+async def test_get_engineering_item_should_include_iteration_details(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    iteration = await add_iteration(data_api, org["id"], headers=headers)
+    item = await add_engineering_item(data_api, org["id"], {"iteration_id": iteration["id"]}, headers=headers)
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
+    assert response.status_code == 200
+
+    engineering_item = response.json()
+    assert engineering_item["iteration"]["id"] == iteration["id"]
+
+
 async def test_should_get_engineering_items(data_api: TestClient):
     org, _, headers = await authenticate(data_api)
 
@@ -183,6 +209,25 @@ async def test_should_get_all_engineering_item_limit(data_api: TestClient):
     )
 
     assert len(items) == 2
+
+
+async def test_should_get_all_engineering_item_with_iteration_id(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    iteration = await add_iteration(data_api, org["id"], headers=headers)
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test2", "iteration_id": iteration["id"]}, headers=headers
+    )
+
+    items = await page_results(
+        data_api,
+        f"{data_api.test_org_id}/engineering",
+        item_type=EngineeringItemType.STORY.value,
+        iteration_id=iteration["id"],
+        headers=headers,
+    )
+
+    assert len(items) == 1
 
 
 async def test_should_get_epics(data_api: TestClient):

@@ -40,6 +40,7 @@ class WorkItemController:
     ) -> Tuple[List[Any], str | None]:
         raise NotImplementedError()
 
+    # TODO this probably doesn't belong as a shared function
     async def _get_all(
         self,
         *,
@@ -47,6 +48,7 @@ class WorkItemController:
         scope: str,
         sort: Optional[str] = "id",
         item_type: Optional[str] = None,
+        iteration_id: Optional[str] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
@@ -56,12 +58,9 @@ class WorkItemController:
 
             item_type = extra.get("item_type") or item_type
 
-        if item_type:
-            records = await data_db.get().fetch(
-                QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, sort, limit, offset
-            )
-        else:
-            records = await data_db.get().fetch(QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(
+            QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, iteration_id, sort, limit, offset
+        )
 
         cursor = None
         if len(records) == limit:

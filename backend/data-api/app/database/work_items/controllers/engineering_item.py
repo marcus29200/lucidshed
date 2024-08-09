@@ -57,6 +57,7 @@ class EngineeringController(WorkItemController):
         *,
         organization_id: str,
         item_type: Optional[EngineeringItemType] = None,
+        iteration_id: Optional[str] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -66,8 +67,9 @@ class EngineeringController(WorkItemController):
 
         records, cursor = await super()._get_all(
             organization_id=organization_id,
-            sort=sort.value if sort else WorkItemSortableField.ID.value,
             item_type=item_type,
+            iteration_id=iteration_id,
+            sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
             scope="ENGINEERING",

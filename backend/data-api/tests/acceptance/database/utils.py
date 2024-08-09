@@ -8,6 +8,7 @@ async def page_results(
     controller: Any,
     organization_id: Optional[str] = None,
     item_type: Optional[str] = None,
+    iteration_id: Optional[str] = None,
     sort: Optional[str] = None,
     limit: Optional[int] = 1000,
 ):
@@ -18,20 +19,14 @@ async def page_results(
 
     while True:
         if organization_id:
-            if organization_id:
-                if item_type:
-                    page, cursor = await controller.get_all(
-                        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor, item_type=item_type
-                    )
-                else:
-                    page, cursor = await controller.get_all(
-                        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
-                    )
-            else:
-                if item_type:
-                    page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor, item_type=item_type)
-                else:
-                    page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor)
+            page, cursor = await controller.get_all(
+                organization_id=organization_id,
+                sort=sort,
+                limit=limit,
+                cursor=cursor,
+                item_type=item_type,
+                iteration_id=iteration_id,
+            )
         else:
             page, cursor = await controller.get_all(sort=sort, limit=limit, cursor=cursor)
 

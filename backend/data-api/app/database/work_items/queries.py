@@ -119,7 +119,6 @@ FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS 
 """
 
 
-# TODO Need to add iteration and team loading here
 WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
@@ -131,10 +130,11 @@ FROM engineering_items
 WHERE
     organization_id = $1
     AND deleted_at IS NULL
-    AND item_type = $2
-ORDER BY $3
-LIMIT $4
-OFFSET $5;
+    AND ($2::text IS NULL OR item_type = $2)
+    AND ($3::int IS NULL OR iteration_id = $3)
+ORDER BY $4
+LIMIT $5
+OFFSET $6;
 """
 
 

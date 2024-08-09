@@ -294,6 +294,23 @@ async def test_get_engineering_item_with_iteration(data_app):
     assert engineering_item.iteration == iteration
 
 
+async def test_get_engineering_item_with_deleted_teration(data_app):
+    org = await create_organization(data_app)
+    iteration = await create_iteration(data_app, org.id)
+    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+
+    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+
+    assert engineering_item.iteration
+
+    # Now delete the iteration
+    await data_app.iteration_controller.delete(organization_id=org.id, id=iteration.id, current_user="test@test.com")
+
+    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+
+    assert engineering_item.iteration is None
+
+
 async def test_get_all_engineering_work_item_with_iteration(data_app):
     org = await create_organization(data_app)
     iteration = await create_iteration(data_app, org.id)
@@ -308,6 +325,25 @@ async def test_get_all_engineering_work_item_with_iteration(data_app):
 
     assert items[0].iteration.id == iteration.id
     assert not items[1].iteration
+
+
+async def test_get_all_engineering_work_item_filtered_by_iteration(data_app):
+    org = await create_organization(data_app)
+    iteration = await create_iteration(data_app, org.id)
+    await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+    await create_engineering_item(data_app, org.id)
+
+    items = await page_results(
+        data_app.engineering_controller,
+        organization_id=org.id,
+        item_type=EngineeringItemType.STORY,
+        iteration_id=iteration.id,
+        limit=1,
+    )
+
+    assert len(items) == 1
+
+    assert items[0].iteration.id == iteration.id
 
 
 async def test_create_engineering_item_with_team(data_app):
