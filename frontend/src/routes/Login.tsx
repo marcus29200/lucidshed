@@ -8,6 +8,7 @@ import LogoHeader from '../components/LogoHeader';
 import { isPermissionsEmpty } from '../api/users';
 
 const Login = () => {
+  console.log("login being shown");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -31,7 +32,6 @@ const Login = () => {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     mutate({ email, password })
-
   }
   return (
     <>

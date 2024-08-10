@@ -1,9 +1,29 @@
 import { Box, Typography, TextField, Button, Grid } from "@mui/material";
-import { useLoaderData } from "react-router-dom"
+import { LoaderFunctionArgs, useLoaderData } from "react-router-dom"
 import Section from "../../components/Section";
 import { format } from "date-fns";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
+import { getEpic } from "../../api/epics";
 
-const EpicPage = () => {
+export const epicDetailQuery = (orgId: string, epicId: string) => queryOptions({
+  queryKey: ['epics', 'detail', orgId, epicId],
+  queryFn: async () => getEpic({ orgId, epicId }),
+})
+
+
+export const loader = (queryClient: QueryClient) => {
+  return async ({ params }: LoaderFunctionArgs) => {
+    if (!params.orgId) {
+      throw new Error('No org id provided')
+    }
+    if (!params.id) {
+      throw new Error('No epic id provided');
+    }
+    return queryClient.ensureQueryData(epicDetailQuery(params.orgId, params.id))
+  }
+}
+
+export const Epic = () => {
   const epic = useLoaderData();
   const formattedCompletionDate = epic.estimated_completion_date ? format(new Date(epic.estimated_completion_date), 'MMM dd, yyyy') : null;
   return (
@@ -39,4 +59,3 @@ const EpicPage = () => {
     </>
   )
 }
-export default EpicPage;

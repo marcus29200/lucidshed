@@ -1,10 +1,9 @@
-import { useLoaderData, useRouteLoaderData } from 'react-router-dom';
-import { useAuth } from '../hooks/auth'
+import { useRouteLoaderData } from 'react-router-dom';
 import { Box, Avatar, Typography } from '@mui/material'
 import { User } from '../api/users';
 
 const UserComponent = () => {
-  const user: User = useRouteLoaderData('user') as User;
+  const [_, user]: User = useRouteLoaderData('userData') as User;
   const initials = `${user?.firstName[0]}${user?.lastName[0]}`
   // TODO: add get user info here
   return (

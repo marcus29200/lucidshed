@@ -1,5 +1,6 @@
 import { BASE_URL } from "../environment";
 import { getAuthHeaders } from "./utils";
+import { QueryClient, queryOptions } from '@tanstack/react-query';
 
 export type User = {
   email: string;
@@ -33,14 +34,27 @@ export type EditUserPayload = {
   }
 }
 
+export const meQuery = () => queryOptions({
+  queryKey: ['me'],
+  queryFn: async () => getMe()
+})
+export const loader = (queryClient: QueryClient) => {
+  return async () => {
+    return queryClient.ensureQueryData(meQuery())
+  }
+}
+
+export class UserNotLoggedIn extends Error { }
+
 export const isPermissionsEmpty = (permissions: UserPermissions) => {
   return Object.keys(permissions).length === 0
 }
 
 // TODO: type the api response
+// could be a class to avoid excessive mapping
 export const mapUser = (apiUser): User => {
   // TODO: pull the proper org id based on the currently active org
-  const permissions = Object.values(apiUser.permissions)[0]
+  const permissions = apiUser.permissions ? Object.values(apiUser.permissions)[0] : {} as Permissions
   return {
     email: apiUser.email,
     firstName: apiUser.first_name,
@@ -54,8 +68,10 @@ export const mapUser = (apiUser): User => {
 
 export const getMe = async (): Promise<User> => {
   const res = await fetch(`${BASE_URL}/users/me`, { headers: getAuthHeaders() })
+  if (!res.ok) {
+    throw res;
+  }
   const user = await res.json();
-  console.log("me: ", user);
   return mapUser(user);
 }
 
