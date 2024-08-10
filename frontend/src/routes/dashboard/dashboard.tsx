@@ -1,6 +1,6 @@
 import { useRouteLoaderData } from "react-router-dom";
 const Dashboard = () => {
-  const [_, user] = useRouteLoaderData("userData");
+  const user = useRouteLoaderData("user");
   return <p>Welcome {user.email}!</p>
 }
 

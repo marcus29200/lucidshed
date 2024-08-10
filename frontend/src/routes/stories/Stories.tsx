@@ -2,7 +2,7 @@ import { Box, Button, Typography, TextField } from "@mui/material";
 import FullHeightSection from "../../components/FullHeightSection"
 import { Link } from "react-router-dom";
 
-const StoriesList = () => {
+export const Stories = () => {
   return (
     <FullHeightSection>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: '12px', paddingY: '6px' }}>
@@ -16,4 +16,3 @@ const StoriesList = () => {
   )
 }
 
-export default StoriesList;

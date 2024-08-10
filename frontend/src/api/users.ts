@@ -3,6 +3,7 @@ import { getAuthHeaders } from "./utils";
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 
 export type User = {
+  id: string;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -19,7 +20,7 @@ export type Permissions = {
 }
 
 export type OrganizationPermissions = {
-  organizationId?: string;
+  organization_id?: string;
   id: string;
   role: string; // TODO: make this an enum
 }
@@ -56,11 +57,12 @@ export const mapUser = (apiUser): User => {
   // TODO: pull the proper org id based on the currently active org
   const permissions = apiUser.permissions ? Object.values(apiUser.permissions)[0] : {} as Permissions
   return {
+    id: apiUser.id,
     email: apiUser.email,
     firstName: apiUser.first_name,
     lastName: apiUser.last_name,
     role: permissions?.role,
-    organizationId: permissions?.organizationId,
+    organizationId: permissions?.organization_id,
     disabled: apiUser.disabled,
     superAdmin: apiUser.super_admin
   }
@@ -72,6 +74,7 @@ export const getMe = async (): Promise<User> => {
     throw res;
   }
   const user = await res.json();
+  console.log("the user: ", user);
   return mapUser(user);
 }
 

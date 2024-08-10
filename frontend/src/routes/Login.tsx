@@ -2,26 +2,27 @@ import { FormEvent, useState } from 'react';
 import { Button, Container, TextField, Typography } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from "../hooks/auth";
 import { login } from '../api/auth'
 import LogoHeader from '../components/LogoHeader';
-import { isPermissionsEmpty } from '../api/users';
+import { isPermissionsEmpty, mapUser } from '../api/users';
 
 const Login = () => {
-  console.log("login being shown");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { storeUser } = useAuth();
+  // convert to a form action
   const { mutate } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      storeUser(data);
+      const user = mapUser(data?.user);
       if (isPermissionsEmpty(data?.user?.permissions)) {
         navigate('/setup/org');
       } else {
-        // in this case, we have an org, so w
-        navigate(`/${data?.user?.permissions?.organizationId}`)
+        console.log(data.user)
+        console.log(user)
+        if (user.organizationId) {
+          navigate(`/${user?.organizationId}`)
+        }
       }
     },
     onError: (error) => {

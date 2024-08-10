@@ -6,7 +6,7 @@ import Dashboard from "./routes/dashboard/dashboard";
 import AppLayout from "./components/AppLayout";
 import EpicsList from "./routes/epics/EpicsList";
 import { Epic, loader as epicLoader } from './routes/epics/Epic';
-import StoriesList from "./routes/stories/StoriesList";
+import { Stories, loader as storiesLoader } from './routes/stories/Stories';
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { loader as organizationLoader } from './api/organizations';
@@ -93,7 +93,12 @@ export const router = createBrowserRouter([
           },
           {
             path: 'stories',
-            element: <StoriesList />
+            children: [
+              {
+                index: true,
+                element: <Stories />
+              }
+            ]
           },
           {
             path: '*',

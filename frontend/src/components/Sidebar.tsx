@@ -1,30 +1,34 @@
-import { Box, Divider, Drawer, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Box, Divider, Drawer, IconButton, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
-import { BookIcon, DashboardIcon, EpicIcon, SprintIcon, TaskIcon } from "../icons/icons";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from "../icons/icons";
+import { Add } from "@mui/icons-material";
 
 
 const NAVIGATION_ITEMS = [
   {
     to: '/',
     label: 'Dashboard',
-    icon: () => <DashboardIcon />
+    icon: () => <DashboardIcon />,
   },
   {
     to: 'epics',
     label: 'Epics',
     icon: () => <EpicIcon />,
+    canAdd: true
   },
   {
     to: 'stories',
     label: 'Stories',
     icon: () => <BookIcon />,
+    canAdd: true,
   },
   {
     to: 'sprints',
     label: 'Sprints',
-    icon: () => <SprintIcon />
+    icon: () => <SprintIcon />,
+    canAdd: true,
   }
 ]
 
@@ -33,6 +37,7 @@ const NAVIGATION_ITEMS = [
 const Sidebar = () => {
   const { orgId } = useParams()
   const [expanded, setExpanded] = useState(true);
+  const navigate = useNavigate();
   const location = useLocation();
   const width = expanded ? '240px' : '72px';
   return (
@@ -65,6 +70,9 @@ const Sidebar = () => {
             <ListItemText sx={{ color: 'black' }}>
               {item.label}
             </ListItemText>
+            <IconButton onClick={() => navigate(`/${orgId}/${item.to}/new`)}>
+              <Add />
+            </IconButton>
           </ListItemButton>
         ))
         }
