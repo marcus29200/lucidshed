@@ -28,7 +28,7 @@ export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateE
 
 }
 
-export const getEpics = async ({ orgId, search }) => {
+export const getEpics = async (orgId: string, search?: string) => {
   let url = `${BASE_URL}/${orgId}/engineering?item_type=epic`
   if (search) {
     url += `&search=${search}`

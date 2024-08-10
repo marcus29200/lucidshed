@@ -23,7 +23,7 @@ export const createStory = async ({ orgId, data }: { orgId: string, data: Create
   return await res.json()
 }
 
-export const getStories = async ({ orgId, search }) => {
+export const getStories = async (orgId: string, search?: string) => {
   let url = `${BASE_URL}/${orgId}/engineering?item_type=story`
   if (search) {
     url += `&search=${search}`
@@ -45,7 +45,7 @@ export const getStories = async ({ orgId, search }) => {
   return results?.items;
 }
 
-export const getStory = async ({ orgId, storyId }) => {
+export const getStory = async (orgId: string, storyId: string) => {
   const res = await fetch(
     `${BASE_URL}/${orgId}/engineering/${storyId}`,
     {

@@ -2,13 +2,31 @@ import { useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import EpicsTable from "./EpicsTable";
 import EpicRow from "./EpicRow";
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { LoaderFunctionArgs, useLoaderData, useNavigate } from "react-router-dom";
 import FullHeightSection from "../../components/FullHeightSection";
+import { getEpics } from "../../api/epics";
+import { QueryClient, queryOptions } from "@tanstack/react-query";
 
-const EpicsList = () => {
+export const epicsQuery = (orgId: string) => queryOptions({
+  queryKey: ['epics', orgId],
+  queryFn: async () => getEpics(orgId)
+})
+
+
+export const loader = (queryClient: QueryClient) => {
+  return async ({ params }: LoaderFunctionArgs) => {
+    if (!params.orgId) {
+      throw new Error('No org id provided')
+    }
+    return queryClient.ensureQueryData(epicsQuery(params.orgId, params.search))
+  }
+}
+
+
+export const EpicsList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('');
-  // TODO: type the epics
+  // TODO: add a type for the epics list
   const epics = useLoaderData();
   const filteredItems = epics.filter(epic => epic.title.toLowerCase().includes(searchTerm.toLowerCase()))
   return (
@@ -27,4 +45,3 @@ const EpicsList = () => {
   )
 }
 
-export default EpicsList;

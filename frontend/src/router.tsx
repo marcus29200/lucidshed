@@ -4,9 +4,9 @@ import Login from "./routes/Login";
 import Register from "./routes/register/register";
 import Dashboard from "./routes/dashboard/dashboard";
 import AppLayout from "./components/AppLayout";
-import EpicsList from "./routes/epics/EpicsList";
+import { EpicsList, loader as epicsLoader } from "./routes/epics/EpicsList";
 import { Epic, loader as epicLoader } from './routes/epics/Epic';
-import { Stories } from './routes/stories/Stories';
+import { Stories, loader as storiesLoader } from './routes/stories/Stories';
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { loader as organizationLoader } from './api/organizations';
@@ -17,6 +17,8 @@ import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
 import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
+import { CreateStory } from "./routes/stories/CreateStory";
+import { Story, loader as storyLoader } from "./routes/stories/Story";
 
 
 const queryClient = new QueryClient({
@@ -78,9 +80,7 @@ export const router = createBrowserRouter([
               {
                 index: true,
                 element: <EpicsList />,
-                loader: async ({ params }) => {
-                  return getEpics({ orgId: params.orgId, });
-                },
+                loader: epicsLoader(queryClient),
               },
               {
                 path: ':id',
@@ -99,8 +99,17 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                // loader: storiesLoader(queryClient),
-                element: <Stories />
+                loader: storiesLoader(queryClient),
+                element: < Stories />
+              },
+              {
+                path: ':id',
+                loader: storyLoader(queryClient),
+                element: <Story />,
+              },
+              {
+                path: 'new',
+                element: <CreateStory />
               }
             ]
           },
@@ -117,8 +126,6 @@ export const router = createBrowserRouter([
                 action: createSprintAction(queryClient),
                 element: <CreateSprint />
               }
-
-
             ],
           },
           {
