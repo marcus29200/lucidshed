@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import { getUser as getUserFromApi } from "../api/users";
+import { getUserWithinOrganization as getUserFromApi } from "../api/users";
 
 // just a subset of fields on the JWT right now
 export type User = {

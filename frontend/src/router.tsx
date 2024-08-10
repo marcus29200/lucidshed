@@ -6,15 +6,17 @@ import Dashboard from "./routes/dashboard/dashboard";
 import AppLayout from "./components/AppLayout";
 import EpicsList from "./routes/epics/EpicsList";
 import { Epic, loader as epicLoader } from './routes/epics/Epic';
-import { Stories, loader as storiesLoader } from './routes/stories/Stories';
+import { Stories } from './routes/stories/Stories';
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
 import { loader as organizationLoader } from './api/organizations';
 import { loader as meLoader } from './api/users';
-import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
+import { CreateEpic, action as createEpicAction } from "./routes/epics/CreateEpic";
 import { getEpics } from "./api/epics";
 import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
 import { QueryCache, QueryClient } from '@tanstack/react-query';
+import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
+import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
 
 
 const queryClient = new QueryClient({
@@ -87,7 +89,8 @@ export const router = createBrowserRouter([
               },
               {
                 path: 'new',
-                element: <EpicsCreationForm />
+                action: createEpicAction(queryClient),
+                element: <CreateEpic />
               }
             ],
           },
@@ -96,9 +99,27 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
+                // loader: storiesLoader(queryClient),
                 element: <Stories />
               }
             ]
+          },
+          {
+            path: 'sprints',
+            children: [
+              {
+                index: true,
+                loader: sprintsLoader(queryClient),
+                element: <Sprints />
+              },
+              {
+                path: 'new',
+                action: createSprintAction(queryClient),
+                element: <CreateSprint />
+              }
+
+
+            ],
           },
           {
             path: '*',

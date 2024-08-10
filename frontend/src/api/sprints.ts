@@ -2,7 +2,7 @@ import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
 
 
-export type CreateIterationPayload = {
+export type CreateSprintPayload = {
   title: string;
   description: string;
   status: string;
@@ -10,7 +10,7 @@ export type CreateIterationPayload = {
   end_date: string;
 }
 
-export type RawIteration = {
+export type RawSprint = {
   title: string;
   description: string;
   status: string;
@@ -19,7 +19,7 @@ export type RawIteration = {
   organization_id: string;
 }
 
-export type Iteration = {
+export type Sprint = {
   title: string;
   description: string;
   status: string;
@@ -28,18 +28,18 @@ export type Iteration = {
   organizationId: string;
 }
 
-export const mapPayloadToIteration = (rawIteration: RawIteration) => {
+export const mapPayloadToSprint = (rawSprint: RawSprint) => {
   return {
-    title: rawIteration.title,
-    description: rawIteration.description,
-    status: rawIteration.status,
-    startDate: rawIteration.start_date,
-    endDate: rawIteration.end_date,
-    organizationId: rawIteration.organization_id,
+    title: rawSprint.title,
+    description: rawSprint.description,
+    status: rawSprint.status,
+    startDate: rawSprint.start_date,
+    endDate: rawSprint.end_date,
+    organizationId: rawSprint.organization_id,
   }
 
 }
-export const createIteration = async ({ orgId, data }) => {
+export const createSprint = async ({ orgId, data }) => {
   const res = await fetch(`${BASE_URL}/${orgId}/iterations`, {
     method: 'POST',
     headers: {
@@ -54,10 +54,10 @@ export const createIteration = async ({ orgId, data }) => {
     throw res;
   }
   const iter = await res.json();
-  return mapPayloadToIteration(iter);
+  return mapPayloadToSprint(iter);
 }
 
-export const getIterations = async (orgId: string) => {
+export const getSprints = async (orgId: string) => {
   const res = await fetch(`${BASE_URL}/${orgId}/iterations`, {
     headers: {
       'Content-Type': 'application/json',
@@ -68,10 +68,10 @@ export const getIterations = async (orgId: string) => {
     throw res;
   }
   const payload = await res.json();
-  return payload.items.map((iter: RawIteration) => mapPayloadToIteration(iter));
+  return payload.items.map((iter: RawSprint) => mapPayloadToSprint(iter));
 }
 
-export const getIteration = async (orgId: string, iterId: string) => {
+export const getSprint = async (orgId: string, iterId: string) => {
   const res = await fetch(`${BASE_URL}/${orgId}/iterations/${iterId}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -79,12 +79,12 @@ export const getIteration = async (orgId: string, iterId: string) => {
     },
   })
   const payload = await res.json();
-  return payload.items.map((iter: RawIteration) => mapPayloadToIteration(iter));
+  return payload.items.map((iter: RawSprint) => mapPayloadToSprint(iter));
 }
 
 
-export const patchIteration = async ({ orgId, iterationId, data }) => {
-  const res = await fetch(`${BASE_URL}/${orgId}/iterations/${iterationId}`, {
+export const patchSprint = async ({ orgId, sprintId, data }) => {
+  const res = await fetch(`${BASE_URL}/${orgId}/iterations/${sprintId}`, {
     method: "PATCH",
     headers: {
       'Content-Type': 'application/json',
@@ -97,11 +97,11 @@ export const patchIteration = async ({ orgId, iterationId, data }) => {
   }
 
   const iter = await res.json();
-  return mapPayloadToIteration(iter);
+  return mapPayloadToSprint(iter);
 }
 
-export const deleteIteration = async ({ orgId, iterationId }) => {
-  const res = await fetch(`${BASE_URL}/${orgId}/iterations/${iterationId}`, {
+export const deleteSprint = async ({ orgId, sprintId }) => {
+  const res = await fetch(`${BASE_URL}/${orgId}/iterations/${sprintId}`, {
     method: "DELETE",
     headers: {
       ...getAuthHeaders()

@@ -20,6 +20,9 @@ export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateE
       data
     )
   })
+  if (!res.ok) {
+    console.log(await res.json());
+  }
   // TODO: add error handling of some kind here...
   return await res.json()
 

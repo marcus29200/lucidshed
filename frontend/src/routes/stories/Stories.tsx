@@ -2,6 +2,8 @@ import { Box, Button, Typography, TextField } from "@mui/material";
 import FullHeightSection from "../../components/FullHeightSection"
 import { Link } from "react-router-dom";
 
+// TODO: stories loader
+// TODO: stories table
 export const Stories = () => {
   return (
     <FullHeightSection>

@@ -9,7 +9,6 @@ import { useAuth } from "../hooks/auth";
 const UserSignupAdditionalInfo = () => {
   const navigate = useNavigate();
   const user: User = useLoaderData();
-  console.log("the user: ", user)
   const { updateUser } = useAuth();
   const { mutate } = useMutation({
     mutationFn: patchUser,

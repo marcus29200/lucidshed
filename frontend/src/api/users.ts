@@ -44,12 +44,9 @@ export const loader = (queryClient: QueryClient) => {
   }
 }
 
-export class UserNotLoggedIn extends Error { }
-
 export const isPermissionsEmpty = (permissions: Permissions) => {
   return Object.keys(permissions).length === 0
 }
-
 // TODO: type the api response
 // could be a class to avoid excessive mapping
 export const mapUser = (apiUser): User => {
@@ -73,20 +70,16 @@ export const getMe = async (): Promise<User> => {
     throw res;
   }
   const user = await res.json();
-  console.log("the user: ", user);
   return mapUser(user);
 }
 
-// TODO: rename this to be getUserWithinOrganization
-export const getUser = async (id: string): Promise<User> => {
-  // TODO: this needs to be fixed
+export const getUserWithinOrganization = async (id: string): Promise<User> => {
   const orgId = localStorage.getItem('orgId');
   const res = await fetch(`${BASE_URL}/${orgId}/users/${id}`, { headers: getAuthHeaders() })
   if (!res.ok) {
     throw (await res.json())
   }
   const user = await res.json();
-  console.log("the user: ", user)
   return mapUser(user);
 }
 

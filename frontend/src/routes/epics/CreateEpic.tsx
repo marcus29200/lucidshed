@@ -1,7 +1,7 @@
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers"
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom"
+import { QueryClient, useMutation } from "@tanstack/react-query";
+import { ActionFunctionArgs, redirect, useNavigate, useParams, Form } from "react-router-dom"
 import { createEpic } from "../../api/epics";
 import FullHeightSection from "../../components/FullHeightSection";
 
@@ -26,37 +26,27 @@ const priorities = [
   }
 ]
 
-const EpicsCreationForm = () => {
-  console.log("what");
-  const { orgId } = useParams();
-  const { mutate } = useMutation({
-    mutationFn: createEpic,
-    onSuccess: () => {
-      navigate('..', { relative: 'path' });
-    },
-    onError: (error) => {
-      // TODO: present some kind of error toast
-      console.error(error)
-    }
-  });
+export const action = (queryClient: QueryClient) => {
+  return async ({ request, params }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const updates = Object.entries(formData);
 
-  // TODO: set up the mutation
-  const onSubmit = (e) => {
-    console.log("aint no way")
-    e.preventDefault();
-    const form = e.target as any;
-    mutate({
-      orgId: orgId as string,
+    await createEpic({
+      orgId: params.orgId as string,
       data: {
-        title: form?.elements?.title?.value,
-        description: form?.elements?.description?.value,
-        estimated_completion_date: new Date(form?.elements?.targetDate?.value).toISOString(),
-        priority: form?.elements?.priority?.value,
-        item_type: 'epic'
+        title: updates.title,
+        description: updates.description,
+        estimated_completion_date: new Date(updates.targetDate).toISOString(),
+        priority: updates.priority,
+        item_type: 'epic',
       }
     })
-
+    queryClient.invalidateQueries({ queryKey: ['epics'] })
+    return redirect(`/{${params.orgId}/epics`)
   }
+}
+
+export const CreateEpic = () => {
   const navigate = useNavigate()
   return (
     <FullHeightSection>
@@ -66,7 +56,7 @@ const EpicsCreationForm = () => {
         <Typography variant="subtitle1" align="left">Create New Epic</Typography>
         <Typography variant="subtitle2" color="neutral.light" align="left" sx={{ marginBottom: '16px' }}>Fill out the following details to create a new epic</Typography>
         <Typography variant="body1" align="left">Basic Details</Typography>
-        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <Form method="post" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           <Grid container spacing={2} sx={{ flexGrow: 1 }}>
             <Grid item xs={8}>
               <TextField variant="outlined" size="small" margin="dense" fullWidth label="Title" id="title" name="title"></TextField>
@@ -76,7 +66,7 @@ const EpicsCreationForm = () => {
               <DatePicker label="Estimated Completion" name="targetDate" slotProps={{ textField: { variant: "outlined", size: "small", margin: 'dense', fullWidth: true } }}></DatePicker>
               <FormControl sx={{ width: '100%' }}>
                 <InputLabel size="small" id="priority-label">Priority</InputLabel>
-                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority" value=''>{
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority">{
                   priorities.map(priority => <MenuItem value={priority.value} key={priority.value}>{priority.label}</MenuItem>)
                 }</Select>
               </FormControl>
@@ -88,10 +78,9 @@ const EpicsCreationForm = () => {
             <Button variant="contained" sx={{ backgroundColor: 'neutral.lightest', color: 'black' }} color="neutral" onClick={() => navigate('..', { relative: 'path' })}>Cancel</Button>
             <Button variant="contained" type="submit">Create Epic</Button>
           </Box>
-        </form>
+        </Form>
       </Box >
     </FullHeightSection>
   )
 }
 
-export default EpicsCreationForm
