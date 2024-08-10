@@ -1,6 +1,7 @@
+import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { BASE_URL } from '../environment'
 import { getAuthHeaders } from './utils';
-
+import { LoaderFunctionArgs } from 'react-router-dom';
 // TODO: replace environment BASE_URL with .env file
 
 export type CreateOrganizationParams = {
@@ -28,6 +29,20 @@ const mapApiOrgToOrganization = (org) => {
   }
 }
 
+export const organizationQuery = (id: string) => queryOptions({
+  queryKey: ["org"],
+  queryFn: async () => getOrganization(id)
+});
+
+export const loader = (queryClient: QueryClient) => {
+  return async ({ params }: LoaderFunctionArgs) => {
+    if (!params.orgId) {
+      throw new Error("No orgId in params");
+    }
+    return queryClient.ensureQueryData(organizationQuery(params.orgId));
+  }
+}
+
 export const createOrganization = async ({ id, title }: CreateOrganizationParams): Promise<Organization> => {
   const response = await fetch(`${BASE_URL}/`, {
     method: 'POST',
@@ -51,11 +66,11 @@ export const getOrganization = async (organizationId?: string): Promise<Organiza
   if (!organizationId) {
     throw "No organizationId present"
   }
-  const response = await fetch(`${BASE_URL}/${organizationId}`, { headers: getAuthHeaders() })
+  const res = await fetch(`${BASE_URL}/${organizationId}`, { headers: getAuthHeaders() })
 
-  if (!response.ok) {
-    throw (await response.json());
+  if (!res.ok) {
+    throw res;
   }
 
-  return mapApiOrgToOrganization(await response.json());
+  return mapApiOrgToOrganization(await res.json());
 }

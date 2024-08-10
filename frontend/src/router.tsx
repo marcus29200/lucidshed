@@ -1,34 +1,38 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, redirect } from "react-router-dom";
 import Home from "./routes/home/home";
 import Login from "./routes/Login";
 import Register from "./routes/register/register";
 import Dashboard from "./routes/dashboard/dashboard";
-import ProtectedRoute from './routes/protectedRoute/protectedRoute'
 import AppLayout from "./components/AppLayout";
-import Epics from "./routes/epics/Epics";
-import Stories from "./routes/stories/stories";
-import Tasks from "./routes/tasks/tasks";
+import { EpicsList, loader as epicsLoader } from "./routes/epics/EpicsList";
+import { Epic, loader as epicLoader } from './routes/epics/Epic';
+import { Stories, loader as storiesLoader } from './routes/stories/Stories';
 import { ResetPassword } from "./routes/ResetPassword";
 import { CreateOrganization } from "./routes/CreateOrganization";
-import { getOrganization } from "./api/organizations";
-import EpicsCreationForm from "./routes/epics/EpicsCreationForm";
+import { loader as organizationLoader } from './api/organizations';
+import { loader as meLoader } from './api/users';
+import { CreateEpic, action as createEpicAction } from "./routes/epics/CreateEpic";
 import { getEpics } from "./api/epics";
 import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
-import { getUser } from "./api/users";
-// import { QueryClient } from "@tanstack/react-query";
+import { QueryCache, QueryClient } from '@tanstack/react-query';
+import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
+import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
+import { CreateStory } from "./routes/stories/CreateStory";
+import { Story, loader as storyLoader } from "./routes/stories/Story";
 
-// const queryClient = new QueryClient({
-//         queryCache: new QueryCache({
-//         onError: (error) => {
-//           if (
-//             error?.response?.status === 400 ||
-//             error?.response?.status === 401
-//           ) {
-//             navigate();
-//           }
-//         },
-//       }),
-// })
+
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    // this allows us to have a "global" redirect on the loader queries
+    // since there is no way to do this in one place with react-router
+    // or use a ProtectedRoute component (since loaders will fire before it is rendered)
+    onError: (error: any) => {
+      if (error?.status === 401) {
+        window.location.replace('/login');
+      }
+    }
+  })
+})
 
 export const router = createBrowserRouter([
   {
@@ -53,26 +57,18 @@ export const router = createBrowserRouter([
   },
   {
     path: "/setup/user",
-    loader: async () => {
-      const userId = localStorage.getItem('userId');
-      return getUser(userId);
-    },
+    loader: meLoader(queryClient),
     element: <UserSignupAdditionalInfo />
   },
   {
-    element: <ProtectedRoute />,
     id: 'user',
-    loader: async () => {
-      const userId = localStorage.getItem('userId');
-      return getUser(userId as string)
-    },
+    loader: meLoader(queryClient),
     children: [
       {
         element: <AppLayout />,
         path: ':orgId',
-        loader: async ({ params }) => {
-          return getOrganization(params.orgId);
-        },
+        id: 'org',
+        loader: organizationLoader(queryClient),
         children: [
           {
             index: true,
@@ -81,30 +77,68 @@ export const router = createBrowserRouter([
           {
             path: 'epics',
             children: [
-
               {
                 index: true,
-                element: <Epics />,
-                loader: async ({ params }) => {
-                  return getEpics({ orgId: params.orgId, });
-                },
+                element: <EpicsList />,
+                loader: epicsLoader(queryClient),
+              },
+              {
+                path: ':id',
+                element: <Epic />,
+                loader: epicLoader(queryClient)
               },
               {
                 path: 'new',
-                element: <EpicsCreationForm />
+                action: createEpicAction(queryClient),
+                element: <CreateEpic />
               }
             ],
           },
           {
             path: 'stories',
-            element: <Stories />
+            children: [
+              {
+                index: true,
+                loader: storiesLoader(queryClient),
+                element: < Stories />
+              },
+              {
+                path: ':id',
+                loader: storyLoader(queryClient),
+                element: <Story />,
+              },
+              {
+                path: 'new',
+                element: <CreateStory />
+              }
+            ]
           },
           {
-            path: 'tasks',
-            element: <Tasks />
+            path: 'sprints',
+            children: [
+              {
+                index: true,
+                loader: sprintsLoader(queryClient),
+                element: <Sprints />
+              },
+              {
+                path: 'new',
+                action: createSprintAction(queryClient),
+                element: <CreateSprint />
+              }
+            ],
+          },
+          {
+            path: '*',
+            element: <p>Nothing here :(</p>
           }
+
         ]
       },
     ],
   },
+  {
+    path: '*',
+    element: <p>Nothing here :(</p>
+  }
 ]);

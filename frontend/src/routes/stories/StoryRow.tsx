@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useState } from "react";
 
+// duplicated from the epics page, abstractions could be made later
+// to reduce duplication
 function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -19,7 +21,7 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
   );
 }
 // TODO: add typing for epic
-const EpicRow = ({ epic }) => {
+const StoryRow = ({ story }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -30,15 +32,15 @@ const EpicRow = ({ epic }) => {
     setAnchorEl(null);
   };
   const navigate = useNavigate();
-  const formattedCompletionDate = epic.estimated_completion_date ? format(new Date(epic.estimated_completion_date), 'MMM dd, yyyy') : null;
+  const formattedCompletionDate = story.estimated_completion_date ? format(new Date(story.estimated_completion_date), 'MMM dd, yyyy') : null;
   return (
     <>
-      <TableRow sx={{ cursor: 'pointer' }} onClick={() => navigate(`./${epic.id}`, { relative: 'path' })}>
-        <TableCell>{epic.title}</TableCell>
+      <TableRow sx={{ cursor: 'pointer' }} onClick={() => navigate(`./${story.id}`, { relative: 'path' })}>
+        <TableCell>{story.title}</TableCell>
         <TableCell>
           <LinearProgressWithLabel value={0} />
         </TableCell>
-        <TableCell>{epic.id}</TableCell>
+        <TableCell>{story.id}</TableCell>
         <TableCell></TableCell>
         <TableCell>{formattedCompletionDate}</TableCell>
         <TableCell>
@@ -61,4 +63,4 @@ const EpicRow = ({ epic }) => {
   )
 }
 
-export default EpicRow
+export default StoryRow

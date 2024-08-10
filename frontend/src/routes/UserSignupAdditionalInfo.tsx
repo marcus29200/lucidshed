@@ -2,18 +2,18 @@ import { Button, Container, Grid, TextField, Typography } from "@mui/material";
 import LogoHeader from "../components/LogoHeader";
 import { useMutation } from "@tanstack/react-query";
 import { useLoaderData, useNavigate } from "react-router-dom";
-import { patchUser } from "../api/users";
+import { User, patchUser } from "../api/users";
 import { useAuth } from "../hooks/auth";
 
 
 const UserSignupAdditionalInfo = () => {
   const navigate = useNavigate();
-  const user = useLoaderData();
-  console.log("the user: ", user)
+  const user: User = useLoaderData();
   const { updateUser } = useAuth();
   const { mutate } = useMutation({
     mutationFn: patchUser,
     onSuccess: (data) => {
+      console.log("the data?: ", data)
       updateUser(data)
       const orgId = localStorage.getItem("orgId") as string;
       navigate(`/${orgId}`)
@@ -25,7 +25,7 @@ const UserSignupAdditionalInfo = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const userId = localStorage.getItem('userId');
+    const userId = user.id;
     const form = e.target;
     const firstName = form.elements?.firstName?.value;
     const lastName = form.elements?.lastName?.value;

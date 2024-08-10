@@ -1,20 +1,25 @@
 import { BASE_URL } from "../environment";
 import { getAuthHeaders } from "./utils";
+import { QueryClient, queryOptions } from '@tanstack/react-query';
 
 export type User = {
+  id: string;
   email: string;
   firstName?: string;
   lastName?: string;
   organizationId?: string;
-  role?: string; // TODO: make this an enum bruv
-  // permissions?: UserPermissions; // if no permissions, they don't have an org
+  role?: string; // TODO: make this an enum
   picture?: string;
   disabled: false;
   superAdmin: boolean;
 }
 
-export type UserPermissions = {
-  organizationId?: string;
+export type Permissions = {
+  [key: string]: OrganizationPermissions
+}
+
+export type OrganizationPermissions = {
+  organization_id?: string;
   id: string;
   role: string; // TODO: make this an enum
 }
@@ -29,29 +34,52 @@ export type EditUserPayload = {
   }
 }
 
+export const meQuery = () => queryOptions({
+  queryKey: ['me'],
+  queryFn: async () => getMe()
+})
+export const loader = (queryClient: QueryClient) => {
+  return async () => {
+    return queryClient.ensureQueryData(meQuery())
+  }
+}
+
+export const isPermissionsEmpty = (permissions: Permissions) => {
+  return Object.keys(permissions).length === 0
+}
 // TODO: type the api response
+// could be a class to avoid excessive mapping
 export const mapUser = (apiUser): User => {
+  // TODO: pull the proper org id based on the currently active org
+  const permissions = apiUser.permissions ? Object.values(apiUser.permissions)[0] : {} as Permissions
   return {
+    id: apiUser.id,
     email: apiUser.email,
     firstName: apiUser.first_name,
     lastName: apiUser.last_name,
-    role: apiUser?.permissions?.role,
-    organizationId: apiUser?.permissions?.organizationId,
+    role: permissions?.role,
+    organizationId: permissions?.organization_id,
     disabled: apiUser.disabled,
     superAdmin: apiUser.super_admin
   }
 }
 
-// TODO: rename this to be getUserWithinOrganization
-export const getUser = async (id: string): Promise<User> => {
-  // TODO: this needs to be fixed
+export const getMe = async (): Promise<User> => {
+  const res = await fetch(`${BASE_URL}/users/me`, { headers: getAuthHeaders() })
+  if (!res.ok) {
+    throw res;
+  }
+  const user = await res.json();
+  return mapUser(user);
+}
+
+export const getUserWithinOrganization = async (id: string): Promise<User> => {
   const orgId = localStorage.getItem('orgId');
   const res = await fetch(`${BASE_URL}/${orgId}/users/${id}`, { headers: getAuthHeaders() })
   if (!res.ok) {
     throw (await res.json())
   }
   const user = await res.json();
-  console.log("the user: ", user)
   return mapUser(user);
 }
 

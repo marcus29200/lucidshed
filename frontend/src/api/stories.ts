@@ -6,10 +6,10 @@ export type CreateStoryPayload = {
   description?: string;
   estimated_completion_date?: string;
   priority: 'critical' | 'high' | 'medium' | 'low';
-  item_type: 'epic';
+  item_type: 'story';
 }
 
-export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateStoryPayload }) => {
+export const createStory = async ({ orgId, data }: { orgId: string, data: CreateStoryPayload }) => {
   const res = await fetch(`${BASE_URL}/${orgId}/engineering`, {
     method: 'POST',
     headers: {
@@ -20,16 +20,13 @@ export const createEpic = async ({ orgId, data }: { orgId: string, data: CreateS
       data
     )
   })
-  // TODO: add error handling of some kind here...
-  console.log('did the epic get made?', res.ok)
   return await res.json()
-
 }
 
-export const getStories = async ({ orgId, search }) => {
-  let url = `${BASE_URL}/${orgId}/engineering`
+export const getStories = async (orgId: string, search?: string) => {
+  let url = `${BASE_URL}/${orgId}/engineering?item_type=story`
   if (search) {
-    url += `?search=${search}`
+    url += `&search=${search}`
   }
 
   const res = await fetch(
@@ -45,14 +42,12 @@ export const getStories = async ({ orgId, search }) => {
   }
 
   const results = await res.json();
-  console.log("the results: ", results)
-  // TODO: replace this by API filter
-  return results?.items?.filter(item => item.item_type === 'epic');
+  return results?.items;
 }
 
-export const getEpic = async ({ orgId, epicId }) => {
+export const getStory = async (orgId: string, storyId: string) => {
   const res = await fetch(
-    `${BASE_URL}/${orgId}/engineering/${epicId}`,
+    `${BASE_URL}/${orgId}/engineering/${storyId}`,
     {
       headers: {
         ...getAuthHeaders(),
@@ -66,3 +61,37 @@ export const getEpic = async ({ orgId, epicId }) => {
   return await res.json();
 }
 
+
+export const updateStory = async ({ orgId, storyId, data }) => {
+  const res = await fetch(
+    `${BASE_URL}/${orgId}/engineering/${storyId}`,
+    {
+      method: "PATCH",
+      headers: {
+        ...getAuthHeaders(),
+      },
+      body: JSON.stringify(data)
+    }
+  )
+  if (!res.ok) {
+    throw await res.json()
+  }
+  return await res.json();
+}
+
+export const deleteStory = async ({ orgId, storyId }) => {
+  const res = await fetch(
+    `${BASE_URL}/${orgId}/engineering/${storyId}`,
+    {
+      method: "DELETE",
+      headers: {
+        ...getAuthHeaders(),
+      },
+    }
+  )
+  if (!res.ok) {
+    throw await res.json();
+  }
+
+  return;
+}

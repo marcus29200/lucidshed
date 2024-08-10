@@ -44,6 +44,14 @@ export const theme = createTheme({
         },
       },
     },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          textAlign: 'left'
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
