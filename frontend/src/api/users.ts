@@ -47,7 +47,7 @@ export const loader = (queryClient: QueryClient) => {
 
 export class UserNotLoggedIn extends Error { }
 
-export const isPermissionsEmpty = (permissions: UserPermissions) => {
+export const isPermissionsEmpty = (permissions: Permissions) => {
   return Object.keys(permissions).length === 0
 }
 
