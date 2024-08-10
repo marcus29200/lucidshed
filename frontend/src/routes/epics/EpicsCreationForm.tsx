@@ -27,6 +27,7 @@ const priorities = [
 ]
 
 const EpicsCreationForm = () => {
+  console.log("what");
   const { orgId } = useParams();
   const { mutate } = useMutation({
     mutationFn: createEpic,
@@ -41,6 +42,7 @@ const EpicsCreationForm = () => {
 
   // TODO: set up the mutation
   const onSubmit = (e) => {
+    console.log("aint no way")
     e.preventDefault();
     const form = e.target as any;
     mutate({
@@ -74,7 +76,7 @@ const EpicsCreationForm = () => {
               <DatePicker label="Estimated Completion" name="targetDate" slotProps={{ textField: { variant: "outlined", size: "small", margin: 'dense', fullWidth: true } }}></DatePicker>
               <FormControl sx={{ width: '100%' }}>
                 <InputLabel size="small" id="priority-label">Priority</InputLabel>
-                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority">{
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority" value=''>{
                   priorities.map(priority => <MenuItem value={priority.value} key={priority.value}>{priority.label}</MenuItem>)
                 }</Select>
               </FormControl>
@@ -93,11 +95,3 @@ const EpicsCreationForm = () => {
 }
 
 export default EpicsCreationForm
-
-// <Select slotvariant="outlined" size="small" margin="dense" fullWidth label="Priority" id="priority" name="priority">
-//   <MenuItem value="critical">Critical</MenuItem>
-//   <MenuItem>High</MenuItem>
-//   <MenuItem>Medium</MenuItem>
-//   <MenuItem>Low</MenuItem>
-// </Select>
-

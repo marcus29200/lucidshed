@@ -50,6 +50,9 @@ export const createIteration = async ({ orgId, data }) => {
       data
     )
   })
+  if (!res.ok) {
+    throw res;
+  }
   const iter = await res.json();
   return mapPayloadToIteration(iter);
 }
@@ -61,6 +64,9 @@ export const getIterations = async (orgId: string) => {
       ...getAuthHeaders()
     },
   })
+  if (!res.ok) {
+    throw res;
+  }
   const payload = await res.json();
   return payload.items.map((iter: RawIteration) => mapPayloadToIteration(iter));
 }

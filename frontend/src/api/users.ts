@@ -8,8 +8,7 @@ export type User = {
   firstName?: string;
   lastName?: string;
   organizationId?: string;
-  role?: string; // TODO: make this an enum bruv
-  // permissions?: UserPermissions; // if no permissions, they don't have an org
+  role?: string; // TODO: make this an enum
   picture?: string;
   disabled: false;
   superAdmin: boolean;

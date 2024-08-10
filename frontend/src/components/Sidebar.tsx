@@ -40,6 +40,10 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const width = expanded ? '240px' : '72px';
+  const addItem = (e, to: string) => {
+    e.preventDefault();
+    navigate(`/${orgId}/${to}/new`)
+  }
   return (
     <Drawer
       sx={{
@@ -70,15 +74,16 @@ const Sidebar = () => {
             <ListItemText sx={{ color: 'black' }}>
               {item.label}
             </ListItemText>
-            <IconButton onClick={() => navigate(`/${orgId}/${item.to}/new`)}>
-              <Add />
-            </IconButton>
+            {item.canAdd ? (
+              <IconButton sx={{ zIndex: 10 }} onClick={(e) => addItem(e, item.to)}>
+                <Add />
+              </IconButton>) : null}
           </ListItemButton>
         ))
         }
       </List>
       <Divider variant="middle" />
-    </Drawer>
+    </Drawer >
   )
 }
 
