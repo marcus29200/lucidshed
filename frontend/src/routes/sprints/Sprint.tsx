@@ -1,6 +1,6 @@
 import { Box, Grid, LinearProgress, TextField, Typography } from "@mui/material";
-import { useState } from "react";
-import { ActionFunctionArgs, Form, LoaderFunctionArgs, useLoaderData, useLocation, useSearchParams, useSubmit } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Form, LoaderFunctionArgs, useLoaderData, useLocation, useSearchParams, useSubmit } from "react-router-dom";
 import SprintSearchInput from "./SprintSearchInput";
 import Section from "../../components/Section";
 import SprintStoryTable from "./SprintStoryTable";
@@ -9,7 +9,7 @@ import { getStories } from "../../api/stories";
 import { getSprint } from "../../api/sprints";
 import { QueryClient } from "@tanstack/react-query";
 import { DatePicker } from "@mui/x-date-pickers";
-import { LinearProgressWithLabel } from "../../components/LinearProgressWithLabel";
+// TODO: move this to some util or constants file
 
 // probably will want to use defer here eventually
 export const loader = (queryClient: QueryClient) => {
@@ -29,20 +29,31 @@ export const loader = (queryClient: QueryClient) => {
   }
 }
 
-
 export const Sprint = () => {
   const { stories, sprint } = useLoaderData();
+  console.log("the sprint: ", sprint)
   const [description, setDescription] = useState(sprint.description)
   const location = useLocation();
   const search = new URLSearchParams(location.search).get('search') ?? ''
   const [startDate, setStartDate] = useState(new Date(sprint.startDate))
   const [endDate, setEndDate] = useState(new Date(sprint.endDate))
   const [selectedSprint, setSelectedSprint] = useState(sprint);
+  const progress = stories.reduce((acc, story) => {
+    if (story?.status === 'done') {
+      acc += (100 * (1 / stories.length));
+    }
+    return acc;
+  }, 0)
+  useEffect(() => {
+    setDescription(sprint.description)
+    setStartDate(new Date(sprint.startDate))
+    setEndDate(new Date(sprint.endDate))
+  }, [sprint?.id])
   const submit = useSubmit()
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }} >
-        <SprintSearchInput sprint={selectedSprint} setSprint={setSelectedSprint} />
+        <SprintSearchInput sprint={selectedSprint} setSprint={setSelectedSprint} redirectOnSelect />
       </Box >
       <Typography variant="subtitle1" align="left">{sprint.title}</Typography>
       <Grid container spacing={2}>
@@ -79,8 +90,8 @@ export const Sprint = () => {
         </Grid>
       </Grid >
       <br />
-      <Typography variant="subtitle2" align="left" sx={{ paddingBottom: '4px' }} > 0 % to Complete</Typography >
-      <LinearProgress variant="determinate" value={0} />
+      <Typography variant="subtitle2" align="left" sx={{ paddingBottom: '4px' }} >{progress}% to Complete</Typography >
+      <LinearProgress variant="determinate" value={progress} />
       <br />
 
 
@@ -97,7 +108,7 @@ export const Sprint = () => {
 
         </Box>
         <SprintStoryTable>
-          {stories.filter(story => story.title.toLowerCase().includes(search.toLowerCase())).map(story => <SprintStoryRow story={story} />)}
+          {stories.filter(story => story.title.toLowerCase().includes(search.toLowerCase())).map(story => <SprintStoryRow story={story} key={story.id} />)}
         </SprintStoryTable>
       </Section >
     </>

@@ -29,19 +29,29 @@ export const action = (queryClient: QueryClient) => {
     const data = Object.fromEntries(formData);
     console.log("what the hell is this data yo: ", data)
     const estimated_completion_date = data?.targetDate ? new Date(data?.targetDate).toISOString() : undefined;
+    const submissionData: any = {
+      title: data.title,
+      description: data.description,
+      item_type: 'story',
+      iteration_id: data.sprint ?? undefined,
+      estimated_completion_date,
+    }
+    if (data?.status) {
+      submissionData.status = data?.status
+    }
+
+    if (data?.priority) {
+      submissionData.priority = data?.priority
+    }
+    if (data?.estimate) {
+      submissionData.estimate = data?.estimate;
+    }
+
+
     await updateStory({
       orgId: params.orgId as string,
       storyId: params.id as string,
-      data: {
-        title: data.title,
-        description: data.description,
-        item_type: 'story',
-        iteration_id: data.sprint ?? undefined,
-        priority: data?.priority,
-        estimate: data?.estimate,
-        estimated_completion_date,
-        status: data?.status,
-      }
+      data: submissionData
     });
     await queryClient.invalidateQueries({ queryKey: ['story', params.orgId, params.id] })
     return redirect('..')

@@ -7,7 +7,7 @@ import { Sprint, getSprints } from '../../api/sprints';
 import { CircularProgress } from '@mui/material';
 
 
-export default function SprintSearchInput({ sprint, setSprint, name, id }: { sprint?: Sprint, setSprint: any, name?: string, id?: string }) {
+export default function SprintSearchInput({ sprint, setSprint, name, id, redirectOnSelect = false }: { sprint?: Sprint, setSprint: any, name?: string, id?: string }) {
   const [value, setValue] = React.useState<Sprint | null>(sprint);
   const params = useParams();
   const { data, status, isLoading } = useQuery({
@@ -23,6 +23,9 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
       onChange={(event, newValue) => {
         if (newValue.inputValue === 'redirect-new') {
           return navigate('../new', { relative: 'path' })
+        }
+        if (redirectOnSelect) {
+          return navigate(`../${newValue.id}`, { relative: 'path' });
         }
         setValue(newValue);
         setSprint(newValue)
