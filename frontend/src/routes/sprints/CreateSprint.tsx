@@ -20,7 +20,7 @@ export const action = (queryClient: QueryClient) => {
       }
     })
     queryClient.invalidateQueries({ queryKey: ['sprints'] });
-    return redirect(`/{${params.orgId}/sprints`)
+    return redirect(`/${params.orgId}/sprints`)
   }
 }
 

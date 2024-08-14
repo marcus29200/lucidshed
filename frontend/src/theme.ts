@@ -59,6 +59,13 @@ export const theme = createTheme({
         }
       }
     },
+    MuiMenu: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12
+        }
+      }
+    }
   },
   typography: {
     fontFamily: [

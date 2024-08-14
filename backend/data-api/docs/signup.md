@@ -32,7 +32,7 @@ curl --request POST \
   --url http://localhost:8080/users/login \
   --header 'Content-Type: application/json' \
   --data '{
-  "email": "test@test.com"
+  "username": "test@test.com"
   "password": "Test password"
 }'
 ```

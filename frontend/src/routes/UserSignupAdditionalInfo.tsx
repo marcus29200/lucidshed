@@ -13,7 +13,6 @@ const UserSignupAdditionalInfo = () => {
   const { mutate } = useMutation({
     mutationFn: patchUser,
     onSuccess: (data) => {
-      console.log("the data?: ", data)
       updateUser(data)
       const orgId = localStorage.getItem("orgId") as string;
       navigate(`/${orgId}`)

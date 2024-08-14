@@ -23,7 +23,7 @@ export const loader = (queryClient: QueryClient) => {
 }
 
 
-export const EpicsList = () => {
+export const Epics = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('');
   // TODO: add a type for the epics list

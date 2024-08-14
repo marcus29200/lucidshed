@@ -5,7 +5,7 @@ export type CreateStoryPayload = {
   title: string;
   description?: string;
   estimated_completion_date?: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
+  priority?: 'critical' | 'high' | 'medium' | 'low';
   item_type: 'story';
 }
 
@@ -20,6 +20,9 @@ export const createStory = async ({ orgId, data }: { orgId: string, data: Create
       data
     )
   })
+  if (!res.ok) {
+    throw res;
+  }
   return await res.json()
 }
 
@@ -29,6 +32,7 @@ export const getStories = async (orgId: string, search?: string) => {
     url += `&search=${search}`
   }
 
+  console.log(getAuthHeaders())
   const res = await fetch(
     url,
     {

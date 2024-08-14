@@ -1,6 +1,10 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom"
 import { getSprints } from "../../api/sprints";
+import Section from "../../components/Section";
+import { Box } from "@mui/material";
+import SprintTable from "./SprintTable";
+import SprintSearchInput from "./SprintSearchInput";
 
 export const getSprintsQuery = (orgId: string) => queryOptions({
   queryKey: ['sprints'],
@@ -20,7 +24,11 @@ export const Sprints = () => {
   const sprints = useLoaderData();
   console.log(sprints)
   return (
-    <p>Sprints homie</p>
-
+    <>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }} >
+        <SprintSearchInput sprints={sprints} />
+      </Box >
+      <p>Sprints homie</p>
+    </>
   )
 }
