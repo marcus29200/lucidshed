@@ -1,3 +1,5 @@
+import logging
+
 from typing import Dict, List, Optional
 from uuid import uuid4
 
@@ -15,6 +17,8 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
 from app.database.utils import create_database, init_database_tables
 from app.exceptions.common import ObjectNotFoundException
+
+logger = logging.getLogger(__name__)
 
 engineering_item_router = APIRouter
 
@@ -143,6 +147,7 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
             )
 
         if settings.testing is True:
+            logger.warning(f"Reset code for user {user.email} {user.reset_code}")
             return {"id": user.id, "reset_code": user.reset_code}
 
     return {"id": user.id}
