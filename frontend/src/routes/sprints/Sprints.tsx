@@ -3,7 +3,7 @@ import { LoaderFunctionArgs, useLoaderData } from "react-router-dom"
 import { getSprints } from "../../api/sprints";
 import Section from "../../components/Section";
 import { Box } from "@mui/material";
-import SprintTable from "./SprintTable";
+import SprintStoryTable from "./SprintStoryTable";
 import SprintSearchInput from "./SprintSearchInput";
 import { useState } from "react";
 

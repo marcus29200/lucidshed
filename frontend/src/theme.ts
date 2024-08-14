@@ -35,6 +35,14 @@ declare module '@mui/material/Button' {
 
 export const theme = createTheme({
   components: {
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontWeight: 'bold',
+          backgroundColor: "#D3D5D9"
+        },
+      },
+    },
     MuiTextField: {
       styleOverrides: {
         root: {

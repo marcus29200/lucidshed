@@ -12,14 +12,14 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
   const params = useParams();
   const { data, status, isLoading } = useQuery({
     queryKey: ['sprints'],
-    queryFn: async () => getSprints(params.orgId)
+    queryFn: async () => getSprints(params.orgId as string)
   })
-  console.log("the value: ", value)
   const items = data ?? []
   const navigate = useNavigate();
   return (
     <Autocomplete
       value={value}
+      defaultValue={''}
       onChange={(event, newValue) => {
         if (newValue.inputValue === 'redirect-new') {
           return navigate('../new', { relative: 'path' })
@@ -42,13 +42,13 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
       }}
       selectOnFocus
       clearOnBlur
+      sx={{ minWidth: '200px' }}
       handleHomeEndKeys
       loading={isLoading}
       id={id}
       options={[{ title: "Add new sprint", inputValue: 'redirect-new' }, ...items]}
       isOptionEqualToValue={(option, value) => option.title === value || option.id === value.id}
       getOptionLabel={(option) => {
-        // Add "xxx" option created dynamically
         if (option.inputValue) {
           return option.inputValue;
         }
@@ -67,6 +67,9 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
         return (
           <TextField {...params} label="Sprint" size="small" name={name} fullWidth style={{ marginTop: '8px' }}
             InputProps={{
+              sx: {
+                backgroundColor: 'white',
+              },
               ...params.InputProps,
               endAdornment: (
                 <React.Fragment>
@@ -74,7 +77,8 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
                   {params.InputProps.endAdornment}
                 </React.Fragment>
               ),
-            }}
+            }
+            }
           />
         )
 

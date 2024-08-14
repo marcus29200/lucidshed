@@ -1,8 +1,8 @@
 import { TableContainer, TableHead, Table, TableRow, TableBody, TableCell, Paper } from '@mui/material'
-const SprintTable = ({ children }) => {
+const SprintStoryTable = ({ children }) => {
   return (
-    <TableContainer component={Paper} >
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+    <TableContainer component={Paper} sx={{ width: '100%' }} >
+      <Table sx={{ width: '100%' }} size="small" aria-label="a dense table">
         <TableHead>
           <TableRow>
             <TableCell>Story Name</TableCell>
@@ -20,4 +20,4 @@ const SprintTable = ({ children }) => {
   )
 }
 
-export default SprintTable;
+export default SprintStoryTable;

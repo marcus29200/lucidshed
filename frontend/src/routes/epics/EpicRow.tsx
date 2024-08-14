@@ -1,23 +1,10 @@
-import { TableCell, TableRow, LinearProgress, Box, Typography, LinearProgressProps, IconButton, MenuItem, Menu } from "@mui/material"
+import { TableCell, TableRow, IconButton, MenuItem, Menu } from "@mui/material"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useState } from "react";
+import { LinearProgressWithLabel } from "../../components/LinearProgressWithLabel";
 
-function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
-        <LinearProgress variant="determinate" {...props} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
 // TODO: add typing for epic
 const EpicRow = ({ epic }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

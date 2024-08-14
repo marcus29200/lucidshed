@@ -37,7 +37,6 @@ export const getStories = async (orgId: string, search?: string, iterationId?: s
 
   }
 
-  console.log(getAuthHeaders())
   const res = await fetch(
     url,
     {
