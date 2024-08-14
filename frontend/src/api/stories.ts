@@ -5,7 +5,7 @@ export type CreateStoryPayload = {
   title: string;
   description?: string;
   estimated_completion_date?: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
+  priority?: 'critical' | 'high' | 'medium' | 'low';
   item_type: 'story';
 }
 
@@ -20,13 +20,21 @@ export const createStory = async ({ orgId, data }: { orgId: string, data: Create
       data
     )
   })
+  if (!res.ok) {
+    throw res;
+  }
   return await res.json()
 }
 
-export const getStories = async (orgId: string, search?: string) => {
+export const getStories = async (orgId: string, search?: string, iterationId?: string) => {
   let url = `${BASE_URL}/${orgId}/engineering?item_type=story`
   if (search) {
     url += `&search=${search}`
+  }
+
+  if (iterationId) {
+    url += `&iteration_id=${iterationId}`
+
   }
 
   const res = await fetch(
@@ -63,11 +71,13 @@ export const getStory = async (orgId: string, storyId: string) => {
 
 
 export const updateStory = async ({ orgId, storyId, data }) => {
+  console.log("the data: ", data)
   const res = await fetch(
     `${BASE_URL}/${orgId}/engineering/${storyId}`,
     {
       method: "PATCH",
       headers: {
+        'Content-Type': 'application/json',
         ...getAuthHeaders(),
       },
       body: JSON.stringify(data)

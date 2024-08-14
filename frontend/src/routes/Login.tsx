@@ -5,16 +5,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../api/auth'
 import LogoHeader from '../components/LogoHeader';
 import { isPermissionsEmpty, mapUser } from '../api/users';
+import { useAuth } from '../hooks/auth';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { storeToken } = useAuth();
   // convert to a form action
   const { mutate } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
       const user = mapUser(data?.user);
+      storeToken(data)
       if (isPermissionsEmpty(data?.user?.permissions)) {
         navigate('/setup/org');
       } else {

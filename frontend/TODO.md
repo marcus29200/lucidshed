@@ -1,5 +1,8 @@
 ## TODOS
 
+- Implement axios and interceptors for 401 redirects on mutations
+- Figure out why react query caching isn't invalidating like I'd expect
+- Redo login/signup flow to use form actions
 - Create single epic view page
 - Create list view for stories
 - create re-usable select and datepicker components

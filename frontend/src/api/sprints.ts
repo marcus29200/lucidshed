@@ -11,6 +11,7 @@ export type CreateSprintPayload = {
 }
 
 export type RawSprint = {
+  id: string;
   title: string;
   description: string;
   status: string;
@@ -20,6 +21,7 @@ export type RawSprint = {
 }
 
 export type Sprint = {
+  id: string;
   title: string;
   description: string;
   status: string;
@@ -30,6 +32,7 @@ export type Sprint = {
 
 export const mapPayloadToSprint = (rawSprint: RawSprint) => {
   return {
+    id: rawSprint.id,
     title: rawSprint.title,
     description: rawSprint.description,
     status: rawSprint.status,
@@ -79,7 +82,7 @@ export const getSprint = async (orgId: string, iterId: string) => {
     },
   })
   const payload = await res.json();
-  return payload.items.map((iter: RawSprint) => mapPayloadToSprint(iter));
+  return mapPayloadToSprint(payload);
 }
 
 
@@ -99,6 +102,7 @@ export const patchSprint = async ({ orgId, sprintId, data }) => {
   const iter = await res.json();
   return mapPayloadToSprint(iter);
 }
+
 
 export const deleteSprint = async ({ orgId, sprintId }) => {
   const res = await fetch(`${BASE_URL}/${orgId}/iterations/${sprintId}`, {

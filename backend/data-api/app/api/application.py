@@ -4,6 +4,7 @@ from typing import Dict
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
@@ -51,7 +52,6 @@ class DBMiddleware(BaseHTTPMiddleware):
 
         return response
 
-
 class DataApplication(FastAPI):
     def __init__(self, *args, **kwargs):
         super().__init__(title="LucidShed API")
@@ -65,6 +65,12 @@ class DataApplication(FastAPI):
         self.include_router(team_router, prefix="/{organization_id}/teams")
 
         self.add_middleware(DBMiddleware)
+        # TODO: temporary cors workaround
+        # self.add_middleware(CORSMiddleware,
+        #     allow_origins=['*'],
+        #     allow_credentials=True,
+        #     allow_methods=["*"],
+        #     allow_headers=["*"])
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)

@@ -1,10 +1,12 @@
 import { Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers"
-import { QueryClient, useMutation } from "@tanstack/react-query";
-import { ActionFunctionArgs, redirect, useNavigate, useParams, Form } from "react-router-dom"
+import { QueryClient } from "@tanstack/react-query";
+import { ActionFunctionArgs, redirect, useNavigate, Form } from "react-router-dom"
 import { createEpic } from "../../api/epics";
 import FullHeightSection from "../../components/FullHeightSection";
 
+// TODO: replace with the other type in the api directory
+type Priority = 'critical' | 'high' | 'medium' | 'low';
 
 // these are hard coded temporarily until they become configurable
 const priorities = [
@@ -22,27 +24,26 @@ const priorities = [
   },
   {
     label: 'Small',
-    value: 'small',
+    value: 'low',
   }
 ]
 
 export const action = (queryClient: QueryClient) => {
   return async ({ request, params }: ActionFunctionArgs) => {
     const formData = await request.formData();
-    const updates = Object.entries(formData);
 
     await createEpic({
       orgId: params.orgId as string,
       data: {
-        title: updates.title,
-        description: updates.description,
-        estimated_completion_date: new Date(updates.targetDate).toISOString(),
-        priority: updates.priority,
+        title: formData.get('title') as string,
+        description: formData.get('description') as string,
+        estimated_completion_date: new Date(formData.get('targetDate') as string).toISOString(),
+        priority: formData.get('priority') as Priority,
         item_type: 'epic',
       }
     })
-    queryClient.invalidateQueries({ queryKey: ['epics'] })
-    return redirect(`/{${params.orgId}/epics`)
+    await queryClient.invalidateQueries({ queryKey: ['epics'] })
+    return redirect(`/${params.orgId}/epics`)
   }
 }
 
@@ -66,7 +67,7 @@ export const CreateEpic = () => {
               <DatePicker label="Estimated Completion" name="targetDate" slotProps={{ textField: { variant: "outlined", size: "small", margin: 'dense', fullWidth: true } }}></DatePicker>
               <FormControl sx={{ width: '100%' }}>
                 <InputLabel size="small" id="priority-label">Priority</InputLabel>
-                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority">{
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" defaultValue={"low"} id="priority" name="priority">{
                   priorities.map(priority => <MenuItem value={priority.value} key={priority.value}>{priority.label}</MenuItem>)
                 }</Select>
               </FormControl>

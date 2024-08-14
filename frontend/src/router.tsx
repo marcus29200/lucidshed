@@ -4,7 +4,7 @@ import Login from "./routes/Login";
 import Register from "./routes/register/register";
 import Dashboard from "./routes/dashboard/dashboard";
 import AppLayout from "./components/AppLayout";
-import { EpicsList, loader as epicsLoader } from "./routes/epics/EpicsList";
+import { Epics, loader as epicsLoader } from "./routes/epics/Epics";
 import { Epic, loader as epicLoader } from './routes/epics/Epic';
 import { Stories, loader as storiesLoader } from './routes/stories/Stories';
 import { ResetPassword } from "./routes/ResetPassword";
@@ -12,16 +12,16 @@ import { CreateOrganization } from "./routes/CreateOrganization";
 import { loader as organizationLoader } from './api/organizations';
 import { loader as meLoader } from './api/users';
 import { CreateEpic, action as createEpicAction } from "./routes/epics/CreateEpic";
-import { getEpics } from "./api/epics";
 import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
+import { Sprint, loader as sprintLoader } from './routes/sprints/Sprint';
 import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
-import { CreateStory } from "./routes/stories/CreateStory";
-import { Story, loader as storyLoader } from "./routes/stories/Story";
+import { CreateStory, action as createStoryAction } from "./routes/stories/CreateStory";
+import { Story, action as updateStoryAction, loader as storyLoader } from "./routes/stories/Story";
 
 
-const queryClient = new QueryClient({
+export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     // this allows us to have a "global" redirect on the loader queries
     // since there is no way to do this in one place with react-router
@@ -31,7 +31,7 @@ const queryClient = new QueryClient({
         window.location.replace('/login');
       }
     }
-  })
+  }),
 })
 
 export const router = createBrowserRouter([
@@ -79,7 +79,7 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <EpicsList />,
+                element: <Epics />,
                 loader: epicsLoader(queryClient),
               },
               {
@@ -100,15 +100,17 @@ export const router = createBrowserRouter([
               {
                 index: true,
                 loader: storiesLoader(queryClient),
-                element: < Stories />
+                element: <Stories />
               },
               {
                 path: ':id',
                 loader: storyLoader(queryClient),
+                action: updateStoryAction(queryClient),
                 element: <Story />,
               },
               {
                 path: 'new',
+                action: createStoryAction(queryClient),
                 element: <CreateStory />
               }
             ]
@@ -120,6 +122,11 @@ export const router = createBrowserRouter([
                 index: true,
                 loader: sprintsLoader(queryClient),
                 element: <Sprints />
+              },
+              {
+                path: ':sprintId',
+                loader: sprintLoader(queryClient),
+                element: <Sprint />
               },
               {
                 path: 'new',

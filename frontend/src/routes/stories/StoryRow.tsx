@@ -1,29 +1,30 @@
-import { TableCell, TableRow, LinearProgress, Box, Typography, LinearProgressProps, IconButton, MenuItem, Menu } from "@mui/material"
+import { TableCell, TableRow, IconButton, MenuItem, Menu } from "@mui/material"
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useNavigate } from "react-router-dom";
+import { redirect, useLocation, useNavigate, useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteStory } from "../../api/stories";
 
-// duplicated from the epics page, abstractions could be made later
-// to reduce duplication
-function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
-        <LinearProgress variant="determinate" {...props} />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
 // TODO: add typing for epic
 const StoryRow = ({ story }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+  const params = useParams();
   const open = Boolean(anchorEl);
+  const queryClient = useQueryClient();
+  const { mutate: removeStory } = useMutation({
+    mutationFn: deleteStory,
+    onError: () => {
+      console.error("wuhh");
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['stories'] });
+      navigate(0)
+    }
+
+  })
+
   const handleClick = (event) => {
     event.stopPropagation()
     setAnchorEl(event.currentTarget);
@@ -31,15 +32,20 @@ const StoryRow = ({ story }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const navigate = useNavigate();
+
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(`${window.location.href}/${story.id}`);
+  }
+
+  const deleteItem = () => {
+    removeStory({ orgId: params.orgId, storyId: story.id });
+
+  }
   const formattedCompletionDate = story.estimated_completion_date ? format(new Date(story.estimated_completion_date), 'MMM dd, yyyy') : null;
   return (
     <>
-      <TableRow sx={{ cursor: 'pointer' }} onClick={() => navigate(`./${story.id}`, { relative: 'path' })}>
+      <TableRow sx={{ cursor: 'pointer' }} hover={true} onClick={() => navigate(`./${story.id}`, { relative: 'path' })}>
         <TableCell>{story.title}</TableCell>
-        <TableCell>
-          <LinearProgressWithLabel value={0} />
-        </TableCell>
         <TableCell>{story.id}</TableCell>
         <TableCell></TableCell>
         <TableCell>{formattedCompletionDate}</TableCell>
@@ -57,7 +63,8 @@ const StoryRow = ({ story }) => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem>Item</MenuItem>
+        <MenuItem onClick={copyLink}>Copy Url</MenuItem>
+        <MenuItem onClick={deleteItem}>Delete Item</MenuItem>
       </Menu>
     </>
   )

@@ -13,7 +13,6 @@ const UserSignupAdditionalInfo = () => {
   const { mutate } = useMutation({
     mutationFn: patchUser,
     onSuccess: (data) => {
-      console.log("the data?: ", data)
       updateUser(data)
       const orgId = localStorage.getItem("orgId") as string;
       navigate(`/${orgId}`)
@@ -90,7 +89,6 @@ const UserSignupAdditionalInfo = () => {
             <TextField
               variant="outlined"
               margin="normal"
-              required
               fullWidth
               size="small"
               label="Bio"
