@@ -89,7 +89,6 @@ const UserSignupAdditionalInfo = () => {
             <TextField
               variant="outlined"
               margin="normal"
-              required
               fullWidth
               size="small"
               label="Bio"
