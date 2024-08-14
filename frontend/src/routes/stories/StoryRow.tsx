@@ -44,7 +44,7 @@ const StoryRow = ({ story }) => {
   const formattedCompletionDate = story.estimated_completion_date ? format(new Date(story.estimated_completion_date), 'MMM dd, yyyy') : null;
   return (
     <>
-      <TableRow sx={{ cursor: 'pointer' }} onClick={() => navigate(`./${story.id}`, { relative: 'path' })}>
+      <TableRow sx={{ cursor: 'pointer' }} hover={true} onClick={() => navigate(`./${story.id}`, { relative: 'path' })}>
         <TableCell>{story.title}</TableCell>
         <TableCell>{story.id}</TableCell>
         <TableCell></TableCell>

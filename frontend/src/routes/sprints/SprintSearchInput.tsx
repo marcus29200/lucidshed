@@ -53,7 +53,7 @@ export default function SprintSearchInput({ sprint, setSprint, name, id }: { spr
           return option.inputValue;
         }
         // Regular option
-        return option.title;
+        return option?.title ?? '';
       }}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;

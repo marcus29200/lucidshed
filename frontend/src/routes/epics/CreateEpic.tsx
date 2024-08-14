@@ -67,7 +67,7 @@ export const CreateEpic = () => {
               <DatePicker label="Estimated Completion" name="targetDate" slotProps={{ textField: { variant: "outlined", size: "small", margin: 'dense', fullWidth: true } }}></DatePicker>
               <FormControl sx={{ width: '100%' }}>
                 <InputLabel size="small" id="priority-label">Priority</InputLabel>
-                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" id="priority" name="priority">{
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" defaultValue={"low"} id="priority" name="priority">{
                   priorities.map(priority => <MenuItem value={priority.value} key={priority.value}>{priority.label}</MenuItem>)
                 }</Select>
               </FormControl>

@@ -71,11 +71,13 @@ export const getStory = async (orgId: string, storyId: string) => {
 
 
 export const updateStory = async ({ orgId, storyId, data }) => {
+  console.log("the data: ", data)
   const res = await fetch(
     `${BASE_URL}/${orgId}/engineering/${storyId}`,
     {
       method: "PATCH",
       headers: {
+        'Content-Type': 'application/json',
         ...getAuthHeaders(),
       },
       body: JSON.stringify(data)

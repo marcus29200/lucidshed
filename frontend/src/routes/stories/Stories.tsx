@@ -27,8 +27,8 @@ export const loader = (queryClient: QueryClient) => {
 export const Stories = () => {
   const stories = useLoaderData();
   return (
-    <FullHeightSection>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: '12px', paddingY: '6px' }}>
+    <FullHeightSection style={{ padding: '12px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingY: '12px' }}>
         <Typography variant="h6">Stories</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <TextField variant="outlined" size="small" margin="none" label="Search"></TextField>

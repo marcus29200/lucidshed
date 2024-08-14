@@ -18,7 +18,7 @@ import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
 import { Sprint, loader as sprintLoader } from './routes/sprints/Sprint';
 import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
 import { CreateStory, action as createStoryAction } from "./routes/stories/CreateStory";
-import { Story, loader as storyLoader } from "./routes/stories/Story";
+import { Story, action as updateStoryAction, loader as storyLoader } from "./routes/stories/Story";
 
 
 export const queryClient = new QueryClient({
@@ -105,6 +105,7 @@ export const router = createBrowserRouter([
               {
                 path: ':id',
                 loader: storyLoader(queryClient),
+                action: updateStoryAction(queryClient),
                 element: <Story />,
               },
               {

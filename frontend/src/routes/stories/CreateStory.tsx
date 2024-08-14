@@ -8,29 +8,68 @@ import { useState } from "react"
 import SprintSearchInput from "../sprints/SprintSearchInput"
 import { Sprint } from "../../api/sprints"
 
-const METADATA_FIELD_OPTIONS: { value: string, label: string }[] = [
+// const METADATA_FIELD_OPTIONS: { value: string, label: string }[] = [
+//   {
+//     label: 'Due Date',
+//     value: 'due-date'
+//   },
+//   {
+//     label: 'Estimated time',
+//     value: 'estimated-time'
+//   }
+// ]
+
+export const statuses = [
   {
-    label: 'Due Date',
-    value: 'due-date'
+    label: 'Not started',
+    value: 'not-started',
   },
   {
-    label: 'Estimated time',
-    value: 'estimated-time'
+    label: 'In progress',
+    value: 'in-progress',
+  },
+  {
+    label: 'Done',
+    value: 'done',
+  },
+]
+export const priorities = [
+  {
+    label: 'Critical',
+    value: 'critical',
+  },
+  {
+    label: 'High',
+    value: 'high'
+  },
+  {
+    label: 'Medium',
+    value: 'medium',
+  },
+  {
+    label: 'Small',
+    value: 'low',
   }
 ]
+
 
 export const action = (queryClient: QueryClient) => {
   return async ({ request, params }: ActionFunctionArgs) => {
     const formData = await request.formData();
     const data = Object.fromEntries(formData);
     console.log("what the hell is this data yo: ", data)
+    const estimated_completion_date = data?.targetDate ? new Date(data?.targetDate).toISOString() : undefined;
     await createStory({
       orgId: params.orgId as string,
       data: {
         title: data.title,
         description: data.description,
         item_type: 'story',
-        iteration_id: data.sprint,
+        iteration_id: data.sprint ?? undefined,
+        priority: data?.priority,
+        estimate: data?.estimate,
+        estimated_completion_date,
+        status: data?.status,
       }
     });
     await queryClient.invalidateQueries({ queryKey: ['stories'] }, { throwOnError: true });
@@ -60,14 +99,28 @@ export const CreateStory = () => {
               <TextField variant="outlined" size="small" margin="dense" fullWidth label="Description" id="description" name="description" multiline minRows={8}></TextField>
             </Grid>
             <Grid item xs={4}>
-              <FormControl sx={{ width: '100%', mt: '8px' }}>
-                <InputLabel size="small" id="extra-details">Add story details</InputLabel>
-                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="extra-details" label="Add story details" id="extra-details" name="extra-details" value=''>
-                  {METADATA_FIELD_OPTIONS.map(opt => <MenuItem value={opt.value} key={opt.value}>{opt.label}</MenuItem>)}
-                </Select>
-              </FormControl>
+              {/* THIS IS WHERE WE ADD ALL OF OUR FIELDS */}
               <input type="hidden" value={sprint?.id} name="sprint" />
               <SprintSearchInput setSprint={setSprint} sprint={sprint} id="sprint-selector" />
+              <DatePicker label="Due Date" name="targetDate" slotProps={{ textField: { variant: "outlined", size: "small", margin: 'dense', fullWidth: true } }}></DatePicker>
+              <TextField variant="outlined" size="small" margin="dense" fullWidth type="number" label="Estimate" id="estimate" name="estimate" />
+              <FormControl sx={{ width: '100%', marginTop: '4px' }}>
+                <InputLabel size="small" id="priority-label">Priority</InputLabel>
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="priority-label" label="Priority" defaultValue={"low"} id="priority" name="priority">{
+                  priorities.map(priority => <MenuItem value={priority.value} key={priority.value}>{priority.label}</MenuItem>)
+                }</Select>
+              </FormControl>
+              <FormControl sx={{ width: '100%', marginTop: '4px' }}>
+                <InputLabel size="small" id="status-label">Status</InputLabel>
+                <Select variant="outlined" size="small" margin="dense" fullWidth labelId="status-label" label="Status" defaultValue={"not-started"} id="status" name="status">{
+                  statuses.map(status => <MenuItem value={status.value} key={status.value}>{status.label}</MenuItem>)
+                }</Select>
+              </FormControl>
+
+              <TextField variant="outlined" size="small" margin="dense" fullWidth label="Attachments" id="attachments" name="attachments" />
+
+              {/* TODO: owner */}
+              {/* TODO: assignee */}
             </Grid>
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
@@ -79,3 +132,11 @@ export const CreateStory = () => {
     </FullHeightSection>
   )
 }
+// <FormControl sx={{ width: '100%', mt: '8px' }}>
+//
+//   <InputLabel size="small" id="extra-details">Add story details</InputLabel>
+//   <Select variant="outlined" size="small" margin="dense" fullWidth labelId="extra-details" label="Add story details" id="extra-details" name="extra-details" value=''>
+//     {METADATA_FIELD_OPTIONS.map(opt => <MenuItem value={opt.value} key={opt.value}>{opt.label}</MenuItem>)}
+//   </Select>
+// </FormControl>
+
