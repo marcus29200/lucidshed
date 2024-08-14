@@ -5,6 +5,7 @@ import Section from "../../components/Section";
 import { Box } from "@mui/material";
 import SprintTable from "./SprintTable";
 import SprintSearchInput from "./SprintSearchInput";
+import { useState } from "react";
 
 export const getSprintsQuery = (orgId: string) => queryOptions({
   queryKey: ['sprints'],
@@ -22,11 +23,12 @@ export const loader = (queryClient: QueryClient) => {
 }
 export const Sprints = () => {
   const sprints = useLoaderData();
+  const [selectedSprint, setSelectedSprint] = useState(sprints[0]);
   console.log(sprints)
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }} >
-        <SprintSearchInput sprints={sprints} />
+        <SprintSearchInput sprint={selectedSprint} setSprint={setSelectedSprint} />
       </Box >
       <p>Sprints homie</p>
     </>

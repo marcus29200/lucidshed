@@ -5,6 +5,8 @@ import { DatePicker } from "@mui/x-date-pickers"
 import { QueryClient } from "@tanstack/react-query"
 import { createStory } from "../../api/stories"
 import { useState } from "react"
+import SprintSearchInput from "../sprints/SprintSearchInput"
+import { Sprint } from "../../api/sprints"
 
 const METADATA_FIELD_OPTIONS: { value: string, label: string }[] = [
   {
@@ -21,12 +23,14 @@ export const action = (queryClient: QueryClient) => {
   return async ({ request, params }: ActionFunctionArgs) => {
     const formData = await request.formData();
     const data = Object.fromEntries(formData);
-    const newData = await createStory({
+    console.log("what the hell is this data yo: ", data)
+    await createStory({
       orgId: params.orgId as string,
       data: {
         title: data.title,
         description: data.description,
         item_type: 'story',
+        iteration_id: data.sprint,
       }
     });
     await queryClient.invalidateQueries({ queryKey: ['stories'] }, { throwOnError: true });
@@ -37,8 +41,10 @@ export const action = (queryClient: QueryClient) => {
 
 export const CreateStory = () => {
   const navigate = useNavigate();
-  const [metadataFields, setMetaDataFields] = useState();
+  const [sprint, setSprint] = useState<Sprint | null>();
 
+  // TODO: for now, don't do dynamic fields, just do the fuckin'
+  // static ones we know about
   return (
     <FullHeightSection>
       <Box sx={{
@@ -60,6 +66,8 @@ export const CreateStory = () => {
                   {METADATA_FIELD_OPTIONS.map(opt => <MenuItem value={opt.value} key={opt.value}>{opt.label}</MenuItem>)}
                 </Select>
               </FormControl>
+              <input type="hidden" value={sprint?.id} name="sprint" />
+              <SprintSearchInput setSprint={setSprint} sprint={sprint} id="sprint-selector" />
             </Grid>
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>

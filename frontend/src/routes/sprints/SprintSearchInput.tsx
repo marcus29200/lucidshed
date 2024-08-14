@@ -1,33 +1,31 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import { useNavigate } from 'react-router-dom';
+import Autocomplete from '@mui/material/Autocomplete';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { Sprint, getSprints } from '../../api/sprints';
+import { CircularProgress } from '@mui/material';
 
 
-export default function SprintSearchInput({ sprints }: { sprints?: any[] }) {
-  console.log(sprints);
-  const [value, setValue] = React.useState<any | null>(null);
+export default function SprintSearchInput({ sprint, setSprint, name, id }: { sprint?: Sprint, setSprint: any, name?: string, id?: string }) {
+  const [value, setValue] = React.useState<Sprint | null>(sprint);
+  const params = useParams();
+  const { data, status, isLoading } = useQuery({
+    queryKey: ['sprints'],
+    queryFn: async () => getSprints(params.orgId)
+  })
+  console.log("the value: ", value)
+  const items = data ?? []
   const navigate = useNavigate();
   return (
     <Autocomplete
       value={value}
       onChange={(event, newValue) => {
-        console.log(newValue)
         if (newValue.inputValue === 'redirect-new') {
-          navigate('new', { relative: 'route' })
+          return navigate('../new', { relative: 'path' })
         }
-        if (typeof newValue === 'string') {
-          setValue({
-            title: newValue,
-          });
-        } else if (newValue && newValue.inputValue) {
-          // Create a new value from the user input
-          setValue({
-            title: newValue.inputValue,
-          });
-        } else {
-          setValue(newValue);
-        }
+        setValue(newValue);
+        setSprint(newValue)
       }}
       filterOptions={(options, params) => {
         const { inputValue } = params;
@@ -36,7 +34,7 @@ export default function SprintSearchInput({ sprints }: { sprints?: any[] }) {
         if (inputValue !== '' && filtered.length === 0) {
           filtered.push({
             inputValue: 'redirect-new',
-            title: `Add "${inputValue}"`,
+            title: `Add new sprint`,
           });
         }
 
@@ -45,13 +43,11 @@ export default function SprintSearchInput({ sprints }: { sprints?: any[] }) {
       selectOnFocus
       clearOnBlur
       handleHomeEndKeys
-      id="free-solo-with-text-demo"
-      options={[{ title: "Add new sprint", inputValue: 'redirect-new' }, ...sprints]}
+      loading={isLoading}
+      id={id}
+      options={[{ title: "Add new sprint", inputValue: 'redirect-new' }, ...items]}
+      isOptionEqualToValue={(option, value) => option.title === value || option.id === value.id}
       getOptionLabel={(option) => {
-        // Value selected with enter, right from the input
-        if (typeof option === 'string') {
-          return option;
-        }
         // Add "xxx" option created dynamically
         if (option.inputValue) {
           return option.inputValue;
@@ -62,16 +58,28 @@ export default function SprintSearchInput({ sprints }: { sprints?: any[] }) {
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
         return (
-          <li key={key} {...optionProps}>
+          <li key={key} {...optionProps} value={optionProps.id}>
             {option.title}
           </li>
         );
       }}
-      sx={{ width: 300 }}
-      freeSolo
-      renderInput={(params) => (
-        <TextField {...params} label="Sprint" size="small" />
-      )}
+      renderInput={(params) => {
+        return (
+          <TextField {...params} label="Sprint" size="small" name={name} fullWidth style={{ marginTop: '8px' }}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <React.Fragment>
+                  {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                  {params.InputProps.endAdornment}
+                </React.Fragment>
+              ),
+            }}
+          />
+        )
+
+      }
+      }
     />
   );
 }

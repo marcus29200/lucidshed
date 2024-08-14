@@ -27,6 +27,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // attempt to set user on startup
 
 
+  function storeToken({ token }) {
+    localStorage.setItem('token', token?.access_token)
+  }
   // TODO: put these into types yo
   // TODO: better solution than local storage?
   function storeUserAndToken({ token, user }: { token: any, user: any }) {
@@ -58,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     user,
     storeUser: storeUserAndToken,
+    storeToken,
     updateUser,
     getUser,
     clearUser,

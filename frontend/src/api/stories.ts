@@ -26,10 +26,15 @@ export const createStory = async ({ orgId, data }: { orgId: string, data: Create
   return await res.json()
 }
 
-export const getStories = async (orgId: string, search?: string) => {
+export const getStories = async (orgId: string, search?: string, iterationId?: string) => {
   let url = `${BASE_URL}/${orgId}/engineering?item_type=story`
   if (search) {
     url += `&search=${search}`
+  }
+
+  if (iterationId) {
+    url += `&iteration_id=${iterationId}`
+
   }
 
   console.log(getAuthHeaders())

@@ -15,6 +15,7 @@ import { CreateEpic, action as createEpicAction } from "./routes/epics/CreateEpi
 import UserSignupAdditionalInfo from "./routes/UserSignupAdditionalInfo";
 import { QueryCache, QueryClient } from '@tanstack/react-query';
 import { Sprints, loader as sprintsLoader } from "./routes/sprints/Sprints";
+import { Sprint, loader as sprintLoader } from './routes/sprints/Sprint';
 import { CreateSprint, action as createSprintAction } from "./routes/sprints/CreateSprint";
 import { CreateStory, action as createStoryAction } from "./routes/stories/CreateStory";
 import { Story, loader as storyLoader } from "./routes/stories/Story";
@@ -120,6 +121,11 @@ export const router = createBrowserRouter([
                 index: true,
                 loader: sprintsLoader(queryClient),
                 element: <Sprints />
+              },
+              {
+                path: ':sprintId',
+                loader: sprintLoader(queryClient),
+                element: <Sprint />
               },
               {
                 path: 'new',
