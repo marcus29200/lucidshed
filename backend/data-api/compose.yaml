@@ -10,8 +10,24 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  api:
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/users
+      - DATABASE_HOST=db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

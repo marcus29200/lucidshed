@@ -15,6 +15,6 @@ async def _run_api():
 
     await app.init()
 
-    server = uvicorn.Server(config=uvicorn.Config(app, port=app.settings.port, host=app.settings.host))
+    server = uvicorn.Server(config=uvicorn.Config(app, port=settings.port, host=settings.host))
 
     await server.serve()

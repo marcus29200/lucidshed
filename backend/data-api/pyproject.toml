@@ -3,7 +3,6 @@ name = "app"
 version = "0.1.0"
 description = ""
 authors = ["Marcus Scaffidi", "Zach Durham"]
-readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"

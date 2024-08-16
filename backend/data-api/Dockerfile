@@ -1,19 +1,35 @@
+# Use an official Python runtime as a parent image
 FROM python:3.12.4-slim
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Set the working directory in the container
+WORKDIR /app
 
-# Copy the project files to the working directory
-COPY backend/data-api/ .
+# Install system dependencies needed for building Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential
 
 # Install Poetry
-RUN pip install poetry
+RUN pip install --no-cache-dir poetry
 
-# Configure Poetry to not create virtual environments
+# Copy only the pyproject.toml and poetry.lock files to the container first
+COPY pyproject.toml poetry.lock /app/
+
+# Disable virtual environments in Poetry
 RUN poetry config virtualenvs.create false
 
-# Install dependencies (for production, excluding dev dependencies)
+# Install dependencies with --no-dev if you don't need development dependencies
 RUN poetry install --no-dev
 
-# Set the entrypoint to run the application using Poetry
+# Copy the rest of the application code to the container
+COPY . /app
+
+RUN poetry install --no-dev
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Expose the port the app runs on (if sapplicable)
+EXPOSE 8080
+
+# Define the command to run your application
 ENTRYPOINT ["poetry", "run", "api"]
