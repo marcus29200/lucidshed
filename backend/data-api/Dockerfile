@@ -1,6 +1,9 @@
 # Use an official Python runtime as a parent image
 FROM python:3.12.4-slim
 
+# Copy only the pyproject.toml and poetry.lock files to the container first
+COPY pyproject.toml poetry.lock /app/
+
 # Set the working directory in the container
 WORKDIR /app
 
@@ -10,9 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Poetry
 RUN pip install --no-cache-dir poetry
-
-# Copy only the pyproject.toml and poetry.lock files to the container first
-COPY pyproject.toml poetry.lock /app/
 
 # Disable virtual environments in Poetry
 RUN poetry config virtualenvs.create false
