@@ -2,7 +2,7 @@
 FROM python:3.12.4-slim
 
 # Copy only the pyproject.toml and poetry.lock files to the container first
-COPY . .
+COPY . /app
 
 # Set the working directory in the container
 WORKDIR /app
