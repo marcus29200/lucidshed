@@ -2,7 +2,7 @@
 FROM python:3.12.4-slim
 
 # Copy only the pyproject.toml and poetry.lock files to the container first
-COPY pyproject.toml poetry.lock /app/
+COPY . .
 
 # Set the working directory in the container
 WORKDIR /app
@@ -19,14 +19,6 @@ RUN poetry config virtualenvs.create false
 
 # Install dependencies with --no-dev if you don't need development dependencies
 RUN poetry install --no-dev
-
-# Copy the rest of the application code to the container
-COPY . /app
-
-RUN poetry install --no-dev
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
 
 # Expose the port the app runs on (if sapplicable)
 EXPOSE 8080
