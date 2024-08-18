@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.12.4-bullseye
+FROM python:3.12.4-slim
 
 # Copy only the pyproject.toml and poetry.lock files to the container first
 COPY . /app
@@ -17,6 +17,11 @@ RUN pip install --no-cache-dir poetry make
 # Disable virtual environments in Poetry
 RUN poetry config virtualenvs.create false
 
+# create new user
+RUN useradd -m lucid
+
+USER lucid
+
 # Install dependencies with --no-dev if you don't need development dependencies
 RUN poetry install --no-dev
 
@@ -24,10 +29,4 @@ RUN poetry install --no-dev
 EXPOSE 8080
 
 # Define the command to run your application
-# ENTRYPOINT ["poetry", "run", "api"]
-
-# Add an entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["poetry", "run", "api"]
