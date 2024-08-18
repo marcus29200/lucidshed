@@ -35,7 +35,7 @@ class Settings(BaseModel):
         db_name = db_name or self.user_db_name
 
         if self.database_connection_name:
-            url = f"postgresql://{self.database_user}:{self.database_password}@/{db_name}?host=/cloudsql/{self.database_connection_name}"
+            url = f"postgresql://{self.database_user}:{self.database_password}@localhost/{db_name}?host=/cloudsql/{self.database_connection_name}"
         else:
             url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"
 
