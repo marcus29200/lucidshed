@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential
 
 # Install Poetry
-RUN pip install --no-cache-dir poetry
+RUN pip install --no-cache-dir poetry make
 
 # Disable virtual environments in Poetry
 RUN poetry config virtualenvs.create false
@@ -24,4 +24,4 @@ RUN poetry install --no-dev
 EXPOSE 8080
 
 # Define the command to run your application
-ENTRYPOINT ["poetry", "run", "api"]
+# ENTRYPOINT ["poetry", "run", "api"]
