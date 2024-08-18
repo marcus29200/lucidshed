@@ -1,11 +1,14 @@
 from contextvars import ContextVar
 from os import getenv
 from typing import Any, Dict, Optional
+import logging
 
 from pydantic import BaseModel
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseModel):
@@ -32,9 +35,11 @@ class Settings(BaseModel):
         db_name = db_name or self.user_db_name
 
         if self.database_connection_name:
-            return f"postgresql://{self.database_user}:{self.database_password}@/{db_name}?host=/cloudsql/{self.database_connection_name}"
+            url = f"postgresql://{self.database_user}:{self.database_password}@/{db_name}?host=/cloudsql/{self.database_connection_name}"
         else:
-            return f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"
+            url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"
+
+        logger.error(f"Database URL: {url}")
 
 
 settings = Settings()
