@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.12.4-slim
+FROM python:3.12.4-bullseye
 
 # Copy only the pyproject.toml and poetry.lock files to the container first
 COPY . /app
@@ -25,3 +25,9 @@ EXPOSE 8080
 
 # Define the command to run your application
 # ENTRYPOINT ["poetry", "run", "api"]
+
+# Add an entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
