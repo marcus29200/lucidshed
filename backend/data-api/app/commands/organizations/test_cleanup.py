@@ -9,7 +9,7 @@ from app.commands.organizations.base import BaseOrganizationCommand
 class TestCleanupCommand(BaseOrganizationCommand):
     async def perform(self, organization_id):
         try:
-            async with create_pool(**settings.database_settings) as pool:
+            async with create_pool(dsn=settings.get_database_url()) as pool:
                 async with pool.acquire() as conn:
                     await conn.execute(f"DROP DATABASE IF EXISTS {organization_id}")
 

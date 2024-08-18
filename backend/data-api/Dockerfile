@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential
 
 # Install Poetry
-RUN pip install --no-cache-dir poetry make
+RUN pip install --no-cache-dir poetry
 
 # Disable virtual environments in Poetry
 RUN poetry config virtualenvs.create false

@@ -27,7 +27,7 @@ async def add_organization(
         raise AssertionError(f"{response.status_code} != {expected_status_code}")
 
     if response.status_code == 201:
-        pool = await create_pool(**settings.database_settings, database=data_api.test_org_id)
+        pool = await create_pool(dsn=settings.get_database_url(data_api.test_org_id))
         data_db.set(await pool.acquire())
 
     return response.json()

@@ -12,10 +12,10 @@ pytestmark = pytest.mark.asyncio
 async def create_organization(data_app) -> Organization:
     base_organization = BaseOrganization(id=data_app.test_org_id, title="Test")
 
-    async with create_pool(**settings.database_settings) as pool, pool.acquire() as conn:
+    async with create_pool(dsn=settings.get_database_url()) as pool, pool.acquire() as conn:
         await create_database(conn, data_app.test_org_id)
 
-    pool = await create_pool(**settings.database_settings, database=data_app.test_org_id)
+    pool = await create_pool(dsn=settings.get_database_url(data_app.test_org_id))
     data_db.set(await pool.acquire())
     await init_database_tables(data_db.get(), INIT_STATEMENTS)
 

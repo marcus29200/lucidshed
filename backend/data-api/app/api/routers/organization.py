@@ -51,14 +51,14 @@ async def add_organization(
             status_code=412, detail=f"Organization limit [{request.state.user.created_org_limit}] reached"
         )
 
-    async with create_pool(**settings.database_settings) as pool, pool.acquire() as conn:
+    async with create_pool(dsn=settings.get_database_url()) as pool, pool.acquire() as conn:
         try:
             # Create database
             await create_database(conn, body.id)
         except InvalidCatalogNameError:
             raise Exception()  # TODO Fix
 
-    async with create_pool(**settings.database_settings, database=body.id) as pool, pool.acquire() as conn:
+    async with create_pool(dsn=settings.get_database_url(body.id)) as pool, pool.acquire() as conn:
         data_db.set(conn)
 
         await init_database_tables(conn, INIT_STATEMENTS)

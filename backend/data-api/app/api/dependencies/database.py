@@ -9,7 +9,7 @@ from app.api.settings import data_db, settings
 async def get_pool(database_pools, db_name: Optional[str] = None):
     if not database_pools.get(db_name):
         database_pools[db_name] = await create_pool(
-            **settings.database_settings, database=db_name or settings.user_db_name
+            dsn=settings.get_database_url(db_name)
         )
 
     return database_pools[db_name]

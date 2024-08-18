@@ -12,12 +12,11 @@ class Settings(BaseModel):
     host: str = getenv("APP_HOST", "0.0.0.0")
     port: int = int(getenv("APP_PORT", 8080))
 
-    database_settings: Dict[str, Any] = {
-        "host": getenv("DATABASE_HOST", "localhost"),
-        "port": getenv("DATABASE_PORT", 5432),
-        "user": getenv("DATABASE_USER", "postgres"),
-        "password": getenv("DATABASE_PASSWORD", "password"),
-    }
+    database_connection_name: str = getenv("DATABASE_CONNECTION_NAME", None)
+    database_host: str = getenv("DATABASE_HOST", "localhost")
+    database_port: int = int(getenv("DATABASE_PORT", 5432))
+    database_user: str = getenv("DATABASE_USER", "postgres")
+    database_password: str = getenv("DATABASE_PASSWORD", "password")
     user_db_name: str = getenv("USER_DB_NAME", "users")
 
     access_token_expire_minutes: float = float(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30)
@@ -28,6 +27,14 @@ class Settings(BaseModel):
     google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
 
     testing: bool = bool(getenv("TESTING", True))
+
+    def get_database_url(self, db_name: Optional[str] = None) -> str:
+        db_name = db_name or self.user_db_name
+
+        if self.database_connection_name:
+            return f"postgresql://{self.database_user}:{self.database_password}@/{db_name}?host=/cloudsql/{self.database_connection_name}"
+        else:
+            return f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"
 
 
 settings = Settings()

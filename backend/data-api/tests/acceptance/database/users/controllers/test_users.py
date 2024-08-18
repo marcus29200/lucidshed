@@ -12,7 +12,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_user(data_app, overrides: Dict[str, str] = {}) -> User:
-    pool = await create_pool(**settings.database_settings, database=settings.user_db_name)
+    pool = await create_pool(dsn=settings.get_database_url(settings.user_db_name))
     user_db.set(await pool.acquire())
 
     user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester", "password": "test"}
