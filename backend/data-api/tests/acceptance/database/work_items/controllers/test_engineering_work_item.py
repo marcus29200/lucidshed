@@ -4,7 +4,12 @@ import pytest
 
 from app.database.work_items.controllers.engineering_item import WorkItemSortableField
 from app.database.work_items.models.comment import BaseWorkItemComment
-from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
+from app.database.work_items.models.engineering_item import (
+    BaseEngineeringItem,
+    EngineeringItem,
+    EngineeringItemType,
+    EngineeringLinkType,
+)
 from app.exceptions.common import ObjectNotFoundException
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
 from tests.acceptance.database.utils import create_iteration, create_team, page_results
@@ -475,3 +480,38 @@ async def test_delete_comments_on_engineering_item(data_app):
         organization_id=org.id, work_item_id=engineering_item.id, current_user="test@test.com"
     )
     assert result == "2"
+
+
+async def test_should_link_epic_to_story(data_app):
+    org = await create_organization(data_app)
+    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+
+    result = await data_app.engineering_controller.link(
+        organization_id=org.id,
+        item_1=epic.id,
+        item_2=story.id,
+        link_type=EngineeringLinkType.BLOCKED,
+        current_user="test@test.com",
+    )
+
+    assert result
+
+
+async def test_should_get_all_linked_items(data_app):
+    org = await create_organization(data_app)
+    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+
+    await data_app.engineering_controller.link(
+        organization_id=org.id,
+        item_1=epic.id,
+        item_2=story.id,
+        link_type=EngineeringLinkType.BLOCKED,
+        current_user="test@test.com",
+    )
+
+    linked_items, _ = await data_app.engineering_controller.get_all(organization_id=org.id, related_item_id=epic.id)
+
+    assert len(linked_items) == 1

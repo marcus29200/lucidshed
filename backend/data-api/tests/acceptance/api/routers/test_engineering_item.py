@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 import pytest
 from fastapi.testclient import TestClient
 
-from app.database.work_items.models.engineering_item import EngineeringItemType
+from app.database.work_items.models.engineering_item import EngineeringItemType, EngineeringLinkType
 from tests.acceptance.api.utils import add_iteration, authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio
@@ -323,3 +323,65 @@ async def test_should_not_delete_engineering_item_with_expired_token(data_api: T
 
     response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     assert response.status_code == 200
+
+
+async def test_should_link_story_to_epic(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    epic = await add_engineering_item(
+        data_api, org["id"], {"title": "Epic", "item_type": EngineeringItemType.EPIC.value}, headers=headers
+    )
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{epic['id']}/links",
+        json={"item_id": story["id"], "link_type": EngineeringLinkType.SUBTASK.value},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+
+@pytest.mark.parametrize("link_type", [link_type.value for link_type in EngineeringLinkType])
+async def test_should_link_items_together_with_different_types(data_api: TestClient, link_type: str):
+    org, _, headers = await authenticate(data_api)
+
+    story1 = await add_engineering_item(
+        data_api, org["id"], {"title": "Story1", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+    story2 = await add_engineering_item(
+        data_api, org["id"], {"title": "Story2", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story1['id']}/links",
+        json={"item_id": story2["id"], "link_type": link_type},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+
+async def test_should_get_linked_stories(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story1 = await add_engineering_item(
+        data_api, org["id"], {"title": "Story1", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+    story2 = await add_engineering_item(
+        data_api, org["id"], {"title": "Story2", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story1['id']}/links",
+        json={"item_id": story2["id"], "link_type": EngineeringLinkType.RELATED.value},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering?related_item_id={story1['id']}", headers=headers)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert len(data["items"]) == 1
+    assert data["items"][0]["id"] == story2["id"]

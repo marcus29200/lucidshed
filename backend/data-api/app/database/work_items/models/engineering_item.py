@@ -24,6 +24,7 @@ class BaseEngineeringItem(BaseWorkItem):
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY
     item_sub_type: Optional[EngineeringItemSubType] = EngineeringItemSubType.FEATURE
     estimate: Optional[int] = None
+    start_date: Optional[datetime] = None  # TODO Finish adding
     due_date: Optional[datetime] = None
     acceptance_criteria: Optional[List[str]] = []
     iteration_id: Optional[int] = None
@@ -45,3 +46,10 @@ class BaseEngineeringItem(BaseWorkItem):
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
     pass
+
+
+class EngineeringLinkType(StrEnum):
+    SUBTASK: str = "subtask"
+    RELATED: str = "related"
+    BLOCKED: str = "blocked"
+    BLOCKING: str = "blocking"

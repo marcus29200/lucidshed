@@ -49,6 +49,7 @@ class WorkItemController:
         sort: Optional[str] = "id",
         item_type: Optional[str] = None,
         iteration_id: Optional[str] = None,
+        related_item_id: Optional[int] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
@@ -59,7 +60,14 @@ class WorkItemController:
             item_type = extra.get("item_type") or item_type
 
         records = await data_db.get().fetch(
-            QUERIES[f"GET_ALL_{scope}_ITEM"], organization_id, item_type, iteration_id, sort, limit, offset
+            QUERIES[f"GET_ALL_{scope}_ITEM"],
+            organization_id,
+            item_type,
+            iteration_id,
+            related_item_id,
+            sort,
+            limit,
+            offset,
         )
 
         cursor = None

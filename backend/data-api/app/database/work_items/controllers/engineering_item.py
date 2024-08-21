@@ -4,7 +4,12 @@ from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.engineering_item import BaseEngineeringItem, EngineeringItem, EngineeringItemType
+from app.database.work_items.models.engineering_item import (
+    BaseEngineeringItem,
+    EngineeringItem,
+    EngineeringItemType,
+    EngineeringLinkType,
+)
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 
@@ -58,6 +63,7 @@ class EngineeringController(WorkItemController):
         organization_id: str,
         item_type: Optional[EngineeringItemType] = None,
         iteration_id: Optional[str] = None,
+        related_item_id: Optional[int] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -69,6 +75,7 @@ class EngineeringController(WorkItemController):
             organization_id=organization_id,
             item_type=item_type,
             iteration_id=iteration_id,
+            related_item_id=related_item_id,
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
@@ -126,3 +133,19 @@ class EngineeringController(WorkItemController):
         )
 
         return EngineeringItem(**record)
+
+    async def link(
+        self, *, organization_id: str, item_1: int, item_2: int, link_type: EngineeringLinkType, current_user: str
+    ) -> bool:
+        result = await data_db.get().execute(
+            QUERIES["LINK_ENGINEERING_ITEMS"], organization_id, item_1, item_2, link_type, current_user
+        )
+
+        return result == "INSERT 0 1"
+
+    async def unlink(self, *, organization_id: str, item_1: int, item_2: int, current_user: str) -> bool:
+        result = await data_db.get().execute(
+            QUERIES["UNLINK_ENGINEERING_ITEMS"], organization_id, item_1, item_2, current_user
+        )
+
+        return result == "DELETE 1"

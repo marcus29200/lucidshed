@@ -52,6 +52,17 @@ CREATE TABLE IF NOT EXISTS work_item_comments (
     PRIMARY KEY (organization_id, id, work_item_id)
 );
     """,
+    f"""
+CREATE TABLE IF NOT EXISTS work_item_relationships (
+    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
+    item_1 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
+    item_2 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
+    link_type VARCHAR(30) NOT NULL,
+    created_at timestamp with time zone DEFAULT NOW(),
+    created_by_id VARCHAR({MAX_ID_LENGTH}),
+    PRIMARY KEY (organization_id, item_1, item_2)
+);
+    """,
 ]
 
 
@@ -123,18 +134,23 @@ WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
 SELECT
-    *,
+    engineering_items.*,
     {LOAD_ITERATION},
     {LOAD_TEAM}
 FROM engineering_items
+LEFT JOIN work_item_relationships
+    ON engineering_items.id = work_item_relationships.item_1
+    OR engineering_items.id = work_item_relationships.item_2
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-    AND ($2::text IS NULL OR item_type = $2)
-    AND ($3::int IS NULL OR iteration_id = $3)
-ORDER BY $4
-LIMIT $5
-OFFSET $6;
+    engineering_items.organization_id = $1
+    AND engineering_items.deleted_at IS NULL
+    AND ($2::text IS NULL OR engineering_items.item_type = $2)
+    AND ($3::int IS NULL OR engineering_items.iteration_id = $3)
+    AND ($4::int IS NULL OR (work_item_relationships.item_1 = $4 OR work_item_relationships.item_2 = $4))
+    AND ($4::int IS NULL OR engineering_items.id != $4)
+ORDER BY $5
+LIMIT $6
+OFFSET $7;
 """
 
 
@@ -352,4 +368,31 @@ SET
 WHERE
     organization_id = $1
     AND work_item_id = $2
+"""
+
+
+WORK_ITEM_QUERIES[
+    "LINK_ENGINEERING_ITEMS"
+] = """
+INSERT INTO work_item_relationships
+(
+    organization_id,
+    item_1,
+    item_2,
+    link_type,
+    created_by_id
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *;
+"""
+
+
+WORK_ITEM_QUERIES[
+    "UNLINK_ENGINEERING_ITEMS"
+] = """
+DELETE FROM work_item_relationships
+WHERE
+    organization_id = $1
+    AND item_1 = $2
+    AND item_2 = $3;
 """
