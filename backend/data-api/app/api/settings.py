@@ -1,7 +1,7 @@
+import logging
 from contextvars import ContextVar
 from os import getenv
-from typing import Any, Dict, Optional
-import logging
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -15,7 +15,7 @@ class Settings(BaseModel):
     host: str = getenv("APP_HOST", "0.0.0.0")
     port: int = int(getenv("APP_PORT", 8080))
 
-    database_connection_name: str = getenv("DATABASE_CONNECTION_NAME", None)
+    database_connection_name: Optional[str] = getenv("DATABASE_CONNECTION_NAME", None)
     database_host: str = getenv("DATABASE_HOST", "localhost")
     database_port: int = int(getenv("DATABASE_PORT", 5432))
     database_user: str = getenv("DATABASE_USER", "postgres")
@@ -24,7 +24,7 @@ class Settings(BaseModel):
 
     access_token_expire_minutes: float = float(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30)
 
-    auth_secret_key: Optional[str] = getenv("AUTH_SECRET_KEY", "test")
+    auth_secret_key: str = getenv("AUTH_SECRET_KEY", "test")
 
     google_client_id: Optional[str] = getenv("GOOGLE_CLIENT_ID", None)
     google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
@@ -35,9 +35,9 @@ class Settings(BaseModel):
         db_name = db_name or self.user_db_name
 
         if self.database_connection_name:
-            url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}?host=/cloudsql/{self.database_connection_name}"
+            url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}?host=/cloudsql/{self.database_connection_name}"  # noqa
         else:
-            url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"
+            url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"  # noqa
 
         logger.error(f"Database URL: {url}")
 

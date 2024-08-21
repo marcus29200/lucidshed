@@ -4,7 +4,6 @@ from typing import Dict
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
 from fastapi import APIRouter, FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
@@ -51,6 +50,7 @@ class DBMiddleware(BaseHTTPMiddleware):
                 user_db.set(None)
 
         return response
+
 
 class DataApplication(FastAPI):
     def __init__(self, *args, **kwargs):
