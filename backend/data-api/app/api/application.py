@@ -34,6 +34,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+# add health check
+@router.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 class DBMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = None
