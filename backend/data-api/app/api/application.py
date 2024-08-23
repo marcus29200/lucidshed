@@ -1,5 +1,6 @@
 from copy import copy
 from typing import Dict
+import logging
 
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
@@ -29,6 +30,8 @@ from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 class DBMiddleware(BaseHTTPMiddleware):
@@ -92,6 +95,8 @@ class DataApplication(FastAPI):
                 await clear_database(conn, "users")
 
             await init_database_tables(conn, USER_INIT_STATEMENTS)
+
+        logger.warning("User database initialized")
 
         self.engineering_controller = EngineeringController()
         self.support_controller = SupportController()
