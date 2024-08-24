@@ -19,8 +19,18 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="", tags=["user"])
 
 
+class RegisterUserPayload(BaseUser):
+    email: str
+
+    def __init__(self, **data):
+        if not data.get("email"):
+            raise ValueError("Email is required")
+        
+        super().__init__(**data)
+
+
 @router.post("/register", status_code=200)
-async def register(request: Request, body: BaseUser) -> JSONResponse:
+async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
     # Send email with verification code

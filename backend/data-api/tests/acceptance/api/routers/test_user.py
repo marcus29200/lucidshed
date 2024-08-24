@@ -17,16 +17,29 @@ async def test_should_not_add_super_admin(data_api: TestClient):
     assert user["super_admin"] is False
 
 
-# TODO Add registration tests
 async def test_should_register_user(data_api: TestClient):
     user = await add_user(data_api)
 
     assert user["email"]
 
 
+async def test_should_register_user_and_mark_verified(data_api: TestClient):
+    _, user, headers = await authenticate(data_api, create_org=False)
+
+    response = await data_api.get(f"users/{user['id']}", headers=headers)
+    assert response.status_code == 200
+
+    user = response.json()
+    assert user["verified"] is True
+
+
 async def test_should_not_register_duplicate_user(data_api: TestClient):
     await add_user(data_api)
     await add_user(data_api, expected_status_code=412)
+
+
+async def test_should_not_register_user_without_email(data_api: TestClient):
+    await add_user(data_api, overrides={"email": None}, expected_status_code=422)
 
 
 async def test_should_get_auth_token(data_api: TestClient):
