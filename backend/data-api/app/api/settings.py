@@ -22,7 +22,7 @@ class Settings(BaseModel):
     database_password: str = getenv("DATABASE_PASSWORD", "password")
     user_db_name: str = getenv("USER_DB_NAME", "users")
 
-    access_token_expire_minutes: float = float(getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30)
+    access_token_expire_seconds: float = float(getenv("ACCESS_TOKEN_EXPIRE_SECONDS") or 3600)
 
     auth_secret_key: str = getenv("AUTH_SECRET_KEY", "test")
 
@@ -38,8 +38,6 @@ class Settings(BaseModel):
             url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}?host=/cloudsql/{self.database_connection_name}"  # noqa
         else:
             url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}/{db_name}"  # noqa
-
-        logger.error(f"Database URL: {url}")
 
         return url
 

@@ -74,7 +74,7 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
     try:
         user: User = await authenticate_user(request, body.username, body.password)
     except ObjectNotFoundException:
-        logger.warning(f"{body.username} not found")
+        logger.warning(f"User [{body.username}] not found")
 
         raise HTTPException(status_code=401, detail="Incorrect username or password")
 
