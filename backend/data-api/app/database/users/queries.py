@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS users (
     picture BYTEA CHECK (OCTET_LENGTH(picture) <= {MAX_IMAGE_SIZE}),
     password VARCHAR(256),
     super_admin BOOLEAN DEFAULT FALSE,
-    verified BOOLEAN DEFAULT FALSE,
     reset_code VARCHAR(256),
     created_org_count INT,
     created_org_limit INT
@@ -197,7 +196,6 @@ UPDATE users
 SET
     reset_code = NULL,
     password = $2,
-    verified = TRUE
 WHERE reset_code = $1
 RETURNING *;
 """

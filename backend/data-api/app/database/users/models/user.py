@@ -43,7 +43,6 @@ class User(Model, BaseUser):
     reset_code: Optional[str] = Field(None, exclude=True)
     created_org_limit: int = Field(1, exclude=True)
     created_org_count: int = Field(0, exclude=True)
-    verified: Optional[bool] = False
 
     def __init__(self, **data):
         if isinstance(data.get("permissions"), str):

@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Security
 from fastapi.responses import JSONResponse
+from sendgrid import Mail
 
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
@@ -25,7 +26,7 @@ class RegisterUserPayload(BaseUser):
     def __init__(self, **data):
         if not data.get("email"):
             raise ValueError("Email is required")
-        
+
         super().__init__(**data)
 
 
@@ -38,6 +39,20 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     # Send email with verification code
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
+    elif request.app.sendgrid_client:
+        try:
+            await request.app.sendgrid_client.send(
+                Mail(
+                    from_email=settings.from_email,
+                    to_emails=user.email,
+                    subject="Verify your email",
+                    html_content=f"Your verification code is {user.reset_code}",
+                )
+            )
+        except Exception:
+            logger.exception("Unable to send email")
+
+            return JSONResponse({"detail": "Unable to send email"})
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 
@@ -65,6 +80,20 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
     # Send email with verification code
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
+    elif request.app.sendgrid_client:
+        try:
+            await request.app.sendgrid_client.send(
+                Mail(
+                    from_email=settings.from_email,
+                    to_emails=user.email,
+                    subject="Reset your password",
+                    html_content=f"Your reset code is {user.reset_code}",
+                )
+            )
+        except Exception:
+            logger.exception("Unable to send email")
+
+            return JSONResponse({"detail": "Unable to send email"})
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 

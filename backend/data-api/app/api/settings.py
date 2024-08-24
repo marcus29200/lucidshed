@@ -31,6 +31,9 @@ class Settings(BaseModel):
 
     testing: bool = bool(getenv("TESTING", False))
 
+    sendgrid_api_key: Optional[str] = getenv("SENDGRID_API_KEY", None)
+    from_email: Optional[str] = getenv("FROM_EMAIL", "support@lucidshed.com")
+
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         db_name = db_name or self.user_db_name
 

@@ -1,10 +1,11 @@
+import logging
 from copy import copy
 from typing import Dict
-import logging
 
 from asyncpg.exceptions import UniqueViolationError
 from asyncpg.pool import Pool
 from fastapi import APIRouter, FastAPI, Request
+from sendgrid import SendGridAPIClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
@@ -85,6 +86,11 @@ class DataApplication(FastAPI):
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
 
         self.database_pools: Dict[str, Pool] = {}  # type: ignore
+
+        if settings.sendgrid_api_key:
+            self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
+        else:
+            self.sendgrid_client = None
 
     async def __aenter__(self):
         await self.init()
