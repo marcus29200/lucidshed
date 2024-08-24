@@ -84,6 +84,7 @@ class DataApplication(FastAPI):
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
+        self.add_exception_handler(Exception, self.generic_handler)
 
         self.database_pools: Dict[str, Pool] = {}  # type: ignore
 
@@ -152,6 +153,11 @@ class DataApplication(FastAPI):
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
+
+    async def generic_handler(self, request: Request, exc: Exception):
+        logger.exception(exc)
+
+        return JSONResponse(status_code=424, content={"detail": "Unable to process request at this time"})
 
 
 app = DataApplication(settings)

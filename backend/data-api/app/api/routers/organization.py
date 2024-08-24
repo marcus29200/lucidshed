@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.api.settings import data_db, settings
+from app.api.utils import send_mail
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
 from app.database.users.models.user import BaseUser, User, UserSortableField
@@ -136,8 +137,6 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
 
     user.permissions = user_permission
 
-    # TODO Send email to user with link to organization if verified, else send them to the verify page with the
-    # verification code
     if not user.verified:
         if not user.reset_code:
             user.reset_code = uuid4().hex
@@ -146,8 +145,15 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
             )
 
         if settings.testing is True:
-            logger.warning(f"Reset code for user {user.email} {user.reset_code}")
             return {"id": user.id, "reset_code": user.reset_code}
+
+        # TODO Add tests
+        # TODO Should be updated to send a link when the FE is ready
+        send_mail(
+            user.email,
+            "You've been invited to an organization",
+            f"Finish setting up your account, your verification code is {user.reset_code}",
+        )
 
     return {"id": user.id}
 

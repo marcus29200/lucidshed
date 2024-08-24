@@ -4,6 +4,7 @@ from os import getenv
 from typing import Optional
 
 from pydantic import BaseModel
+from sendgrid import SendGridAPIClient
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")
@@ -32,6 +33,8 @@ class Settings(BaseModel):
     testing: bool = bool(getenv("TESTING", False))
 
     sendgrid_api_key: Optional[str] = getenv("SENDGRID_API_KEY", None)
+    sendgrid_client: SendGridAPIClient = SendGridAPIClient(sendgrid_api_key) if sendgrid_api_key else None
+
     from_email: Optional[str] = getenv("FROM_EMAIL", "support@lucidshed.com")
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:

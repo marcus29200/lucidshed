@@ -1,6 +1,14 @@
 import base64
 import json
+import logging
 from typing import Any, Dict, Optional, Tuple
+
+from sendgrid import Mail
+
+from app.api.settings import settings
+from app.exceptions.common import SendgridException
+
+logger = logging.getLogger(__name__)
 
 
 def generate_cursor(
@@ -27,3 +35,23 @@ def parse_cursor(cursor: str) -> Tuple[Any | None, int, Dict[str, Any]]:
     cursor_dict = json.loads(cursor_str)
 
     return cursor_dict["sort_field"], cursor_dict["offset"], cursor_dict["extra"]
+
+
+def send_mail(to_email: str, subject: str, content: str):
+    if not settings.sendgrid_client:
+        logger.warning(f"Sendgrid not configured, sent '{content}' to {to_email}")
+        return
+
+    try:
+        settings.sendgrid_client.send(
+            Mail(
+                from_email=settings.from_email,
+                to_emails=to_email,
+                subject=subject,
+                html_content=content,
+            )
+        )
+    except Exception:
+        logger.exception("Unable to send email")
+
+        raise SendgridException()

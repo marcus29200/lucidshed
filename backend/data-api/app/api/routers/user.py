@@ -3,11 +3,11 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request, Security
 from fastapi.responses import JSONResponse
-from sendgrid import Mail
 
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
 from app.api.settings import settings
+from app.api.utils import send_mail
 from app.database.users.models.user import BaseUser, User
 from app.database.users.models.user_session import BaseUserSession
 from app.exceptions.common import ObjectNotFoundException
@@ -34,25 +34,13 @@ class RegisterUserPayload(BaseUser):
 async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
-    logger.warning(f"Reset code for user {user.email} {user.reset_code}")
-
     # Send email with verification code
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
-    elif request.app.sendgrid_client:
-        try:
-            request.app.sendgrid_client.send(
-                Mail(
-                    from_email=settings.from_email,
-                    to_emails=user.email,
-                    subject="Verify your email",
-                    html_content=f"Your verification code is {user.reset_code}",
-                )
-            )
-        except Exception:
-            logger.exception("Unable to send email")
 
-            return JSONResponse({"detail": "Unable to send email"})
+    # TODO Add tests
+    # TODO Should be updated to send a link when the FE is ready
+    send_mail(user.email, "Verify your email", f"Your verification code is {user.reset_code}")
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 
@@ -60,11 +48,15 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
 @router.post("/reset-password", status_code=200)
 async def reset(request: Request, body: ResetPassword) -> JSONResponse:
     try:
-        await request.app.user_controller.set_user_password(reset_code=body.reset_code, new_password=body.password)
+        user = await request.app.user_controller.set_user_password(
+            reset_code=body.reset_code, new_password=body.password
+        )
     except Exception:
         logger.exception("Unable to verify reset code")
 
         raise HTTPException(status_code=401, detail="Invalid reset code")
+
+    send_mail(user.email, "Your password has been reset", "Your password has been reset")
 
     return JSONResponse({"detail": "Password reset, proceed to login"})
 
@@ -75,25 +67,13 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"
     )
 
-    logger.warning(f"Reset code for user {user.email} {user.reset_code}")
-
     # Send email with verification code
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
-    elif request.app.sendgrid_client:
-        try:
-            request.app.sendgrid_client.send(
-                Mail(
-                    from_email=settings.from_email,
-                    to_emails=user.email,
-                    subject="Reset your password",
-                    html_content=f"Your reset code is {user.reset_code}",
-                )
-            )
-        except Exception:
-            logger.exception("Unable to send email")
 
-            return JSONResponse({"detail": "Unable to send email"})
+    # TODO Add tests
+    # TODO Should be updated to send a link when the FE is ready
+    send_mail(user.email, "Reset your password", f"Your reset code is {user.reset_code}")
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 

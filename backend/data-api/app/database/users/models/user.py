@@ -37,6 +37,7 @@ class BaseUser(BaseModel):
 
 
 class User(Model, BaseUser):
+    email: str
     permissions: Dict[str, UserPermission] = {}  # type: ignore
     password: Optional[str] = Field(None, exclude=True)
     super_admin: bool = False

@@ -16,3 +16,7 @@ class ObjectNotFoundException(Exception):
 
     def __str__(self):
         return f"Object [organization_id={self.organization_id} object_id={self.object_id}] not found"
+
+
+class SendgridException(Exception):
+    pass
