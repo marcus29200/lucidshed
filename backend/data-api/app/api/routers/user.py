@@ -60,10 +60,10 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"
     )
 
+    logger.warning(f"Reset code for user {user.email} {user.reset_code}")
+
     # Send email with verification code
     if settings.testing:
-        logger.warning(f"Reset code for user {user.email} {user.reset_code}")
-
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
