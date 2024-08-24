@@ -33,10 +33,10 @@ class RegisterUserPayload(BaseUser):
 async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
+    logger.warning(f"Reset code for user {user.email} {user.reset_code}")
+
     # Send email with verification code
     if settings.testing:
-        logger.warning(f"Reset code for user {user.email} {user.reset_code}")
-
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})

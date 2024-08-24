@@ -29,7 +29,7 @@ class Settings(BaseModel):
     google_client_id: Optional[str] = getenv("GOOGLE_CLIENT_ID", None)
     google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
 
-    testing: bool = bool(getenv("TESTING", True))
+    testing: bool = bool(getenv("TESTING", False))
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         db_name = db_name or self.user_db_name

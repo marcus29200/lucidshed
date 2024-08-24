@@ -98,11 +98,11 @@ class DataApplication(FastAPI):
         self.user_pool = await get_pool(self.database_pools, settings.user_db_name)
         async with self.user_pool.acquire() as conn:
             if settings.testing is True:
+                logger.warning("Clearing users database")
+
                 await clear_database(conn, "users")
 
             await init_database_tables(conn, USER_INIT_STATEMENTS)
-
-        logger.warning("User database initialized")
 
         self.engineering_controller = EngineeringController()
         self.support_controller = SupportController()
