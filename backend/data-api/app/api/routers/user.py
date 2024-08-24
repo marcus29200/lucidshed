@@ -41,7 +41,7 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
     elif request.app.sendgrid_client:
         try:
-            await request.app.sendgrid_client.send(
+            request.app.sendgrid_client.send(
                 Mail(
                     from_email=settings.from_email,
                     to_emails=user.email,
@@ -82,7 +82,7 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
     elif request.app.sendgrid_client:
         try:
-            await request.app.sendgrid_client.send(
+            request.app.sendgrid_client.send(
                 Mail(
                     from_email=settings.from_email,
                     to_emails=user.email,
