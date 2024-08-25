@@ -24,7 +24,6 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/users
       - DATABASE_HOST=db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
