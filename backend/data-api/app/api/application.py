@@ -74,12 +74,6 @@ class DataApplication(FastAPI):
         self.include_router(team_router, prefix="/{organization_id}/teams")
 
         self.add_middleware(DBMiddleware)
-        # TODO: temporary cors workaround
-        # self.add_middleware(CORSMiddleware,
-        #     allow_origins=['*'],
-        #     allow_credentials=True,
-        #     allow_methods=["*"],
-        #     allow_headers=["*"])
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
