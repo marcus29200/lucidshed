@@ -43,6 +43,7 @@ class Settings(BaseModel):
         if db_name:
             url = f"{url}/{db_name}"
 
+        # If we're configured to use Cloud SQL
         if self.database_connection_name:
             url = f"{url}?host=/cloudsql/{self.database_connection_name}"
 
