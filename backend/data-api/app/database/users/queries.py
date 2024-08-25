@@ -195,7 +195,7 @@ USER_QUERIES[
 UPDATE users
 SET
     reset_code = NULL,
-    password = $2,
+    password = $2
 WHERE reset_code = $1
 RETURNING *;
 """

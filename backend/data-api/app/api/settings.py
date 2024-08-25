@@ -33,7 +33,6 @@ class Settings(BaseModel):
     testing: bool = bool(getenv("TESTING", False))
 
     sendgrid_api_key: Optional[str] = getenv("SENDGRID_API_KEY", None)
-    sendgrid_client: SendGridAPIClient = SendGridAPIClient(sendgrid_api_key) if sendgrid_api_key else None
 
     from_email: Optional[str] = getenv("FROM_EMAIL", "<LucidShed Support> support@lucidshed.com")
 

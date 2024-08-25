@@ -7,6 +7,7 @@ from sendgrid import Mail
 
 from app.api.settings import settings
 from app.exceptions.common import SendgridException
+from sendgrid import SendGridAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +39,12 @@ def parse_cursor(cursor: str) -> Tuple[Any | None, int, Dict[str, Any]]:
 
 
 def send_mail(to_email: str, subject: str, content: str):
-    if not settings.sendgrid_client:
+    if not settings.sendgrid_api_key:
         logger.warning(f"Sendgrid not configured, sent '{content}' to {to_email}")
         return
 
     try:
-        settings.sendgrid_client.send(
+        SendGridAPIClient(settings.sendgrid_api_key).send(
             Mail(
                 from_email=settings.from_email,
                 to_emails=to_email,
