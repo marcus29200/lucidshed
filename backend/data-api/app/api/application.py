@@ -35,7 +35,6 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-# add health check
 @router.get("/health")
 async def health():
     return {"status": "ok"}
