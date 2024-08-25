@@ -124,7 +124,6 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
         # TODO Raise a useful exception here if no permissions were defined
         raise Exception()
 
-    # TODO This needs to be fixed, if the user already exists, don't create, or catch the error
     try:
         user = await request.app.user_controller.get(id=None, email=body.email)
     except ObjectNotFoundException:
