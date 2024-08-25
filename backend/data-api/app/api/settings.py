@@ -39,7 +39,7 @@ class Settings(BaseModel):
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}"
-     
+
         if db_name:
             url = f"{url}/{db_name}"
 

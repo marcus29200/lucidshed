@@ -20,24 +20,24 @@ async def test_should_not_add_super_admin(data_api: TestClient):
     assert user["super_admin"] is False
 
 
-async def test_should_register_user_without_sendgrid(data_api: TestClient):
-    with patch("app.api.utils.SendGridAPIClient.send") as mock_send:
-        user = await add_user(data_api)
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_should_register_user_without_sendgrid(mock_send, data_api: TestClient):
+    user = await add_user(data_api)
 
-        assert user["email"]
+    assert user["email"]
 
-        mock_send.assert_not_called()
+    mock_send.assert_not_called()
 
 
-async def test_should_register_user_with_sendgrid(data_api: TestClient):
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_should_register_user_with_sendgrid(mock_send, data_api: TestClient):
     settings.sendgrid_api_key = "test"
 
-    with patch("app.api.utils.SendGridAPIClient.send") as mock_send:
-        user = await add_user(data_api)
+    user = await add_user(data_api)
 
-        assert user["email"]
+    assert user["email"]
 
-        mock_send.assert_called_once()
+    mock_send.assert_called_once()
 
 
 async def test_should_register_user_and_mark_verified(data_api: TestClient):
@@ -203,24 +203,24 @@ async def test_reset_user_password(data_api: TestClient):
     assert response.status_code == 401
 
 
-async def test_reset_user_password_sends_email(data_api: TestClient):
-    _, user, _ = await authenticate(data_api)
-
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_reset_user_password_sends_email(mock_send, data_api: TestClient):
     settings.sendgrid_api_key = "test"
 
-    with patch("app.api.utils.SendGridAPIClient.send") as mock_send:
-        response = await data_api.post("users/reset-request", json={"email": user["email"]})
-        assert response.status_code == 200
+    _, user, _ = await authenticate(data_api)
 
-        data = response.json()
-        assert data["reset_code"]
+    response = await data_api.post("users/reset-request", json={"email": user["email"]})
+    assert response.status_code == 200
 
-        response = await data_api.post(
-            "users/reset-password", json={"reset_code": data["reset_code"], "password": "S0meotherStr0ngPassword!"}
-        )
-        assert response.status_code == 200
+    data = response.json()
+    assert data["reset_code"]
 
-        assert mock_send.call_count == 2
+    response = await data_api.post(
+        "users/reset-password", json={"reset_code": data["reset_code"], "password": "S0meotherStr0ngPassword!"}
+    )
+    assert response.status_code == 200
+
+    assert mock_send.call_count == 2
 
 
 async def test_should_not_update_user_picture(data_api: TestClient):

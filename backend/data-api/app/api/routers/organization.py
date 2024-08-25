@@ -144,15 +144,23 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
                 id=user.id, updated_user=user, current_user=request.state.user.id
             )
 
-        if settings.testing is True:
-            return {"id": user.id, "reset_code": user.reset_code}
-
-        # TODO Add tests
         # TODO Should be updated to send a link when the FE is ready
         send_mail(
             user.email,
             "You've been invited to an organization",
             f"Finish setting up your account, your verification code is {user.reset_code}",
+        )
+
+        if settings.testing is True:
+            return {"id": user.id, "reset_code": user.reset_code}
+    else:
+        org = await request.app.organization_controller.get(id=organization_id)
+
+        # TODO Should be updated to send a link when the FE is ready
+        send_mail(
+            user.email,
+            "You've been invited to an organization",
+            f"Your account has been added to {org.title or org.id}",
         )
 
     return {"id": user.id}

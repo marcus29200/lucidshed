@@ -1,6 +1,9 @@
+from unittest.mock import patch
+
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api.settings import settings
 from tests.acceptance.api.utils import (
     DEFAULT_PASSWORD,
     add_organization,
@@ -201,6 +204,43 @@ async def test_add_organization_user(data_api: TestClient):
     assert user["permissions"][org["id"]]["user_id"] == user["id"]
     assert user["permissions"][org["id"]]["organization_id"] == org["id"]
     assert user["permissions"][org["id"]]["role"] == "admin"
+
+
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_add_organization_user_sends_email_to_new_user(mock_send, data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    settings.sendgrid_api_key = "test"
+
+    response = await data_api.post(
+        f"{org['id']}/users",
+        json={"first_name": "Test", "email": "test2@test.com", "permissions": {"role": "admin"}},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    assert mock_send.call_count == 1
+    assert "verification" in mock_send.call_args[0][0].contents[0].content
+
+
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_add_organization_user_sends_email_to_existing_user(mock_send, data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    # Create user ahead of time, but don't use it to do requests
+    await authenticate(data_api, user_email="test2@test.com", create_org=False)
+
+    settings.sendgrid_api_key = "test"
+
+    response = await data_api.post(
+        f"{org['id']}/users",
+        json={"first_name": "Test", "email": "test2@test.com", "permissions": {"role": "admin"}},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    assert mock_send.call_count == 1
+    assert "verification" not in mock_send.call_args[0][0].contents[0].content
 
 
 async def test_add_duplicate_organization_user_fails(data_api: TestClient):
