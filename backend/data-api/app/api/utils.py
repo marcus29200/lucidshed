@@ -3,11 +3,10 @@ import json
 import logging
 from typing import Any, Dict, Optional, Tuple
 
-from sendgrid import Mail
+from sendgrid import Mail, SendGridAPIClient
 
 from app.api.settings import settings
 from app.exceptions.common import SendgridException
-from sendgrid import SendGridAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,9 @@ def send_mail(to_email: str, subject: str, content: str):
         return
 
     try:
-        SendGridAPIClient(settings.sendgrid_api_key).send(
+        sendrgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
+
+        sendrgrid_client.send(
             Mail(
                 from_email=settings.from_email,
                 to_emails=to_email,

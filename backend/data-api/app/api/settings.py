@@ -4,7 +4,6 @@ from os import getenv
 from typing import Optional
 
 from pydantic import BaseModel
-from sendgrid import SendGridAPIClient
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")
