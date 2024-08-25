@@ -17,7 +17,7 @@ class UserSessionController:
             uuid4().hex,
             user_session.user_id,
             user_session.token,
-            datetime.now(UTC) + timedelta(minutes=settings.access_token_expire_seconds),
+            datetime.now(UTC) + timedelta(minutes=settings.auth_token_expire_seconds),
         )
 
         # TODO Create history entry

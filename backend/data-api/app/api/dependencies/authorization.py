@@ -36,7 +36,7 @@ async def authenticate_user(request, email: str, password: str) -> User:
 def create_access_token(data: Dict[str, Any]):
     to_encode = data.copy()
 
-    to_encode.update({"exp": datetime.now(UTC).timestamp() + settings.access_token_expire_seconds})
+    to_encode.update({"exp": datetime.now(UTC).timestamp() + settings.auth_token_expire_seconds})
     encoded_jwt = encode(to_encode, settings.auth_secret_key, algorithm="HS256")
 
     return encoded_jwt
