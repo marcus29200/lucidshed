@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
-from app.api.dependencies.database import data_db_conn
+from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -20,7 +20,7 @@ engineering_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["engineering"],
-    dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
+    dependencies=[Security(get_current_user, scopes=["member"]), Depends(user_db_conn), Depends(data_db_conn)],
 )
 
 

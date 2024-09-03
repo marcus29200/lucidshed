@@ -1,12 +1,9 @@
 import logging
 from copy import copy
-from typing import Dict
 
 from asyncpg.exceptions import UniqueViolationError
-from asyncpg.pool import Pool
 from fastapi import APIRouter, FastAPI, Request
 from sendgrid import SendGridAPIClient
-from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import get_pool
@@ -16,7 +13,7 @@ from app.api.routers.organization import router as organization_router
 from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import settings, user_db
+from app.api.settings import database_pools, settings, user_db
 from app.database.common.queries import USER_INIT_STATEMENTS
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
@@ -28,7 +25,7 @@ from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import clear_database, init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
-from app.exceptions.common import AbortDBTransaction, ObjectNotFoundException
+from app.exceptions.common import ObjectNotFoundException
 
 router = APIRouter()
 
@@ -38,27 +35,6 @@ logger = logging.getLogger(__name__)
 @router.get("/health")
 async def health():
     return {"status": "ok"}
-
-
-class DBMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
-        response = None
-        # Setup user database connection
-        async with request.app.user_pool.acquire() as user_conn:
-            try:
-                user_db.set(user_conn)
-
-                async with user_conn.transaction():
-                    response = await call_next(request)
-
-                    if not str(response.status_code).startswith("2"):
-                        raise AbortDBTransaction()
-            except AbortDBTransaction:
-                pass
-            finally:
-                user_db.set(None)
-
-        return response
 
 
 class DataApplication(FastAPI):
@@ -73,18 +49,16 @@ class DataApplication(FastAPI):
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
         self.include_router(team_router, prefix="/{organization_id}/teams")
 
-        self.add_middleware(DBMiddleware)
-
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
         self.add_exception_handler(Exception, self.generic_handler)
-
-        self.database_pools: Dict[str, Pool] = {}  # type: ignore
 
         if settings.sendgrid_api_key:
             self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
         else:
             self.sendgrid_client = None
+
+        database_pools.set({})
 
     async def __aenter__(self):
         await self.init()
@@ -95,14 +69,16 @@ class DataApplication(FastAPI):
         await self.close()
 
     async def init(self) -> None:
-        self.user_pool = await get_pool(self.database_pools, settings.user_db_name)
-        async with self.user_pool.acquire() as conn:
-            if settings.testing is True:
-                logger.warning("Clearing users database")
+        self.user_pool = await get_pool(settings.user_db_name)
+        user_db.set(self.user_pool)
 
-                await clear_database(conn, "users")
+        # TODO Move this to the test logic
+        if settings.testing is True:
+            logger.warning("Clearing users database")
 
-            await init_database_tables(conn, USER_INIT_STATEMENTS)
+            await clear_database(self.user_pool, "users")
+
+        await init_database_tables(self.user_pool, USER_INIT_STATEMENTS)
 
         self.engineering_controller = EngineeringController()
         self.support_controller = SupportController()
@@ -115,31 +91,24 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
 
     async def close(self) -> None:
-        pools = copy(self.database_pools)
+        pools = copy(database_pools.get())
         for key, pool in pools.items():
-            if key == "users":
+            if key == settings.user_db_name:
                 continue
 
-            # TODO Remove after we fix the delete database test code
-            if settings.testing:
-                async with pool.acquire() as conn:
-                    await clear_database(conn, key)
+            try:
+                pool.terminate()
+            except Exception:
+                logger.info(f"Couldn't close pool {key}")
 
-            await pool.close()
+            del database_pools.get()[key]
 
-            del self.database_pools[key]
+        try:
+            self.user_pool.terminate()
+        except Exception:
+            logger.info("Couldn't close users database pool")
 
-            # TODO We should delete the db, but currently having an issue where there are open connections and we can't
-            # Where are these open connections?
-            # if settings.testing:
-            #     try:
-            #         async with self.user_pool.acquire() as conn:
-            #             await delete_database(conn, key)
-            #     except Exception as e:
-            #         print()
-
-        await self.user_pool.close()
-        del self.database_pools["users"]
+        database_pools.set({})
 
     async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
         return JSONResponse(status_code=412, content={"detail": "Unable to create object"})

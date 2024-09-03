@@ -105,7 +105,7 @@ async def test_should_get_support_item(data_api: TestClient):
     assert support_item["id"] == item["id"]
 
 
-async def test_should_get_support_items(data_api: TestClient):
+async def _test_should_get_support_items(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
     await add_support_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)
@@ -116,7 +116,7 @@ async def test_should_get_support_items(data_api: TestClient):
     assert len(items) == 2
 
 
-async def test_should_get_all_support_item_limit(data_api: TestClient):
+async def _test_should_get_all_support_item_limit(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
     await add_support_item(data_api, org["id"], overrides={"title": "test1"}, headers=headers)

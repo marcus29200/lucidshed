@@ -15,6 +15,5 @@ format:
 api:
 	$(POETRY) run api
 
-
 coverage:
 	$(POETRY) run pytest --cov=app --cov-report=html

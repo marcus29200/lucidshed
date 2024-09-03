@@ -16,6 +16,7 @@ bcrypt = "^4.2.0"
 passlib = "^1.7.4"
 pyjwt = "^2.9.0"
 sendgrid = "^6.11.0"
+backoff = "^2.2.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
@@ -24,6 +25,7 @@ mypy = "^1.11.1"
 isort = "^5.13.2"
 flake8 = "^7.1.1"
 pytest-asyncio = "^0.23.8"
+pytest-xdist = "^3.6.1"
 
 [build-system]
 requires = ["poetry-core"]

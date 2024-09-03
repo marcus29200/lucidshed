@@ -1,9 +1,12 @@
 import logging
 from contextvars import ContextVar
 from os import getenv
-from typing import Optional
+from typing import Dict, Optional
 
+from asyncpg import Pool
 from pydantic import BaseModel
+
+database_pools: ContextVar[Dict[str, Pool]] = ContextVar("database_pools", default={})
 
 data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")

@@ -2,13 +2,12 @@ import logging
 from typing import Dict, List, Optional
 from uuid import uuid4
 
-from asyncpg import InvalidCatalogNameError, create_pool
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
-from app.api.dependencies.database import data_db_conn
+from app.api.dependencies.database import data_db_conn, get_pool, user_db_conn
 from app.api.settings import data_db, settings
 from app.api.utils import send_mail
 from app.database.common.queries import INIT_STATEMENTS
@@ -22,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 engineering_item_router = APIRouter
 
-router = APIRouter(prefix="", tags=["organization"])
+router = APIRouter(prefix="", tags=["organization"], dependencies=[Depends(user_db_conn)])
 
 
 class PagedResponse(BaseModel):
@@ -51,21 +50,17 @@ async def add_organization(
             status_code=412, detail=f"Organization limit [{request.state.user.created_org_limit}] reached"
         )
 
-    async with create_pool(dsn=settings.get_database_url()) as pool, pool.acquire() as conn:
-        try:
-            # Create database
-            await create_database(conn, body.id)
-        except InvalidCatalogNameError:
-            raise Exception()  # TODO Fix
+    pool = await get_pool()
+    await create_database(pool, body.id)
 
-    async with create_pool(dsn=settings.get_database_url(body.id)) as pool, pool.acquire() as conn:
-        data_db.set(conn)
+    pool = await get_pool(body.id)
+    data_db.set(pool)
 
-        await init_database_tables(conn, INIT_STATEMENTS)
+    await init_database_tables(pool, INIT_STATEMENTS)
 
-        # Initialize database tables
+    # Initialize database tables
+    async with pool.acquire() as conn:
         async with conn.transaction():
-
             org = await request.app.organization_controller.create(
                 organization=body, current_user=request.state.user.id
             )

@@ -1,8 +1,8 @@
 from typing import Dict
 
 import pytest
-from asyncpg import create_pool
 
+from app.api.dependencies.database import get_pool
 from app.api.settings import settings, user_db
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
@@ -12,8 +12,8 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_user(data_app, overrides: Dict[str, str] = {}) -> User:
-    pool = await create_pool(dsn=settings.get_database_url(settings.user_db_name))
-    user_db.set(await pool.acquire())
+    pool = await get_pool(settings.user_db_name)
+    user_db.set(pool)
 
     user_obj = {"email": "test@test.com", "first_name": "Test", "last_name": "Tester", "password": "test"}
     user_obj.update(**overrides)

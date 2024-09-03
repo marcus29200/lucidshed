@@ -9,8 +9,6 @@ class BaseOrganizationCommand:
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
         self.parser = ArgumentParser()
 
         # Shouldn't be required

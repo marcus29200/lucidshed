@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request, Security
 from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
-from app.api.dependencies.database import data_db_conn
+from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.database.iterations.models.iteration import BaseIteration, Iteration, IterationSortableField
 
 iteration_item_router = APIRouter
@@ -12,7 +12,7 @@ iteration_item_router = APIRouter
 router = APIRouter(
     prefix="",
     tags=["iteration"],
-    dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
+    dependencies=[Security(get_current_user, scopes=["member"]), Depends(user_db_conn), Depends(data_db_conn)],
 )
 
 

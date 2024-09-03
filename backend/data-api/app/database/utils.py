@@ -15,22 +15,24 @@ END $$;
 """
 
 
-async def clear_database(conn, db_name):
-    async with conn.transaction():
-        await conn.execute(CLEAR_DATABASE_SQL)
+async def clear_database(pool, db_name):
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute(CLEAR_DATABASE_SQL)
 
 
-async def delete_database(conn, db_name):
-    await conn.execute(f"DROP DATABASE {db_name}")
+async def delete_database(pool, db_name):
+    await pool.execute(f"DROP DATABASE {db_name}")
 
 
-async def create_database(conn, db_name):
-    await conn.execute(f"CREATE DATABASE {db_name}")
+async def create_database(pool, db_name):
+    await pool.execute(f"CREATE DATABASE {db_name}")
 
 
-async def init_database_tables(conn, init_statements):
-    async with conn.transaction():
-        for init_statement in init_statements:
-            logger.info(f"Executing query: {init_statement}")
+async def init_database_tables(pool, init_statements):
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for init_statement in init_statements:
+                logger.info(f"Executing query: {init_statement}")
 
-            await conn.execute(init_statement)
+                await conn.execute(init_statement)

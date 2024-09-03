@@ -1,10 +1,11 @@
 import logging
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Request, Security
+from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from fastapi.responses import JSONResponse
 
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
+from app.api.dependencies.database import user_db_conn
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
 from app.api.settings import settings
 from app.api.utils import send_mail
@@ -17,7 +18,7 @@ user_router = APIRouter
 logger = logging.getLogger(__name__)
 
 
-router = APIRouter(prefix="", tags=["user"])
+router = APIRouter(prefix="", tags=["user"], dependencies=[Depends(user_db_conn)])
 
 
 class RegisterUserPayload(BaseUser):

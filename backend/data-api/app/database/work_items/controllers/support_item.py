@@ -53,6 +53,7 @@ class SupportController(WorkItemController):
         *,
         organization_id: str,
         item_type: Optional[str] = None,
+        iteration_id: Optional[int] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,

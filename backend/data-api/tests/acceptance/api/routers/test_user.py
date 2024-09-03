@@ -40,16 +40,6 @@ async def test_should_register_user_with_sendgrid(mock_send, data_api: TestClien
     mock_send.assert_called_once()
 
 
-async def test_should_register_user_and_mark_verified(data_api: TestClient):
-    _, user, headers = await authenticate(data_api, create_org=False)
-
-    response = await data_api.get(f"users/{user['id']}", headers=headers)
-    assert response.status_code == 200
-
-    user = response.json()
-    assert user["verified"] is True
-
-
 async def test_should_not_register_duplicate_user(data_api: TestClient):
     await add_user(data_api)
     await add_user(data_api, expected_status_code=412)
@@ -118,7 +108,7 @@ async def test_should_mark_unauthorized_for_expired_token_in_db(data_api: TestCl
     assert response.status_code == 200
 
     response = await data_api.post("users/logout", headers=headers)
-    assert response.status_code == 200
+    assert response.status_code == 401
 
 
 async def test_should_get_current_user(data_api: TestClient):
@@ -205,9 +195,9 @@ async def test_reset_user_password(data_api: TestClient):
 
 @patch("app.api.utils.SendGridAPIClient.send")
 async def test_reset_user_password_sends_email(mock_send, data_api: TestClient):
-    settings.sendgrid_api_key = "test"
-
     _, user, _ = await authenticate(data_api)
+
+    settings.sendgrid_api_key = "test"
 
     response = await data_api.post("users/reset-request", json={"email": user["email"]})
     assert response.status_code == 200

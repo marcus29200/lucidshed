@@ -6,8 +6,9 @@ from fastapi import HTTPException, Request
 from fastapi.security import SecurityScopes
 from jwt import decode, encode
 
+from app.api.dependencies.database import get_pool
 from app.api.models.users import TokenData
-from app.api.settings import settings
+from app.api.settings import settings, user_db
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
 from app.database.users.models.user_session import UserSession
@@ -48,6 +49,9 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
     token = request.headers.get("authorization")
     if not token or not isinstance(token, str):
         raise HTTPException(status_code=401, detail="Missing Token")
+
+    pool = await get_pool(settings.user_db_name)
+    user_db.set(pool)
 
     try:
         token = token.split("Bearer ")[-1]
