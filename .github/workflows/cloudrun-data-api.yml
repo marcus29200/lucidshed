@@ -6,6 +6,10 @@ on:
       - 'backend/data-api/**'
     branches:
       - main
+  workflow_run:
+    workflows: ["Data API Tests"]
+    types:
+      - completed
 
 env:
   PROJECT_ID: "production-432113"
