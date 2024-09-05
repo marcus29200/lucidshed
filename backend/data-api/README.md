@@ -21,4 +21,4 @@ Install these before getting started
 - Run `make api` to start the api inside `backend/data-api/`
 
 ### Running tests
-- Run `poetry run pytest -n auto` to run all tests or define a specific test to run if needed
+- Run `poetry run pytest -n auto` to run all tests or define a specific test to run
