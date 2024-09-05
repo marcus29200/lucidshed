@@ -1,13 +1,3 @@
-## TODO
-- Pull out org id to control which db we connect to when doing a request?
-- Implement auth
-- Implement history api
-- Primary key on id/org id?
-- Add support for a header that allows us to retrieve deleted items
-- Handling for disabled objects
-- Tie engineering items to actual users (replace the test@test.com stuff)
-
-
 ## Prerequisites
 
 Install these before getting started
@@ -19,14 +9,16 @@ Install these before getting started
 
 ## Running the project
 
-### Setup
+### Running project for frontend development
+
+- Run `docker compose up` inside `backend/data-api/`, this should start the db and api on http://localhost:8080
+
+### Running project for backend development
 
 - Set up Python 3.12 using pyenv 
-- Run `poetry shell` to start your virtual env
-- Run `make install` in this directory to install packages
+- Run `make install-dev` in `backend/data-api/` to install packages
+- Run `docker compose up -d db` inside `backend/data-api/`
+- Run `make api` to start the api inside `backend/data-api/`
 
-
-### Running project
-
-- Run `docker compose up` inside `data-api/`
-- Run `make api` in another terminal inside `data-api/`, which starts the API on localhost:8080
+### Running tests
+- Run `poetry run pytest -n auto` to run all tests or define a specific test to run
