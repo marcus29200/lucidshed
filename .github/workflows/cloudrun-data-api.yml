@@ -2,14 +2,8 @@ name: Build Data API and Deploy to Cloud Run
 
 on:
   push:
-    paths:
-      - 'backend/data-api/**'
-    branches:
-      - main
-  workflow_run:
-    workflows: ["Data API Tests"]
-    types:
-      - completed
+    tags:
+      - 'v*'
 
 env:
   PROJECT_ID: "production-432113"
