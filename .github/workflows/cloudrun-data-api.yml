@@ -19,6 +19,8 @@ env:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master' }}
+    
     # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
