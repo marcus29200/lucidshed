@@ -29,4 +29,4 @@ Install these before getting started
 ### Running project
 
 - Run `docker compose up` inside `data-api/`
-- Run `make api` in another terminal, which starts the API on localhost:8080
+- Run `make api` in another terminal inside `data-api/`, which starts the API on localhost:8080
