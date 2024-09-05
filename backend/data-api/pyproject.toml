@@ -34,7 +34,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 api = "app.entrypoints:run_api"
 vacuum = "app.commands.organizations.vacuum:run_command"
-test_cleanup = "app.commands.organizations.test_cleanup:run_command"
+test_cleanup = "app.commands.organizations.cleanup_test_data:run_command"
 
 [tool.black]
 line-length = 120

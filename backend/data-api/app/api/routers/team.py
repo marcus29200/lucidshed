@@ -24,7 +24,7 @@ class PagedResponse(BaseModel):
 @router.post("", status_code=201, response_model=Team)
 async def add_team(request: Request, organization_id: str, body: BaseTeam) -> Team:
     return await request.app.team_controller.create(
-        organization_id=organization_id, team=body, current_user="test@test.com"
+        organization_id=organization_id, team=body, current_user=request.state.user.id
     )
 
 
@@ -50,12 +50,12 @@ async def get_team(request: Request, organization_id: str, id: int) -> Team:
 @router.patch("/{id}", status_code=200, response_model=Team)
 async def update_team(request: Request, organization_id: str, id: int, body: BaseTeam) -> Team:
     return await request.app.team_controller.update(
-        organization_id=organization_id, id=id, updated_team=body, current_user="test@test.com"
+        organization_id=organization_id, id=id, updated_team=body, current_user=request.state.user.id
     )
 
 
 @router.delete("/{id}", status_code=200)
 async def delete_team(request: Request, organization_id: str, id: int):
     return await request.app.team_controller.delete(
-        organization_id=organization_id, id=id, current_user="test@test.com"
+        organization_id=organization_id, id=id, current_user=request.state.user.id
     )

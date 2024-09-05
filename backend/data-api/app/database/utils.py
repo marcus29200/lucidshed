@@ -22,7 +22,10 @@ async def clear_database(pool, db_name):
 
 
 async def delete_database(pool, db_name):
-    await pool.execute(f"DROP DATABASE {db_name}")
+    try:
+        await pool.execute(f"DROP DATABASE IF EXISTS {db_name}")
+    except Exception as e:
+        logger.error(f"Failed to delete database {db_name}: {e}")
 
 
 async def create_database(pool, db_name):

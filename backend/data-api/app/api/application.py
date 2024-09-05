@@ -1,19 +1,18 @@
 import logging
-from copy import copy
 
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from sendgrid import SendGridAPIClient
 from starlette.responses import JSONResponse
 
-from app.api.dependencies.database import get_pool
+from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import database_pools, settings, user_db
+from app.api.settings import database_pools, settings
 from app.database.common.queries import USER_INIT_STATEMENTS
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
@@ -22,7 +21,7 @@ from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
-from app.database.utils import clear_database, init_database_tables
+from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/health")
-async def health():
+async def health(request: Request):
     return {"status": "ok"}
 
 
@@ -69,16 +68,8 @@ class DataApplication(FastAPI):
         await self.close()
 
     async def init(self) -> None:
-        self.user_pool = await get_pool(settings.user_db_name)
-        user_db.set(self.user_pool)
-
-        # TODO Move this to the test logic
-        if settings.testing is True:
-            logger.warning("Clearing users database")
-
-            await clear_database(self.user_pool, "users")
-
-        await init_database_tables(self.user_pool, USER_INIT_STATEMENTS)
+        await init_database_tables(await get_pool(settings.user_db_name), USER_INIT_STATEMENTS)
+        close_pool(settings.user_db_name)
 
         self.engineering_controller = EngineeringController()
         self.support_controller = SupportController()
@@ -91,24 +82,7 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
 
     async def close(self) -> None:
-        pools = copy(database_pools.get())
-        for key, pool in pools.items():
-            if key == settings.user_db_name:
-                continue
-
-            try:
-                pool.terminate()
-            except Exception:
-                logger.info(f"Couldn't close pool {key}")
-
-            del database_pools.get()[key]
-
-        try:
-            self.user_pool.terminate()
-        except Exception:
-            logger.info("Couldn't close users database pool")
-
-        database_pools.set({})
+        pass
 
     async def duplicate_handler(self, request: Request, exc: UniqueViolationError):
         return JSONResponse(status_code=412, content={"detail": "Unable to create object"})

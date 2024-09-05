@@ -21,6 +21,15 @@ async def get_pool(db_name: Optional[str] = None):
     return database_pools.get()[db_name]
 
 
+def close_pool(db_name: Optional[str] = None):
+    if db_name is None:
+        db_name = "postgres"
+
+    if db_name in database_pools.get():
+        pool = database_pools.get().pop(db_name)
+        pool.terminate()
+
+
 async def data_db_conn(request: Request):
     db_name = request.path_params.get("organization_id")
     if db_name:

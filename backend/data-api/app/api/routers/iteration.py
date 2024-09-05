@@ -24,7 +24,7 @@ class PagedResponse(BaseModel):
 @router.post("", status_code=201, response_model=Iteration)
 async def add_iteration(request: Request, organization_id: str, body: BaseIteration) -> Iteration:
     return await request.app.iteration_controller.create(
-        organization_id=organization_id, iteration=body, current_user="test@test.com"
+        organization_id=organization_id, iteration=body, current_user=request.state.user.id
     )
 
 
@@ -50,12 +50,12 @@ async def get_iterations(
 @router.patch("/{id}", status_code=200, response_model=Iteration)
 async def update_iteration(request: Request, organization_id: str, id: int, body: BaseIteration) -> Iteration:
     return await request.app.iteration_controller.update(
-        organization_id=organization_id, id=id, updated_iteration=body, current_user="test@test.com"
+        organization_id=organization_id, id=id, updated_iteration=body, current_user=request.state.user.id
     )
 
 
 @router.delete("/{id}", status_code=200)
 async def delete_iteration(request: Request, organization_id: str, id: int):
     return await request.app.iteration_controller.delete(
-        organization_id=organization_id, id=id, current_user="test@test.com"
+        organization_id=organization_id, id=id, current_user=request.state.user.id
     )
