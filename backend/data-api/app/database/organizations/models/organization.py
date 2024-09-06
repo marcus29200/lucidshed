@@ -1,4 +1,5 @@
-from typing import Optional
+import json
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -9,7 +10,12 @@ class BaseOrganization(BaseModel):
     id: Optional[str] = None
     title: Optional[str] = None
     disabled: Optional[bool] = False
+    settings: Optional[Dict[str, Any]] = {}
 
 
 class Organization(Model, BaseOrganization):
-    pass
+    def __init__(self, **data):
+        if isinstance(data.get("settings"), str):
+            data["settings"] = json.loads(data.get("settings"))
+
+        super().__init__(**data)

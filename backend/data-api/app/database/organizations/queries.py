@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS organizations (
     id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
     title VARCHAR({MAX_ID_LENGTH}),
-    disabled BOOLEAN DEFAULT FALSE
+    disabled BOOLEAN DEFAULT FALSE,
+    settings JSONB
 )
     """
 ]
@@ -23,10 +24,11 @@ INSERT INTO organizations
     id,
     title,
     disabled,
+    settings,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 """
 
@@ -44,10 +46,11 @@ UPDATE organizations
 SET
     title = $2,
     disabled = $3,
+    settings = $4,
     modified_at = NOW(),
-    modified_by_id = $4,
-    deleted_at = $5,
-    deleted_by_id = $6
+    modified_by_id = $5,
+    deleted_at = $6,
+    deleted_by_id = $7
 WHERE
     id = $1
 RETURNING *;

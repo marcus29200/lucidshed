@@ -1,3 +1,5 @@
+import json
+
 from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.organizations.models.organization import BaseOrganization, Organization
@@ -12,6 +14,7 @@ class OrganizationController:
             organization.id,
             organization.title,
             organization.disabled,
+            json.dumps(organization.settings),
             current_user,
             current_user,
         )
@@ -42,6 +45,7 @@ class OrganizationController:
             id,
             old_item_json["title"],
             old_item_json["disabled"],
+            json.dumps(old_item_json["settings"]),
             current_user,
             old_item_json["deleted_at"],
             old_item_json["deleted_by_id"],

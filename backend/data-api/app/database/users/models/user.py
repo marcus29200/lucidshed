@@ -1,6 +1,6 @@
 import json
 from enum import StrEnum
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -29,10 +29,9 @@ class BaseUser(BaseModel):
     timezone: Optional[str] = None
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
+    settings: Optional[Dict[str, Any]] = {}
     # TODO:
-    # preferences: (list of booleans indicating which options are enabled/disabled?)
     # passwordManagement: (is this 2FA settings/SSO?)
-    # integrationPreferences: (how does this differ from preferences)
     # skills: (list of strings?)
 
 
@@ -50,6 +49,9 @@ class User(Model, BaseUser):
             data["permissions"] = json.loads(data.get("permissions"))
         elif not data.get("permissions"):
             data["permissions"] = {}
+
+        if isinstance(data.get("settings"), str):
+            data["settings"] = json.loads(data.get("settings"))
 
         super().__init__(**data)
 

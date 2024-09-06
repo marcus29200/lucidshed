@@ -41,6 +41,12 @@ async def test_create_user(data_app):
     assert user.reset_code
 
 
+async def test_create_user_with_settings(data_app):
+    user = await create_user(data_app, overrides={"settings": {"test": "value"}})
+
+    assert user.settings == {"test": "value"}
+
+
 async def test_create_user_excludes_fields_when_dumped(data_app):
     user = await create_user(data_app)
 
@@ -117,6 +123,15 @@ async def test_update_user(data_app):
 
     assert user.id
     assert user.first_name == "Test Updated"
+
+
+async def test_update_user_settings(data_app):
+    user = await create_user(data_app)
+
+    user.settings = {"test": "value"}
+    user = await data_app.user_controller.update(id=user.id, updated_user=user, current_user=user.id)
+
+    assert user.settings == {"test": "value"}
 
 
 async def test_update_user_password(data_app):

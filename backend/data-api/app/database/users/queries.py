@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
     super_admin BOOLEAN DEFAULT FALSE,
     reset_code VARCHAR(256),
     created_org_count INT,
-    created_org_limit INT
+    created_org_limit INT,
+    settings JSONB
 )
     """,
     f"""
@@ -72,9 +73,10 @@ INSERT INTO users
     picture,
     reset_code,
     created_org_count,
-    created_org_limit
+    created_org_limit,
+    settings
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
 RETURNING *;
 """
 
@@ -183,7 +185,8 @@ SET
     picture = $15,
     super_admin = $16,
     password = $17,
-    reset_code = $18
+    reset_code = $18,
+    settings = $19
 WHERE id = $1
 RETURNING *;
 """

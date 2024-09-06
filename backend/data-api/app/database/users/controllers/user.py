@@ -1,3 +1,4 @@
+import json
 from typing import List, Optional, Tuple
 from uuid import uuid4
 
@@ -34,6 +35,7 @@ class UserController:
             uuid4().hex,
             0,  # Org count
             1,  # Org limit
+            json.dumps(user.settings),
         )
 
         # TODO Create history entry
@@ -123,6 +125,7 @@ class UserController:
             super_admin if super_admin is not None else old_user.super_admin,
             get_hashed_password(password) if password else old_user.password,
             reset_code if reset_code else old_user.reset_code,
+            json.dumps(old_item_json["settings"]),
         )
 
         # TODO Create history entry
