@@ -4,6 +4,7 @@ from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from sendgrid import SendGridAPIClient
 from starlette.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.engineering_item import router as engineering_item_router
@@ -51,6 +52,14 @@ class DataApplication(FastAPI):
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
         self.add_exception_handler(Exception, self.generic_handler)
+
+        self.add_middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
         if settings.sendgrid_api_key:
             self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
