@@ -150,6 +150,16 @@ async def test_should_update_user(data_api: TestClient):
     assert item["first_name"] == "Test Updated"
 
 
+async def test_should_update_user_settings(data_api: TestClient):
+    _, user, headers = await authenticate(data_api)
+
+    response = await data_api.patch(f"users/{user['id']}", json={"settings": {"test": "value"}}, headers=headers)
+    assert response.status_code == 200
+
+    item = response.json()
+    assert item["settings"] == {"test": "value"}
+
+
 async def test_should_not_update_user_to_super_admin(data_api: TestClient):
     _, user, headers = await authenticate(data_api)
 

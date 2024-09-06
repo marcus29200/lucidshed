@@ -116,6 +116,19 @@ async def test_should_update_organization(data_api: TestClient):
     assert organization["title"] == "Test Updated"
 
 
+async def test_should_update_organization_settings(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    item = await add_organization(data_api, headers=headers)
+    assert item["settings"] == {}
+
+    response = await data_api.patch(f"{item['id']}", json={"settings": {"test": "value"}}, headers=headers)
+    assert response.status_code == 200
+
+    response = await data_api.get(item["id"], headers=headers)
+    organization = response.json()
+    assert organization["settings"] == {"test": "value"}
+
+
 async def test_should_not_update_organization_with_expired_token(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
