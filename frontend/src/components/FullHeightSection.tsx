@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 
-const FullHeightSection = ({ children, style = {} }) => (
-  <Box sx={{ height: '100%', backgroundColor: 'white', borderRadius: '4px', ...style }}>
+const FullHeightSection = ({ children, style = {}, className="" }) => (
+  <Box sx={{ height: '100%', backgroundColor: 'white', borderRadius: '4px', ...style }} className={`${className}`}>
     {children}
   </Box>
 )
