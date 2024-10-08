@@ -44,6 +44,7 @@ const Sidebar = () => {
     e.preventDefault();
     navigate(`/${orgId}/${to}/new`)
   }
+
   return (
     <Drawer
       sx={{
@@ -67,7 +68,9 @@ const Sidebar = () => {
       <Divider />
       <List>
         {NAVIGATION_ITEMS.map(item => (
-          <ListItemButton key={item.to} selected={location.pathname.includes(item.to) && item.to != '/'} color="primary" component={Link} to={`/${orgId}/${item.to}`} style={{ textDecoration: 'none', paddingLeft: '22px' }}>
+          <ListItemButton key={item.to} selected={location.pathname.includes(item.to) && item.to != '/'} color="primary" component={Link} to={`/${orgId}/${item.to}`} style={{ textDecoration: 'none', paddingLeft: '22px' }} sx={{
+            backgroundColor: location.pathname === `/${orgId}/${item.to}` ? '#f0f0f0' : undefined
+          }}>
             <ListItemIcon>
               {item.icon()}
             </ListItemIcon>
@@ -79,8 +82,7 @@ const Sidebar = () => {
                 <Add />
               </IconButton>) : null}
           </ListItemButton>
-        ))
-        }
+        ))}
       </List>
       <Divider variant="middle" />
     </Drawer >
