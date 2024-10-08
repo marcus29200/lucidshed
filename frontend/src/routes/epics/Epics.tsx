@@ -17,6 +17,7 @@ import { getEpics } from '../../api/epics';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { FilterIcon, SearchIcon } from '../../icons/icons';
 import Example from './Example';
+import { Dashboard, List } from '@mui/icons-material';
 
 export const epicsQuery = (orgId: string) =>
 	queryOptions({
@@ -73,6 +74,7 @@ export const Epics = () => {
 		string[]
 	>([]);
 
+	const [activeIcon, setActiveIcon] = useState('dashboard'); // Default active icon
 	const filteredItems = epics.filter((epic) =>
 		epic.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
@@ -133,14 +135,18 @@ export const Epics = () => {
 		setEditFieldsSearchTerm(event.target.value);
 	};
 	useEffect(() => {
-		setEditFieldsCheckedItems(editFields);
+		setEditFieldsCheckedItems(() => [...editFields, 'actions']);
 	}, []);
+
 	const handleEditFieldsToggle = (item: string) => {
 		const newChecked = editFieldsCheckedItems.includes(item)
 			? editFieldsCheckedItems.filter((checkedItem) => checkedItem !== item)
 			: [...editFieldsCheckedItems, item];
 
 		setEditFieldsCheckedItems(newChecked);
+	};
+	const handleIconClick = (icon: string) => {
+		setActiveIcon(icon); // Set the clicked icon as active
 	};
 
 	const filteredEditFieldsMenuItems = editFields.filter((item) =>
@@ -283,7 +289,38 @@ export const Epics = () => {
 						</Link>
 					</Box>
 					<Box className="self-end flex gap-2">
-						<Button
+						{/* current view */}
+
+						<div className="flex flex-row justify-center items-center gap-x-2 rounded-full border-1 border-gray-300">
+							{/* List Icon */}
+							<div
+								onClick={() => handleIconClick('list')}
+								className={`cursor-pointer p-3 rounded-full ${
+									activeIcon === 'list' ? 'bg-green-400' : 'bg-transparent'
+								}`}
+							>
+								<List
+									className={
+										activeIcon === 'list' ? 'text-white' : 'text-gray-400'
+									}
+								/>
+							</div>
+
+							{/* Dashboard Icon */}
+							<div
+								onClick={() => handleIconClick('dashboard')}
+								className={`cursor-pointer p-3 rounded-full ${
+									activeIcon === 'dashboard' ? 'bg-green-400' : 'bg-transparent'
+								}`}
+							>
+								<Dashboard
+									className={
+										activeIcon === 'dashboard' ? 'text-white' : 'text-gray-400'
+									}
+								/>
+							</div>
+						</div>
+						{/* <Button
 							variant="outlined"
 							onClick={handleClickEditFields}
 							sx={{
@@ -296,7 +333,8 @@ export const Epics = () => {
 							}}
 						>
 							<FilterIcon className="!w-4" />
-						</Button>
+						</Button> */}
+						{/* edit fields */}
 						<Button
 							variant="outlined"
 							onClick={handleClickEditFields}

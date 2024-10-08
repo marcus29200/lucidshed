@@ -38,6 +38,9 @@ importers:
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
+      material-react-table:
+        specifier: ^3.0.1
+        version: 3.0.1(7jw6dlqvnhn2mvkdda7kwh4gya)
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -771,6 +774,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@tanstack/match-sorter-utils@8.19.4':
+    resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
+    engines: {node: '>=12'}
+
   '@tanstack/query-core@5.40.0':
     resolution: {integrity: sha512-eD8K8jsOIq0Z5u/QbvOmfvKKE/XC39jA7yv4hgpl/1SRiU+J8QCIwgM/mEHuunQsL87dcvnHqSVLmf9pD4CiaA==}
 
@@ -778,6 +785,26 @@ packages:
     resolution: {integrity: sha512-gOcmu+gpFd2taHrrgMM9RemLYYEDYfsCqszxCC0xtx+csDa4R8t7Hr7SfWXQP13S2sF+mOxySo/+FNXJFYBqcA==}
     peerDependencies:
       react: ^18.0.0
+
+  '@tanstack/react-table@8.20.5':
+    resolution: {integrity: sha512-WEHopKw3znbUZ61s9i0+i9g8drmDo6asTWbrQh8Us63DAk/M0FkmIqERew6P71HI75ksZ2Pxyuf4vvKh9rAkiA==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+
+  '@tanstack/react-virtual@3.10.6':
+    resolution: {integrity: sha512-xaSy6uUxB92O8mngHZ6CvbhGuqxQ5lIZWCBy+FjhrbHmOwc6BnOnKkYm2FsB1/BpKw/+FVctlMbEtI+F6I1aJg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  '@tanstack/table-core@8.20.5':
+    resolution: {integrity: sha512-P9dF7XbibHph2PFRz8gfBKEXEY/HJPOhym8CHmjF8y3q5mWpKx9xtZapXQUWCgkqvsK0R46Azuz+VaxD4Xl+Tg==}
+    engines: {node: '>=12'}
+
+  '@tanstack/virtual-core@3.10.6':
+    resolution: {integrity: sha512-1giLc4dzgEKLMx5pgKjL6HlG5fjZMgCjzlKAlpr7yoUtetVPELgER1NtephAI910nMwfPTHNyWKSFmJdHkz2Cw==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1260,6 +1287,10 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
+  highlight-words@1.2.2:
+    resolution: {integrity: sha512-Mf4xfPXYm8Ay1wTibCrHpNWeR2nUMynMVFkXCi4mbl+TEgmNOe+I4hV7W3OCZcSvzGL6kupaqpfHOemliMTGxQ==}
+    engines: {node: '>= 16', npm: '>= 8'}
+
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
@@ -1392,6 +1423,18 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  material-react-table@3.0.1:
+    resolution: {integrity: sha512-RP+bnpsOAH5j6zwP04u9HB37fyqbd6mVv9mkT4IUJC3e3gEqixZmkNdJMVM1ZVHoq7yIaM381xf22mpBVe0IaA==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@emotion/react': '>=11.13'
+      '@emotion/styled': '>=11.13'
+      '@mui/icons-material': '>=6'
+      '@mui/material': '>=6'
+      '@mui/x-date-pickers': '>=7.15'
+      react: '>=18.0'
+      react-dom: '>=18.0'
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -1617,6 +1660,9 @@ packages:
 
   regenerator-runtime@0.14.1:
     resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
+
+  remove-accents@0.5.0:
+    resolution: {integrity: sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -2487,12 +2533,32 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.18.0':
     optional: true
 
+  '@tanstack/match-sorter-utils@8.19.4':
+    dependencies:
+      remove-accents: 0.5.0
+
   '@tanstack/query-core@5.40.0': {}
 
   '@tanstack/react-query@5.40.1(react@18.3.1)':
     dependencies:
       '@tanstack/query-core': 5.40.0
       react: 18.3.1
+
+  '@tanstack/react-table@8.20.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/table-core': 8.20.5
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@tanstack/react-virtual@3.10.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@tanstack/virtual-core': 3.10.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  '@tanstack/table-core@8.20.5': {}
+
+  '@tanstack/virtual-core@3.10.6': {}
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -3050,6 +3116,8 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  highlight-words@1.2.2: {}
+
   hoist-non-react-statics@3.3.2:
     dependencies:
       react-is: 16.13.1
@@ -3154,6 +3222,20 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  material-react-table@3.0.1(7jw6dlqvnhn2mvkdda7kwh4gya):
+    dependencies:
+      '@emotion/react': 11.11.4(@types/react@18.3.3)(react@18.3.1)
+      '@emotion/styled': 11.11.5(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
+      '@mui/icons-material': 5.15.19(@mui/material@5.15.19(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
+      '@mui/material': 5.15.19(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/x-date-pickers': 7.11.1(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1))(@mui/material@5.15.19(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.3)(date-fns@3.6.0)(dayjs@1.11.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/match-sorter-utils': 8.19.4
+      '@tanstack/react-table': 8.20.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/react-virtual': 3.10.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      highlight-words: 1.2.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   merge2@1.4.1: {}
 
@@ -3350,6 +3432,8 @@ snapshots:
       picomatch: 2.3.1
 
   regenerator-runtime@0.14.1: {}
+
+  remove-accents@0.5.0: {}
 
   resolve-from@4.0.0: {}
 

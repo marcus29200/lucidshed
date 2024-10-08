@@ -1,18 +1,17 @@
-import { Button, IconButton, Menu, MenuItem } from '@mui/material';
+import { Button, MenuItem } from '@mui/material';
 
 import {
 	MaterialReactTable,
-	MRT_Cell,
 	MRT_Row,
 	useMaterialReactTable,
 	type MRT_ColumnDef,
 } from 'material-react-table';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Epic } from './Epics';
 import { DeleteDialog } from '../../components/DeleteDialog';
 import { ArrowUpIcon } from '../../icons/icons';
-import { MoreHoriz } from '@mui/icons-material';
+
 import { format } from 'date-fns';
 type EpicDataTableProps = {
 	epics: Epic[];
@@ -28,37 +27,99 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		startDate: true,
 		endDate: true,
 	});
-	const [actionsAnchor, setActionsAnchor] = useState<null | HTMLElement>(null);
-
 	const navigate = useNavigate();
+	const [sortedData, setSortedData] = useState<Epic[]>([]);
 	const [lastResetColumn, setLastResetColumn] = useState<string | null>(null);
 	const [previousSortingColumn, setPreviousSortingColumn] = useState<
 		string | null
-	>('name');
+	>(null);
 	const [activeSortingColumn, setActiveSortingColumn] = useState<string | null>(
-		'name'
+		null
 	);
 	const [openDialog, setOpenDialog] = useState(false);
 
-	const sortData = (
-		a: MRT_Row<Epic>,
-		b: MRT_Row<Epic>,
-		sortBy: keyof Epic,
-		sortOrder: boolean
-	): number => {
-		setPreviousSortingColumn((prev) =>
-			prev === sortBy ? prev : activeSortingColumn
-		);
-		setActiveSortingColumn(sortBy);
-		handleSortingChange(sortBy);
+	const [rowToDelete, setRowToDelete] = useState<MRT_Row<Epic> | null>(null); // Track which row to delete
 
-		setActiveSortingColumn(sortBy);
-		const valueA = a.original[sortBy] ? String(a.original[sortBy]) : '';
-		const valueB = b.original[sortBy] ? String(b.original[sortBy]) : '';
-		if (valueA < valueB) return sortOrder ? 1 : -1;
-		if (valueA > valueB) return sortOrder ? -1 : 1;
-		return 0;
+	const handleOpenDialog = (row: MRT_Row<Epic>) => {
+		setRowToDelete(row); // Set the row that will be deleted
+		setOpenDialog(true); // Open the delete confirmation dialog
 	};
+	useEffect(() => {
+		// When the component first mounts, set filteredStories to the full list of epics
+		setFilteredStories(epics);
+	}, [epics]);
+	const handleDelete = () => {
+		if (rowToDelete) {
+			// TODO: call api service to delete the item
+			const epicIdToDelete = rowToDelete.original.epicId;
+			setFilteredStories((prevData) =>
+				prevData.filter((epic) => epic.epicId !== epicIdToDelete)
+			);
+
+			handleCloseDialog(); // Close the dialog after deletion
+		}
+	};
+
+	const handleCloseDialog = () => {
+		setOpenDialog(false);
+		setRowToDelete(null); // Reset the selected row when closing
+	};
+	// State to hold the filtered stories (including searched stories)
+	const [filteredStories, setFilteredStories] = useState<Epic[]>(epics);
+
+	// Function to search for the selected story in sprintData
+	// const searchForSelectedStory = (selectedStory: string) => {
+	//   const foundStory = sprintData
+	//     .flatMap((sprint) => sprint.stories)
+	//     .find((story) => story.name === selectedStory);
+
+	//   if (
+	//     foundStory &&
+	//     !filteredStories.some((story) => story.name === foundStory.name)
+	//   ) {
+	//     setFilteredStories((prev) => [...prev, foundStory]);
+	//   }
+	// };
+
+	// useEffect(() => {
+	//   searchForSelectedStory(selectedStory);
+	// }, [selectedStory]);
+
+	const sortData = (data: Epic[], sortBy: keyof Epic, sortOrder: boolean) => {
+		return [...data].sort((a, b) => {
+			const valueA = a[sortBy] ? String(a[sortBy]) : '';
+			const valueB = b[sortBy] ? String(b[sortBy]) : '';
+			if (valueA < valueB) return sortOrder ? 1 : -1;
+			if (valueA > valueB) return sortOrder ? -1 : 1;
+			return 0;
+		});
+	};
+
+	// Handle sorting logic
+	useEffect(() => {
+		const activeSortingKey = Object.keys(sortingStates).find(
+			(key) => sortingStates[key] !== null
+		) as keyof Epic | undefined;
+
+		const dataToSort = filteredStories; // Sort the filtered (searched) stories
+
+		if (activeSortingKey) {
+			const sorted = sortData(
+				dataToSort,
+				activeSortingKey,
+				sortingStates[activeSortingKey] as boolean
+			);
+			setSortedData(sorted);
+			setPreviousSortingColumn((prev) =>
+				prev === activeSortingKey ? prev : activeSortingColumn
+			);
+			setActiveSortingColumn(activeSortingKey);
+		} else {
+			setSortedData(dataToSort);
+			setActiveSortingColumn(null);
+			setPreviousSortingColumn(null);
+		}
+	}, [sortingStates, filteredStories]);
 
 	const handleSortingChange = (id: keyof Epic) => {
 		setSortingStates((prev) => {
@@ -85,38 +146,32 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			[id]: null,
 		}));
 	};
+
+	// Filter columns based on the checkedField array
 	const columns = useMemo<MRT_ColumnDef<Epic>[]>(() => {
-		const allColumns: MRT_ColumnDef<Epic, unknown>[] = [
+		const allColumns: MRT_ColumnDef<Epic>[] = [
 			{
 				accessorKey: 'name',
-				id: '1',
+				id: 'name',
 				header: 'Epic Name',
 				size: 100,
-				sortingFn: (a, b) => {
-					return sortData(
-						a as MRT_Row<Epic>,
-						b as MRT_Row<Epic>,
-						'name' as keyof Epic,
-						true
-					);
-				},
 				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('name')}
+					>
+						Epic Name
+					</span>
+				),
 			},
 			{
 				accessorKey: 'progress',
-				id: '2',
+				id: 'progress',
 				header: 'Progress',
 				size: 200,
-				sortingFn: (a, b) => {
-					return sortData(
-						a as MRT_Row<Epic>,
-						b as MRT_Row<Epic>,
-						'progress' as keyof Epic,
-						true
-					);
-				},
 				enableColumnActions: false,
-				Cell: ({ cell }: { cell: MRT_Cell<Epic> }) => {
+				Cell: ({ cell }) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
 					let progressColor = '';
 
@@ -165,36 +220,46 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 						</div>
 					);
 				},
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('progress')}
+					>
+						Progress
+					</span>
+				),
 			},
+
 			{
 				accessorKey: 'epicId',
-				id: '3',
+				id: 'epicId',
 				header: 'Epic Id',
 				size: 200,
-				sortingFn: (a, b) => {
-					return sortData(
-						a as MRT_Row<Epic>,
-						b as MRT_Row<Epic>,
-						'epicId' as keyof Epic,
-						true
-					);
-				},
 				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('epicId')}
+					>
+						EpicId
+					</span>
+				),
 			},
+
 			{
 				accessorKey: 'startDate',
-				id: '4',
+				id: 'startDate',
 				header: 'Start Date',
 				size: 150,
-				sortingFn: (a, b) => {
-					return sortData(
-						a as MRT_Row<Epic>,
-						b as MRT_Row<Epic>,
-						'startDate' as keyof Epic,
-						true
-					);
-				},
 				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('startDate')}
+					>
+						Start Date
+					</span>
+				),
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -205,150 +270,39 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			},
 			{
 				accessorKey: 'endDate',
-				id: '5',
+				id: 'endDate',
 				header: 'Target Date',
 				size: 150,
-				sortingFn: (a, b) => {
-					return sortData(
-						a as MRT_Row<Epic>,
-						b as MRT_Row<Epic>,
-						'endDate' as keyof Epic,
-						true
-					);
-				},
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('endDate')}
+					>
+						Target Date
+					</span>
+				),
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
 							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
-							: null;
+							: '-';
 					return formattedCompletionDate;
 				},
-
-				enableColumnActions: false,
-			},
-			{
-				accessorKey: 'actions',
-
-				id: '6', // id for the actions column
-				header: 'z', // custom header text
-				size: 40,
-				Cell: ({ row }) => {
-					return (
-						<>
-							<IconButton
-								onClick={(event) => setActionsAnchor(event.currentTarget)}
-							>
-								<MoreHoriz />
-							</IconButton>
-							<Menu
-								anchorEl={actionsAnchor}
-								open={Boolean(actionsAnchor)}
-								onClose={() => setActionsAnchor(null)}
-								slotProps={{
-									paper: {
-										style: {
-											borderRadius: '12px',
-											width: '208px',
-											paddingBottom: '90px !important',
-											paddingTop: '90px !important',
-										},
-										className: '!shadow-sm',
-									},
-								}}
-							>
-								<MenuItem
-									key={`${row.original.epicId}-0`}
-									onClick={(event) => {
-										event.stopPropagation();
-										setActionsAnchor(null);
-									}}
-									sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-								>
-									Copy Link
-								</MenuItem>
-								<MenuItem
-									key={`${row.original.epicId}-1`}
-									onClick={(event) => {
-										event.stopPropagation();
-										setActionsAnchor(null);
-									}}
-									sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-								>
-									Duplicate Story
-								</MenuItem>
-								<MenuItem
-									key={`${row.original.epicId}-2`}
-									onClick={(event) => {
-										event.stopPropagation();
-										setActionsAnchor(null);
-									}}
-									sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-								>
-									Assign To Epic
-								</MenuItem>
-								<MenuItem
-									key={`${row.original.epicId}-3`}
-									onClick={(event) => {
-										// Access the epicId from the row data
-										const epicId = row.getValue('epicId');
-
-										// Do something with the epicId, e.g., pass it to another component or function
-										navigate(`./${epicId}`, { relative: 'path' });
-										event.stopPropagation();
-										setActionsAnchor(null);
-									}}
-									sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-								>
-									Open Epic
-								</MenuItem>
-
-								<MenuItem
-									key={4}
-									onClick={(e) => {
-										e.stopPropagation(); // Ensure the menu doesn't close immediately
-										setOpenDialog(true);
-									}}
-									sx={{
-										px: 6,
-										pt: 1,
-										borderTop: '1px solid #E3E7EB',
-										color: 'red ',
-										fontFamily: 'Poppins, sans-serif',
-									}}
-								>
-									Delete
-									{/* Dialog box */}
-								</MenuItem>
-								<DeleteDialog
-									open={openDialog}
-									onClose={() => {
-										setOpenDialog(false);
-									}}
-									onDelete={() => {
-										console.log(row);
-
-										setOpenDialog(false);
-										setActionsAnchor(null);
-									}}
-									description={`Are you sure you want to delete this epic? This action cannot be undone and will permanently remove all associated tasks, comments, and attachments. Please confirm if you wish to proceed.`}
-								/>
-							</Menu>
-						</>
-					);
-				},
-				enableSorting: false,
-				enableColumnActions: false,
 			},
 		];
+
 		return allColumns.filter((column) =>
 			checkedField.includes(column.accessorKey as string)
 		);
-	}, [actionsAnchor, openDialog, navigate, checkedField]);
-
+	}, [checkedField]);
 	const table = useMaterialReactTable({
 		columns,
+		data: sortedData,
+		manualSorting: true,
 		enableBottomToolbar: false,
 		enableTopToolbar: false,
+		enableRowActions: true,
 		muiTableHeadProps: {
 			sx: {
 				backgroundColor: '#F9FAFC',
@@ -358,18 +312,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				},
 			},
 		},
-		muiTableBodyRowProps: {
-			sx: {
-				backgroundColor: '#F9FAFC !important',
-				':hover': {
-					backgroundColor: '#F9FAFC !important',
-					'& td': {
-						backgroundColor: '#F9FAFC !important',
-						color: 'black',
-					},
-				},
-			},
-		},
+
 		muiTablePaperProps: {
 			elevation: 0, //change the mui box shadow
 			//customize paper styles
@@ -378,7 +321,6 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				borderRadius: '12px',
 			},
 		},
-		enableRowActions: false,
 		initialState: {
 			showColumnFilters: false,
 			showGlobalFilter: true,
@@ -387,12 +329,80 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				right: ['mrt-row-actions'],
 			},
 		},
+		renderRowActionMenuItems: ({ row, closeMenu }) => [
+			<MenuItem
+				key={0}
+				onClick={() => {
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Copy Link
+			</MenuItem>,
+			<MenuItem
+				key={1}
+				onClick={() => {
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Duplicate Story
+			</MenuItem>,
+			<MenuItem
+				key={2}
+				onClick={() => {
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Assign To Epic
+			</MenuItem>,
+			<MenuItem
+				key={3}
+				onClick={() => {
+					// Access the epicId from the row data
+					const epicId = row.getValue('epicId');
+					// Do something with the epicId, e.g., pass it to another component or function
+					navigate(`/epicInfoDashboard/${epicId}`);
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Open Epic
+			</MenuItem>,
+			<>
+				<MenuItem
+					key={4}
+					onClick={(e) => {
+						e.stopPropagation(); // Ensure the menu doesn't close immediately
+						handleOpenDialog(row); // Open the dialog
+					}}
+					sx={{
+						px: 6,
+						pt: 1,
+						borderTop: '1px solid #E3E7EB',
+						color: 'red ',
+						fontFamily: 'Poppins, sans-serif',
+					}}
+				>
+					Delete
+				</MenuItem>
 
-		data: epics,
+				{/* Dialog box */}
+				<DeleteDialog
+					open={openDialog}
+					onClose={handleCloseDialog}
+					onDelete={handleDelete}
+					description={`Are you sure you want to delete this epic? This action cannot be
+          undone and will permanently remove all associated tasks, comments, and
+          attachments. Please confirm if you wish to proceed.`}
+				/>
+			</>,
+		],
 	});
 
 	return (
-		<>
+		<div>
 			<div className="flex gap-x-2 justify-start pl-5 w-full items-center mb-4">
 				{lastResetColumn && (
 					<div className="flex items-center justify-center border border-gray-400 text-gray-400 px-2.5 py-0.5 rounded-full gap-x-2.5">
@@ -400,12 +410,20 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 						<span className="flex-grow text-center text-sm">
 							Reset: {lastResetColumn}
 						</span>
-						<button
-							className="text-gray-400 border-l border-l-gray-400 pl-2 h-full"
+						<Button
+							variant="outlined"
+							className="hover:!outline-none hover:!border-none"
+							sx={{
+								paddingX: '8px',
+								borderRadius: '50px',
+								minWidth: '44px',
+								outline: 'none',
+								border: 'none',
+							}}
 							onClick={() => setLastResetColumn(null)}
 						>
 							X
-						</button>
+						</Button>
 					</div>
 				)}
 
@@ -472,7 +490,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				)}
 			</div>
 			<MaterialReactTable table={table} />
-		</>
+		</div>
 	);
 };
 

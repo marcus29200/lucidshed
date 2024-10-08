@@ -20,6 +20,7 @@
     "AdapterDateFnsV3": "link:@mui/x-date-pickers/AdapterDateFnsV3",
     "date-fns": "^3.6.0",
     "jwt-decode": "^4.0.0",
+    "material-react-table": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.1",
