@@ -12,8 +12,12 @@ import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
 import { getEpics } from '../../api/epics';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
-import { FilterIcon, SearchIcon } from '../../icons/icons';
-import { Dashboard, List } from '@mui/icons-material';
+import {
+	FilterIcon,
+	KanbanViewIcon,
+	SearchIcon,
+	TableViewIcon,
+} from '../../icons/icons';
 
 export const epicsQuery = (orgId: string) =>
 	queryOptions({
@@ -290,11 +294,11 @@ export const Epics = () => {
 							{/* List Icon */}
 							<div
 								onClick={() => handleIconClick('list')}
-								className={`cursor-pointer p-3 rounded-full ${
-									activeIcon === 'list' ? 'bg-green-400' : 'bg-transparent'
+								className={`cursor-pointer p-2.5 rounded-full ${
+									activeIcon === 'list' ? 'bg-primary' : 'bg-transparent'
 								}`}
 							>
-								<List
+								<TableViewIcon
 									className={
 										activeIcon === 'list' ? 'text-white' : 'text-gray-400'
 									}
@@ -304,31 +308,18 @@ export const Epics = () => {
 							{/* Dashboard Icon */}
 							<div
 								onClick={() => handleIconClick('dashboard')}
-								className={`cursor-pointer p-3 rounded-full ${
-									activeIcon === 'dashboard' ? 'bg-green-400' : 'bg-transparent'
+								className={`cursor-pointer p-2.5 rounded-full ${
+									activeIcon === 'dashboard' ? 'bg-primary' : 'bg-transparent'
 								}`}
 							>
-								<Dashboard
+								<KanbanViewIcon
 									className={
 										activeIcon === 'dashboard' ? 'text-white' : 'text-gray-400'
 									}
 								/>
 							</div>
 						</div>
-						{/* <Button
-							variant="outlined"
-							onClick={handleClickEditFields}
-							sx={{
-								paddingX: '20px',
-								borderRadius: '10px',
-								fontFamily: 'Poppins, sans-serif',
-								paddingY: '13px',
-								borderColor: '#A7AAB4',
-								fontSize: '16px',
-							}}
-						>
-							<FilterIcon className="!w-4" />
-						</Button> */}
+
 						{/* edit fields */}
 						<Button
 							variant="outlined"

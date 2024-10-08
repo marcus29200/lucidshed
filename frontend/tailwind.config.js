@@ -9,6 +9,7 @@ export default {
 				'light-black': 'rgb(20, 20, 19)',
 				'fade-black': 'rgb(28, 28, 26)',
 				yellows: 'rgb(229, 255, 0)',
+				primary: '#20A224',
 			},
 			animation: {
 				blink: 'blink 1s infinite',

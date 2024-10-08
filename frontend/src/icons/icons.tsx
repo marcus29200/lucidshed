@@ -160,3 +160,125 @@ export const SearchIcon = () => (
 		</svg>
 	</SvgIcon>
 );
+
+export const TableViewIcon = ({ className = '' }: { className?: string }) => (
+	<SvgIcon className={`${className}`}>
+		<svg
+			width="22"
+			height="22"
+			viewBox="0 0 22 22"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M21.0011 1H12.5398"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M21.0011 6H12.5398"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M21.0011 11H12.5398"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M21.0011 21H12.5398"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M21.0011 16H12.5398"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M1 1.83333V8.5C1 8.96023 1.34439 9.33333 1.76921 9.33333H7.92287C8.34769 9.33333 8.69208 8.96023 8.69208 8.5V1.83333C8.69208 1.3731 8.34769 1 7.92287 1H1.76921C1.34439 1 1 1.3731 1 1.83333Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M1 13.5003V20.167C1 20.6272 1.34439 21.0003 1.76921 21.0003H7.92287C8.34769 21.0003 8.69208 20.6272 8.69208 20.167V13.5003C8.69208 13.0401 8.34769 12.667 7.92287 12.667H1.76921C1.34439 12.667 1 13.0401 1 13.5003Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	</SvgIcon>
+);
+
+export const KanbanViewIcon = ({ className = '' }: { className?: string }) => (
+	<SvgIcon className={`${className}`}>
+		<svg
+			width="25"
+			height="25"
+			viewBox="0 0 25 25"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M10.1868 1H1.96703C1.43296 1 1 1.0597 1 1.13333V2.26667C1 2.34031 1.43296 2.4 1.96703 2.4H10.1868C10.7209 2.4 11.1538 2.34031 11.1538 2.26667V1.13333C11.1538 1.0597 10.7209 1 10.1868 1Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<path
+				d="M23.0325 1H14.8127C14.2787 1 13.8457 1.0597 13.8457 1.13333V2.26667C13.8457 2.34031 14.2787 2.4 14.8127 2.4H23.0325C23.5666 2.4 23.9995 2.34031 23.9995 2.26667V1.13333C23.9995 1.0597 23.5666 1 23.0325 1Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<path
+				d="M23.0325 4.7998H14.8127C14.2787 4.7998 13.8457 5.15798 13.8457 5.5998V12.3998C13.8457 12.8416 14.2787 13.1998 14.8127 13.1998H23.0325C23.5666 13.1998 23.9995 12.8416 23.9995 12.3998V5.5998C23.9995 5.15798 23.5666 4.7998 23.0325 4.7998Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<path
+				d="M23.0325 15.5996H14.8127C14.2787 15.5996 13.8457 15.9578 13.8457 16.3996V23.1996C13.8457 23.6414 14.2787 23.9996 14.8127 23.9996H23.0325C23.5666 23.9996 23.9995 23.6414 23.9995 23.1996V16.3996C23.9995 15.9578 23.5666 15.5996 23.0325 15.5996Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<path
+				d="M10.1868 4.7998H1.96703C1.43296 4.7998 1 5.15798 1 5.5998V12.3998C1 12.8416 1.43296 13.1998 1.96703 13.1998H10.1868C10.7209 13.1998 11.1538 12.8416 11.1538 12.3998V5.5998C11.1538 5.15798 10.7209 4.7998 10.1868 4.7998Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<path
+				d="M10.1868 15.5996H1.96703C1.43296 15.5996 1 15.9578 1 16.3996V23.1996C1 23.6414 1.43296 23.9996 1.96703 23.9996H10.1868C10.7209 23.9996 11.1538 23.6414 11.1538 23.1996V16.3996C11.1538 15.9578 10.7209 15.5996 10.1868 15.5996Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	</SvgIcon>
+);
