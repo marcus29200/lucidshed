@@ -7,15 +7,17 @@ import {
 	type MRT_ColumnDef,
 } from 'material-react-table';
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Epic } from './Epics';
 import { DeleteDialog } from '../../components/DeleteDialog';
 import { ArrowUpIcon } from '../../icons/icons';
 
 import { format } from 'date-fns';
+import { deleteEpic } from '../../api/epics';
 type EpicDataTableProps = {
 	epics: Epic[];
 	checkedField: string[]; // Array of field names selected by the user
+	orgId?: string;
 };
 const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	const [sortingStates, setSortingStates] = useState<{
@@ -44,17 +46,20 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		setRowToDelete(row); // Set the row that will be deleted
 		setOpenDialog(true); // Open the delete confirmation dialog
 	};
+	const orgId = useParams().orgId;
+
 	useEffect(() => {
 		// When the component first mounts, set filteredStories to the full list of epics
 		setFilteredStories(epics);
 	}, [epics]);
 	const handleDelete = () => {
 		if (rowToDelete) {
-			// TODO: call api service to delete the item
 			const epicIdToDelete = rowToDelete.original.epicId;
-			setFilteredStories((prevData) =>
-				prevData.filter((epic) => epic.epicId !== epicIdToDelete)
-			);
+			deleteEpic({ orgId, epicId: epicIdToDelete }).then(() => {
+				setFilteredStories((prevData) =>
+					prevData.filter((epic) => epic.epicId !== epicIdToDelete)
+				);
+			});
 
 			handleCloseDialog(); // Close the dialog after deletion
 		}
@@ -66,24 +71,6 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	};
 	// State to hold the filtered stories (including searched stories)
 	const [filteredStories, setFilteredStories] = useState<Epic[]>(epics);
-
-	// Function to search for the selected story in sprintData
-	// const searchForSelectedStory = (selectedStory: string) => {
-	//   const foundStory = sprintData
-	//     .flatMap((sprint) => sprint.stories)
-	//     .find((story) => story.name === selectedStory);
-
-	//   if (
-	//     foundStory &&
-	//     !filteredStories.some((story) => story.name === foundStory.name)
-	//   ) {
-	//     setFilteredStories((prev) => [...prev, foundStory]);
-	//   }
-	// };
-
-	// useEffect(() => {
-	//   searchForSelectedStory(selectedStory);
-	// }, [selectedStory]);
 
 	const sortData = (data: Epic[], sortBy: keyof Epic, sortOrder: boolean) => {
 		return [...data].sort((a, b) => {
@@ -331,7 +318,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		},
 		renderRowActionMenuItems: ({ row, closeMenu }) => [
 			<MenuItem
-				key={0}
+				key={`${row.id}-0`}
 				onClick={() => {
 					closeMenu();
 				}}
@@ -340,7 +327,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Copy Link
 			</MenuItem>,
 			<MenuItem
-				key={1}
+				key={`${row.id}-1`}
 				onClick={() => {
 					closeMenu();
 				}}
@@ -349,7 +336,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Duplicate Story
 			</MenuItem>,
 			<MenuItem
-				key={2}
+				key={`${row.id}-2`}
 				onClick={() => {
 					closeMenu();
 				}}
@@ -358,21 +345,20 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Assign To Epic
 			</MenuItem>,
 			<MenuItem
-				key={3}
+				key={`${row.id}-3`}
 				onClick={() => {
 					// Access the epicId from the row data
 					const epicId = row.getValue('epicId');
 					// Do something with the epicId, e.g., pass it to another component or function
-					navigate(`/epicInfoDashboard/${epicId}`);
+					navigate(`./${epicId}`, { relative: 'path' });
 					closeMenu();
 				}}
 				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 			>
 				Open Epic
 			</MenuItem>,
-			<>
+			<div key={`${row.id}-4`}>
 				<MenuItem
-					key={4}
 					onClick={(e) => {
 						e.stopPropagation(); // Ensure the menu doesn't close immediately
 						handleOpenDialog(row); // Open the dialog
@@ -387,7 +373,6 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				>
 					Delete
 				</MenuItem>
-
 				{/* Dialog box */}
 				<DeleteDialog
 					open={openDialog}
@@ -397,7 +382,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
           undone and will permanently remove all associated tasks, comments, and
           attachments. Please confirm if you wish to proceed.`}
 				/>
-			</>,
+			</div>,
 		],
 	});
 

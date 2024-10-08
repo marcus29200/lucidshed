@@ -2,21 +2,17 @@ import { useEffect, useState } from 'react';
 import {
 	Box,
 	Button,
-	InputAdornment,
 	ListItemText,
 	Menu,
 	MenuItem,
-	TextField,
 	Typography,
 } from '@mui/material';
 import EpicsTable from './EpicsTable';
-import EpicRow from './EpicRow';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
 import { getEpics } from '../../api/epics';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { FilterIcon, SearchIcon } from '../../icons/icons';
-import Example from './Example';
 import { Dashboard, List } from '@mui/icons-material';
 
 export const epicsQuery = (orgId: string) =>
@@ -59,7 +55,6 @@ export const Epics = () => {
 		startDate: epic.start_date || '-',
 		endDate: epic.estimated_completion_date,
 	}));
-
 	const [searchTerm, setSearchTerm] = useState('');
 	const [anchorFilterEl, setAnchorFilterEl3] = useState<null | HTMLElement>(
 		null
@@ -74,7 +69,7 @@ export const Epics = () => {
 		string[]
 	>([]);
 
-	const [activeIcon, setActiveIcon] = useState('dashboard'); // Default active icon
+	const [activeIcon, setActiveIcon] = useState('list'); // Default active icon
 	const filteredItems = epics.filter((epic) =>
 		epic.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
