@@ -8,28 +8,27 @@ import {
 } from 'material-react-table';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Epic } from './Epics';
 import { DeleteDialog } from '../../components/DeleteDialog';
 import { ArrowUpIcon } from '../../icons/icons';
 
 import { format } from 'date-fns';
 import { deleteEpic } from '../../api/epics';
-type EpicDataTableProps = {
-	epics: Epic[];
+type StoryDataTableProps = {
+	stories: any[]; // todo: replace any with proper type
 	checkedField: string[]; // Array of field names selected by the user
 };
-const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
+const EpicStoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
 	}>({
-		name: true, // Set to true to start with descending order
+		storyName: true, // Set to true to start with descending order
+		ticketNumber: true,
+		createdDate: true,
 		progress: true,
-		epicId: true,
-		startDate: true,
-		endDate: true,
+		modifiedDate: true,
 	});
 	const navigate = useNavigate();
-	const [sortedData, setSortedData] = useState<Epic[]>([]);
+	const [sortedData, setSortedData] = useState<any[]>([]);
 	const [lastResetColumn, setLastResetColumn] = useState<string | null>(null);
 	const [previousSortingColumn, setPreviousSortingColumn] = useState<
 		string | null
@@ -39,9 +38,9 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	);
 	const [openDialog, setOpenDialog] = useState(false);
 
-	const [rowToDelete, setRowToDelete] = useState<MRT_Row<Epic> | null>(null); // Track which row to delete
+	const [rowToDelete, setRowToDelete] = useState<MRT_Row<any> | null>(null); // Track which row to delete
 
-	const handleOpenDialog = (row: MRT_Row<Epic>) => {
+	const handleOpenDialog = (row: MRT_Row<any>) => {
 		setRowToDelete(row); // Set the row that will be deleted
 		setOpenDialog(true); // Open the delete confirmation dialog
 	};
@@ -49,8 +48,8 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 
 	useEffect(() => {
 		// When the component first mounts, set filteredStories to the full list of epics
-		setFilteredStories(epics);
-	}, [epics]);
+		setFilteredStories(stories);
+	}, [stories]);
 	const handleDelete = () => {
 		if (rowToDelete) {
 			const epicIdToDelete = rowToDelete.original.epicId;
@@ -69,9 +68,9 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		setRowToDelete(null); // Reset the selected row when closing
 	};
 	// State to hold the filtered stories (including searched stories)
-	const [filteredStories, setFilteredStories] = useState<Epic[]>(epics);
+	const [filteredStories, setFilteredStories] = useState<any[]>(stories);
 
-	const sortData = (data: Epic[], sortBy: keyof Epic, sortOrder: boolean) => {
+	const sortData = (data: any[], sortBy: any, sortOrder: boolean) => {
 		return [...data].sort((a, b) => {
 			const valueA = a[sortBy] ? String(a[sortBy]) : '';
 			const valueB = b[sortBy] ? String(b[sortBy]) : '';
@@ -85,7 +84,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	useEffect(() => {
 		const activeSortingKey = Object.keys(sortingStates).find(
 			(key) => sortingStates[key] !== null
-		) as keyof Epic | undefined;
+		) as any;
 
 		const dataToSort = filteredStories; // Sort the filtered (searched) stories
 
@@ -107,7 +106,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		}
 	}, [sortingStates, filteredStories]);
 
-	const handleSortingChange = (id: keyof Epic) => {
+	const handleSortingChange = (id: any) => {
 		setSortingStates((prev) => {
 			const currentOrder = prev[id];
 
@@ -125,7 +124,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		});
 	};
 
-	const handleRemoveSort = (id: keyof Epic) => {
+	const handleRemoveSort = (id: any) => {
 		setLastResetColumn(id as string);
 		setSortingStates((prev) => ({
 			...prev,
@@ -134,20 +133,20 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	};
 
 	// Filter columns based on the checkedField array
-	const columns = useMemo<MRT_ColumnDef<Epic>[]>(() => {
-		const allColumns: MRT_ColumnDef<Epic>[] = [
+	const columns = useMemo<MRT_ColumnDef<any>[]>(() => {
+		const allColumns: MRT_ColumnDef<any>[] = [
 			{
-				accessorKey: 'name',
-				id: 'name',
+				accessorKey: 'storyName',
+				id: 'storyName',
 				header: 'Epic Name',
 				size: 100,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('name')}
+						onClick={() => handleSortingChange('storyName')}
 					>
-						Epic Name
+						Story Name
 					</span>
 				),
 			},
@@ -217,33 +216,33 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			},
 
 			{
-				accessorKey: 'epicId',
-				id: 'epicId',
+				accessorKey: 'ticketNumber',
+				id: 'ticketNumber',
 				header: 'Epic Id',
 				size: 200,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('epicId')}
+						onClick={() => handleSortingChange('ticketNumber')}
 					>
-						EpicId
+						Ticket Number
 					</span>
 				),
 			},
 
 			{
-				accessorKey: 'startDate',
-				id: 'startDate',
-				header: 'Start Date',
+				accessorKey: 'createdDate',
+				id: 'createdDate',
+				header: 'Created Date',
 				size: 150,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('startDate')}
+						onClick={() => handleSortingChange('createdDate')}
 					>
-						Start Date
+						Created Date
 					</span>
 				),
 				Cell: ({ cell }) => {
@@ -255,17 +254,17 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				},
 			},
 			{
-				accessorKey: 'endDate',
-				id: 'endDate',
-				header: 'Target Date',
+				accessorKey: 'modifiedDate',
+				id: 'modifiedDate',
+				header: 'Modified Date',
 				size: 150,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('endDate')}
+						onClick={() => handleSortingChange('modifiedDate')}
 					>
-						Target Date
+						Modified Date
 					</span>
 				),
 				Cell: ({ cell }) => {
@@ -430,9 +429,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 									outline: 'none',
 									border: 'none',
 								}}
-								onClick={() =>
-									handleRemoveSort(previousSortingColumn as keyof Epic)
-								}
+								onClick={() => handleRemoveSort(previousSortingColumn as any)}
 							>
 								X
 							</Button>
@@ -461,9 +458,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 									outline: 'none',
 									border: 'none',
 								}}
-								onClick={() =>
-									handleRemoveSort(activeSortingColumn as keyof Epic)
-								}
+								onClick={() => handleRemoveSort(activeSortingColumn as any)}
 							>
 								X
 							</Button>
@@ -476,4 +471,4 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	);
 };
 
-export default EpicsTable;
+export default EpicStoriesTable;

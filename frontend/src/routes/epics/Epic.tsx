@@ -9,6 +9,7 @@ import { CalendarMonthRounded, Settings } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
+import EpicStories from './EpicStories';
 
 export const epicDetailQuery = (orgId: string, epicId: string) =>
 	queryOptions({
@@ -162,30 +163,7 @@ export const Epic = () => {
 				</Grid>
 			</div>
 			<br />
-			<Section>
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						paddingX: '12px',
-						paddingY: '6px',
-					}}
-				>
-					<Typography variant="h6">Stories</Typography>
-					<Box sx={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-						<TextField
-							variant="outlined"
-							size="small"
-							margin="none"
-							label="Search"
-						></TextField>
-						<Button variant="outlined">Add Story</Button>
-
-						<Button variant="contained">Create Story</Button>
-					</Box>
-				</Box>
-			</Section>
+			<EpicStories epic={epic} />
 		</>
 	);
 };
