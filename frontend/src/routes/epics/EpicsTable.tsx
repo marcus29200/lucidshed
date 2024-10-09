@@ -327,24 +327,6 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Copy Link
 			</MenuItem>,
 			<MenuItem
-				key={`${row.id}-1`}
-				onClick={() => {
-					closeMenu();
-				}}
-				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-			>
-				Duplicate Story
-			</MenuItem>,
-			<MenuItem
-				key={`${row.id}-2`}
-				onClick={() => {
-					closeMenu();
-				}}
-				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-			>
-				Assign To Epic
-			</MenuItem>,
-			<MenuItem
 				key={`${row.id}-3`}
 				onClick={() => {
 					// Access the epicId from the row data
@@ -356,6 +338,24 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 			>
 				Open Epic
+			</MenuItem>,
+			<MenuItem
+				key={`${row.id}-2`}
+				onClick={() => {
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Add To Roadmap
+			</MenuItem>,
+			<MenuItem
+				key={`${row.id}-1`}
+				onClick={() => {
+					closeMenu();
+				}}
+				sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+			>
+				Duplicate
 			</MenuItem>,
 			<div key={`${row.id}-4`}>
 				<MenuItem
@@ -378,9 +378,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 					open={openDialog}
 					onClose={handleCloseDialog}
 					onDelete={handleDelete}
-					description={`Are you sure you want to delete this epic? This action cannot be
-          undone and will permanently remove all associated tasks, comments, and
-          attachments. Please confirm if you wish to proceed.`}
+					description={`Are you sure you want to delete this Epic? This action cannot be undone and will permanently remove all associated Stories, comments, relationships, and attachments. Please confirm if you wish to proceed.`}
 				/>
 			</div>,
 		],

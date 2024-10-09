@@ -34,7 +34,7 @@ const priorities = [
 		value: 'medium',
 	},
 	{
-		label: 'Small',
+		label: 'Low',
 		value: 'low',
 	},
 ];
