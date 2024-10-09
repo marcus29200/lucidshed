@@ -1,11 +1,11 @@
 import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
-
+export type Priority = 'critical' | 'high' | 'medium' | 'low';
 export type CreateEpicPayload = {
 	title: string;
 	description?: string;
 	estimated_completion_date?: string;
-	priority: 'critical' | 'high' | 'medium' | 'low';
+	priority: Priority;
 	item_type: 'epic';
 };
 
