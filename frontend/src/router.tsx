@@ -29,6 +29,7 @@ import {
 	action as updateStoryAction,
 	loader as storyLoader,
 } from './routes/stories/Story';
+import EpicsDashboard from './routes/epics/EpicDashboard';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -92,8 +93,13 @@ export const router = createBrowserRouter([
 								loader: epicsLoader(queryClient),
 							},
 							{
-								path: ':id',
+								path: ':epicId',
 								element: <Epic />,
+								loader: epicLoader(queryClient),
+							},
+							{
+								path: ':epicId/dashboard',
+								element: <EpicsDashboard />,
 								loader: epicLoader(queryClient),
 							},
 							{
@@ -111,7 +117,7 @@ export const router = createBrowserRouter([
 								element: <Stories />,
 							},
 							{
-								path: ':id',
+								path: ':storyId',
 								loader: storyLoader(queryClient),
 								action: updateStoryAction(queryClient),
 								element: <Story />,

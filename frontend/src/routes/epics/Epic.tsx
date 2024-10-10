@@ -22,11 +22,11 @@ export const loader = (queryClient: QueryClient) => {
 		if (!params.orgId) {
 			throw new Error('No org id provided');
 		}
-		if (!params.id) {
+		if (!params.epicId) {
 			throw new Error('No epic id provided');
 		}
 		return queryClient.ensureQueryData(
-			epicDetailQuery(params.orgId, params.id)
+			epicDetailQuery(params.orgId, params.epicId)
 		);
 	};
 };
