@@ -9,7 +9,7 @@ import {
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Epic } from './Epics';
-import { DeleteDialog } from '../../components/DeleteDialog';
+import { ConfirmationDialog } from '../../components/DeleteDialog';
 import { ArrowUpIcon } from '../../icons/icons';
 
 import { format } from 'date-fns';
@@ -373,11 +373,18 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 					Delete
 				</MenuItem>
 				{/* Dialog box */}
-				<DeleteDialog
+				<ConfirmationDialog
 					open={openDialog}
 					onClose={handleCloseDialog}
 					onDelete={handleDelete}
-					description={`Are you sure you want to delete this Epic? This action cannot be undone and will permanently remove all associated Stories, comments, relationships, and attachments. Please confirm if you wish to proceed.`}
+					children={
+						<span className="text-neutral-regular text-base">
+							Are you sure you want to delete this Epic? This action cannot be
+							undone and will permanently remove all associated Stories,
+							comments, relationships, and attachments. Please confirm if you
+							wish to proceed.
+						</span>
+					}
 				/>
 			</div>,
 		],

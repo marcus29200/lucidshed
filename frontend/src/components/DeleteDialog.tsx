@@ -7,12 +7,14 @@ import {
 	Button,
 } from '@mui/material';
 
-export const DeleteDialog = ({
+export const ConfirmationDialog = ({
+	children,
 	open,
 	onClose,
 	onDelete,
 	title = 'Confirm Deletion',
-	description,
+	confirmButton = 'Delete',
+	cancelButton = 'Cancel',
 }) => {
 	return (
 		<Dialog
@@ -30,10 +32,8 @@ export const DeleteDialog = ({
 			<DialogTitle sx={{ fontFamily: 'Poppins, sans-serif' }}>
 				{title}
 			</DialogTitle>
-			<DialogContent>
-				<DialogContentText sx={{ fontFamily: 'Poppins, sans-serif' }}>
-					{description}
-				</DialogContentText>
+			<DialogContent sx={{ fontFamily: 'Poppins, sans-serif' }}>
+				{children}
 			</DialogContent>
 			<DialogActions
 				sx={{
@@ -52,7 +52,7 @@ export const DeleteDialog = ({
 						fontFamily: 'Poppins, sans-serif',
 					}}
 				>
-					Delete
+					{confirmButton}
 				</Button>
 				<Button
 					onClick={onClose}
@@ -64,7 +64,7 @@ export const DeleteDialog = ({
 						fontFamily: 'Poppins, sans-serif',
 					}}
 				>
-					Cancel
+					{cancelButton}
 				</Button>
 			</DialogActions>
 		</Dialog>

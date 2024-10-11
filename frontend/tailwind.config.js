@@ -6,6 +6,7 @@ export default {
 			colors: {
 				'neutral-regular': '#717584',
 				'neutral-light': '#A7AAB4',
+				'neutral-lighter': '#E9EAEC',
 				'light-black': 'rgb(20, 20, 19)',
 				'fade-black': 'rgb(28, 28, 26)',
 				yellows: 'rgb(229, 255, 0)',
@@ -46,6 +47,7 @@ export default {
 			boxShadow: {
 				sm: '0 1px 4px 0 rgba(0, 0, 0, 0.08)',
 				lg: '0px 5px 15px rgba(0, 0, 0, 0.35)',
+				neutral: ' 0px 4px 12px 0px #0D0A2C0F',
 			},
 		},
 	},

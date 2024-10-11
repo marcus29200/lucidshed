@@ -1,7 +1,6 @@
-import { Box, Typography, TextField, Button, Grid } from '@mui/material';
+import { Typography, TextField, Grid } from '@mui/material';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
-import Section from '../../components/Section';
-import { format } from 'date-fns';
+
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { getEpic } from '../../api/epics';
 import { HomeIcon } from '../../icons/icons';
@@ -10,6 +9,7 @@ import dayjs from 'dayjs';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import EpicStories from './EpicStories';
+import { ApiEpic } from './Epics';
 
 export const epicDetailQuery = (orgId: string, epicId: string) =>
 	queryOptions({
@@ -32,16 +32,11 @@ export const loader = (queryClient: QueryClient) => {
 };
 
 export const Epic = () => {
-	const epic = useLoaderData();
-	console.log(epic);
-
-	const formattedCompletionDate = epic.estimated_completion_date
-		? format(new Date(epic.estimated_completion_date), 'MMM dd, yyyy')
-		: null;
+	const epic = useLoaderData() as ApiEpic;
 
 	return (
 		<>
-			<div className="flex space-x-4  pb-4">
+			<div className="flex space-x-4 pb-4">
 				<Link to={`/${epic.organization_id}/epics/${epic.id}`}>
 					<button className="flex gap-x-1 justify-center items-center px-24 py-3 transition bg-green-500 border-none text-white rounded-md font-bold hover:border-none hover:bg-green-600/80 relative">
 						<HomeIcon className="text-white -ml-3" />
@@ -50,7 +45,7 @@ export const Epic = () => {
 					</button>
 				</Link>
 				<Link to={`/${epic.organization_id}/epics/${epic.id}/dashboard`}>
-					<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-100 text-gray-300 rounded-md font-bold border-none hover:border-none ">
+					<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-50 text-gray-300 rounded-md font-bold border-none hover:border-none shadow-neutral">
 						<Settings className="text-gray-300 -ml-3" />
 						Reporting
 					</button>

@@ -10,7 +10,7 @@ import {
 import EpicsTable from './EpicsTable';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
-import { getEpics } from '../../api/epics';
+import { getEpics, Priority } from '../../api/epics';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 import {
 	FilterIcon,
@@ -31,6 +31,8 @@ export type ApiEpic = {
 	description?: string;
 	estimated_completion_date: string;
 	start_date: string | null;
+	organization_id: string;
+	priority: Priority;
 };
 
 export type Epic = {

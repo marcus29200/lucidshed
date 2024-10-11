@@ -8,6 +8,7 @@ import {
 	DialogTitle,
 	DialogContent,
 	DialogActions,
+	IconButton,
 } from '@mui/material'; // MUI components
 import '../../index.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +30,7 @@ import {
 	Settings,
 } from '@mui/icons-material';
 import { ApiEpic } from './Epics';
+import { ConfirmationDialog } from '../../components/DeleteDialog';
 
 // TODO: add types
 const EpicsDashboard = () => {
@@ -294,26 +296,27 @@ const EpicsDashboard = () => {
 	};
 
 	return (
-		<div className="bg-gray-100 flex flex-col gap-y-4 px-6 overflow-hidden font font-poppins">
-			<div className="flex justify-between items-center px-4 w-full rounded-md shadow-md mt-[40px]">
-				<div className="flex space-x-3">
+		<div className="overflow-y-auto">
+			<div className="flex justify-between items-center gap-4 pr-6">
+				<div className="flex space-x-4">
 					<Link to={`/${orgId}/epics/${epicId}`}>
-						<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-100 text-gray-300 rounded-md font-bold">
-							<HomeIcon className="text-white -ml-3" />
-							<span className="mt-1">Stories</span>
-						</button>{' '}
+						<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-50 text-gray-300 rounded-md font-bold border-none hover:border-none shadow-neutral">
+							<HomeIcon className="text-gray-300 -ml-3" />
+							<span className="mt-1">Epic</span>
+						</button>
 					</Link>
 					<Link to={`/${orgId}/epics/${epicId}/dashboard`}>
-						<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-green-500 text-white rounded-md font-bold">
-							<Settings className="text-gray-300 -ml-3" />
-							Reporting
+						<button className="flex gap-x-1 justify-center items-center px-24 py-3 transition bg-green-500 border-none text-white rounded-md font-bold hover:border-none hover:bg-green-600/80 relative">
+							<Settings className="text-white -ml-3" />
+							<span>Reporting</span>
+							<div className="absolute -bottom-1 rounded h-0.5 w-full bg-green-500"></div>
 						</button>
 					</Link>
 				</div>
-				<div className="flex w-[55%] justify-end gap-x-2">
+				{/* template and edit button */}
+				<div className="flex items-center gap-x-2">
 					{/* Template Dropdown Button */}
-
-					<div className=" flex justify-end">
+					<div>
 						<Button
 							onClick={handleTemplateMenuOpen}
 							sx={{
@@ -331,8 +334,11 @@ const EpicsDashboard = () => {
 								justifyContent: 'space-between', // Add space between text and icon
 								gap: '8px', // Space between text and icon
 							}}
+							className="truncate"
 						>
-							{selectedTemplate ? selectedTemplate : 'All templates'}
+							<div className="truncate">
+								{selectedTemplate ? selectedTemplate : 'All templates'}
+							</div>
 							<ExpandMore />
 						</Button>
 
@@ -346,7 +352,6 @@ const EpicsDashboard = () => {
 									style: {
 										borderRadius: '8px',
 										padding: '20px',
-										width: '20%',
 										marginLeft: '-70px',
 										marginTop: '20px',
 									},
@@ -488,9 +493,9 @@ const EpicsDashboard = () => {
 					</div>
 					{/* Ellipsis icon to open the dropdown */}
 					<div>
-						<Button onClick={handleEllipsisMenuOpen}>
+						<IconButton onClick={handleEllipsisMenuOpen}>
 							<MoreVert className="text-gray-400 cursor-pointer" />
-						</Button>
+						</IconButton>
 
 						{/* Ellipsis Dropdown Menu */}
 						<Menu
@@ -533,17 +538,19 @@ const EpicsDashboard = () => {
 					</div>
 				</div>
 			</div>
-			<div className="flex flex-col  rounded-2xl p-2 w-full justify-center items-center mx-auto gap-y-16 min-h-screen">
+			<div className="flex flex-col pr-6 w-full justify-center items-center gap-y-16 min-h-screen">
+				{/* charts content */}
 				<div className="flex flex-row justify-center mx-auto gap-x-6 w-full h-full">
-					<div className="flex flex-col gap-4 w-[45%] mt-4">
+					{/* left section */}
+					<div className="flex flex-col gap-4 w-1/2 mt-4">
 						{/* Add Component Placeholder */}
-						<div className="flex flex-row gap-x-4 bg-yellow-50 p-6 rounded-xl">
+						<div className="flex relative flex-row gap-x-4 bg-white border-1 border-gray-300 p-6 rounded-xl">
 							{/* RoadmapView */}
 							{dashboardComponents.includes('BarChart') && (
-								<div className="relative min-h-[50vh] w-full">
+								<div className="min-h-[50vh] w-full">
 									{isEditing && (
 										<Close
-											className="absolute right-2 text-red-500 cursor-pointer"
+											className="absolute top-3 right-3 text-red-500 cursor-pointer"
 											onClick={() => handleRemoveComponentClick('BarChart')}
 										/>
 									)}
@@ -562,78 +569,83 @@ const EpicsDashboard = () => {
 								</div>
 							)}
 						</div>
-
-						{/* RecentlyMentioned */}
-						{dashboardComponents.includes('LineChart') && (
-							<div className="relative min-h-[50vh] bg-yellow-50 p-6 rounded-xl">
-								{isEditing && (
-									<Close
-										className="absolute -top-4 right-2 text-red-500 cursor-pointer"
-										onClick={() => handleRemoveComponentClick('LineChart')}
-									/>
-								)}
-								<div className="flex flex-col gap-y-1 w-full">
-									<h1 className="text-black font-poppins text-lg">
-										Tickets Completed Per Day
-									</h1>
-									<p className="text-gray-400 font-poppins text-sm">
-										This Tracks the Average number of tickets per day
-									</p>
-								</div>
-								{/* <LineChart
+						<div className="flex relative flex-row gap-x-4 bg-white border-1 border-gray-300 p-6 rounded-xl">
+							{/* RecentlyMentioned */}
+							{dashboardComponents.includes('LineChart') && (
+								<div className="min-h-[50vh] w-full">
+									{isEditing && (
+										<Close
+											className="absolute top-3 right-3 text-red-500 cursor-pointer"
+											onClick={() => handleRemoveComponentClick('LineChart')}
+										/>
+									)}
+									<div className="flex flex-col gap-y-1 w-full">
+										<h1 className="text-black font-poppins text-lg">
+											Tickets Completed Per Day
+										</h1>
+										<p className="text-gray-400 font-poppins text-sm">
+											This Tracks the Average number of tickets per day
+										</p>
+									</div>
+									{/* <LineChart
 									selectedSprintName={epicDetails && epicDetails.name}
 								/> */}
-							</div>
-						)}
+								</div>
+							)}
+						</div>
 					</div>
-
-					<div className="grid grid-rows-2 gap-4 mt-4 w-[45%] h-full">
-						{/* TodoList and EpicUnitsOverview */}
-						{dashboardComponents.includes('LineChartLOE') && (
-							<div className="relative min-h-[50vh] bg-yellow-50 p-6 rounded-xl">
-								{isEditing && (
-									<Close
-										className="absolute -top-4 right-2 text-red-500 cursor-pointer"
-										onClick={() => handleRemoveComponentClick('LineChartLOE')}
-									/>
-								)}
-								<div className="flex flex-col gap-y-1 w-full">
-									<h1 className="text-black font-poppins text-lg">
-										Burn Down Rate
-									</h1>
-									<p className="text-gray-400 font-poppins text-sm">
-										Show the trend of remaining and completed Work
-									</p>
-								</div>
-								{/* <LineChartLOE
+					{/* right section */}
+					<div className="grid grid-rows-2 gap-4 mt-4 w-1/2 h-full">
+						<div className="flex relative flex-row gap-x-4 bg-white border-1 border-gray-300 p-6 rounded-xl">
+							{/* TodoList and EpicUnitsOverview */}
+							{dashboardComponents.includes('LineChartLOE') && (
+								<div className="w-full min-h-[50vh] ">
+									{isEditing && (
+										<Close
+											className="absolute top-3 right-3 text-red-500 cursor-pointer"
+											onClick={() => handleRemoveComponentClick('LineChartLOE')}
+										/>
+									)}
+									<div className="flex flex-col gap-y-1 w-full">
+										<h1 className="text-black font-poppins text-lg">
+											Burn Down Rate
+										</h1>
+										<p className="text-gray-400 font-poppins text-sm">
+											Show the trend of remaining and completed Work
+										</p>
+									</div>
+									{/* <LineChartLOE
 									selectedSprintName={epicDetails && epicDetails.name}
 								/> */}
-							</div>
-						)}
-
-						{dashboardComponents.includes('TableChart') && (
-							<div className="relative min-h-[50vh] flex flex-col gap-y-4 bg-yellow-50 p-6 rounded-xl">
-								{isEditing && (
-									<Close
-										className="absolute -top-6 right-2 text-red-500 cursor-pointer"
-										onClick={() => handleRemoveComponentClick('TableChart')}
-									/>
-								)}
-								<div className="flex flex-col gap-y-1 w-full">
-									<h1 className="text-black font-poppins text-lg">
-										Estimated Story Points
-									</h1>
-									<p className="text-gray-400 font-poppins text-sm">
-										Displays the Estimated Level of Efforts
-									</p>
 								</div>
-								{/* <TableChart
+							)}
+						</div>
+						<div className="flex relative flex-row gap-x-4 bg-white border-1 border-gray-300 p-6 rounded-xl">
+							{dashboardComponents.includes('TableChart') && (
+								<div className="w-full min-h-[50vh] ">
+									{isEditing && (
+										<Close
+											className="absolute top-3 right-3 text-red-500 cursor-pointer"
+											onClick={() => handleRemoveComponentClick('TableChart')}
+										/>
+									)}
+									<div className="flex flex-col gap-y-1 w-full">
+										<h1 className="text-black font-poppins text-lg">
+											Estimated Story Points
+										</h1>
+										<p className="text-gray-400 font-poppins text-sm">
+											Displays the Estimated Level of Efforts
+										</p>
+									</div>
+									{/* <TableChart
 									selectedSprintName={epicDetails && epicDetails.name}
 								/> */}
-							</div>
-						)}
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
+				{/* add new component card */}
 				{isEditing && (
 					<div
 						className={`h-full min-h-[50vh] w-[90%] flex justify-center items-center border-dotted border-2 rounded-md border-gray-300`}
@@ -648,46 +660,16 @@ const EpicsDashboard = () => {
 			</div>
 
 			{/* Confirmation Dialog */}
-			<Dialog
+			<ConfirmationDialog
 				open={confirmationOpen}
 				onClose={cancelRemoveComponent}
-				sx={{ fontFamily: 'Poppins, sans-serif' }}
+				onDelete={confirmRemoveComponent}
 			>
-				<DialogTitle>Are you sure you want to continue?</DialogTitle>
-				<DialogContent>
-					<p className="font-poppins">
-						You are about to remove the <strong>{componentToRemove}</strong>{' '}
-						from the dashboard. Do you want to proceed?
-					</p>
-				</DialogContent>
-				<DialogActions
-					sx={{
-						width: '100%',
-						display: 'flex ',
-						justifyContent: 'end',
-						alignItems: 'end',
-					}}
-				>
-					<Button
-						onClick={cancelRemoveComponent}
-						sx={{
-							backgroundColor: 'red',
-							color: 'white',
-						}}
-					>
-						Cancel
-					</Button>
-					<Button
-						onClick={confirmRemoveComponent}
-						sx={{
-							backgroundColor: 'green',
-							color: 'white',
-						}}
-					>
-						Continue
-					</Button>
-				</DialogActions>
-			</Dialog>
+				<p className="font-poppins">
+					You are about to remove the <strong>{componentToRemove}</strong> from
+					the dashboard. Do you want to proceed?
+				</p>
+			</ConfirmationDialog>
 
 			<Dialog
 				open={saveDialogOpen}
@@ -728,20 +710,16 @@ const EpicsDashboard = () => {
 				>
 					<Button
 						onClick={handleCloseSaveDialog}
-						sx={{
-							backgroundColor: 'red',
-							color: 'white',
-						}}
+						variant="contained"
+						color="error"
 					>
 						Cancel
 					</Button>
 					<Button
 						onClick={handleSaveTemplate} // Call save logic when Save button is clicked
+						color="primary"
+						variant="contained"
 						disabled={!selectedTemplate}
-						sx={{
-							backgroundColor: 'green',
-							color: 'white',
-						}}
 					>
 						Save
 					</Button>
