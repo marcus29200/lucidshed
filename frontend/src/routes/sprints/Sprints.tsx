@@ -1,11 +1,11 @@
 import { QueryClient, queryOptions } from "@tanstack/react-query";
-import { LoaderFunctionArgs, redirect, useLoaderData } from "react-router-dom"
+import { LoaderFunctionArgs,  useLoaderData, useNavigate } from "react-router-dom"
 import { getSprints } from "../../api/sprints";
-import Section from "../../components/Section";
-import { Box } from "@mui/material";
+import { Box,  Typography } from "@mui/material";
 import SprintStoryTable from "./SprintStoryTable";
-import SprintSearchInput from "./SprintSearchInput";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
+import FullHeightSection from "../../components/FullHeightSection";
+import { SprintRow } from "./SprintRow";
 
 export const getSprintsQuery = (orgId: string) => queryOptions({
   queryKey: ['sprints'],
@@ -17,16 +17,25 @@ export const loader = (queryClient: QueryClient) => {
     if (!params.orgId) {
       throw new Error("no org id");
     }
-
-    return queryClient.ensureQueryData(getSprintsQuery(params.orgId))
+// something is fucked up with the queryKey...
+  return getSprints(params.orgId);
+    // return queryClient.ensureQueryData(getSprintsQuery(params.orgId))
   }
 }
 export const Sprints = () => {
   const sprints = useLoaderData();
+  const navigate = useNavigate()
   const [selectedSprint, setSelectedSprint] = useState(sprints[0]);
   return (
-    <>
-      <p>Sprints list view?</p>
-    </>
+    <FullHeightSection>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingX: '12px', paddingY: '6px' }}>
+        <Typography variant="h6">Epic Overview</Typography>
+
+      </Box>
+      <SprintStoryTable>
+        {sprints.map(story => <SprintRow story={story} key={story.id} />)}
+      </SprintStoryTable>
+    </FullHeightSection>
   )
 }
+

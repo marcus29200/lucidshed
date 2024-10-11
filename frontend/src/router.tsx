@@ -73,6 +73,7 @@ export const router = createBrowserRouter([
 	{
 		id: 'user',
 		loader: meLoader(queryClient),
+		errorElement: <Login />,
 		children: [
 			{
 				element: <AppLayout />,

@@ -49,13 +49,13 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 
 	useEffect(() => {
 		// When the component first mounts, set filteredStories to the full list of epics
-		setFilteredStories(epics);
+		setFilteredEpics(epics);
 	}, [epics]);
 	const handleDelete = () => {
 		if (rowToDelete) {
 			const epicIdToDelete = rowToDelete.original.epicId;
 			deleteEpic({ orgId, epicId: epicIdToDelete }).then(() => {
-				setFilteredStories((prevData) =>
+				setFilteredEpics((prevData) =>
 					prevData.filter((epic) => epic.epicId !== epicIdToDelete)
 				);
 			});
@@ -69,7 +69,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		setRowToDelete(null); // Reset the selected row when closing
 	};
 	// State to hold the filtered stories (including searched stories)
-	const [filteredStories, setFilteredStories] = useState<Epic[]>(epics);
+	const [filteredEpics, setFilteredEpics] = useState<Epic[]>(epics);
 
 	const sortData = (data: Epic[], sortBy: keyof Epic, sortOrder: boolean) => {
 		return [...data].sort((a, b) => {
@@ -87,7 +87,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			(key) => sortingStates[key] !== null
 		) as keyof Epic | undefined;
 
-		const dataToSort = filteredStories; // Sort the filtered (searched) stories
+		const dataToSort = filteredEpics; // Sort the filtered (searched) stories
 
 		if (activeSortingKey) {
 			const sorted = sortData(
@@ -105,7 +105,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			setActiveSortingColumn(null);
 			setPreviousSortingColumn(null);
 		}
-	}, [sortingStates, filteredStories]);
+	}, [sortingStates, filteredEpics]);
 
 	const handleSortingChange = (id: keyof Epic) => {
 		setSortingStates((prev) => {
@@ -376,7 +376,10 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				<ConfirmationDialog
 					open={openDialog}
 					onClose={handleCloseDialog}
-					onDelete={handleDelete}
+					onDelete={() => {
+						handleDelete();
+						closeMenu();
+					}}
 					children={
 						<span className="text-neutral-regular text-base">
 							Are you sure you want to delete this Epic? This action cannot be

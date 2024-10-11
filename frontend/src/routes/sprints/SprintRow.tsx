@@ -8,8 +8,7 @@ export const SprintRow = ({ story }) => {
       <TableCell>{story.description}</TableCell>
       <TableCell>{story.description}</TableCell>
       <TableCell>{story.status}</TableCell>
-      <TableCell>{story}</TableCell>
-      <TableCell>{story.estimated_completion_date}</TableCell>
+      <TableCell>{story.startDate}</TableCell>
     </TableRow>
   )
 }

@@ -155,7 +155,7 @@ export const Epics = () => {
 	);
 
 	return (
-		<FullHeightSection className="bg-white p-4 shadow rounded-lg flex flex-col font-poppins">
+		<FullHeightSection className="bg-white p-4 shadow !rounded-lg flex flex-col font-poppins">
 			<Box
 				sx={{
 					display: 'flex',

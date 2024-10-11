@@ -1,5 +1,6 @@
 import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
+// TODO: place this type in a shared model
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
 export type CreateEpicPayload = {
 	title: string;
