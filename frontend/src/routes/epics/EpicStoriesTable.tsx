@@ -13,6 +13,7 @@ import { ArrowUpIcon } from '../../icons/icons';
 
 import { format } from 'date-fns';
 import { deleteEpic } from '../../api/epics';
+import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 type StoryDataTableProps = {
 	stories: any[]; // todo: replace any with proper type
 	checkedField: string[]; // Array of field names selected by the user
@@ -158,52 +159,8 @@ const EpicStoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 				enableColumnActions: false,
 				Cell: ({ cell }) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
-					let progressColor = '';
 
-					if (progress === 100) {
-						progressColor = '#20A224'; // Green for 100% completion
-					} else if (progress > 70) {
-						progressColor = '#8bc34a'; // Light green for progress > 70%
-					} else if (progress > 40) {
-						progressColor = '#E5B710'; // Yellow for progress between 40% and 70%
-					} else {
-						progressColor = '#FCD9E0'; // Red for progress < 40%
-					}
-
-					return (
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-							}}
-						>
-							<div
-								style={{
-									height: '8px', // thinner height
-									width: '65%',
-									backgroundColor: '#e0e0e0', // Light grey for the background bar
-									borderRadius: '20px',
-
-									overflow: 'hidden',
-									marginRight: '8px', // Spacing between the bar and the percentage
-								}}
-							>
-								<div
-									style={{
-										width: `${progress}%`,
-										backgroundColor: progressColor,
-										height: '100%',
-									}}
-								></div>
-							</div>
-							<span
-								className=" w-[60%] text-end"
-								style={{ color: '#9e9e9e', fontSize: '0.875rem' }}
-							>
-								{progress}%
-							</span>
-						</div>
-					);
+					return <LinearProgressWithLabel value={progress} />;
 				},
 				Header: () => (
 					<span

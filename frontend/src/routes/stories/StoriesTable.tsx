@@ -73,14 +73,14 @@ const headCells = [
 ];
 
 function EnhancedTableHead(props) {
-	const { order, orderBy, onRequestSort, checkedField } = props;
+	const { order, orderBy, onRequestSort, checkedField, slotProps } = props;
 	const createSortHandler = (property) => (event) => {
 		onRequestSort(event, property);
 	};
 
 	return (
 		<TableHead>
-			<TableRow>
+			<TableRow className={slotProps?.rowHeader?.className ?? ''}>
 				{headCells
 					.filter((cell) => checkedField.includes(cell.id))
 					.map((headCell) => (
@@ -119,6 +119,9 @@ EnhancedTableHead.propTypes = {
 	order: PropTypes.oneOf(['asc', 'desc']).isRequired,
 	orderBy: PropTypes.string.isRequired,
 	checkedField: PropTypes.array.isRequired,
+	slotProps: PropTypes.objectOf<{ rowHeader?: { className: string } }>(
+		PropTypes.any
+	),
 };
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -267,6 +270,11 @@ const StoriesTable = ({
 						orderBy={orderBy}
 						onRequestSort={handleRequestSort}
 						checkedField={checkedField}
+						slotProps={{
+							rowHeader: {
+								className: !children.length ? 'shadow-sm' : '',
+							},
+						}}
 					/>
 					<TableBody>{children}</TableBody>
 				</Table>

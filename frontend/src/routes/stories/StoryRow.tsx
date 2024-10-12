@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { Story } from './Stories';
 import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 
 // TODO: add typing for epic
 const StoryRow = ({
@@ -82,38 +83,7 @@ const StoryRow = ({
 				{checkedField.includes('name') && <TableCell>{story.name}</TableCell>}
 				{checkedField.includes('progress') && (
 					<TableCell>
-						<div
-							style={{
-								display: 'flex',
-								flexDirection: 'column',
-							}}
-						>
-							<div
-								style={{
-									height: '8px', // thinner height
-									width: '65%',
-									backgroundColor: '#e0e0e0', // Light grey for the background bar
-									borderRadius: '20px',
-
-									overflow: 'hidden',
-									marginRight: '8px', // Spacing between the bar and the percentage
-								}}
-							>
-								<div
-									style={{
-										width: `${story.progress}%`,
-										backgroundColor: progressColor,
-										height: '100%',
-									}}
-								></div>
-							</div>
-							<span
-								className=" w-[60%] text-end"
-								style={{ color: '#9e9e9e', fontSize: '0.875rem' }}
-							>
-								{story.progress}%
-							</span>
-						</div>
+						<LinearProgressWithLabel value={story.progress} />
 					</TableCell>
 				)}
 				{checkedField.includes('storyId') && (
