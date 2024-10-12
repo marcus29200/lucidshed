@@ -59,25 +59,11 @@ export const Stories = () => {
 			startDate: story.start_date,
 		})
 	);
-	const [order, setOrder] = useState('asc');
-	const [orderBy, setOrderBy] = useState('name');
-
-	const handleRequestSort = (event, property) => {
-		const isAsc = orderBy === property && order === 'asc';
-		setOrder(isAsc ? 'desc' : 'asc');
-		setOrderBy(property);
-	};
 
 	const [searchTerm, setSearchTerm] = useState('');
 
-	const visibleRows: Story[] = useMemo(
-		() =>
-			[...stories]
-				.filter((story) =>
-					story.name.toLowerCase().includes(searchTerm.toLowerCase())
-				)
-				.sort(getComparator(order, orderBy)),
-		[order, orderBy, stories, searchTerm]
+	const visibleRows: Story[] = [...stories].filter((story) =>
+		story.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	const [anchorFilterEl, setAnchorFilterEl3] = useState<null | HTMLElement>(
@@ -381,23 +367,9 @@ export const Stories = () => {
 			</Box>
 
 			<StoriesTable
-				handleRequestSort={handleRequestSort}
-				order={order}
-				orderBy={orderBy}
+				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
-			>
-				{visibleRows.length ? (
-					visibleRows.map((story) => (
-						<StoryRow
-							story={story}
-							key={story.storyId}
-							checkedField={editFieldsCheckedItems}
-						/>
-					))
-				) : (
-					<EmptyRows />
-				)}
-			</StoriesTable>
+			/>
 		</FullHeightSection>
 	);
 };

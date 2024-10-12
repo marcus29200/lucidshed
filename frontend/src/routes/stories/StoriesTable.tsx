@@ -1,285 +1,280 @@
-import {
-	TableContainer,
-	TableHead,
-	Table,
-	TableRow,
-	TableBody,
-	TableCell,
-	Paper,
-	styled,
-	tableCellClasses,
-	Box,
-	TableSortLabel,
-	Button,
-} from '@mui/material';
-import PropTypes from 'prop-types';
-import { visuallyHidden } from '@mui/utils';
-import { useEffect, useState } from 'react';
-import { ArrowUpIcon } from '../../icons/icons';
+import { MenuItem } from '@mui/material';
+import { useEffect, useMemo, useState } from 'react';
 import { Story } from './Stories';
+import { MRT_Row, MRT_ColumnDef } from 'material-react-table';
+import { format } from 'date-fns';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
+import ShedTable, { TableActions } from '../../components/Table';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteStory } from '../../api/stories';
+import { copyLink } from '../../api/utils';
 
-const StyledTableCell = styled(TableCell)(() => ({
-	[`&.${tableCellClasses.head}`]: {
-		backgroundColor: '#F9FAFC',
-		color: '#000000',
-	},
-}));
-
-function descendingComparator<
-	T1 extends { [key: string]: string },
-	T2 extends { [key: string]: string }
->(a: T1, b: T2, orderBy: string) {
-	if (b[orderBy] < a[orderBy]) {
-		return -1;
-	}
-	if (b[orderBy] > a[orderBy]) {
-		return 1;
-	}
-	return 0;
-}
-
-export function getComparator<T1, T2>(order: string, orderBy: string) {
-	return order === 'desc'
-		? (a: T1, b: T2) => descendingComparator(a, b, orderBy)
-		: (a: T1, b: T2) => -descendingComparator(a, b, orderBy);
-}
-
-const headCells = [
-	{
-		id: 'name',
-		label: 'Story Name',
-	},
-	{
-		id: 'progress',
-		label: 'Progress',
-	},
-	{
-		id: 'storyId',
-		label: 'Story ID',
-	},
-	{
-		id: 'startDate',
-		label: 'Start Date',
-	},
-	{
-		id: 'targetDate',
-		label: 'Target Date',
-	},
-	{
-		id: 'actions',
-		withoutSort: true,
-		label: '',
-	},
-];
-
-function EnhancedTableHead(props) {
-	const { order, orderBy, onRequestSort, checkedField, slotProps } = props;
-	const createSortHandler = (property) => (event) => {
-		onRequestSort(event, property);
-	};
-
-	return (
-		<TableHead>
-			<TableRow className={slotProps?.rowHeader?.className ?? ''}>
-				{headCells
-					.filter((cell) => checkedField.includes(cell.id))
-					.map((headCell) => (
-						<StyledTableCell
-							key={headCell.id}
-							sortDirection={orderBy === headCell.id ? order : false}
-						>
-							{!headCell.withoutSort ? (
-								<TableSortLabel
-									active={orderBy === headCell.id}
-									direction={orderBy === headCell.id ? order : 'asc'}
-									onClick={createSortHandler(headCell.id)}
-									sx={{ color: 'black' }}
-								>
-									{headCell.label}
-									{orderBy === headCell.id ? (
-										<Box component="span" sx={visuallyHidden}>
-											{order === 'desc'
-												? 'sorted descending'
-												: 'sorted ascending'}
-										</Box>
-									) : null}
-								</TableSortLabel>
-							) : (
-								headCell.label
-							)}
-						</StyledTableCell>
-					))}
-			</TableRow>
-		</TableHead>
-	);
-}
-
-EnhancedTableHead.propTypes = {
-	onRequestSort: PropTypes.func.isRequired,
-	order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-	orderBy: PropTypes.string.isRequired,
-	checkedField: PropTypes.array.isRequired,
-	slotProps: PropTypes.objectOf<{ rowHeader?: { className: string } }>(
-		PropTypes.any
-	),
-};
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
-	orderBy: string;
-	order: string;
-	children: any;
-	handleRequestSort: (event: any, property: any) => void;
+	stories: Story[];
 };
-const StoriesTable = ({
-	children,
-	handleRequestSort,
-	order,
-	orderBy,
-	checkedField,
-}: StoryDataTableProps) => {
-	const [lastResetColumn, setLastResetColumn] = useState<string | null>(null);
-	const [previousSortingColumn, setPreviousSortingColumn] = useState<{
-		name: string;
-		order: string;
-	} | null>({
-		name: 'name',
-		order: 'asc',
+const StoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
+	const [sortingStates, setSortingStates] = useState<{
+		[key: string]: boolean | null;
+	}>({
+		name: true, // Set to true to start with descending order
+		storyId: true,
+		startDate: true,
+		progress: true,
+		targetDate: true,
 	});
-	const [activeSortingColumn, setActiveSortingColumn] = useState<{
-		name: string;
-		order: string;
-	} | null>({
-		name: 'name',
-		order: 'asc',
-	});
-	// Handle sorting logic
-	useEffect(() => {
-		setPreviousSortingColumn(() => activeSortingColumn);
-		setActiveSortingColumn(() => ({
-			name: orderBy,
-			order,
-		}));
-	}, [orderBy, order]);
+	const navigate = useNavigate();
 
-	const handleRemoveSort = (id: keyof Story) => {
-		setLastResetColumn(id as string);
+	const [openDialog, setOpenDialog] = useState(false);
+
+	const [rowToDelete, setRowToDelete] = useState<MRT_Row<Story> | null>(null); // Track which row to delete
+
+	const handleOpenDialog = (row: MRT_Row<Story>) => {
+		setRowToDelete(row); // Set the row that will be deleted
+		setOpenDialog(true); // Open the delete confirmation dialog
+	};
+	const orgId = useParams().orgId;
+
+	useEffect(() => {
+		// When the component first mounts, set filteredStories to the full list of epics
+		setFilteredStories(stories);
+	}, [stories]);
+	const queryClient = useQueryClient();
+	const { mutate: removeStory } = useMutation({
+		mutationFn: deleteStory,
+		onError: () => {
+			console.error('wuhh');
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['stories'] });
+			navigate(`/${orgId}/stories`);
+		},
+	});
+	const handleDelete = () => {
+		if (rowToDelete) {
+			removeStory({ orgId: orgId, storyId: rowToDelete.original.storyId });
+		}
 	};
 
-	return (
-		<>
-			<div className="flex gap-x-2 justify-start pl-5 w-full items-center mb-4">
-				{lastResetColumn && (
-					<div className="flex items-center justify-center border border-gray-400 text-gray-400 px-2.5 py-0.5 rounded-full gap-x-2.5">
-						<ArrowUpIcon />
-						<span className="flex-grow text-center text-sm">
-							Reset: {lastResetColumn}
-						</span>
-						<Button
-							variant="outlined"
-							className="hover:!outline-none hover:!border-none"
-							sx={{
-								paddingX: '8px',
-								borderRadius: '50px',
-								minWidth: '44px',
-								outline: 'none',
-								border: 'none',
-							}}
-							onClick={() => setLastResetColumn(null)}
-						>
-							X
-						</Button>
-					</div>
-				)}
+	const handleCloseDialog = () => {
+		setOpenDialog(false);
+		setRowToDelete(null); // Reset the selected row when closing
+	};
+	// State to hold the filtered stories (including searched stories)
+	const [filteredStories, setFilteredStories] = useState<Story[]>(stories);
 
-				{previousSortingColumn && (
-					<div className="flex flex-row justify-center items-center gap-x-3">
-						<p className="text-black font-poppins">Sort By :</p>
-						<div className="flex items-center justify-center border border-gray-400 text-gray-400 rounded-full h-9">
-							<div className="px-2">
-								<ArrowUpIcon className="!h-4" />
-							</div>
-							<div className="flex items-center h-full px-3 border-r-2 border-l-neutral-regular">
-								{previousSortingColumn.name} (
-								<span className="capitalize">
-									{previousSortingColumn.order}
-								</span>
-								)
-							</div>
-							<Button
-								variant="outlined"
-								className="hover:!outline-none hover:!border-none"
-								sx={{
-									paddingX: '8px',
-									borderRadius: '50px',
-									minWidth: '44px',
-									outline: 'none',
-									border: 'none',
-								}}
-								onClick={() =>
-									handleRemoveSort(previousSortingColumn.name as keyof Story)
-								}
-							>
-								X
-							</Button>
-						</div>
-					</div>
-				)}
+	const handleSortingChange = (id: string) => {
+		setSortingStates((prev) => {
+			const currentOrder = prev[id];
 
-				{activeSortingColumn && (
-					<div className="flex flex-row justify-center items-center gap-x-3">
-						<p className="text-black font-poppins">Then By :</p>
-						<div className="flex items-center justify-center border border-gray-400 text-gray-400 rounded-full h-9">
-							<div className="px-2">
-								<ArrowUpIcon className="!h-4" />
-							</div>
-							<div className="flex items-center h-full px-3 border-r-2 border-l-neutral-regular">
-								{activeSortingColumn.name} (
-								<span className="capitalize">{activeSortingColumn.order}</span>)
-							</div>
-							<Button
-								variant="outlined"
-								className="hover:!outline-none hover:!border-none"
-								sx={{
-									paddingX: '8px',
-									borderRadius: '50px',
-									minWidth: '44px',
-									outline: 'none',
-									border: 'none',
-								}}
-								onClick={() =>
-									handleRemoveSort(activeSortingColumn.name as keyof Story)
-								}
-							>
-								X
-							</Button>
-						</div>
-					</div>
-				)}
-			</div>
-			<TableContainer
-				component={Paper}
+			const newSortingState = Object.keys(prev).reduce((acc, key) => {
+				if (key === id) {
+					acc[key] =
+						currentOrder === null || currentOrder === false ? true : false;
+				} else {
+					acc[key] = null;
+				}
+				return acc;
+			}, {} as typeof sortingStates);
+
+			return newSortingState;
+		});
+	};
+
+	const handleRowClicked = (story: Story) => {
+		navigate(`./${story.storyId}`, { relative: 'path' });
+	};
+
+	// Filter columns based on the checkedField array
+	const columns = useMemo<MRT_ColumnDef<Story>[]>(() => {
+		const allColumns: MRT_ColumnDef<Story>[] = [
+			{
+				accessorKey: 'name',
+				id: 'name',
+				header: 'Story Name',
+				size: 100,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('name')}
+					>
+						Story Name
+					</span>
+				),
+			},
+			{
+				accessorKey: 'progress',
+				id: 'progress',
+				header: 'Progress',
+				size: 200,
+				enableColumnActions: false,
+				Cell: ({ cell }) => {
+					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
+
+					return <LinearProgressWithLabel value={progress} />;
+				},
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('progress')}
+					>
+						Progress
+					</span>
+				),
+			},
+
+			{
+				accessorKey: 'storyId',
+				id: 'storyId',
+				header: 'Story ID',
+				size: 200,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('storyId')}
+					>
+						Story ID
+					</span>
+				),
+			},
+
+			{
+				accessorKey: 'startDate',
+				id: 'startDate',
+				header: 'Start Date',
+				size: 150,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('startDate')}
+					>
+						Start Date
+					</span>
+				),
+				Cell: ({ cell }) => {
+					const formattedCompletionDate =
+						cell.getValue<string>() && cell.getValue<string>() !== '-'
+							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
+							: '-';
+					return formattedCompletionDate;
+				},
+			},
+			{
+				accessorKey: 'targetDate',
+				id: 'targetDate',
+				header: 'Target Date',
+				size: 150,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('targetDate')}
+					>
+						Target Date
+					</span>
+				),
+				Cell: ({ cell }) => {
+					const formattedCompletionDate =
+						cell.getValue<string>() && cell.getValue<string>() !== '-'
+							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
+							: '-';
+					return formattedCompletionDate;
+				},
+			},
+		];
+
+		return allColumns.filter((column) =>
+			checkedField.includes(column.accessorKey as string)
+		);
+	}, [checkedField]);
+	const actions: TableActions<Story> = ({ row, closeMenu }) => [
+		<MenuItem
+			key={`${row.id}-0`}
+			onClick={() => {
+				closeMenu();
+				copyLink(row.original.storyId.toString());
+			}}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+		>
+			Copy Link
+		</MenuItem>,
+		<MenuItem
+			key={`${row.id}-1`}
+			onClick={() => {
+				closeMenu();
+			}}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+		>
+			{/* TODO */}
+			Duplicate Story
+		</MenuItem>,
+		<MenuItem
+			key={`${row.id}-2`}
+			onClick={() => {
+				closeMenu();
+			}}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+		>
+			Assign To Epic
+		</MenuItem>,
+		<MenuItem
+			key={`${row.id}-3`}
+			onClick={() => {
+				// Access the storyId from the row data
+				const storyId = row.getValue('storyId');
+				navigate(`./${storyId}`, { relative: 'path' });
+				closeMenu();
+			}}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
+		>
+			Open Story
+		</MenuItem>,
+		<div key={`${row.id}-4`}>
+			<MenuItem
+				onClick={(e) => {
+					e.stopPropagation(); // Ensure the menu doesn't close immediately
+					handleOpenDialog(row); // Open the dialog
+				}}
 				sx={{
-					borderRadius: '12px',
-					border: '1px solid #E9EAEC',
-					boxShadow: 'none',
+					px: 6,
+					pt: 1,
+					borderTop: '1px solid #E3E7EB',
+					color: 'red ',
+					fontFamily: 'Poppins, sans-serif',
 				}}
 			>
-				<Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-					<EnhancedTableHead
-						order={order}
-						orderBy={orderBy}
-						onRequestSort={handleRequestSort}
-						checkedField={checkedField}
-						slotProps={{
-							rowHeader: {
-								className: !children.length ? 'shadow-sm' : '',
-							},
-						}}
-					/>
-					<TableBody>{children}</TableBody>
-				</Table>
-			</TableContainer>
-		</>
+				Delete
+			</MenuItem>
+			{/* Dialog box */}
+			<ConfirmationDialog
+				open={openDialog}
+				onClose={handleCloseDialog}
+				onDelete={handleDelete}
+				children={
+					<span className="text-neutral-regular text-base">
+						Are you sure you want to delete this story? This action cannot be
+						undone and will permanently remove all associated tasks, comments,
+						and attachments. Please confirm if you wish to proceed.
+					</span>
+				}
+			/>
+		</div>,
+	];
+
+	return (
+		<ShedTable
+			columns={columns}
+			filteredItems={filteredStories}
+			setSortingStates={setSortingStates}
+			actions={actions}
+			sortingStates={sortingStates}
+			handleRowClicked={handleRowClicked}
+		/>
 	);
 };
 

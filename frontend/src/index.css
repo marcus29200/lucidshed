@@ -76,3 +76,11 @@ button:focus-visible {
 		background-color: #f9f9f9;
 	}
 }
+
+.MuiPaper-root.MuiPaper-elevation.MuiMenu-paper {
+	border: 1px solid #ccc;
+	border-radius: 14px;
+	align-items: start;
+	box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px,
+		rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+}
