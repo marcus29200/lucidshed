@@ -1,7 +1,6 @@
 import { Button } from '@mui/material';
 
 import {
-	getMRT_RowSelectionHandler,
 	MaterialReactTable,
 	MRT_Row,
 	MRT_RowData,
