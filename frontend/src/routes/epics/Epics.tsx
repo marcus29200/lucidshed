@@ -1,23 +1,13 @@
-import { useEffect, useState } from 'react';
-import {
-	Box,
-	Button,
-	ListItemText,
-	Menu,
-	MenuItem,
-	Typography,
-} from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, Typography } from '@mui/material';
 import EpicsTable from './EpicsTable';
 import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
 import { getEpics, Priority } from '../../api/epics';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
-import {
-	FilterIcon,
-	KanbanViewIcon,
-	SearchIcon,
-	TableViewIcon,
-} from '../../icons/icons';
+import { KanbanViewIcon, SearchIcon, TableViewIcon } from '../../icons/icons';
+import EditFieldsButton from '../../components/EditFieldsButton';
+import TableFiltersButton from '../../components/TableFiltersButton';
 
 export const epicsQuery = (orgId: string) =>
 	queryOptions({
@@ -52,6 +42,7 @@ export const loader = (queryClient: QueryClient) => {
 		// return await queryClient.ensureQueryData(epicsQuery(params.orgId, params.search))
 	};
 };
+const tableColumnIds = ['name', 'progress', 'epicId', 'startDate', 'endDate'];
 
 export const Epics = () => {
 	const epics: Epic[] = (useLoaderData() as ApiEpic[]).map((epic) => ({
@@ -62,97 +53,21 @@ export const Epics = () => {
 		endDate: epic.estimated_completion_date,
 	}));
 	const [searchTerm, setSearchTerm] = useState('');
-	const [anchorFilterEl, setAnchorFilterEl3] = useState<null | HTMLElement>(
-		null
-	);
-	const [filterSearchTerm, setFilterSearchTerm] = useState('');
 	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
 
-	const [anchorEditFieldsEl, setAnchorEditFieldsEl] =
-		useState<null | HTMLElement>(null);
-	const [editFieldsSearchTerm, setEditFieldsSearchTerm] = useState('');
-	const [editFieldsCheckedItems, setEditFieldsCheckedItems] = useState<
-		string[]
-	>([]);
+	const [editFieldsCheckedItems, setEditFieldsCheckedItems] =
+		useState<string[]>(tableColumnIds);
 
 	const [activeIcon, setActiveIcon] = useState('list'); // Default active icon
 	const filteredItems = epics.filter((epic) =>
 		epic.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
-	const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setAnchorFilterEl3(event.currentTarget);
-	};
 
-	const handleCloseFilterMenu = () => {
-		setAnchorFilterEl3(null);
-	};
-
-	const handleFilterSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setFilterSearchTerm(event.target.value);
-	};
-
-	const handleToggleFilter = (item: string) => {
-		const currentIndex = filterCheckedItems.indexOf(item);
-
-		if (item === 'Select All') {
-			setFilterCheckedItems(currentIndex !== -1 ? [] : filterItems.slice(0));
-			return;
-		}
-
-		let newChecked = [...filterCheckedItems];
-		if (currentIndex === -1) {
-			newChecked.push(item);
-		} else {
-			newChecked.splice(currentIndex, 1);
-		}
-		if (
-			!newChecked.includes('Select All') &&
-			newChecked.length === epics.length
-		) {
-			newChecked.push('Select All');
-		} else if (newChecked.includes('Select All')) {
-			newChecked = newChecked.filter((item) => item !== 'Select All');
-		}
-		setFilterCheckedItems(newChecked);
-	};
 	const filterItems = ['Select All', ...epics.map((epic) => epic.name)];
-	const filterItemsFiltered = filterItems.filter((item) =>
-		item.toLowerCase().includes(filterSearchTerm.toLowerCase())
-	);
-	const editFields = ['name', 'progress', 'epicId', 'startDate', 'endDate'];
-	const handleClickEditFields = (
-		event: React.MouseEvent<HTMLButtonElement>
-	) => {
-		setAnchorEditFieldsEl(event.currentTarget);
-	};
 
-	const handleCloseEditFields = () => {
-		setAnchorEditFieldsEl(null);
-	};
-
-	const handleEditFieldsSearch = (
-		event: React.ChangeEvent<HTMLInputElement>
-	) => {
-		setEditFieldsSearchTerm(event.target.value);
-	};
-	useEffect(() => {
-		setEditFieldsCheckedItems(() => [...editFields, 'actions']);
-	}, []);
-
-	const handleEditFieldsToggle = (item: string) => {
-		const newChecked = editFieldsCheckedItems.includes(item)
-			? editFieldsCheckedItems.filter((checkedItem) => checkedItem !== item)
-			: [...editFieldsCheckedItems, item];
-
-		setEditFieldsCheckedItems(newChecked);
-	};
 	const handleIconClick = (icon: string) => {
 		setActiveIcon(icon); // Set the clicked icon as active
 	};
-
-	const filteredEditFieldsMenuItems = editFields.filter((item) =>
-		item.toLowerCase().includes(editFieldsSearchTerm.toLowerCase())
-	);
 
 	return (
 		<FullHeightSection className="bg-white p-4 shadow !rounded-lg flex flex-col font-poppins">
@@ -171,13 +86,11 @@ export const Epics = () => {
 					<Box
 						sx={{
 							display: 'flex',
-							alignItems: 'center',
 							gap: '8px',
-							gridTemplateColumns: '',
 						}}
 					>
 						{/* Search Bar */}
-						<div className="flex flex-row items-center gap-x-2 p-2 border border-neutral-light rounded-xl">
+						<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-2.5 border border-neutral-light rounded-xl">
 							<SearchIcon />
 							<input
 								type="text"
@@ -191,214 +104,72 @@ export const Epics = () => {
 								}}
 							/>
 						</div>
-						{/* filters */}
-						<div className="flex justify-end items-end">
-							<Button
-								variant="outlined"
-								onClick={handleFilterClick}
-								sx={{
-									paddingX: '20px',
-									borderRadius: '10px',
-									fontFamily: 'Poppins, sans-serif',
-									paddingY: '13px',
-									borderColor: '#A7AAB4',
-									fontSize: '16px',
-								}}
-							>
-								<FilterIcon className="!w-4" />
-								<span className="text-neutral-regular">Filter</span>
-							</Button>
+						{/* filters and view button */}
+						<div className="grid gap-2">
+							{/* filters */}
+							<TableFiltersButton
+								filterItems={filterItems}
+								filterCheckedItems={filterCheckedItems}
+								setFilterCheckedItems={setFilterCheckedItems}
+							/>
+							{/* current view */}
 
-							<Menu
-								anchorEl={anchorFilterEl}
-								open={Boolean(anchorFilterEl)}
-								onClose={handleCloseFilterMenu}
-								slotProps={{
-									paper: {
-										style: {
-											width: '290px',
-											padding: '10px',
-										},
-									},
-								}}
-							>
-								{/* Search Bar */}
-								<div className="flex flex-row items-center gap-x-2 p-2 border border-neutral-light rounded-xl mb-4">
-									<SearchIcon />
-									<input
-										type="text"
-										className="p-1 w-full outline-none"
-										placeholder="Search..."
-										onChange={handleFilterSearch}
-										value={filterSearchTerm}
-										onKeyDown={(e) => {
-											// Prevent focus shifting to menu items
-											e.stopPropagation();
-										}}
+							<div className="flex flex-row justify-center items-center gap-x-2 rounded-full border-1 border-gray-300">
+								{/* List Icon */}
+								<div
+									onClick={() => handleIconClick('list')}
+									className={`cursor-pointer p-2.5 rounded-full ${
+										activeIcon === 'list' ? 'bg-primary' : 'bg-transparent'
+									}`}
+								>
+									<TableViewIcon
+										className={
+											activeIcon === 'list' ? 'text-white' : 'text-gray-400'
+										}
 									/>
 								</div>
 
-								{/* Menu Items with Checkboxes */}
-								{filterItemsFiltered.length > 0 ? (
-									filterItemsFiltered.map((item) => (
-										<MenuItem
-											key={item}
-											onClick={() => handleToggleFilter(item)}
-											sx={{
-												fontFamily: 'Poppins, sans-serif',
-												padding: '4px 8px', // Adjust padding to reduce the gap between items
-												marginTop: '8px',
-											}}
-										>
-											<input
-												type="checkbox"
-												checked={filterCheckedItems.includes(item)}
-												onChange={() => handleToggleFilter(item)}
-												onClick={(e) => e.stopPropagation()}
-											/>
-											<ListItemText
-												primary={item}
-												sx={{
-													marginLeft: '4px',
-													marginTop: '8px',
-												}} // Adjust text margin
-											/>
-										</MenuItem>
-									))
-								) : (
-									<div className="px-4 py-2 text-neutral-regular">
-										No results found
-									</div>
-								)}
-							</Menu>
-						</div>
-						{/* Navigation to new epic flow */}
-						<Link to="new">
-							<Button
-								variant="contained"
-								sx={{
-									paddingX: '70px',
-									borderRadius: '10px',
-									fontFamily: 'Poppins, sans-serif',
-									paddingY: '13px',
-									fontSize: '16px',
-								}}
-							>
-								Create Epic
-							</Button>
-						</Link>
-					</Box>
-					<Box className="self-end flex gap-2">
-						{/* current view */}
-
-						<div className="flex flex-row justify-center items-center gap-x-2 rounded-full border-1 border-gray-300">
-							{/* List Icon */}
-							<div
-								onClick={() => handleIconClick('list')}
-								className={`cursor-pointer p-2.5 rounded-full ${
-									activeIcon === 'list' ? 'bg-primary' : 'bg-transparent'
-								}`}
-							>
-								<TableViewIcon
-									className={
-										activeIcon === 'list' ? 'text-white' : 'text-gray-400'
-									}
-								/>
-							</div>
-
-							{/* Dashboard Icon */}
-							<div
-								onClick={() => handleIconClick('dashboard')}
-								className={`cursor-pointer p-2.5 rounded-full ${
-									activeIcon === 'dashboard' ? 'bg-primary' : 'bg-transparent'
-								}`}
-							>
-								<KanbanViewIcon
-									className={
-										activeIcon === 'dashboard' ? 'text-white' : 'text-gray-400'
-									}
-								/>
+								{/* Dashboard Icon */}
+								<div
+									onClick={() => handleIconClick('dashboard')}
+									className={`cursor-pointer p-2.5 rounded-full ${
+										activeIcon === 'dashboard' ? 'bg-primary' : 'bg-transparent'
+									}`}
+								>
+									<KanbanViewIcon
+										className={
+											activeIcon === 'dashboard'
+												? 'text-white'
+												: 'text-gray-400'
+										}
+									/>
+								</div>
 							</div>
 						</div>
-
-						{/* edit fields */}
-						<Button
-							variant="outlined"
-							onClick={handleClickEditFields}
-							sx={{
-								paddingX: '76px',
-								borderRadius: '10px',
-								fontFamily: 'Poppins, sans-serif',
-								paddingY: '13px',
-								borderColor: '#A7AAB4',
-								fontSize: '16px',
-							}}
-						>
-							<span className="text-neutral-regular">Edit Fields</span>
-						</Button>
-						<Menu
-							anchorEl={anchorEditFieldsEl}
-							open={Boolean(anchorEditFieldsEl)}
-							onClose={handleCloseEditFields}
-							slotProps={{
-								paper: {
-									style: {
-										width: '290px',
-										padding: '10px',
-									},
-								},
-							}}
-						>
-							{/* Search Bar */}
-							<div className="flex flex-row items-center gap-x-2 p-2 border border-neutral-light rounded-xl mb-4">
-								<SearchIcon />
-								<input
-									type="text"
-									className="p-1 w-full outline-none"
-									placeholder="Search..."
-									onChange={handleEditFieldsSearch}
-									value={editFieldsSearchTerm}
-									onKeyDown={(e) => {
-										// Prevent focus shifting to menu items
-										e.stopPropagation();
+						{/* create epic and edit fields button */}
+						<div className="grid gap-2">
+							{/* Navigation to new epic flow */}
+							<Link to="new">
+								<Button
+									variant="contained"
+									sx={{
+										paddingX: '70px',
+										borderRadius: '10px',
+										fontFamily: 'Poppins, sans-serif',
+										paddingY: '13px',
+										fontSize: '16px',
 									}}
-								/>
-							</div>
-
-							{/* Menu Items with Checkboxes */}
-							{filteredEditFieldsMenuItems.length > 0 ? (
-								filteredEditFieldsMenuItems.map((item) => (
-									<MenuItem
-										key={item}
-										sx={{
-											fontFamily: 'Poppins, sans-serif',
-											padding: '4px 8px', // Adjust padding to reduce the gap between items
-											marginTop: '8px',
-											display: 'flex',
-											alignItems: 'center', // Aligns checkbox and text
-										}}
-										onClick={() => handleEditFieldsToggle(item)} // Toggle item on click
-									>
-										<input
-											type="checkbox"
-											className="p-2 mr-2"
-											checked={editFieldsCheckedItems.includes(item)} // Check if the item is selected
-											onChange={() => handleEditFieldsToggle(item)} // Update state on change
-											onClick={(e) => e.stopPropagation()} // Prevent click event from triggering twice
-										/>
-										<ListItemText
-											primary={item}
-											sx={{
-												fontFamily: 'Poppins, sans-serif',
-												marginLeft: '8px',
-											}} // Adjust text margin
-										/>
-									</MenuItem>
-								))
-							) : (
-								<div className="px-4 py-2 text-gray-500">No results found</div>
-							)}
-						</Menu>
+								>
+									Create Epic
+								</Button>
+							</Link>
+							{/* edit fields */}
+							<EditFieldsButton
+								fields={tableColumnIds}
+								setEditFieldsCheckedItems={setEditFieldsCheckedItems}
+								editFieldsCheckedItems={editFieldsCheckedItems}
+							/>
+						</div>
 					</Box>
 				</Box>
 			</Box>
