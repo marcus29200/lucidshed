@@ -160,7 +160,6 @@ export const Epics = () => {
 				sx={{
 					display: 'flex',
 					justifyContent: 'space-between',
-					alignItems: 'center',
 					paddingX: '12px',
 					paddingY: '6px',
 				}}
