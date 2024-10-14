@@ -9,6 +9,9 @@ export type CreateStoryPayload = {
 	estimated_completion_date?: string;
 	priority?: Priority;
 	item_type: 'story';
+	estimate?: number;
+	iteration_id?: number;
+	status?: string; // TODO: Enum of statuses
 };
 
 export type StoryAPI = {
