@@ -12,56 +12,18 @@ import {
 	Checkbox,
 } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
-import {
-	ActionFunctionArgs,
-	Form,
-	redirect,
-	useNavigate,
-} from 'react-router-dom';
+import { Form, useNavigate } from 'react-router-dom';
 import { DatePicker } from '@mui/x-date-pickers';
-import { QueryClient } from '@tanstack/react-query';
-import { createStory } from '../../api/stories';
 import { useState } from 'react';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { Sprint } from '../../api/sprints';
-import { Priority } from '../../api/epics';
 import {
 	MetadataFieldOption,
 	METADATA_FIELD_OPTIONS,
 	statuses,
 	priorities,
+	ticketTypes,
 } from './stories.model';
-
-export const action = (queryClient: QueryClient) => {
-	return async ({ request, params }: ActionFunctionArgs) => {
-		const formData = await request.formData();
-
-		const data = Object.fromEntries(formData.entries());
-		console.log('what the hell is this data yo: ', data);
-		const estimated_completion_date = data.targetDate
-			? new Date(data.targetDate.toString()).toISOString()
-			: undefined;
-		await createStory({
-			orgId: params.orgId as string,
-			data: {
-				title: data.title as string,
-				description: data.description as string,
-				item_type: 'story',
-				iteration_id: data.sprint ? +data.sprint : undefined,
-				priority: data.priority as Priority,
-				estimate: data.estimate ? +data.estimate : undefined,
-				estimated_completion_date,
-				status: data.status as string,
-			},
-		});
-		await queryClient.invalidateQueries(
-			{ queryKey: ['stories'] },
-			{ throwOnError: true }
-		);
-
-		return redirect(`/${params.orgId}/stories`);
-	};
-};
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
@@ -239,7 +201,10 @@ export const CreateStory = () => {
 										name="status"
 									>
 										{statuses.map((status) => (
-											<MenuItem value={status.value} key={status.value}>
+											<MenuItem
+												value={status.value}
+												key={status.value ?? 'none'}
+											>
 												{status.label}
 											</MenuItem>
 										))}
@@ -263,8 +228,35 @@ export const CreateStory = () => {
 										name="priority"
 									>
 										{priorities.map((priority) => (
-											<MenuItem value={priority.value} key={priority.value}>
+											<MenuItem
+												value={priority.value}
+												key={priority.value ?? 'none'}
+											>
 												{priority.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							)}
+
+							{selectedFields.includes('subType') && (
+								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+									<InputLabel size="small" id="subType-label">
+										Type
+									</InputLabel>
+									<Select
+										variant="outlined"
+										size="small"
+										margin="dense"
+										fullWidth
+										labelId="subType-label"
+										label="Type"
+										id="subType"
+										name="subType"
+									>
+										{ticketTypes.map((subType) => (
+											<MenuItem value={subType.value} key={subType.value}>
+												{subType.label}
 											</MenuItem>
 										))}
 									</Select>

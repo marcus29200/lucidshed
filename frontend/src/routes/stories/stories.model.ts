@@ -34,6 +34,20 @@ export const priorities = [
 		value: 'low',
 	},
 ];
+export const ticketTypes = [
+	{
+		label: 'Feature',
+		value: 'feature',
+	},
+	{
+		label: 'Bug',
+		value: 'bug',
+	},
+	{
+		label: 'Task',
+		value: 'task',
+	},
+];
 
 export const METADATA_FIELD_OPTIONS = {
 	targetDate: 'Due Date',

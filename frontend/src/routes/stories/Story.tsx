@@ -1,18 +1,11 @@
-import { QueryClient, queryOptions } from '@tanstack/react-query';
-import {
-	ActionFunctionArgs,
-	Form,
-	LoaderFunctionArgs,
-	redirect,
-	useLoaderData,
-	useNavigate,
-} from 'react-router-dom';
-import { getStory, updateStory } from '../../api/stories';
+import { Form, useLoaderData, useNavigate } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
 import {
 	Box,
 	Button,
+	Checkbox,
 	FormControl,
+	FormControlLabel,
 	Grid,
 	InputLabel,
 	MenuItem,
@@ -22,75 +15,56 @@ import {
 } from '@mui/material';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useState } from 'react';
-import { priorities, statuses } from './stories.model';
+import { useEffect, useState } from 'react';
+import {
+	METADATA_FIELD_OPTIONS,
+	MetadataFieldOption,
+	priorities,
+	statuses,
+	ticketTypes,
+} from './stories.model';
+import { StoryAPI } from '../../api/stories';
+import { Sprint } from '../../api/sprints';
+import dayjs from 'dayjs';
 
-export const storyQuery = (orgId: string, storyId: string) =>
-	queryOptions({
-		queryKey: ['story', orgId, storyId],
-		queryFn: async () => getStory(orgId, storyId),
-	});
-
-export const loader = (queryClient: QueryClient) => {
-	return async ({ params }: LoaderFunctionArgs) => {
-		const { orgId, storyId } = params;
-		if (!orgId || !storyId) {
-			throw new Error('Missing orgId or story id');
-		}
-		return queryClient.fetchQuery(storyQuery(orgId, storyId));
-	};
-};
-
-export const action = (queryClient: QueryClient) => {
-	return async ({ request, params }: ActionFunctionArgs) => {
-		const formData = await request.formData();
-		const data = Object.fromEntries(formData);
-		console.log('what the hell is this data yo: ', data);
-		const estimated_completion_date = data?.targetDate
-			? new Date(data?.targetDate).toISOString()
-			: undefined;
-		const submissionData: any = {
-			title: data.title,
-			description: data.description,
-			item_type: 'story',
-			iteration_id: data.sprint ?? undefined,
-			estimated_completion_date,
-		};
-		if (data?.status) {
-			submissionData.status = data?.status;
-		}
-
-		if (data?.priority) {
-			submissionData.priority = data?.priority;
-		}
-		if (data?.estimate) {
-			submissionData.estimate = data?.estimate;
-		}
-
-		await updateStory({
-			orgId: params.orgId as string,
-			storyId: params.id as string,
-			data: submissionData,
-		});
-		await queryClient.invalidateQueries({
-			queryKey: ['story', params.orgId, params.id],
-		});
-		return redirect('..');
-	};
-};
 export const Story = () => {
-	const story = useLoaderData();
+	const story = useLoaderData() as StoryAPI;
 	const navigate = useNavigate();
 	const [title, setTitle] = useState(story.title ?? '');
 	const [description, setDescription] = useState(story.description ?? '');
-	const [status, setStatus] = useState(story.status);
-	const [priority, setPriority] = useState(story.priority ?? '');
-	const [estimate, setEstimate] = useState(story.estimate);
-	const [targetDate, setTargetDate] = useState(
-		new Date(story.estimated_completion_date)
+	const [sprint, setSprint] = useState<Sprint | null>(
+		(story.iteration as any) ?? null
 	);
-	const [sprint, setSprint] = useState(story.iteration ?? '');
-	console.log('the story: ', story, targetDate);
+	console.log(story);
+
+	const [dynamicFields, setDynamicFields] = useState<any>({
+		priority: story.priority,
+		status: story.status,
+		estimate: story.estimate,
+		subType: story.item_sub_type,
+		targetDate: story.estimated_completion_date
+			? dayjs(story.estimated_completion_date).toDate()
+			: undefined,
+	});
+	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>(
+		[]
+	);
+
+	useEffect(() => {
+		const fieldsWithValues = Object.keys(dynamicFields).filter(
+			(field) => !!dynamicFields[field as MetadataFieldOption]
+		);
+		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
+	}, [dynamicFields]);
+
+	const handleFieldToggle = (field: MetadataFieldOption) => {
+		setSelectedFields((prevSelected) =>
+			prevSelected.includes(field)
+				? prevSelected.filter((item) => item !== field)
+				: [...prevSelected, field]
+		);
+	};
+
 	return (
 		<FullHeightSection>
 			<Box
@@ -101,9 +75,19 @@ export const Story = () => {
 					flexDirection: 'column',
 				}}
 			>
-				<Typography variant="body1" align="left">
-					Basic Details
-				</Typography>
+				<Grid container spacing={2} sx={{ paddingBottom: '20px' }}>
+					<Grid item xs={8}>
+						<Typography variant="body1" align="left">
+							Basic Details
+						</Typography>
+					</Grid>
+					<Grid item xs={4}>
+						<Button variant="contained" color="success" onClick={() => {}}>
+							Ticket Metadata
+						</Button>
+					</Grid>
+				</Grid>
+
 				<Form
 					method="post"
 					style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
@@ -113,6 +97,7 @@ export const Story = () => {
 							<TextField
 								variant="outlined"
 								size="small"
+								required
 								margin="dense"
 								fullWidth
 								label="Title"
@@ -135,98 +120,247 @@ export const Story = () => {
 								onChange={(e) => setDescription(e.target.value)}
 							/>
 						</Grid>
-						<Grid item xs={4}>
+						<Grid
+							item
+							xs={4}
+							sx={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+							}}
+						>
+							<FormControl>
+								<InputLabel
+									sx={{
+										color: 'gray',
+										textAlign: 'left',
+										fontFamily: 'Poppins, sans-serif',
+									}}
+									htmlFor="add-ticket-details-label"
+								>
+									Add Ticket Details
+								</InputLabel>
+								<Select
+									id="add-ticket-details-label"
+									sx={{ marginTop: 1.2, borderRadius: `8px`, paddingY: 1 }}
+									multiple
+									value={selectedFields}
+									onChange={(e) => {
+										setSelectedFields(
+											typeof e.target.value === 'string'
+												? (e.target.value.split(',') as MetadataFieldOption[])
+												: e.target.value
+										);
+									}}
+									renderValue={(selected) =>
+										selected.map((s) => METADATA_FIELD_OPTIONS[s]).join(', ')
+									}
+									fullWidth
+									size="small"
+								>
+									{Object.keys(METADATA_FIELD_OPTIONS).map((field) => (
+										<MenuItem
+											key={field}
+											value={field}
+											sx={{ height: '30px' }}
+											onClick={() =>
+												handleFieldToggle(field as MetadataFieldOption)
+											}
+										>
+											<FormControlLabel
+												control={
+													<Checkbox
+														checked={selectedFields.includes(
+															field as MetadataFieldOption
+														)}
+													/>
+												}
+												label={
+													METADATA_FIELD_OPTIONS[field as MetadataFieldOption]
+												}
+											/>
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 							{/* THIS IS WHERE WE ADD ALL OF OUR FIELDS */}
-							<input type="hidden" value={sprint?.id} name="sprint" />
-							<SprintSearchInput
-								setSprint={setSprint}
-								sprint={sprint}
-								id="sprint-selector"
-							/>
-							<DatePicker
-								label="Due Date"
-								name="targetDate"
-								value={targetDate}
-								onChange={(e) => setTargetDate(e)}
-								slotProps={{
-									textField: {
-										variant: 'outlined',
-										size: 'small',
-										margin: 'dense',
-										fullWidth: true,
-									},
-								}}
-							></DatePicker>
-							<TextField
-								value={estimate}
-								onChange={(e) => setEstimate(e.target.value)}
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								type="number"
-								label="Estimate"
-								id="estimate"
-								name="estimate"
-							/>
-							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-								<InputLabel size="small" id="priority-label">
-									Priority
-								</InputLabel>
-								<Select
-									value={priority}
-									onChange={(e) => setPriority(e.target.value)}
+							{selectedFields.includes('targetDate') && (
+								<DatePicker
+									label="Due Date"
+									name="targetDate"
+									slotProps={{
+										textField: {
+											variant: 'outlined',
+											size: 'small',
+											margin: 'dense',
+											fullWidth: true,
+										},
+									}}
+									value={dynamicFields.targetDate}
+									onChange={(e) =>
+										setDynamicFields({
+											...dynamicFields,
+											targetDate: e,
+										})
+									}
+								></DatePicker>
+							)}
+							{selectedFields.includes('estimate') && (
+								<TextField
 									variant="outlined"
 									size="small"
 									margin="dense"
 									fullWidth
-									labelId="priority-label"
-									label="Priority"
-									defaultValue={'low'}
-									id="priority"
-									name="priority"
-								>
-									{priorities.map((priority) => (
-										<MenuItem value={priority.value} key={priority.value}>
-											{priority.label}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-								<InputLabel size="small" id="status-label">
-									Status
-								</InputLabel>
-								<Select
-									value={status}
-									onChange={(e) => setStatus(e.target.value)}
-									variant="outlined"
-									size="small"
-									margin="dense"
-									fullWidth
-									labelId="status-label"
-									label="Status"
-									defaultValue={'not-started'}
-									id="status"
-									name="status"
-								>
-									{statuses.map((status) => (
-										<MenuItem value={status.value} key={status.value}>
-											{status.label}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-							<TextField
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Attachments"
-								id="attachments"
-								name="attachments"
-							/>
+									type="number"
+									label="Estimate"
+									id="estimate"
+									name="estimate"
+									value={dynamicFields.estimate}
+									onChange={(e) =>
+										setDynamicFields({
+											...dynamicFields,
+											estimate: e.target.value,
+										})
+									}
+								/>
+							)}
 
+							{selectedFields.includes('status') && (
+								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+									<InputLabel size="small" id="status-label">
+										Status
+									</InputLabel>
+									<Select
+										variant="outlined"
+										size="small"
+										margin="dense"
+										fullWidth
+										labelId="status-label"
+										label="Status"
+										defaultValue={'not-started'}
+										id="status"
+										name="status"
+										value={dynamicFields.status}
+										onChange={(e) =>
+											setDynamicFields({
+												...dynamicFields,
+												status: e.target.value,
+											})
+										}
+									>
+										{statuses.map((status) => (
+											<MenuItem
+												value={status.value}
+												key={status.value ?? 'none'}
+											>
+												{status.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							)}
+
+							{selectedFields.includes('priority') && (
+								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+									<InputLabel size="small" id="priority-label">
+										Priority
+									</InputLabel>
+									<Select
+										variant="outlined"
+										size="small"
+										margin="dense"
+										fullWidth
+										labelId="priority-label"
+										label="Priority"
+										id="priority"
+										name="priority"
+										value={dynamicFields.priority}
+										onChange={(e) =>
+											setDynamicFields({
+												...dynamicFields,
+												priority: e.target.value,
+											})
+										}
+									>
+										{priorities.map((priority) => (
+											<MenuItem
+												value={priority.value}
+												key={priority.value ?? 'none'}
+											>
+												{priority.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							)}
+							{selectedFields.includes('subType') && (
+								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+									<InputLabel size="small" id="subType-label">
+										Type
+									</InputLabel>
+									<Select
+										variant="outlined"
+										size="small"
+										margin="dense"
+										fullWidth
+										labelId="subType-label"
+										label="Type"
+										id="subType"
+										name="subType"
+										value={dynamicFields.subType}
+										onChange={(e) =>
+											setDynamicFields({
+												...dynamicFields,
+												subType: e.target.value,
+											})
+										}
+									>
+										{ticketTypes.map((subType) => (
+											<MenuItem value={subType.value} key={subType.value}>
+												{subType.label}
+											</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+							)}
+							{selectedFields.includes('sprint') && (
+								<>
+									<input
+										hidden
+										name="sprint"
+										value={sprint?.id ?? ''}
+										onChange={() => setSprint(() => null)}
+									/>
+									<SprintSearchInput
+										setSprint={setSprint}
+										sprint={sprint}
+										id="sprint-selector"
+									/>
+								</>
+							)}
+
+							{selectedFields.includes('attachment') && (
+								<TextField
+									variant="outlined"
+									size="small"
+									margin="dense"
+									fullWidth
+									label="Attachments"
+									id="attachments"
+									name="attachments"
+								/>
+							)}
+							{selectedFields.includes('tags') && (
+								<TextField
+									variant="outlined"
+									size="small"
+									margin="dense"
+									fullWidth
+									label="Tags"
+									id="tags"
+									name="tags"
+								/>
+							)}
 							{/* TODO: owner */}
 							{/* TODO: assignee */}
 						</Grid>

@@ -1,31 +1,12 @@
 import { Box, Button, Typography } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
-import { Link, LoaderFunctionArgs, useLoaderData } from 'react-router-dom';
-import { QueryClient, queryOptions } from '@tanstack/react-query';
-import { getStories, StoryAPI } from '../../api/stories';
+import { Link, useLoaderData } from 'react-router-dom';
+import { StoryAPI } from '../../api/stories';
 import StoriesTable from './StoriesTable';
 import { SearchIcon } from '../../icons/icons';
 import EditFieldsButton from '../../components/EditFieldsButton';
 import { useState } from 'react';
 import TableFiltersButton from '../../components/TableFiltersButton';
-
-export const storiesQuery = (orgId: string, search?: string) =>
-	queryOptions({
-		queryKey: ['stories', orgId, search],
-		queryFn: async () => getStories(orgId, search),
-	});
-
-export const loader = (queryClient: QueryClient) => {
-	return async ({ params }: LoaderFunctionArgs) => {
-		const { orgId, search } = params;
-		if (!orgId) {
-			throw new Error('no org id');
-		}
-		// something is fucked up with the queryKey...
-		return getStories(orgId, search);
-		// return queryClient.ensureQueryData(storiesQuery(orgId, search));
-	};
-};
 
 export type Story = {
 	storyId: number;

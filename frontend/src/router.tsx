@@ -1,4 +1,4 @@
-import { createBrowserRouter, redirect } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import Home from './routes/home/home';
 import Login from './routes/Login';
 import Register from './routes/register/register';
@@ -6,7 +6,7 @@ import Dashboard from './routes/dashboard/dashboard';
 import AppLayout from './components/AppLayout';
 import { Epics, loader as epicsLoader } from './routes/epics/Epics';
 import { Epic, loader as epicLoader } from './routes/epics/Epic';
-import { Stories, loader as storiesLoader } from './routes/stories/Stories';
+import { Stories } from './routes/stories/Stories';
 import { ResetPassword } from './routes/ResetPassword';
 import { CreateOrganization } from './routes/CreateOrganization';
 import { loader as organizationLoader } from './api/organizations';
@@ -20,16 +20,15 @@ import {
 	CreateSprint,
 	action as createSprintAction,
 } from './routes/sprints/CreateSprint';
-import {
-	CreateStory,
-	action as createStoryAction,
-} from './routes/stories/CreateStory';
-import {
-	Story,
-	action as updateStoryAction,
-	loader as storyLoader,
-} from './routes/stories/Story';
+import { CreateStory } from './routes/stories/CreateStory';
+import { Story } from './routes/stories/Story';
 import EpicsDashboard from './routes/epics/EpicDashboard';
+import {
+	createStoryAction,
+	storiesLoader,
+	storyLoader,
+	updateStoryAction,
+} from './routes/stories/Story.hooks';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
