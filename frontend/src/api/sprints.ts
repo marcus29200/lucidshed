@@ -34,14 +34,14 @@ export type Sprint = {
 	organizationId: string;
 };
 
-export const mapPayloadToSprint = (rawSprint: RawSprint) => {
+export const mapPayloadToSprint = (rawSprint: RawSprint): Sprint => {
 	return {
-		id: rawSprint.id,
+		id: rawSprint.id + '',
 		title: rawSprint.title,
 		description: rawSprint.description,
-		status: rawSprint.status,
-		startDate: rawSprint.start_date,
-		endDate: rawSprint.end_date,
+		status: rawSprint.status ?? '',
+		startDate: rawSprint.start_date.toString(),
+		endDate: rawSprint.end_date.toString(),
 		organizationId: rawSprint.organization_id,
 	};
 };

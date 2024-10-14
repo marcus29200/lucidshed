@@ -24,7 +24,7 @@ import {
 	ticketTypes,
 } from './stories.model';
 import { StoryAPI } from '../../api/stories';
-import { Sprint } from '../../api/sprints';
+import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
 
 export const Story = () => {
@@ -33,9 +33,8 @@ export const Story = () => {
 	const [title, setTitle] = useState(story.title ?? '');
 	const [description, setDescription] = useState(story.description ?? '');
 	const [sprint, setSprint] = useState<Sprint | null>(
-		(story.iteration as any) ?? null
+		mapPayloadToSprint(story.iteration) ?? null
 	);
-	console.log(story);
 
 	const [dynamicFields, setDynamicFields] = useState<any>({
 		priority: story.priority,
@@ -54,8 +53,11 @@ export const Story = () => {
 		const fieldsWithValues = Object.keys(dynamicFields).filter(
 			(field) => !!dynamicFields[field as MetadataFieldOption]
 		);
+		if (sprint) {
+			fieldsWithValues.push('sprint');
+		}
 		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
-	}, [dynamicFields]);
+	}, [dynamicFields, sprint]);
 
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
@@ -334,6 +336,7 @@ export const Story = () => {
 									<SprintSearchInput
 										setSprint={setSprint}
 										sprint={sprint}
+										redirectOnSelect={false}
 										id="sprint-selector"
 									/>
 								</>

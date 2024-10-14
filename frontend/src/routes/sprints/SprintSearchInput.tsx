@@ -32,7 +32,7 @@ export default function SprintSearchInput({
 			value={value}
 			defaultValue={null}
 			onChange={(_event, newValue) => {
-				if (newValue?.inputValue === 'redirect-new') {
+				if (redirectOnSelect && newValue?.inputValue === 'redirect-new') {
 					return navigate('../new', { relative: 'path' });
 				}
 				if (redirectOnSelect) {

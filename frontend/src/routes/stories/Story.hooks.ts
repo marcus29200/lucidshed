@@ -80,7 +80,7 @@ export const updateStoryAction = (queryClient: QueryClient) => {
 	return async ({ request, params }: ActionFunctionArgs) => {
 		const formData = await request.formData();
 		const data = Object.fromEntries(formData);
-		console.log('what the hell is this data yo: ', data);
+
 		const estimated_completion_date = data?.targetDate
 			? new Date(data?.targetDate as string).toISOString()
 			: undefined;
@@ -101,15 +101,21 @@ export const updateStoryAction = (queryClient: QueryClient) => {
 		if (data?.estimate) {
 			submissionData.estimate = +data?.estimate;
 		}
+		if (data?.subType) {
+			submissionData.item_sub_type = data?.subType as string;
+		}
 
 		await updateStory({
 			orgId: params.orgId as string,
-			storyId: params.id as string,
+			storyId: params.storyId as string,
 			data: submissionData,
 		});
-		await queryClient.invalidateQueries({
-			queryKey: ['story', params.orgId, params.id],
-		});
-		return redirect('..');
+		await queryClient.invalidateQueries(
+			{
+				queryKey: ['story', params.orgId, params.id],
+			},
+			{ throwOnError: true }
+		);
+		return redirect(`/${params.orgId}/stories`);
 	};
 };
