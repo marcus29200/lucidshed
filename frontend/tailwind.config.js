@@ -4,6 +4,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
+				'neutral-dak': '#242831',
 				'neutral-regular': '#717584',
 				'neutral-light': '#A7AAB4',
 				'neutral-lighter': '#E9EAEC',

@@ -34,7 +34,10 @@ export type Sprint = {
 	organizationId: string;
 };
 
-export const mapPayloadToSprint = (rawSprint: RawSprint): Sprint => {
+export const mapPayloadToSprint = (
+	rawSprint: RawSprint | null
+): Sprint | null => {
+	if (!rawSprint) return null;
 	return {
 		id: rawSprint.id + '',
 		title: rawSprint.title,

@@ -90,6 +90,10 @@ export const updateStoryAction = (queryClient: QueryClient) => {
 			item_type: 'story',
 			iteration_id: data.sprint ? +data.sprint : undefined,
 			estimated_completion_date,
+			status: undefined,
+			priority: undefined,
+			estimate: undefined,
+			item_sub_type: undefined,
 		};
 		if (data?.status) {
 			submissionData.status = data?.status as string;
