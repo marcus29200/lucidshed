@@ -23,7 +23,7 @@ import {
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
-import { statuses, priorities } from './CreateStory';
+import { priorities, statuses } from './stories.model';
 
 export const storyQuery = (orgId: string, storyId: string) =>
 	queryOptions({

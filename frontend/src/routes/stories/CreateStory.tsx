@@ -25,52 +25,12 @@ import { useState } from 'react';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { Sprint } from '../../api/sprints';
 import { Priority } from '../../api/epics';
-
-const METADATA_FIELD_OPTIONS = {
-	targetDate: 'Due Date',
-	estimate: 'Estimate',
-	status: 'Status',
-	priority: 'Priority',
-	subType: 'Type',
-	sprint: 'Sprint',
-	tags: 'Tags',
-	attachment: 'Attachments',
-} as const;
-
-type MetadataFieldOption = keyof typeof METADATA_FIELD_OPTIONS;
-
-export const statuses = [
-	{
-		label: 'Not started',
-		value: 'not-started',
-	},
-	{
-		label: 'In progress',
-		value: 'in-progress',
-	},
-	{
-		label: 'Done',
-		value: 'done',
-	},
-];
-export const priorities = [
-	{
-		label: 'Critical',
-		value: 'critical',
-	},
-	{
-		label: 'High',
-		value: 'high',
-	},
-	{
-		label: 'Medium',
-		value: 'medium',
-	},
-	{
-		label: 'Small',
-		value: 'low',
-	},
-];
+import {
+	MetadataFieldOption,
+	METADATA_FIELD_OPTIONS,
+	statuses,
+	priorities,
+} from './stories.model';
 
 export const action = (queryClient: QueryClient) => {
 	return async ({ request, params }: ActionFunctionArgs) => {
@@ -299,7 +259,6 @@ export const CreateStory = () => {
 										fullWidth
 										labelId="priority-label"
 										label="Priority"
-										defaultValue={'low'}
 										id="priority"
 										name="priority"
 									>
