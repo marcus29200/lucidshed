@@ -1,23 +1,19 @@
 import { Button, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import {
-	createComment,
-	CreateCommentPayload,
-	mapRawComment,
-	UserComment,
-} from '../api/comments';
-import { StoryAPI } from '../api/stories';
-import { useLoaderData } from 'react-router-dom';
+import { CreateCommentPayload, UserComment } from '../api/comments';
 import UserWithAvatar from './UserWithAvatar';
 
 type UserCommentsProps = {
 	comments: UserComment[];
 	className?: string;
+	commentAdded: (comment: CreateCommentPayload) => void;
 };
 
-const UserComments: React.FC<UserCommentsProps> = ({ comments, className }) => {
-	const story = useLoaderData() as StoryAPI; // TODO: more generic (orgid and itemid) if other items can add comments
-
+const UserComments: React.FC<UserCommentsProps> = ({
+	comments,
+	className,
+	commentAdded,
+}) => {
 	const [newComments, setNewComments] = useState<UserComment[]>(comments);
 	const [newCommentContent, setNewCommentContent] = useState<string>('');
 	useEffect(() => {
@@ -30,14 +26,9 @@ const UserComments: React.FC<UserCommentsProps> = ({ comments, className }) => {
 			const newComment: CreateCommentPayload = {
 				description: newCommentContent,
 			};
-			createComment({
-				orgId: story.organization_id,
-				workItemId: story.id,
-				data: newComment,
-			}).then((comment) => {
-				setNewComments([...newComments, mapRawComment(comment)]);
-				setNewCommentContent('');
-			});
+			commentAdded(newComment);
+
+			setNewCommentContent('');
 		}
 	};
 
@@ -54,18 +45,16 @@ const UserComments: React.FC<UserCommentsProps> = ({ comments, className }) => {
 						newComments.map((comment) => (
 							<div key={comment.id} className="relative">
 								<article className="p-6 text-base rounded-lg bg-[#ffffff]">
-									<footer className="flex justify-between items-center mb-2">
-										<div className="flex items-center">
-											<p className="inline-flex font-poppins items-center mr-3 text-sm text-gray-900 font-semibold">
+									<section className="flex justify-between items-center mb-2">
+										<div className="flex items-center w-full justify-between">
+											<div className="inline-flex font-poppins items-center mr-3 text-sm text-gray-900 font-semibold">
 												<UserWithAvatar userId={comment.user} />
-											</p>
+											</div>
 											<p className="text-sm text-gray-800 font-poppins">
-												<time dateTime={comment.createdAt}>
-													{comment.createdAt}
-												</time>
+												<small>{comment.createdAt}</small>
 											</p>
 										</div>
-									</footer>
+									</section>
 									<p className="text-gray-900 font-poppins text-left">
 										{comment.description}
 									</p>

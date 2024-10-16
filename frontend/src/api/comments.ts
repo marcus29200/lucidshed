@@ -21,14 +21,14 @@ export type UserComment = {
 	workItemId: number;
 	user: string;
 	description: string;
-	createdAt: string; // MM/DD/YYYY HH:mm
+	createdAt: string; // MMM dd, yyyy h:mm a
 };
 export const mapRawComment = (comment: RawComment): UserComment => {
 	return {
 		id: comment.id,
 		description: comment.description,
 		user: comment.created_by_id,
-		createdAt: dayjs(comment.created_at).format('MM/DD/YYYY HH:mm'),
+		createdAt: dayjs(comment.created_at).format('MMM DD, YYYY h:mm a'),
 		workItemId: comment.work_item_id,
 	};
 };

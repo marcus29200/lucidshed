@@ -29,7 +29,7 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 						{user.firstName} {user.lastName}{' '}
 						{userId === currentUser.id && (
 							<span className="text-neutral-regular font-semibold text-xs">
-								(me)
+								(You)
 							</span>
 						)}
 					</Typography>

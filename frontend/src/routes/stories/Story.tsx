@@ -27,7 +27,13 @@ import { StoryAPI } from '../../api/stories';
 import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
 import UserComments from '../../components/UserComments';
-import { getAllComments, UserComment } from '../../api/comments';
+import {
+	createComment,
+	CreateCommentPayload,
+	getAllComments,
+	mapRawComment,
+	UserComment,
+} from '../../api/comments';
 
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
@@ -76,6 +82,16 @@ export const Story = () => {
 				? prevSelected.filter((item) => item !== field)
 				: [...prevSelected, field]
 		);
+	};
+
+	const handleAddComment = (newComment: CreateCommentPayload) => {
+		createComment({
+			orgId: story.organization_id,
+			workItemId: story.id,
+			data: newComment,
+		}).then((comment) => {
+			setComments((prev) => [...prev, mapRawComment(comment)]);
+		});
 	};
 
 	return (
@@ -407,7 +423,7 @@ export const Story = () => {
 				</Form>
 				<Grid container spacing={2}>
 					<Grid item xs={8}>
-						<UserComments comments={comments} />
+						<UserComments comments={comments} commentAdded={handleAddComment} />
 					</Grid>
 				</Grid>
 			</Box>
