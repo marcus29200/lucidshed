@@ -12,12 +12,16 @@ export default function SprintSearchInput({
 	name,
 	id,
 	redirectOnSelect = false,
+	redirectOnNew,
 }: {
 	sprint: Sprint | null;
-	setSprint: React.Dispatch<React.SetStateAction<Sprint | null>>;
+	setSprint?:
+		| React.Dispatch<React.SetStateAction<Sprint>>
+		| React.Dispatch<React.SetStateAction<Sprint | null>>;
 	name?: string;
 	id?: string;
 	redirectOnSelect?: boolean;
+	redirectOnNew?: boolean;
 }) {
 	const [value, setValue] = React.useState<Sprint | null>(sprint);
 	const params = useParams();
@@ -32,14 +36,14 @@ export default function SprintSearchInput({
 			value={value}
 			defaultValue={null}
 			onChange={(_event, newValue) => {
-				if (redirectOnSelect && newValue?.inputValue === 'redirect-new') {
-					return navigate('../new', { relative: 'path' });
+				if (redirectOnNew && newValue?.inputValue === 'redirect-new') {
+					return navigate('./new', { relative: 'path' });
 				}
 				if (redirectOnSelect) {
-					return navigate(`../${newValue.id}`, { relative: 'path' });
+					return navigate(`./${newValue.id}`, { relative: 'path' });
 				}
 				setValue(() => newValue);
-				setSprint(() => newValue);
+				setSprint && setSprint(() => newValue);
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;
