@@ -136,7 +136,7 @@ class WorkItemController:
 
         # TODO Create history entry
 
-        return [WorkItemComment(**record) for record in records]
+        return [WorkItemComment(**record) for record in records], None
 
     async def update_comment(
         self,

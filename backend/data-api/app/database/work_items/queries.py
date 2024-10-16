@@ -313,17 +313,14 @@ WHERE
 
 
 WORK_ITEM_QUERIES[
-    "GET_ALL_WORK_ITEM_COMMENTS"
+    "GET_WORK_ITEM_COMMENTS"
 ] = """
 SELECT *
 FROM work_item_comments
 WHERE
     organization_id = $1
     AND work_item_id = $2
-    AND deleted_at IS NULL
-ORDER BY $3
-LIMIT $4
-OFFSET $5;
+    AND deleted_at IS NULL;
 """
 
 
