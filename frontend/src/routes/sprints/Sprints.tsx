@@ -6,15 +6,21 @@ import {
 	useNavigate,
 	useParams,
 } from 'react-router-dom';
-import { getSprints, Sprint } from '../../api/sprints';
-import { Box, Button, Grid, TextField, Typography } from '@mui/material';
+import { getSprints, getStoriesForSprint, Sprint } from '../../api/sprints';
+import {
+	Box,
+	Grid,
+	LinearProgress,
+	TextField,
+	Typography,
+} from '@mui/material';
 import SprintStoryTable from './SprintStoryTable';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
-import { SprintRow } from './SprintRow';
 import { Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
+import { Story } from '../stories/Stories';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -35,13 +41,23 @@ export const loader = (queryClient: QueryClient) => {
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const { orgId } = useParams();
-	const navigate = useNavigate();
 	const [selectedSprint, setSelectedSprint] = useState<Sprint>(sprints[0]);
+	const [currentStories, setCurrentStories] = useState<Story[]>([]);
+	useMemo(() => {
+		if (selectedSprint) {
+			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
+				(stories) => {
+					setCurrentStories(() => stories);
+				}
+			);
+		}
+	}, [selectedSprint]);
+
 	if (!sprints.length) {
 		return (
 			<>
 				<div className="flex justify-end">
-					<SprintSearchInput redirectOnSelect={true} sprint={null} />
+					<SprintSearchInput enableAddNew={true} sprint={null} />
 				</div>
 				<div className="rounded-xl flex items-center justify-center mt-8 bg-white h-80">
 					<p className="text-base text-neutral-regular">
@@ -52,7 +68,6 @@ export const Sprints = () => {
 			</>
 		);
 	}
-	console.log(sprints);
 
 	return (
 		<>
@@ -72,7 +87,7 @@ export const Sprints = () => {
 				</Link>
 				<div className="ml-auto flex-1">
 					<SprintSearchInput
-						redirectOnNew={true}
+						enableAddNew={true}
 						sprint={selectedSprint}
 						setSprint={setSelectedSprint}
 					/>
@@ -100,13 +115,7 @@ export const Sprints = () => {
 								name="description"
 								multiline
 								value={selectedSprint.description}
-								onChange={(evt) =>
-									setSelectedSprint((prev) => ({
-										...prev,
-										description: evt.target.value,
-									}))
-								}
-								minRows={8}
+								rows={8}
 							></TextField>
 						</Grid>
 						<Grid item xs={4}>
@@ -127,12 +136,6 @@ export const Sprints = () => {
 									},
 								}}
 								value={new Date(selectedSprint.startDate) as any}
-								onChange={(evt) =>
-									setSelectedSprint((prev) => ({
-										...prev,
-										startDate: evt.toString(),
-									}))
-								}
 							></DatePicker>
 							<DatePicker
 								label="Sprint End date"
@@ -151,12 +154,6 @@ export const Sprints = () => {
 									},
 								}}
 								value={new Date(selectedSprint.endDate) as any}
-								onChange={(evt) =>
-									setSelectedSprint((prev) => ({
-										...prev,
-										endDate: evt.toString(),
-									}))
-								}
 							></DatePicker>
 						</Grid>
 					</Grid>
@@ -170,32 +167,22 @@ export const Sprints = () => {
 						</label>
 						<div className="text-base font-semibold">{0}% to complete</div>
 					</div>
-					<div className="bg-gray-300 rounded-full h-2.5">
-						<div
-							className="bg-green-500 h-2.5 rounded-full"
-							style={{ width: `calc(100% - ${100 - 0}%)` }}
-						></div>
-					</div>
+					<LinearProgress
+						sx={{
+							'&.MuiLinearProgress-root': {
+								background: '#d1d5db',
+								height: '12px',
+								borderRadius: '90px',
+							},
+						}}
+						variant="determinate"
+						value={0}
+					/>
 				</div>
 			</Box>
 			{/* stories talbe */}
-			<div className="rounded-xl bg-white">
-				<Box
-					sx={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						paddingX: '12px',
-						paddingY: '6px',
-					}}
-				>
-					<Typography variant="h6">Epic Overview</Typography>
-				</Box>
-				<SprintStoryTable>
-					{sprints.map((story) => (
-						<SprintRow story={story} key={story.id} />
-					))}
-				</SprintStoryTable>
+			<div className="rounded-xl p-4 bg-white">
+				<SprintStoryTable stories={currentStories} />
 			</div>
 		</>
 	);

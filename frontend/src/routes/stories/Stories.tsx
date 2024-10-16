@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
 import { Link, useLoaderData } from 'react-router-dom';
-import { StoryAPI } from '../../api/stories';
+import { mapRawStory, StoryAPI } from '../../api/stories';
 import StoriesTable from './StoriesTable';
 import { SearchIcon } from '../../icons/icons';
 import EditFieldsButton from '../../components/EditFieldsButton';
@@ -24,15 +24,7 @@ const tableColumnIds = [
 ];
 
 export const Stories = () => {
-	const stories: Story[] = (useLoaderData() as StoryAPI[]).map(
-		(story: StoryAPI) => ({
-			targetDate: story.estimated_completion_date,
-			storyId: story.id,
-			name: story.title,
-			progress: 0,
-			startDate: story.start_date,
-		})
-	);
+	const stories: Story[] = (useLoaderData() as StoryAPI[]).map(mapRawStory);
 
 	const [searchTerm, setSearchTerm] = useState('');
 

@@ -1,4 +1,5 @@
 import { BASE_URL } from '../environment';
+import { Story } from '../routes/stories/Stories';
 import { Priority } from './epics';
 import { RawSprint } from './sprints';
 import { getAuthHeaders } from './utils';
@@ -40,6 +41,16 @@ export type StoryAPI = {
 	modified_at: Date;
 	deleted_at: number | null;
 	organization_id: string;
+};
+
+export const mapRawStory = (rawStory: StoryAPI): Story => {
+	return {
+		targetDate: rawStory.estimated_completion_date,
+		storyId: rawStory.id,
+		name: rawStory.title,
+		progress: 0,
+		startDate: rawStory.start_date,
+	};
 };
 
 export const createStory = async ({

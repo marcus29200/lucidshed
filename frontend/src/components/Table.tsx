@@ -27,6 +27,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	setSortingStates: React.Dispatch<React.SetStateAction<ColumnStates>>;
 	sortingStates: ColumnStates;
 	handleRowClicked?: (arg: T) => void;
+	actionsEnabled?: boolean;
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -36,6 +37,7 @@ const ShedTable = <T extends MRT_RowData>({
 	sortingStates,
 	setSortingStates,
 	handleRowClicked,
+	actionsEnabled = true,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 	const [lastResetColumn, setLastResetColumn] = useState<string | null>(null);
@@ -96,7 +98,7 @@ const ShedTable = <T extends MRT_RowData>({
 		manualSorting: true,
 		enableBottomToolbar: false,
 		enableTopToolbar: false,
-		enableRowActions: true,
+		enableRowActions: actionsEnabled,
 		muiTableHeadProps: {
 			sx: {
 				backgroundColor: '#F9FAFC',

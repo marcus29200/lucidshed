@@ -14,8 +14,13 @@ import { copyLink } from '../../api/utils';
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
 	stories: Story[];
+	actionsEnabled?: boolean;
 };
-const StoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
+const StoriesTable = ({
+	stories,
+	checkedField,
+	actionsEnabled = true,
+}: StoryDataTableProps) => {
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
 	}>({
@@ -274,6 +279,7 @@ const StoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 			actions={actions}
 			sortingStates={sortingStates}
 			handleRowClicked={handleRowClicked}
+			actionsEnabled={actionsEnabled}
 		/>
 	);
 };

@@ -1,4 +1,6 @@
 import { BASE_URL } from '../environment';
+import { Story } from '../routes/stories/Stories';
+import { mapRawStory, StoryAPI } from './stories';
 import { getAuthHeaders } from './utils';
 
 export type CreateSprintPayload = {
@@ -118,4 +120,24 @@ export const deleteSprint = async ({ orgId, sprintId }) => {
 	}
 
 	return;
+};
+
+export const getStoriesForSprint = async ({
+	orgId,
+	sprintId,
+}): Promise<Story[]> => {
+	const res = await fetch(
+		`${BASE_URL}/${orgId}/engineering?iteration_id=${sprintId}`,
+		{
+			method: 'GET',
+			headers: {
+				...getAuthHeaders(),
+			},
+		}
+	);
+	if (!res.ok) {
+		throw await res.json();
+	}
+	const storiesPage: { items: StoryAPI[] } = await res.json();
+	return storiesPage.items.map(mapRawStory);
 };

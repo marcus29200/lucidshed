@@ -11,8 +11,7 @@ export default function SprintSearchInput({
 	setSprint,
 	name,
 	id,
-	redirectOnSelect = false,
-	redirectOnNew,
+	enableAddNew,
 }: {
 	sprint: Sprint | null;
 	setSprint?:
@@ -20,8 +19,7 @@ export default function SprintSearchInput({
 		| React.Dispatch<React.SetStateAction<Sprint | null>>;
 	name?: string;
 	id?: string;
-	redirectOnSelect?: boolean;
-	redirectOnNew?: boolean;
+	enableAddNew?: boolean;
 }) {
 	const [value, setValue] = React.useState<Sprint | null>(sprint);
 	const params = useParams();
@@ -30,17 +28,17 @@ export default function SprintSearchInput({
 		queryFn: async () => getSprints(params.orgId as string),
 	});
 	const items = data ?? [];
+	const options = enableAddNew
+		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
+		: [...items];
 	const navigate = useNavigate();
 	return (
 		<Autocomplete
 			value={value}
 			defaultValue={null}
 			onChange={(_event, newValue) => {
-				if (redirectOnNew && newValue?.inputValue === 'redirect-new') {
-					return navigate('./new', { relative: 'path' });
-				}
-				if (redirectOnSelect) {
-					return navigate(`./${newValue.id}`, { relative: 'path' });
+				if (enableAddNew && newValue?.inputValue === 'add-new') {
+					return navigate(`/${params.orgId as string}/sprints/new`);
 				}
 				setValue(() => newValue);
 				setSprint && setSprint(() => newValue);
@@ -51,9 +49,9 @@ export default function SprintSearchInput({
 					opt.title.toLowerCase().includes(inputValue.toLowerCase())
 				);
 				// Suggest the creation of a new value
-				if (inputValue !== '' && filtered.length === 0) {
+				if (inputValue !== '' && filtered.length === 0 && enableAddNew) {
 					filtered.push({
-						inputValue: 'redirect-new',
+						inputValue: 'add-new',
 						title: `Add new sprint`,
 					});
 				}
@@ -66,10 +64,7 @@ export default function SprintSearchInput({
 			handleHomeEndKeys
 			loading={isLoading}
 			id={id}
-			options={[
-				{ title: 'Add new sprint', inputValue: 'redirect-new' },
-				...items,
-			]}
+			options={options}
 			isOptionEqualToValue={(option, value) =>
 				option.title === value || option.id === value.id
 			}
