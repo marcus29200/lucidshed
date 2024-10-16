@@ -27,15 +27,25 @@ import { StoryAPI } from '../../api/stories';
 import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
 import UserComments from '../../components/UserComments';
+import { getAllComments, UserComment } from '../../api/comments';
 
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
 	const navigate = useNavigate();
 	const [title, setTitle] = useState(story.title ?? '');
 	const [description, setDescription] = useState(story.description ?? '');
+	const [comments, setComments] = useState<UserComment[]>([]);
 	const [sprint, setSprint] = useState<Sprint | null>(
 		mapPayloadToSprint(story.iteration) ?? null
 	);
+
+	useEffect(() => {
+		getAllComments({ orgId: story.organization_id, workItemId: story.id }).then(
+			(comments) => {
+				setComments(comments);
+			}
+		);
+	}, [story]);
 
 	const [dynamicFields, setDynamicFields] = useState<any>({
 		priority: story.priority,
@@ -397,17 +407,7 @@ export const Story = () => {
 				</Form>
 				<Grid container spacing={2}>
 					<Grid item xs={8}>
-						<UserComments
-							comments={[
-								{
-									Author: 'John Doe',
-									Content: 'This is a comment',
-									CommentId: '',
-									Date: '12/12/2023',
-									Replies: [],
-								},
-							]}
-						/>
+						<UserComments comments={comments} />
 					</Grid>
 				</Grid>
 			</Box>
