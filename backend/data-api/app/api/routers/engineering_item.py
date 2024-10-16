@@ -139,7 +139,7 @@ async def get_engineering_item_comments(
     cursor: Optional[str] = None,
 ) -> WorkItemCommentPagedResponse:
     items, cursor = await request.app.engineering_controller.get_comments(
-        organization_id=organization_id, work_item_id=work_item_id, sort=sort, limit=limit, cursor=cursor
+        organization_id=organization_id, id=work_item_id  # TODO , sort=sort, limit=limit, cursor=cursor
     )
     return WorkItemCommentPagedResponse(items=items, cursor=cursor)
 
@@ -159,7 +159,7 @@ async def update_engineering_item_comment(
 
 @router.delete("/{work_item_id}/comments/{id}", status_code=200)
 async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: int, id: str):
-    return await request.app.engineering_controller.delete(
+    return await request.app.engineering_controller.delete_comment(
         organization_id=organization_id,
         work_item_id=work_item_id,
         id=id,
