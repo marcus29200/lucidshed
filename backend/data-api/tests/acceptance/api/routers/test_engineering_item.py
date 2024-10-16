@@ -385,3 +385,156 @@ async def test_should_get_linked_stories(data_api: TestClient):
     data = response.json()
     assert len(data["items"]) == 1
     assert data["items"][0]["id"] == story2["id"]
+
+
+async def test_should_add_comment_to_story(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    comment = response.json()
+    assert comment["comment"] == "Test Comment"
+    assert comment["item_id"] == story["id"]
+    assert comment["created_by_id"] == data_api.test_user_id
+
+
+async def test_should_not_add_comment_to_story_with_expired_token(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=expired_headers,
+    )
+    assert response.status_code == 401
+
+
+async def test_should_not_add_comment_to_story_with_invalid_token(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    response = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments", json={"comment": "Test Comment"}, headers={},
+    )
+    assert response.status_code == 401
+
+
+async def test_should_get_comment_for_story(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    comment = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+
+    response = await data_api.get(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments/{comment['id']}", headers=headers
+    )
+    assert response.status_code == 200
+
+    comment = response.json()
+    assert comment["comment"] == "Test Comment"
+    assert comment["item_id"] == story["id"]
+    assert comment["created_by_id"] == data_api.test_user_id
+
+
+async def test_should_get_comments_for_story(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{story['id']}/comments", headers=headers)
+    assert response.status_code == 200
+
+    comments = response.json()
+    assert len(comments) == 1
+    assert comments[0]["comment"] == "Test Comment"
+    assert comments[0]["item_id"] == story["id"]
+    assert comments[0]["created_by_id"] == data_api.test_user_id
+
+
+async def test_should_not_get_comments_for_story_with_expired_token(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{story['id']}/comments", headers=expired_headers)
+    assert response.status_code == 401
+
+
+async def test_should_not_get_comments_for_story_with_invalid_token(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{story['id']}/comments", headers={})
+    assert response.status_code == 401
+
+
+async def test_should_delete_comment_for_story(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value}, headers=headers
+    )
+
+    comment = await data_api.post(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments",
+        json={"comment": "Test Comment"},
+        headers=headers,
+    )
+
+    response = await data_api.delete(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments/{comment['id']}", headers=headers
+    )
+    assert response.status_code == 200
+
+    response = await data_api.get(
+        f"{data_api.test_org_id}/engineering/{story['id']}/comments/{comment['id']}", headers=headers
+    )
+    assert response.status_code == 404

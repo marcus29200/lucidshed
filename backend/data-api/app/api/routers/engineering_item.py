@@ -139,7 +139,7 @@ async def get_engineering_item_comments(
     cursor: Optional[str] = None,
 ) -> WorkItemCommentPagedResponse:
     items, cursor = await request.app.engineering_controller.get_comments(
-        organization_id=organization_id, work_item_id=work_item_id, sort=sort, limit=limit, cursor=cursor
+        organization_id=organization_id, id=work_item_id, sort=sort, limit=limit, cursor=cursor
     )
     return WorkItemCommentPagedResponse(items=items, cursor=cursor)
 
