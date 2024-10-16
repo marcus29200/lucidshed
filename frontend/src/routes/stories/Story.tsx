@@ -26,6 +26,7 @@ import {
 import { StoryAPI } from '../../api/stories';
 import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
+import UserComments from '../../components/UserComments';
 
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
@@ -92,7 +93,12 @@ export const Story = () => {
 
 				<Form
 					method="post"
-					style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+					style={{
+						display: 'flex',
+						flexDirection: 'column',
+						flexGrow: 1,
+						paddingBottom: '20px',
+					}}
 				>
 					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 						<Grid item xs={8}>
@@ -369,7 +375,12 @@ export const Story = () => {
 						</Grid>
 					</Grid>
 					<Box
-						sx={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}
+						sx={{
+							display: 'flex',
+							justifyContent: 'flex-end',
+							gap: '1rem',
+							paddingY: '16px',
+						}}
 					>
 						<Button
 							variant="contained"
@@ -384,6 +395,21 @@ export const Story = () => {
 						</Button>
 					</Box>
 				</Form>
+				<Grid container spacing={2}>
+					<Grid item xs={8}>
+						<UserComments
+							comments={[
+								{
+									Author: 'John Doe',
+									Content: 'This is a comment',
+									CommentId: '',
+									Date: '12/12/2023',
+									Replies: [],
+								},
+							]}
+						/>
+					</Grid>
+				</Grid>
 			</Box>
 		</FullHeightSection>
 	);
