@@ -301,3 +301,114 @@ export const HomeIcon = ({ className = '' }: { className?: string }) => (
 		</svg>
 	</SvgIcon>
 );
+
+export const LockRaidStorageIcon = ({
+	className = '',
+}: {
+	className?: string;
+}) => (
+	<SvgIcon className={`${className}`}>
+		<svg
+			width="94"
+			height="94"
+			viewBox="0 0 94 94"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g>
+				<path
+					d="M40.8461 29.0923C59.5389 29.0923 74.6923 23.2513 74.6923 16.0462C74.6923 8.84098 59.5389 3 40.8461 3C22.1534 3 7 8.84098 7 16.0462C7 23.2513 22.1534 29.0923 40.8461 29.0923Z"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M74.6914 27.6163V16.047"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M7 16.047V57.647C7 64.5392 20.7846 69.9546 38.2615 70.6315"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M40.8461 49.6462C22.3846 49.8924 7 44.0462 7 36.8462"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M53.1531 58.3847H83.9223C85.7685 58.3847 86.9992 59.6155 86.9992 61.4616V79.9232C86.9992 81.7693 85.7685 83.0001 83.9223 83.0001H53.1531C51.3069 83.0001 50.0762 81.7693 50.0762 79.9232V61.4616C50.0762 59.6155 51.3069 58.3847 53.1531 58.3847Z"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M56.2305 58.3849V52.231C56.2305 45.4618 61.7689 39.9233 68.5382 39.9233C75.3074 39.9233 80.8459 45.4618 80.8459 52.231V58.3849"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</g>
+		</svg>
+	</SvgIcon>
+);
+
+export const DesktopChatIcon = ({ className = '' }: { className?: string }) => (
+	<SvgIcon className={`${className}`}>
+		<svg
+			width="88"
+			height="88"
+			viewBox="0 0 88 88"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g>
+				<path
+					d="M81.1429 45.7143V60C81.1429 60.7577 80.8417 61.4846 80.3063 62.0206C79.7703 62.556 79.0435 62.8571 78.2858 62.8571H9.71432C8.95656 62.8571 8.22983 62.556 7.69402 62.0206C7.15819 61.4846 6.85718 60.7577 6.85718 60V14.2857C6.85718 13.5279 7.15819 12.8012 7.69402 12.2654C8.22983 11.7296 8.95656 11.4286 9.71432 11.4286H21.1429"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M38.2858 62.8571L32.5715 77.1429"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M49.7144 62.8571L55.4286 77.1429"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M26.8572 77.1429H61.1429"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+				<path
+					d="M35.4287 31.4286H52.5716V42.8571L69.7144 31.4286H81.143V2.85715H35.4287V31.4286Z"
+					stroke="currentColor"
+					strokeWidth="6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</g>
+		</svg>
+	</SvgIcon>
+);

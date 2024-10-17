@@ -8,15 +8,15 @@ import {
 	ListItemIcon,
 	ListItemText,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
-import { Add, NavigateBefore } from '@mui/icons-material';
+import { Add, NavigateBefore, Settings } from '@mui/icons-material';
+import SettingsModal from './SettingsDashboard/pages/SettingPage';
 
 const NAVIGATION_ITEMS = [
 	{
-		to: '/',
+		to: '',
 		label: 'Dashboard',
 		icon: () => <DashboardIcon />,
 	},
@@ -40,14 +40,14 @@ const NAVIGATION_ITEMS = [
 	},
 ];
 
-// TODO: update the sidebar button to close/open sidebar
-// TODO: update active list item css
 const Sidebar = () => {
 	const { orgId } = useParams();
 	const [expanded, setExpanded] = useState(true);
 	const [width, setWidth] = useState('240px');
 	const navigate = useNavigate();
 	const location = useLocation();
+	const [openSettings, setOpenSettings] = useState(false);
+
 	useEffect(() => {
 		setWidth(() => (expanded ? '240px' : '72px'));
 	}, [expanded]);
@@ -102,7 +102,10 @@ const Sidebar = () => {
 				{NAVIGATION_ITEMS.map((item) => (
 					<ListItemButton
 						key={item.to}
-						selected={location.pathname.includes(item.to) && item.to != '/'}
+						selected={
+							(location.pathname.includes(item.to) && item.to != '') ||
+							(item.to === '' && location.pathname.endsWith(`/${orgId}/`))
+						}
 						color="primary"
 						component={Link}
 						to={`/${orgId}/${item.to}`}
@@ -152,7 +155,17 @@ const Sidebar = () => {
 					</ListItemButton>
 				))}
 			</List>
-			{/* <Divider variant="middle" /> */}
+			<Divider variant="middle" />
+			<List>
+				<ListItemButton onClick={() => setOpenSettings(true)}>
+					<ListItemIcon>
+						<Settings />
+					</ListItemIcon>
+					<ListItemText>Admin settings</ListItemText>
+				</ListItemButton>
+			</List>
+
+			<SettingsModal setOpen={setOpenSettings} open={openSettings} />
 		</Drawer>
 	);
 };

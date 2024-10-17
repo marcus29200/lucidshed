@@ -6,13 +6,16 @@
 - ✅Create single epic view page
 - ✅Create list view for stories
 - ✅create re-usable select and datepicker components
-- Create new story form
-- Create ability to view story
+- ✅Create new story form
+- ✅Create ability to view story
 - ✅Update sidebar active route styling
 - ✅Style table headers to be grey, rounded corners
 - create main dashboard view
-- create sprints list
-- create sprint form
-- create sprint view
+- ✅create sprints list
+- ✅create sprint form
+- ✅create sprint view
+- Add stories to the Epic workflow
+- create admin settings modal
 - create admin settings modal
 - create documents view
+- cleanup and refactoring
