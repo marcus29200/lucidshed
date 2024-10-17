@@ -88,7 +88,10 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 			aria-labelledby="settings"
 			aria-describedby="configure settings"
 			open={open}
-			onClose={() => setOpen(false)}
+			onClose={() => {
+				setOpen(false);
+				setSelectedComponent(null);
+			}}
 			sx={{
 				display: 'flex',
 				justifyContent: 'center',
@@ -111,7 +114,10 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 						</IconButton>
 					)}
 					<IconButton
-						onClick={() => setOpen(false)}
+						onClick={() => {
+							setOpen(false);
+							setSelectedComponent(null);
+						}}
 						sx={{
 							marginLeft: 'auto',
 						}}

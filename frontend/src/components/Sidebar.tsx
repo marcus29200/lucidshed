@@ -11,32 +11,51 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
-import { Add, NavigateBefore, Settings } from '@mui/icons-material';
+import { Add, Checklist, NavigateBefore, Settings } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
+import SidebarItem from './SidebarItem';
 
-const NAVIGATION_ITEMS = [
+export type NavigationItem = {
+	label: string;
+	to?: string;
+	icon: () => JSX.Element;
+	canAdd?: boolean;
+	children?: NavigationItem[];
+	dropDown?: () => JSX.Element; // TODO: Implement drop down menu
+};
+
+const NAVIGATION_ITEMS: NavigationItem[] = [
 	{
 		to: '',
 		label: 'Dashboard',
 		icon: () => <DashboardIcon />,
 	},
 	{
-		to: 'epics',
-		label: 'Epics',
-		icon: () => <EpicIcon />,
-		canAdd: true,
-	},
-	{
-		to: 'stories',
-		label: 'Stories',
-		icon: () => <BookIcon />,
-		canAdd: true,
-	},
-	{
-		to: 'sprints',
-		label: 'Sprints',
-		icon: () => <SprintIcon />,
-		canAdd: true,
+		label: 'All teams',
+		icon: () => (
+			<Checklist className="border-2 border-current rounded-md px-[1px]" />
+		),
+		dropDown: () => <span></span>,
+		children: [
+			{
+				to: 'epics',
+				label: 'Epics',
+				icon: () => <EpicIcon />,
+				canAdd: true,
+			},
+			{
+				to: 'stories',
+				label: 'Stories',
+				icon: () => <BookIcon />,
+				canAdd: true,
+			},
+			{
+				to: 'sprints',
+				label: 'Sprints',
+				icon: () => <SprintIcon />,
+				canAdd: true,
+			},
+		],
 	},
 ];
 
@@ -100,59 +119,7 @@ const Sidebar = () => {
 			<Divider />
 			<List className="sidebar-list">
 				{NAVIGATION_ITEMS.map((item) => (
-					<ListItemButton
-						key={item.to}
-						selected={
-							(location.pathname.includes(item.to) && item.to != '') ||
-							(item.to === '' && location.pathname.endsWith(`/${orgId}/`))
-						}
-						color="primary"
-						component={Link}
-						to={`/${orgId}/${item.to}`}
-						style={{ textDecoration: 'none', paddingLeft: '22px' }}
-						sx={{
-							backgroundColor:
-								location.pathname === `/${orgId}/${item.to}`
-									? '#f0f0f0'
-									: undefined,
-							position: 'relative',
-							'&.Mui-selected': {
-								backgroundColor: 'white',
-								'&:hover': {
-									backgroundColor: '#20A2240f',
-								},
-								'&::before': {
-									content: '""',
-									position: 'absolute',
-									left: 0,
-									top: 'calc(50% - 20px)',
-									width: '5px',
-									height: '40px',
-									backgroundColor: '#20A224',
-									borderTopRightRadius: '16px',
-									borderBottomRightRadius: '16px',
-								},
-								'& .MuiListItemText-root, & .MuiListItemIcon-root': {
-									color: '#20A224 !important',
-								},
-							},
-							'& .MuiListItemIcon-root': {
-								color: '#242831',
-							},
-						}}
-					>
-						<ListItemIcon>{item.icon()}</ListItemIcon>
-						<ListItemText sx={{ color: 'black' }}>{item.label}</ListItemText>
-						{item.canAdd ? (
-							<IconButton
-								className="rounded-full !text-neutral-regular !bg-white shadow-md"
-								sx={{ zIndex: 10 }}
-								onClick={(e) => addItem(e, item.to)}
-							>
-								<Add />
-							</IconButton>
-						) : null}
-					</ListItemButton>
+					<SidebarItem item={item} key={item.label} />
 				))}
 			</List>
 			<Divider variant="middle" />
