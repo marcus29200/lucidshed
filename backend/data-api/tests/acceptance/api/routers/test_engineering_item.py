@@ -107,6 +107,17 @@ async def test_should_add_engineering_item_with_created_by_override(data_api: Te
     assert engineering_item["created_by_id"] == "test2@test.com"
 
 
+async def test_should_add_engineering_item_with_assigned_to_override(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    engineering_item = await add_engineering_item(
+        data_api, org["id"], {"assigned_to_id": user["id"]}, headers=headers
+    )
+
+    assert engineering_item["assigned_to_id"] == user["id"]
+    assert engineering_item["assigned_to"]["id"] == user["id"]
+
+
 async def test_should_not_add_engineering_item_with_expired_token(data_api: TestClient):
     org, _, _ = await authenticate(data_api)
 

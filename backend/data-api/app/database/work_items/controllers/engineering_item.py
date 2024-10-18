@@ -11,6 +11,7 @@ from app.database.work_items.models.engineering_item import (
     EngineeringLinkType,
 )
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.database.users.controllers.user import UserController
 
 
 class EngineeringController(WorkItemController):
@@ -51,7 +52,11 @@ class EngineeringController(WorkItemController):
             current_user,
         )
 
-        return EngineeringItem(**record)
+        user = None
+        if new_item.assigned_to_id:
+            user = await UserController().get_slim_user(id=new_item.assigned_to_id)
+
+        return EngineeringItem(**record, assigned_to=user)
 
     async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
         record, user = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
