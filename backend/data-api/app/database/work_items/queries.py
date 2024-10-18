@@ -150,9 +150,10 @@ WHERE
     AND ($3::int IS NULL OR engineering_items.iteration_id = $3)
     AND ($4::int IS NULL OR (work_item_relationships.item_1 = $4 OR work_item_relationships.item_2 = $4))
     AND ($4::int IS NULL OR engineering_items.id != $4)
-ORDER BY $5
-LIMIT $6
-OFFSET $7;
+    AND ($5::text IS NULL OR engineering_items.assigned_to_id = $5)
+ORDER BY $6
+LIMIT $7
+OFFSET $8;
 """
 
 

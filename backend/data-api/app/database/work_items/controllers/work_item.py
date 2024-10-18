@@ -55,6 +55,7 @@ class WorkItemController:
         item_type: Optional[str] = None,
         iteration_id: Optional[str] = None,
         related_item_id: Optional[int] = None,
+        assigned_to_id: Optional[str] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
@@ -70,6 +71,7 @@ class WorkItemController:
             item_type,
             iteration_id,
             related_item_id,
+            assigned_to_id,
             sort,
             limit,
             offset,

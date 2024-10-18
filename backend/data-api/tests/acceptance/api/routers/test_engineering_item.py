@@ -230,6 +230,27 @@ async def test_should_get_all_engineering_item_with_iteration_id(data_api: TestC
     assert len(items) == 1
 
 
+async def test_should_get_all_engineering_item_with_assigned_to_id(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test1"}, headers=headers
+    )
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test2", "assigned_to_id": user["id"]}, headers=headers
+    )
+
+    items = await page_results(
+        data_api,
+        f"{data_api.test_org_id}/engineering",
+        item_type=EngineeringItemType.STORY.value,
+        assigned_to_id=user["id"],
+        headers=headers,
+    )
+
+    assert len(items) == 1
+
+
 async def test_should_get_epics(data_api: TestClient):
     org, _, headers = await authenticate(data_api)
 
