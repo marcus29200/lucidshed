@@ -183,7 +183,7 @@ SET
     deleted_at = $20,
     deleted_by_id = $21,
     completed_at = $22,
-    completed_by_id = $23
+    completed_by_id = $23,
     assigned_to_id = $24
 WHERE
     organization_id = $1 AND id = $2

@@ -28,7 +28,8 @@ class WorkItemController:
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
-    
+
+        user = None
         if record.get("assigned_to_id"):
             user = await UserController().get_slim_user(id=record["assigned_to_id"])
 
