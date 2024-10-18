@@ -45,13 +45,7 @@ export const loader = (queryClient: QueryClient) => {
 const tableColumnIds = ['name', 'progress', 'epicId', 'startDate', 'endDate'];
 
 export const Epics = () => {
-	const epics: Epic[] = (useLoaderData() as ApiEpic[]).map((epic) => ({
-		name: epic.title,
-		progress: 0,
-		epicId: epic.id,
-		startDate: epic.start_date || '-',
-		endDate: epic.estimated_completion_date,
-	}));
+	const epics: Epic[] = useLoaderData() as Epic[];
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
 

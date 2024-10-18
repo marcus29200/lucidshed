@@ -21,7 +21,6 @@ export function LinearProgressWithLabel({ value }: { value: number }) {
 			<div
 				style={{
 					height: '8px', // thinner height
-					width: '65%',
 					backgroundColor: '#e0e0e0', // Light grey for the background bar
 					borderRadius: '20px',
 
@@ -38,7 +37,7 @@ export function LinearProgressWithLabel({ value }: { value: number }) {
 				></div>
 			</div>
 			<span
-				className=" w-[60%] text-end"
+				className="text-end pr-2"
 				style={{ color: '#9e9e9e', fontSize: '0.875rem' }}
 			>
 				{value}%

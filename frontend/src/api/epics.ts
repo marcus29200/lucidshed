@@ -1,4 +1,5 @@
 import { BASE_URL } from '../environment';
+import { ApiEpic, Epic } from '../routes/epics/Epics';
 import { getAuthHeaders } from './utils';
 // TODO: place this type in a shared model
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
@@ -8,6 +9,16 @@ export type CreateEpicPayload = {
 	estimated_completion_date?: string;
 	priority: Priority;
 	item_type: 'epic';
+};
+
+export const mapEpic = (epic: ApiEpic): Epic => {
+	return {
+		name: epic.title,
+		progress: 0,
+		epicId: epic.id,
+		startDate: epic.start_date || '-',
+		endDate: epic.estimated_completion_date,
+	};
 };
 
 export const createEpic = async ({
@@ -31,7 +42,10 @@ export const createEpic = async ({
 	return await res.json();
 };
 
-export const getEpics = async (orgId: string, search?: string) => {
+export const getEpics = async (
+	orgId: string,
+	search?: string
+): Promise<Epic[]> => {
 	let url = `${BASE_URL}/${orgId}/engineering?item_type=epic`;
 	if (search) {
 		url += `&search=${search}`;
@@ -48,7 +62,7 @@ export const getEpics = async (orgId: string, search?: string) => {
 
 	const results = await res.json();
 	// TODO: handle pagination, return cursor
-	return results.items;
+	return results.items.map(mapEpic);
 };
 
 export const getEpic = async ({ orgId, epicId }) => {

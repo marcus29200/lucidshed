@@ -31,7 +31,9 @@ const SidebarItem = ({
 				key={item.label}
 				selected={
 					(!!item.to && location.pathname.includes(item.to)) ||
-					(item.to === '' && location.pathname.endsWith(`/${orgId}/`))
+					(item.to === '' &&
+						(location.pathname.endsWith(`/${orgId}/`) ||
+							location.pathname.endsWith(`/${orgId}`)))
 				}
 				color="primary"
 				component={Link}
