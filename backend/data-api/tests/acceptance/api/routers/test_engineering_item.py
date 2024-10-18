@@ -539,3 +539,18 @@ async def test_should_delete_comment_for_story(data_api: TestClient):
         f"{data_api.test_org_id}/engineering/{story['id']}/comments/{comment['id']}", headers=headers
     )
     assert response.status_code == 404
+
+
+async def test_should_assign_engineering_item_user_and_return_user_info(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value, "assigned_to_id": user["id"]}, headers=headers
+    )
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{story['id']}", headers=headers)
+    assert response.status_code == 200
+
+    engineering_item = response.json()
+    assert engineering_item["assigned_to_id"] == user["id"]
+    assert engineering_item["assigned_to"]["id"] == user["id"]

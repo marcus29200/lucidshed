@@ -35,6 +35,7 @@ class EngineeringController(WorkItemController):
             new_item.team_id,
             new_item.due_date,
             new_item.acceptance_criteria,
+            new_item.assigned_to_id,
             new_item.created_by_id or current_user,
             current_user,
         )
@@ -53,9 +54,9 @@ class EngineeringController(WorkItemController):
         return EngineeringItem(**record)
 
     async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
-        record = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
+        record, user = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
 
-        return EngineeringItem(**record)
+        return EngineeringItem(**record, assigned_to=user)
 
     async def get_all(
         self,
@@ -124,6 +125,7 @@ class EngineeringController(WorkItemController):
             old_item_json["deleted_by_id"],
             old_item_json["completed_at"],
             old_item_json["completed_by_id"],
+            old_item_json["assigned_to_id"],
         )
 
         await self.history_controller.create(

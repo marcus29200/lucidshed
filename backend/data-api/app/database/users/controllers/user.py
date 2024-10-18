@@ -5,7 +5,7 @@ from uuid import uuid4
 from app.api.settings import user_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.users.models.user import BaseUser, User, UserSortableField
+from app.database.users.models.user import BaseUser, User, UserSortableField, SlimUser
 from app.database.users.utils import get_hashed_password
 from app.exceptions.common import ObjectNotFoundException
 
@@ -57,6 +57,15 @@ class UserController:
         # TODO Create history
 
         return User(**record)
+
+    # TODO Need to cache this
+    async def get_slim_user(self, *, id: str) -> SlimUser:
+        record = await user_db.get().fetchrow(QUERIES["GET_USER"], id)
+
+        if not record:
+            raise ObjectNotFoundException(object_id=id)
+
+        return SlimUser(**record)
 
     async def get_all(
         self,

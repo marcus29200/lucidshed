@@ -44,9 +44,9 @@ class SupportController(WorkItemController):
         return SupportItem(**record)
 
     async def get(self, *, organization_id: str, id: int) -> SupportItem:
-        record = await super()._get(organization_id=organization_id, id=id, scope="SUPPORT")
+        record, user = await super()._get(organization_id=organization_id, id=id, scope="SUPPORT")
 
-        return SupportItem(**record)
+        return SupportItem(**record, assigned_to=user)
 
     async def get_all(
         self,
