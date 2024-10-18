@@ -34,7 +34,10 @@ const RoadmapView: React.FC = () => {
 
 			{/* Container for the cards with horizontal scroll */}
 			<div className="flex space-x-4 overflow-x-auto custom-scrollbar">
-				<div className="flex flex-nowrap space-x-4" style={{ width: '900px' }}>
+				<div
+					className="flex flex-nowrap space-x-4"
+					style={{ maxWidth: '900px' }}
+				>
 					{' '}
 					{/* Adjust width based on 3 cards */}
 					{epics.map((epic) => (

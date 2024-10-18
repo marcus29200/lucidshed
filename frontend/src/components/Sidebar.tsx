@@ -2,16 +2,14 @@ import {
 	Box,
 	Divider,
 	Drawer,
-	IconButton,
 	List,
 	ListItemButton,
 	ListItemIcon,
 	ListItemText,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
-import { Add, Checklist, NavigateBefore, Settings } from '@mui/icons-material';
+import { Checklist, NavigateBefore, Settings } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
 
@@ -22,6 +20,7 @@ export type NavigationItem = {
 	canAdd?: boolean;
 	children?: NavigationItem[];
 	dropDown?: () => JSX.Element; // TODO: Implement drop down menu
+	paddingOffset?: number; // px
 };
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
@@ -42,38 +41,34 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 				label: 'Epics',
 				icon: () => <EpicIcon />,
 				canAdd: true,
+				paddingOffset: 32,
 			},
 			{
 				to: 'stories',
 				label: 'Stories',
 				icon: () => <BookIcon />,
 				canAdd: true,
+				paddingOffset: 32,
 			},
 			{
 				to: 'sprints',
 				label: 'Sprints',
 				icon: () => <SprintIcon />,
 				canAdd: true,
+				paddingOffset: 32,
 			},
 		],
 	},
 ];
 
 const Sidebar = () => {
-	const { orgId } = useParams();
 	const [expanded, setExpanded] = useState(true);
 	const [width, setWidth] = useState('240px');
-	const navigate = useNavigate();
-	const location = useLocation();
 	const [openSettings, setOpenSettings] = useState(false);
 
 	useEffect(() => {
-		setWidth(() => (expanded ? '240px' : '72px'));
+		setWidth(() => (expanded ? '240px' : '88px'));
 	}, [expanded]);
-	const addItem = (e: Event, to: string) => {
-		e.preventDefault();
-		navigate(`/${orgId}/${to}/new`);
-	};
 
 	return (
 		<Drawer
@@ -119,12 +114,32 @@ const Sidebar = () => {
 			<Divider />
 			<List className="sidebar-list">
 				{NAVIGATION_ITEMS.map((item) => (
-					<SidebarItem item={item} key={item.label} />
+					<SidebarItem item={item} key={item.label} expanded={expanded} />
 				))}
 			</List>
-			<Divider variant="middle" />
-			<List>
-				<ListItemButton onClick={() => setOpenSettings(true)}>
+			{/* <Divider variant="middle" /> */}
+			<List
+				sx={{
+					marginTop: 'auto',
+				}}
+			>
+				<ListItemButton
+					onClick={() => setOpenSettings(true)}
+					sx={{
+						'& .MuiListItemIcon-root': {
+							color: '#242831',
+						},
+						'& .MuiListItemText-root, & .MuiListItemIcon-root': {
+							transition: 'color 0.3s ease',
+						},
+						'&:hover': {
+							backgroundColor: 'transparent',
+							'& .MuiListItemText-root, & .MuiListItemIcon-root': {
+								color: '#20A224 !important',
+							},
+						},
+					}}
+				>
 					<ListItemIcon>
 						<Settings />
 					</ListItemIcon>

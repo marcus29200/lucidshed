@@ -11,9 +11,11 @@ import { NavigationItem } from './Sidebar';
 const SidebarItem = ({
 	item,
 	className = '',
+	expanded,
 }: {
 	item: NavigationItem;
 	className?: string;
+	expanded: boolean;
 }) => {
 	const { orgId } = useParams();
 	const navigate = useNavigate();
@@ -51,6 +53,9 @@ const SidebarItem = ({
 							? '#f0f0f0'
 							: undefined,
 					position: 'relative',
+					paddingLeft: expanded ? '22px' : '14px !important',
+					alignItems: 'center',
+					justifyContent: 'center',
 					'&.Mui-selected': {
 						backgroundColor: 'white',
 						'&:hover': {
@@ -76,6 +81,10 @@ const SidebarItem = ({
 					},
 					'& .MuiListItemIcon-root': {
 						color: '#242831',
+						minWidth: '24px',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
 					},
 					'& .MuiListItemText-root, & .MuiListItemIcon-root': {
 						transition: 'color 0.3s ease',
@@ -88,26 +97,50 @@ const SidebarItem = ({
 					},
 				}}
 			>
-				<ListItemIcon>{item.icon()}</ListItemIcon>
-				<ListItemText sx={{ color: 'black' }}>{item.label}</ListItemText>
-				{item.canAdd && (
-					<IconButton
-						className="rounded-full !text-neutral-regular !bg-white shadow-md"
-						sx={{ zIndex: 10 }}
-						onClick={(e) => addItem(e, item.to as string)}
-					>
-						<Add />
-					</IconButton>
-				)}
-				{item.dropDown && (
-					<IconButton sx={{ zIndex: 10 }} onClick={(e) => e.preventDefault()}>
-						<ExpandMore />
-					</IconButton>
-				)}
+				<div
+					className={`flex items-center justify-center gap-2${
+						!item.dropDown ? ' w-full' : ''
+					}`}
+					style={{
+						paddingLeft:
+							expanded && item.paddingOffset ? `${item.paddingOffset}px` : '0',
+					}}
+				>
+					<ListItemIcon>
+						{item.icon()}{' '}
+						{!expanded && <span className="text-[10px]">{item.label}</span>}
+					</ListItemIcon>
+					{expanded && (
+						<>
+							<ListItemText sx={{ color: 'black' }}>{item.label}</ListItemText>
+							{item.canAdd && (
+								<IconButton
+									className="rounded-full !text-neutral-regular !bg-white shadow-md"
+									sx={{ zIndex: 10 }}
+									onClick={(e) => addItem(e, item.to as string)}
+								>
+									<Add />
+								</IconButton>
+							)}
+							{item.dropDown && (
+								<IconButton
+									sx={{ zIndex: 10, alignSelf: 'flex-start' }}
+									onClick={(e) => e.preventDefault()}
+								>
+									<ExpandMore />
+								</IconButton>
+							)}
+						</>
+					)}
+				</div>
 			</ListItemButton>
 			{item.children &&
 				item.children.map((childItem) => (
-					<SidebarItem key={childItem.label} item={childItem} />
+					<SidebarItem
+						key={childItem.label}
+						item={childItem}
+						expanded={expanded}
+					/>
 				))}
 		</>
 	);

@@ -97,8 +97,16 @@ class Donut extends Component<DonutProps, DonutState> {
 
 	render() {
 		return (
-			<div className="donut" style={{ display: 'flex', alignItems: 'center' }}>
-				<div style={{ width: '30%', marginRight: '10px' }}>
+			<div
+				className="donut"
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+					gap: '16px',
+				}}
+			>
+				<div className="flex-1">
 					<div
 						style={{
 							display: 'flex',
@@ -118,7 +126,9 @@ class Donut extends Component<DonutProps, DonutState> {
 						<span
 							style={{
 								fontSize: '14px',
-								marginRight: 'auto',
+								paddingRight: '4px',
+								display: 'block',
+								width: '83px',
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
@@ -154,7 +164,9 @@ class Donut extends Component<DonutProps, DonutState> {
 						<span
 							style={{
 								fontSize: '14px',
-								marginRight: 'auto',
+								paddingRight: '4px',
+								display: 'block',
+								width: '83px',
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
@@ -190,7 +202,9 @@ class Donut extends Component<DonutProps, DonutState> {
 						<span
 							style={{
 								fontSize: '14px',
-								marginRight: 'auto',
+								paddingRight: '4px',
+								display: 'block',
+								width: '83px',
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
@@ -208,13 +222,12 @@ class Donut extends Component<DonutProps, DonutState> {
 						</span>
 					</div>
 				</div>
-				<div style={{ width: '60%' }}>
+				<div>
 					{this.props.total && (
 						<Chart
 							options={this.state.options}
 							series={this.state.series}
 							type="donut"
-							width="300"
 						/>
 					)}
 				</div>

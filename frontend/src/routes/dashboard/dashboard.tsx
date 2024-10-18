@@ -8,6 +8,7 @@ import {
 	DialogTitle,
 	DialogContent,
 	DialogActions,
+	Grid,
 } from '@mui/material'; // MUI components
 import RoadmapView from './RoadMapView';
 import RecentlyMentioned from './RecentMentions';
@@ -285,7 +286,7 @@ const Dashboard: React.FC = () => {
 	};
 
 	return (
-		<div>
+		<>
 			<div className="flex justify-between items-center bg-white rounded-md shadow-md p-4">
 				<p className="text-gray-400 text-sm font-poppins">
 					This layout can be edited using the pencil icon and can be saved as a
@@ -509,84 +510,86 @@ const Dashboard: React.FC = () => {
 					</div>
 				</div>
 			</div>
-
-			<div className={`flex flex-row gap-x-6 h-full`}>
-				<div className="flex flex-col gap-4 w-[70%] mt-4">
-					{/* Add Component Placeholder */}
-					<div className="flex flex-row gap-x-4">
-						{isEditing && (
-							<div
-								className={`h-full min-h-[50vh] w-[30%] flex justify-center items-center border-dotted border-2 rounded-md border-gray-300`}
-								onClick={() => setAddComponentDialogOpen(true)}
-							>
-								<div className="text-center flex flex-col justify-center items-center">
-									<Add className="text-gray-400 text-4xl mb-2" />
-									<p className="text-gray-400 text-sm">
-										Click to add component
-									</p>
+			<Grid container spacing={2}>
+				<Grid item xs={12} sm={8}>
+					<div className="flex flex-col gap-4 mt-4">
+						{/* Add Component Placeholder */}
+						<div className="flex flex-row gap-x-4">
+							{isEditing && (
+								<div
+									className={`h-full min-h-[50vh] flex justify-center items-center border-dotted border-2 rounded-md border-gray-300`}
+									onClick={() => setAddComponentDialogOpen(true)}
+								>
+									<div className="text-center flex flex-col justify-center items-center">
+										<Add className="text-gray-400 text-4xl mb-2" />
+										<p className="text-gray-400 text-sm">
+											Click to add component
+										</p>
+									</div>
 								</div>
-							</div>
-						)}
+							)}
 
-						{/* RoadmapView */}
-						{dashboardComponents.includes('RoadmapView') && (
-							<div className="relative w-full">
+							{/* RoadmapView */}
+							{dashboardComponents.includes('RoadmapView') && (
+								<div className="relative w-full">
+									{isEditing && (
+										<Close
+											className="absolute top-2 right-2 text-red-500 cursor-pointer"
+											onClick={() => handleRemoveComponentClick('RoadmapView')}
+										/>
+									)}
+									<RoadmapView />
+								</div>
+							)}
+						</div>
+
+						{/* RecentlyMentioned */}
+						{dashboardComponents.includes('RecentlyMentioned') && (
+							<div className="relative">
 								{isEditing && (
 									<Close
 										className="absolute top-2 right-2 text-red-500 cursor-pointer"
-										onClick={() => handleRemoveComponentClick('RoadmapView')}
+										onClick={() =>
+											handleRemoveComponentClick('RecentlyMentioned')
+										}
 									/>
 								)}
-								<RoadmapView />
+								<RecentlyMentioned />
 							</div>
 						)}
 					</div>
+				</Grid>
+				<Grid item xs={12} sm={4}>
+					<div className="flex flex-col gap-4 mt-4 h-full">
+						{/* TodoList and EpicUnitsOverview */}
+						{dashboardComponents.includes('TodoList') && (
+							<div className="relative">
+								{isEditing && (
+									<Close
+										className="absolute top-2 right-2 text-red-500 cursor-pointer"
+										onClick={() => handleRemoveComponentClick('TodoList')}
+									/>
+								)}
+								<TodoList />
+							</div>
+						)}
 
-					{/* RecentlyMentioned */}
-					{dashboardComponents.includes('RecentlyMentioned') && (
-						<div className="relative">
-							{isEditing && (
-								<Close
-									className="absolute top-2 right-2 text-red-500 cursor-pointer"
-									onClick={() =>
-										handleRemoveComponentClick('RecentlyMentioned')
-									}
-								/>
-							)}
-							<RecentlyMentioned />
-						</div>
-					)}
-				</div>
-
-				<div className="grid grid-rows-2 gap-4 mt-4 w-[30%] h-full">
-					{/* TodoList and EpicUnitsOverview */}
-					{dashboardComponents.includes('TodoList') && (
-						<div className="relative">
-							{isEditing && (
-								<Close
-									className="absolute top-2 right-2 text-red-500 cursor-pointer"
-									onClick={() => handleRemoveComponentClick('TodoList')}
-								/>
-							)}
-							<TodoList />
-						</div>
-					)}
-
-					{dashboardComponents.includes('EpicUnitsOverview') && (
-						<div className="relative">
-							{isEditing && (
-								<Close
-									className="absolute top-2 right-2 text-red-500 cursor-pointer"
-									onClick={() =>
-										handleRemoveComponentClick('EpicUnitsOverview')
-									}
-								/>
-							)}
-							<EpicUnitsOverview />
-						</div>
-					)}
-				</div>
-			</div>
+						{dashboardComponents.includes('EpicUnitsOverview') && (
+							<div className="relative">
+								{isEditing && (
+									<Close
+										className="absolute top-2 right-2 text-red-500 cursor-pointer"
+										onClick={() =>
+											handleRemoveComponentClick('EpicUnitsOverview')
+										}
+									/>
+								)}
+								<EpicUnitsOverview />
+							</div>
+						)}
+					</div>
+				</Grid>
+			</Grid>
 
 			{/* Confirmation Dialog */}
 			<Dialog
@@ -742,7 +745,7 @@ const Dashboard: React.FC = () => {
 					</Button>
 				</DialogActions>
 			</Dialog>
-		</div>
+		</>
 	);
 };
 
