@@ -4,10 +4,12 @@ from app.database.organizations.queries import ORGANIZATION_INIT_STATEMENTS, ORG
 from app.database.teams.queries import TEAM_INIT_STATEMENTS, TEAM_QUERIES
 from app.database.users.queries import USER_INIT_STATEMENTS, USER_QUERIES  # noqa
 from app.database.work_items.queries import WORK_ITEM_INIT_STATEMENTS, WORK_ITEM_QUERIES
+from app.database.files.queries import FILE_INIT_STATEMENTS, FILE_QUERIES
 
 INIT_STATEMENTS = (
     []
     + ORGANIZATION_INIT_STATEMENTS
+    + FILE_INIT_STATEMENTS
     + ITERATION_INIT_STATEMENTS
     + TEAM_INIT_STATEMENTS
     + WORK_ITEM_INIT_STATEMENTS
@@ -21,4 +23,5 @@ QUERIES = {
     **ITERATION_QUERIES,
     **TEAM_QUERIES,
     **HISTORY_QUERIES,
+    **FILE_QUERIES,
 }

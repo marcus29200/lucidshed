@@ -10,6 +10,8 @@ from app.api.settings import database_pools, settings
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.utils import create_database, delete_database, init_database_tables
 
+from unittest.mock import patch
+
 
 def setup():
     test_org_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
@@ -88,3 +90,9 @@ async def data_api() -> AsyncClient:  # type: ignore
                 yield test_client
     finally:
         await cleanup(test_org_id)
+
+
+@pytest_asyncio.fixture
+async def mock_gcs():
+    with patch("app.database.files.controllers.file.storage.Client") as mock:
+        yield mock

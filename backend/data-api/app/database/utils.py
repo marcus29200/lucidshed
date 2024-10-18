@@ -29,7 +29,19 @@ async def delete_database(pool, db_name):
 
 
 async def create_database(pool, db_name):
-    await pool.execute(f"CREATE DATABASE {db_name}")
+    await pool.execute(f"""
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_database 
+        WHERE datname = '{db_name}'
+    ) THEN
+        CREATE DATABASE {db_name};
+    END IF;
+END $$;
+""")
+                       
 
 
 async def init_database_tables(pool, init_statements):

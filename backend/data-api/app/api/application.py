@@ -21,6 +21,7 @@ from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
+from app.database.files.controllers.file import FileController
 from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
@@ -83,6 +84,7 @@ class DataApplication(FastAPI):
         self.iteration_controller = IterationController()
         self.team_controller = TeamController()
         self.history_controller = HistoryController()
+        self.file_controller = FileController()
 
     async def close(self) -> None:
         pass
