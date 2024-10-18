@@ -1,14 +1,19 @@
 import { Component } from 'react';
 import Chart from 'react-apexcharts';
 
-interface DonutState {
+type DonutState = {
 	options: ApexCharts.ApexOptions;
 	series: number[];
 	labels: string[];
-}
-
-class Donut extends Component<any, DonutState> {
-	constructor(props: any) {
+};
+type DonutProps = {
+	completed: number;
+	inProgress: number;
+	notStarted: number;
+	total: number;
+};
+class Donut extends Component<DonutProps, DonutState> {
+	constructor(props: DonutProps) {
 		super(props);
 
 		this.state = {
@@ -44,8 +49,8 @@ class Donut extends Component<any, DonutState> {
 									fontWeight: 700,
 									color: '#333',
 									offsetY: 10,
-									formatter: function (val: string) {
-										return val + '%';
+									formatter: (val: string) => {
+										return `${this.getPercentage(+val)}%`;
 									},
 								},
 								total: {
@@ -53,7 +58,7 @@ class Donut extends Component<any, DonutState> {
 									label: 'Total',
 									fontFamily: 'Poppins, sans-serif',
 									fontWeight: 700,
-									formatter: function () {
+									formatter: () => {
 										return '100%';
 									},
 								},
@@ -64,7 +69,7 @@ class Donut extends Component<any, DonutState> {
 				fill: {
 					colors: ['#F36884', '#F3D053', '#8EDF91'],
 				},
-				labels: ['Completed', 'In Progress', 'Not Started'],
+				labels: ['Not Started', 'In Progress', 'Completed'],
 				legend: {
 					show: false,
 				},
@@ -79,9 +84,16 @@ class Donut extends Component<any, DonutState> {
 					},
 				],
 			},
-			series: [25, 50, 25],
+			series: [
+				this.props.notStarted,
+				this.props.inProgress,
+				this.props.completed,
+			],
 		};
 	}
+	getPercentage = (value: number) => {
+		return ((value * 100) / this.props.total).toFixed(2);
+	};
 
 	render() {
 		return (
@@ -120,7 +132,7 @@ class Donut extends Component<any, DonutState> {
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
-							25
+							{this.props.completed}
 						</span>
 					</div>
 					<div
@@ -156,7 +168,7 @@ class Donut extends Component<any, DonutState> {
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
-							50
+							{this.props.inProgress}
 						</span>
 					</div>
 					<div
@@ -192,17 +204,19 @@ class Donut extends Component<any, DonutState> {
 								fontFamily: 'Poppins, sans-serif',
 							}}
 						>
-							25
+							{this.props.notStarted}
 						</span>
 					</div>
 				</div>
 				<div style={{ width: '60%' }}>
-					<Chart
-						options={this.state.options}
-						series={this.state.series}
-						type="donut"
-						width="300"
-					/>
+					{this.props.total && (
+						<Chart
+							options={this.state.options}
+							series={this.state.series}
+							type="donut"
+							width="300"
+						/>
+					)}
 				</div>
 			</div>
 		);

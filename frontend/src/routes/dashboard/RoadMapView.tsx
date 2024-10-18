@@ -55,7 +55,7 @@ const RoadmapView: React.FC = () => {
 
 // Define the Card component that accepts CardProps as props
 const Card: React.FC<Epic> = ({ endDate, name, progress }) => (
-	<div className="p-5 border rounded-lg min-w-[400px]">
+	<div className="p-5 border rounded-lg min-w-[300px]">
 		{' '}
 		{/* Ensure card has fixed width */}
 		{/* <p
