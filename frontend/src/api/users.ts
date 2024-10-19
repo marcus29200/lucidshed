@@ -1,3 +1,4 @@
+import { LoaderFunctionArgs } from 'react-router-dom';
 import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
@@ -5,15 +6,38 @@ import { QueryClient, queryOptions } from '@tanstack/react-query';
 export type User = {
 	id: string;
 	email: string;
-	firstName?: string;
+	firstName: string;
 	lastName?: string;
 	organizationId?: string;
 	role?: string; // TODO: make this an enum
 	picture?: string;
-	disabled: false;
+	disabled: boolean;
 	superAdmin: boolean;
+	fullName: string;
 };
-
+export type ApiUser = {
+	email: string;
+	first_name: string;
+	last_name: string;
+	disabled: boolean;
+	permissions: any;
+	title: string;
+	team: string;
+	phone: string;
+	location: string;
+	timezone: string;
+	bio: string;
+	picture: string;
+	settings: any;
+	id: string;
+	created_at: string;
+	created_by_id: string;
+	modified_at: string;
+	modified_by_id: string;
+	deleted_at: string;
+	deleted_by_id: string;
+	super_admin: boolean;
+};
 export type Permissions = {
 	[key: string]: OrganizationPermissions;
 };
@@ -50,7 +74,7 @@ export const isPermissionsEmpty = (permissions: Permissions) => {
 };
 // TODO: type the api response
 // could be a class to avoid excessive mapping
-export const mapUser = (apiUser): User => {
+export const mapUser = (apiUser: ApiUser): User => {
 	// TODO: pull the proper org id based on the currently active org
 	const permissions = apiUser.permissions
 		? Object.values(apiUser.permissions)[0]
@@ -64,6 +88,9 @@ export const mapUser = (apiUser): User => {
 		organizationId: permissions?.organization_id,
 		disabled: apiUser.disabled,
 		superAdmin: apiUser.super_admin,
+		fullName: `${apiUser.first_name}${
+			apiUser.last_name ? ` ${apiUser.last_name}` : ''
+		}`,
 	};
 };
 
@@ -114,4 +141,30 @@ export const getUser = async (id: string): Promise<User> => {
 	}
 	const user = await res.json();
 	return mapUser(user);
+};
+
+export const getUsers = async (orgId: string): Promise<User[]> => {
+	const res = await fetch(`${BASE_URL}/${orgId}/users`, {
+		headers: getAuthHeaders(),
+	});
+	if (!res.ok) {
+		throw res;
+	}
+	const usersPage = await res.json();
+	return usersPage.items.map(mapUser);
+};
+
+export const usersQuery = (id: string) =>
+	queryOptions({
+		queryKey: ['users'],
+		queryFn: async () => getUsers(id),
+	});
+
+export const usersLoader = (queryClient: QueryClient) => {
+	return async ({ params }: LoaderFunctionArgs) => {
+		if (!params.orgId) {
+			throw new Error('No orgId in params');
+		}
+		return queryClient.ensureQueryData(usersQuery(params.orgId));
+	};
 };

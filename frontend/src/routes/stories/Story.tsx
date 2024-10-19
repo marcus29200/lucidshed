@@ -34,6 +34,8 @@ import {
 	mapRawComment,
 	UserComment,
 } from '../../api/comments';
+import UserSearchInput from '../sprints/UserSearchInput';
+import { mapUser, User } from '../../api/users';
 
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
@@ -43,6 +45,10 @@ export const Story = () => {
 	const [comments, setComments] = useState<UserComment[]>([]);
 	const [sprint, setSprint] = useState<Sprint | null>(
 		mapPayloadToSprint(story.iteration) ?? null
+	);
+
+	const [assignee, setAssignee] = useState<User | null>(
+		mapUser(story.assigned_to) ?? null
 	);
 
 	useEffect(() => {
@@ -73,8 +79,11 @@ export const Story = () => {
 		if (sprint) {
 			fieldsWithValues.push('sprint');
 		}
+		if (assignee) {
+			fieldsWithValues.push('assignee');
+		}
 		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
-	}, [dynamicFields, sprint]);
+	}, [dynamicFields, sprint, assignee]);
 
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
@@ -368,7 +377,6 @@ export const Story = () => {
 									<SprintSearchInput
 										setSprint={setSprint}
 										sprint={sprint}
-										redirectOnSelect={false}
 										id="sprint-selector"
 									/>
 								</>
@@ -397,7 +405,22 @@ export const Story = () => {
 								/>
 							)}
 							{/* TODO: owner */}
-							{/* TODO: assignee */}
+							{selectedFields.includes('assignee') && (
+								<>
+									<input
+										hidden
+										name="assignee"
+										value={assignee?.id ?? ''}
+										onChange={() => setAssignee(() => null)}
+									/>
+									<UserSearchInput
+										setUser={setAssignee}
+										user={assignee}
+										label="Assigned to"
+										id="user-selector"
+									/>
+								</>
+							)}
 						</Grid>
 					</Grid>
 					<Box

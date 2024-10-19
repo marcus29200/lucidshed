@@ -57,6 +57,7 @@ export const METADATA_FIELD_OPTIONS = {
 	subType: 'Type',
 	sprint: 'Sprint',
 	tags: 'Tags',
+	assignee: 'Assigned to',
 	attachment: 'Attachments',
 } as const;
 

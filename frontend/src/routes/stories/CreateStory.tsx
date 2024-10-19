@@ -24,10 +24,13 @@ import {
 	priorities,
 	ticketTypes,
 } from './stories.model';
+import { User } from '../../api/users';
+import UserSearchInput from '../sprints/UserSearchInput';
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
 	const [sprint, setSprint] = useState<Sprint | null>(null);
+	const [assignee, setAssignee] = useState<User | null>(null);
 
 	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>(
 		[]
@@ -301,7 +304,22 @@ export const CreateStory = () => {
 								/>
 							)}
 							{/* TODO: owner */}
-							{/* TODO: assignee */}
+							{selectedFields.includes('assignee') && (
+								<>
+									<input
+										hidden
+										name="assignee"
+										value={assignee?.id ?? ''}
+										onChange={() => setAssignee(() => null)}
+									/>
+									<UserSearchInput
+										setUser={setAssignee}
+										user={assignee}
+										id="assignee-selector"
+										label="Assigned to"
+									/>
+								</>
+							)}
 						</Grid>
 					</Grid>
 					<Box

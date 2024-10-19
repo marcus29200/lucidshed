@@ -14,6 +14,7 @@ export type Story = {
 	targetDate: Date;
 	startDate: Date | null;
 	progress: number;
+	assignee?: any;
 };
 const tableColumnIds = [
 	'name',

@@ -14,6 +14,7 @@ export type CreateStoryPayload = {
 	iteration_id?: number;
 	status?: string; // TODO: Enum of statuses
 	item_sub_type?: string;
+	assigned_to_id?: string;
 };
 
 export type StoryAPI = {
@@ -26,6 +27,8 @@ export type StoryAPI = {
 	starred: boolean;
 	created_by_id: string;
 	modified_by_id: string;
+	assigned_to_id?: string;
+	assigned_to?: any;
 	archived_at: number | null;
 	completed_at: number | null;
 	item_type: string;
@@ -50,6 +53,7 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		name: rawStory.title,
 		progress: 0,
 		startDate: rawStory.start_date,
+		assignee: rawStory.assigned_to,
 	};
 };
 

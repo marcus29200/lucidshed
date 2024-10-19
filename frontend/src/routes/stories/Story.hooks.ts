@@ -65,6 +65,7 @@ export const createStoryAction = (queryClient: QueryClient) => {
 				estimated_completion_date,
 				status: data.status as string,
 				item_sub_type: data.subType as string,
+				assigned_to_id: data.assignee as string,
 			},
 		});
 		await queryClient.invalidateQueries(

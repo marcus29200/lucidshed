@@ -1,58 +1,56 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Sprint, getSprints } from '../../api/sprints';
 import { CircularProgress } from '@mui/material';
+import { getUsers, User } from '../../api/users';
+import { useParams } from 'react-router-dom';
 
-export default function SprintSearchInput({
-	sprint,
-	setSprint,
+export default function UserSearchInput({
+	user,
+	setUser,
 	name,
 	id,
-	enableAddNew,
+	label,
 }: {
-	sprint: Sprint | null;
-	setSprint?: React.Dispatch<React.SetStateAction<Sprint | null>>;
+	user: User | null;
+	setUser?: React.Dispatch<React.SetStateAction<User | null>>;
 	name?: string;
 	id?: string;
-	enableAddNew?: boolean;
+	label?: string;
 }) {
-	const [value, setValue] = React.useState<Sprint | null>(sprint);
+	console.log(user);
+
+	const [value, setValue] = React.useState<User | null>(user);
 	const params = useParams();
 	const { data, isLoading } = useQuery({
-		queryKey: ['sprints'],
-		queryFn: async () => getSprints(params.orgId as string),
+		queryKey: ['users'],
+		queryFn: async () => getUsers(params.orgId as string),
 	});
 	const items = data ?? [];
-	const options = enableAddNew
-		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
-		: [...items];
-	const navigate = useNavigate();
+	const options = [...items];
+	console.log(options);
+
 	return (
 		<Autocomplete
 			value={value}
 			defaultValue={null}
 			onChange={(_event, newValue) => {
-				if (enableAddNew && newValue?.inputValue === 'add-new') {
-					return navigate(`/${params.orgId as string}/sprints/new`);
-				}
 				setValue(() => newValue);
-				setSprint && setSprint(() => newValue);
+				setUser && setUser(() => newValue as User);
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;
 				const filtered = options.filter((opt) =>
-					opt.title.toLowerCase().includes(inputValue.toLowerCase())
+					opt.firstName.toLowerCase().includes(inputValue.toLowerCase())
 				);
 				// Suggest the creation of a new value
-				if (inputValue !== '' && filtered.length === 0 && enableAddNew) {
-					filtered.push({
-						inputValue: 'add-new',
-						title: `Add new sprint`,
-					});
-				}
+				// if (inputValue !== '' && filtered.length === 0 && enableAddNew) {
+				// 	filtered.push({
+				// 		inputValue: 'add-new',
+				// 		title: `Add new user`,
+				// 	});
+				// }
 
 				return filtered;
 			}}
@@ -63,21 +61,16 @@ export default function SprintSearchInput({
 			loading={isLoading}
 			id={id}
 			options={options}
-			isOptionEqualToValue={(option, value) =>
-				option.title === value || option.id === value.id
-			}
+			isOptionEqualToValue={(option, value) => option.id === value.id}
 			getOptionLabel={(option) => {
-				if (option.inputValue) {
-					return option.inputValue;
-				}
 				// Regular option
-				return option?.title ?? '';
+				return option?.fullName ?? '';
 			}}
 			renderOption={(props, option) => {
 				const { key, ...optionProps } = props;
 				return (
 					<li key={key} {...optionProps} value={optionProps.id}>
-						{option.title}
+						{option.fullName}
 					</li>
 				);
 			}}
@@ -85,7 +78,7 @@ export default function SprintSearchInput({
 				return (
 					<TextField
 						{...params}
-						label="Sprint"
+						label={label ?? 'User'}
 						size="small"
 						name={name}
 						fullWidth

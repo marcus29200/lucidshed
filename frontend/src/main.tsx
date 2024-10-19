@@ -6,6 +6,7 @@ import '@fontsource/poppins/500.css'; // Specify weight
 import '@fontsource/poppins/600.css'; // Specify weight
 import '@fontsource/poppins/700.css'; // Specify weight
 import './index.css';
+
 import { RouterProvider } from 'react-router-dom';
 import { router, queryClient } from './router';
 import { ThemeProvider } from '@mui/material';
