@@ -46,12 +46,12 @@ const EpicUnitsOverview = () => {
 					{' '}
 					<DashboardItemIcon />
 					<h2 className="text-lg font-bold font-poppins">
-						Epic Units Overview
+						Story Units Overview
 					</h2>
 				</div>
 
 				<p className="text-sm ml-10 text-gray-400 font-semibold mb-4 font-poppins">
-					All Assigns Epic Overview
+					All Assigns Story Overview
 				</p>
 			</div>
 

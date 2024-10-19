@@ -53,7 +53,9 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		name: rawStory.title,
 		progress: 0,
 		startDate: rawStory.start_date,
-		assignee: rawStory.assigned_to,
+		assignedToId: rawStory.assigned_to_id,
+		status: rawStory.status,
+		orgId: rawStory.organization_id,
 	};
 };
 
@@ -145,4 +147,27 @@ export const deleteStory = async ({ orgId, storyId }) => {
 	}
 
 	return;
+};
+
+export const getStoriesAssignedToMe = async (
+	orgId: string,
+	userId: string,
+	search?: string
+): Promise<Story[]> => {
+	let url = `${BASE_URL}/${orgId}/engineering?item_type=story&assigned_to_id=${userId}`;
+	if (search) {
+		url += `&search=${search}`;
+	}
+
+	const res = await fetch(url, {
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+
+	const results = await res.json();
+	return results?.items.map(mapRawStory);
 };

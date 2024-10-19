@@ -65,7 +65,7 @@ export const createStoryAction = (queryClient: QueryClient) => {
 				estimated_completion_date,
 				status: data.status as string,
 				item_sub_type: data.subType as string,
-				assigned_to_id: data.assignee as string,
+				assigned_to_id: data.assignedTo as string,
 			},
 		});
 		await queryClient.invalidateQueries(
@@ -95,6 +95,7 @@ export const updateStoryAction = (queryClient: QueryClient) => {
 			priority: undefined,
 			estimate: undefined,
 			item_sub_type: undefined,
+			assigned_to_id: undefined,
 		};
 		if (data?.status) {
 			submissionData.status = data?.status as string;
@@ -108,6 +109,9 @@ export const updateStoryAction = (queryClient: QueryClient) => {
 		}
 		if (data?.subType) {
 			submissionData.item_sub_type = data?.subType as string;
+		}
+		if (data?.assignedTo) {
+			submissionData.assigned_to_id = data?.assignedTo as string;
 		}
 
 		await updateStory({

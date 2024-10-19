@@ -47,7 +47,7 @@ export const Story = () => {
 		mapPayloadToSprint(story.iteration) ?? null
 	);
 
-	const [assignee, setAssignee] = useState<User | null>(
+	const [assignedTo, setAssignedTo] = useState<User | null>(
 		mapUser(story.assigned_to) ?? null
 	);
 
@@ -79,11 +79,11 @@ export const Story = () => {
 		if (sprint) {
 			fieldsWithValues.push('sprint');
 		}
-		if (assignee) {
-			fieldsWithValues.push('assignee');
+		if (assignedTo) {
+			fieldsWithValues.push('assignedTo');
 		}
 		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
-	}, [dynamicFields, sprint, assignee]);
+	}, [dynamicFields, sprint, assignedTo]);
 
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
@@ -405,17 +405,17 @@ export const Story = () => {
 								/>
 							)}
 							{/* TODO: owner */}
-							{selectedFields.includes('assignee') && (
+							{selectedFields.includes('assignedTo') && (
 								<>
 									<input
 										hidden
-										name="assignee"
-										value={assignee?.id ?? ''}
-										onChange={() => setAssignee(() => null)}
+										name="assignedTo"
+										value={assignedTo?.id ?? ''}
+										onChange={() => setAssignedTo(() => null)}
 									/>
 									<UserSearchInput
-										setUser={setAssignee}
-										user={assignee}
+										setUser={setAssignedTo}
+										user={assignedTo}
 										label="Assigned to"
 										id="user-selector"
 									/>

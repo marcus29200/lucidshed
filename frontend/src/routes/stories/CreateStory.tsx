@@ -30,7 +30,7 @@ import UserSearchInput from '../sprints/UserSearchInput';
 export const CreateStory = () => {
 	const navigate = useNavigate();
 	const [sprint, setSprint] = useState<Sprint | null>(null);
-	const [assignee, setAssignee] = useState<User | null>(null);
+	const [assignedTo, setAssignedTo] = useState<User | null>(null);
 
 	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>(
 		[]
@@ -304,18 +304,18 @@ export const CreateStory = () => {
 								/>
 							)}
 							{/* TODO: owner */}
-							{selectedFields.includes('assignee') && (
+							{selectedFields.includes('assignedTo') && (
 								<>
 									<input
 										hidden
-										name="assignee"
-										value={assignee?.id ?? ''}
-										onChange={() => setAssignee(() => null)}
+										name="assignedTo"
+										value={assignedTo?.id ?? ''}
+										onChange={() => setAssignedTo(() => null)}
 									/>
 									<UserSearchInput
-										setUser={setAssignee}
-										user={assignee}
-										id="assignee-selector"
+										setUser={setAssignedTo}
+										user={assignedTo}
+										id="assignedTo-selector"
 										label="Assigned to"
 									/>
 								</>

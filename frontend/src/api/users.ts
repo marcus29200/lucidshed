@@ -74,7 +74,10 @@ export const isPermissionsEmpty = (permissions: Permissions) => {
 };
 // TODO: type the api response
 // could be a class to avoid excessive mapping
-export const mapUser = (apiUser: ApiUser): User => {
+export const mapUser = (apiUser: ApiUser): User | undefined => {
+	if (!apiUser) {
+		return undefined;
+	}
 	// TODO: pull the proper org id based on the currently active org
 	const permissions = apiUser.permissions
 		? Object.values(apiUser.permissions)[0]

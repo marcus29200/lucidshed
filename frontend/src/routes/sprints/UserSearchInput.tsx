@@ -19,8 +19,6 @@ export default function UserSearchInput({
 	id?: string;
 	label?: string;
 }) {
-	console.log(user);
-
 	const [value, setValue] = React.useState<User | null>(user);
 	const params = useParams();
 	const { data, isLoading } = useQuery({

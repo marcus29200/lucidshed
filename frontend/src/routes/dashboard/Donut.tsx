@@ -39,7 +39,7 @@ class Donut extends Component<DonutProps, DonutState> {
 									color: '#333',
 									offsetY: -5,
 									formatter: function () {
-										return 'Epic Progress';
+										return 'Story Progress';
 									},
 								},
 								value: {
