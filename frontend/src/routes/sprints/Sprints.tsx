@@ -93,7 +93,13 @@ export const Sprints = () => {
 					/>
 				</div>
 			</div>
-			<Box>
+			<Box
+				sx={{
+					background: 'white',
+					padding: '16px',
+					borderRadius: '12px',
+				}}
+			>
 				<Typography variant="h6" fontSize={16} fontWeight={700} align="left">
 					{selectedSprint.title}
 				</Typography>
@@ -181,7 +187,7 @@ export const Sprints = () => {
 				</div>
 			</Box>
 			{/* stories talbe */}
-			<div className="rounded-xl p-4 bg-white">
+			<div className="rounded-xl p-4 bg-white mt-4">
 				<SprintStoryTable stories={currentStories} />
 			</div>
 		</>

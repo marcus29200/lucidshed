@@ -12,10 +12,12 @@ const SidebarItem = ({
 	item,
 	className = '',
 	expanded,
+	onClick,
 }: {
 	item: NavigationItem;
 	className?: string;
 	expanded: boolean;
+	onClick?: () => void;
 }) => {
 	const { orgId } = useParams();
 	const navigate = useNavigate();
@@ -42,6 +44,7 @@ const SidebarItem = ({
 				onClick={(e) => {
 					if (item.to === undefined) {
 						e.preventDefault();
+						onClick && onClick();
 					}
 				}}
 				to={`/${orgId}/${item.to ?? ''}`}
@@ -98,7 +101,7 @@ const SidebarItem = ({
 				}}
 			>
 				<div
-					className={`flex items-center justify-center gap-2${
+					className={`flex items-center justify-center gap-4${
 						!item.dropDown ? ' w-full' : ''
 					}`}
 					style={{
@@ -112,7 +115,14 @@ const SidebarItem = ({
 					</ListItemIcon>
 					{expanded && (
 						<>
-							<ListItemText sx={{ color: 'black' }}>{item.label}</ListItemText>
+							<ListItemText
+								sx={{
+									color: 'black',
+									'& .MuiTypography-root': { fontSize: '14px ' },
+								}}
+							>
+								{item.label}
+							</ListItemText>
 							{item.canAdd && (
 								<IconButton
 									className="rounded-full !text-neutral-regular !bg-white shadow-md"

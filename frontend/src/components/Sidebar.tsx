@@ -61,6 +61,11 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 	},
 ];
 
+const SETTINGS_ITEM: NavigationItem = {
+	icon: () => <Settings />,
+	label: 'Settings',
+};
+
 const Sidebar = () => {
 	const [expanded, setExpanded] = useState(true);
 	const [width, setWidth] = useState('240px');
@@ -123,28 +128,11 @@ const Sidebar = () => {
 					marginTop: 'auto',
 				}}
 			>
-				<ListItemButton
+				<SidebarItem
+					item={SETTINGS_ITEM}
+					expanded={expanded}
 					onClick={() => setOpenSettings(true)}
-					sx={{
-						'& .MuiListItemIcon-root': {
-							color: '#242831',
-						},
-						'& .MuiListItemText-root, & .MuiListItemIcon-root': {
-							transition: 'color 0.3s ease',
-						},
-						'&:hover': {
-							backgroundColor: 'transparent',
-							'& .MuiListItemText-root, & .MuiListItemIcon-root': {
-								color: '#20A224 !important',
-							},
-						},
-					}}
-				>
-					<ListItemIcon>
-						<Settings />
-					</ListItemIcon>
-					<ListItemText>Admin settings</ListItemText>
-				</ListItemButton>
+				/>
 			</List>
 
 			<SettingsModal setOpen={setOpenSettings} open={openSettings} />
