@@ -1,10 +1,8 @@
 import SiteSettings from '../components/SiteSettings';
 import Security from '../components/Security';
 import Billing from '../components/Billing';
-import WorkflowNotifications from '../components/WorkFlowsNotification';
 import Reporting from '../components/Reporting';
-import UserManagement from '../components/UserManagment';
-import React, { FC } from 'react';
+import React from 'react';
 import {
 	Close,
 	KeyboardReturn,
@@ -22,11 +20,7 @@ interface BasicModalProps {
 	open: boolean;
 	setOpen: (value: boolean) => void;
 }
-interface MenuOptionProps {
-	icon: FC<any>;
-	title: string;
-	onClick: () => void;
-}
+
 const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 	const [selectedComponent, setSelectedComponent] = React.useState<
 		string | null
@@ -177,7 +171,7 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 	);
 };
 
-const MenuOption: FC<MenuOptionProps> = ({ icon: Icon, title, onClick }) => (
+const MenuOption = ({ icon: Icon, title, onClick }) => (
 	<div
 		className="flex flex-col items-center gap-y-6 hover:scale-110 hover:shadow-lg hover:shadow-gray-400 p-6 rounded-xl transition-all ease-in-out duration-200 cursor-pointer"
 		onClick={onClick}

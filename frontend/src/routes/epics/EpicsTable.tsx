@@ -33,7 +33,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 		setRowToDelete(row); // Set the row that will be deleted
 		setOpenDialog(true); // Open the delete confirmation dialog
 	};
-	const orgId = useParams().orgId;
+	const orgId = useParams().orgId as string;
 
 	useEffect(() => {
 		// When the component first mounts, set filteredStories to the full list of epics

@@ -28,15 +28,16 @@ const TEMPLATES_KEY = 'dashboardTemplates';
 const TEMPLATES_STATE_KEY = 'dashboardTemplateStates';
 const SELECTED_TEMPLATE_KEY = 'dashboardSelectedTemplate';
 const DASHBOARD_COMPONENTS_KEY = 'dashboardTemplateComponents';
+const TEMPLATES = [
+	'RoadmapView',
+	'RecentlyMentioned',
+	'TodoList',
+	'EpicUnitsOverview',
+];
 const Dashboard: React.FC = () => {
 	const [oldTemplateName, setOldTemplateName] = useState<string | null>(null);
 	// Dashboard components
-	const availableComponents = [
-		'RoadmapView',
-		'RecentlyMentioned',
-		'TodoList',
-		'EpicUnitsOverview',
-	];
+	const availableComponents = TEMPLATES;
 	interface TemplateStates {
 		[key: string]: string[]; // key is the template name, and the value is an array of strings
 	}
@@ -47,16 +48,12 @@ const Dashboard: React.FC = () => {
 
 	const [templateStates, setTemplateStates] = useState<TemplateStates>(() => {
 		const savedTemplateStates = localStorage.getItem(TEMPLATES_STATE_KEY);
-		return savedTemplateStates
-			? JSON.parse(savedTemplateStates)
-			: {
-					'My Template': [
-						'RoadmapView',
-						'RecentlyMentioned',
-						'TodoList',
-						'EpicUnitsOverview',
-					],
-			  };
+		if (savedTemplateStates) {
+			return JSON.parse(savedTemplateStates);
+		}
+		return {
+			'My Template': [...TEMPLATES],
+		};
 	});
 
 	const [selectedTemplate, setSelectedTemplate] = useState<string | null>(

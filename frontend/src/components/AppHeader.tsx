@@ -1,9 +1,10 @@
 import { Box, Divider, Toolbar, Typography } from '@mui/material';
 import UserComponent from './UserComponent';
 import { useLoaderData } from 'react-router-dom';
+import { Organization } from '../api/organizations';
 
 const AppHeader = (props: { children?: React.ReactNode }) => {
-	const org = useLoaderData();
+	const org = useLoaderData() as Organization;
 	return (
 		<Toolbar
 			sx={{

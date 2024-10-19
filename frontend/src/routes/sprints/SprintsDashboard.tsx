@@ -53,19 +53,18 @@ const StoriesDashboard = () => {
 	});
 	const { orgId } = useParams();
 	const sprints = useLoaderData() as Sprint[];
-	const [selectedSprint, setSelectedSprint] = useState<Sprint>(sprints[0]);
+	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
+		sprints[0]
+	);
 	const [templateStates, setTemplateStates] = useState<TemplateStates>(() => {
 		const savedTemplateStates = localStorage.getItem('graphTemplateStates');
-		return savedTemplateStates
-			? JSON.parse(savedTemplateStates)
-			: {
-					'My Templates': [
-						'BarChart',
-						'LineChart',
-						'LineChartLOE',
-						'TableChart',
-					],
-			  };
+		if (savedTemplateStates) {
+			return JSON.parse(savedTemplateStates);
+		}
+
+		return {
+			'My Templates': ['BarChart', 'LineChart', 'LineChartLOE', 'TableChart'],
+		};
 	});
 
 	const [selectedTemplate, setSelectedTemplate] = useState<string | null>(

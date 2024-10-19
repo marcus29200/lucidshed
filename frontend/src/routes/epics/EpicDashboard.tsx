@@ -12,7 +12,7 @@ import {
 } from '@mui/material'; // MUI components
 import '../../index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link, useLoaderData, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 // import BarChart from '../components/BarChart';
 // import LineChart from '../components/LineChart';
 // import LineChartLOE from '../components/LineChartLOE';
@@ -29,7 +29,6 @@ import {
 	Save,
 	Settings,
 } from '@mui/icons-material';
-import { ApiEpic } from './Epics';
 import { ConfirmationDialog } from '../../components/DeleteDialog';
 
 // TODO: add types
@@ -51,20 +50,15 @@ const EpicsDashboard = () => {
 		return savedTemplates ? JSON.parse(savedTemplates) : ['My Templates'];
 	});
 	const { epicId, orgId } = useParams();
-	const epicDetails = useLoaderData() as ApiEpic; // State to hold epic details
 
 	const [templateStates, setTemplateStates] = useState<TemplateStates>(() => {
 		const savedTemplateStates = localStorage.getItem('graphTemplateStates');
-		return savedTemplateStates
-			? JSON.parse(savedTemplateStates)
-			: {
-					'My Templates': [
-						'BarChart',
-						'LineChart',
-						'LineChartLOE',
-						'TableChart',
-					],
-			  };
+		if (savedTemplateStates) {
+			return JSON.parse(savedTemplateStates);
+		}
+		return {
+			'My Templates': ['BarChart', 'LineChart', 'LineChartLOE', 'TableChart'],
+		};
 	});
 
 	const [selectedTemplate, setSelectedTemplate] = useState<string | null>(

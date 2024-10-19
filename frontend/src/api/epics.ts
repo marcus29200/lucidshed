@@ -10,7 +10,7 @@ export type CreateEpicPayload = {
 	priority: Priority;
 	item_type: 'epic';
 };
-
+export type GetEpicPayload = { orgId: string; epicId: number };
 export const mapEpic = (epic: ApiEpic): Epic => {
 	return {
 		name: epic.title,
@@ -18,6 +18,8 @@ export const mapEpic = (epic: ApiEpic): Epic => {
 		epicId: epic.id,
 		startDate: epic.start_date || '-',
 		endDate: epic.estimated_completion_date,
+		priority: epic.priority,
+		description: epic.description,
 	};
 };
 
@@ -65,7 +67,7 @@ export const getEpics = async (
 	return results.items.map(mapEpic);
 };
 
-export const getEpic = async ({ orgId, epicId }) => {
+export const getEpic = async ({ orgId, epicId }: GetEpicPayload) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}`, {
 		headers: {
 			...getAuthHeaders(),
@@ -78,7 +80,7 @@ export const getEpic = async ({ orgId, epicId }) => {
 	return await res.json();
 };
 
-export const deleteEpic = async ({ orgId, epicId }) => {
+export const deleteEpic = async ({ orgId, epicId }: GetEpicPayload) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}`, {
 		headers: {
 			...getAuthHeaders(),

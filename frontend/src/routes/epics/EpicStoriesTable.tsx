@@ -2,7 +2,7 @@ import { MenuItem } from '@mui/material';
 
 import { MRT_Row, type MRT_ColumnDef } from 'material-react-table';
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ConfirmationDialog } from '../../components/DeleteDialog';
 import { format } from 'date-fns';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';

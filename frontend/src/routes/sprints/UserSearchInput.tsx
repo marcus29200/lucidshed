@@ -65,7 +65,8 @@ export default function UserSearchInput({
 				return option?.fullName ?? '';
 			}}
 			renderOption={(props, option) => {
-				const { key, ...optionProps } = props;
+				const { key, ...optionProps } =
+					props as React.HTMLAttributes<HTMLLIElement> & { key: string };
 				return (
 					<li key={key} {...optionProps} value={optionProps.id}>
 						{option.fullName}

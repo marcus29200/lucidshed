@@ -15,12 +15,25 @@ export type User = {
 	superAdmin: boolean;
 	fullName: string;
 };
+export type Permission = {
+	organization_id: string;
+	user_id: string;
+	disabled: boolean;
+	role: string;
+	id: string;
+	created_at: string;
+	created_by_id: string;
+	modified_at: string;
+	modified_by_id: string;
+	deleted_at: string;
+	deleted_by_id: string;
+};
 export type ApiUser = {
 	email: string;
 	first_name: string;
 	last_name: string;
 	disabled: boolean;
-	permissions: any;
+	permissions: Permissions;
 	title: string;
 	team: string;
 	phone: string;
@@ -28,7 +41,7 @@ export type ApiUser = {
 	timezone: string;
 	bio: string;
 	picture: string;
-	settings: any;
+	settings: unknown;
 	id: string;
 	created_at: string;
 	created_by_id: string;
@@ -87,8 +100,8 @@ export const mapUser = (apiUser: ApiUser): User | undefined => {
 		email: apiUser.email,
 		firstName: apiUser.first_name,
 		lastName: apiUser.last_name,
-		role: permissions?.role,
-		organizationId: permissions?.organization_id,
+		role: permissions?.role as string,
+		organizationId: permissions?.organization_id as string,
 		disabled: apiUser.disabled,
 		superAdmin: apiUser.super_admin,
 		fullName: `${apiUser.first_name}${
@@ -97,7 +110,7 @@ export const mapUser = (apiUser: ApiUser): User | undefined => {
 	};
 };
 
-export const getMe = async (): Promise<User> => {
+export const getMe = async (): Promise<User | undefined> => {
 	const res = await fetch(`${BASE_URL}/users/me`, {
 		headers: getAuthHeaders(),
 	});
@@ -108,7 +121,9 @@ export const getMe = async (): Promise<User> => {
 	return mapUser(user);
 };
 
-export const getUserWithinOrganization = async (id: string): Promise<User> => {
+export const getUserWithinOrganization = async (
+	id: string
+): Promise<User | undefined> => {
 	const orgId = localStorage.getItem('orgId');
 	const res = await fetch(`${BASE_URL}/${orgId}/users/${id}`, {
 		headers: getAuthHeaders(),
@@ -135,7 +150,7 @@ export const patchUser = async ({ id, data }: EditUserPayload) => {
 	return await res.json();
 };
 
-export const getUser = async (id: string): Promise<User> => {
+export const getUser = async (id: string): Promise<User | undefined> => {
 	const res = await fetch(`${BASE_URL}/users/${id}`, {
 		headers: getAuthHeaders(),
 	});

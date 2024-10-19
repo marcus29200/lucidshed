@@ -1,5 +1,8 @@
 import { createContext, useContext, useState } from 'react';
-import { getUserWithinOrganization as getUserFromApi } from '../api/users';
+import {
+	ApiUser,
+	getUserWithinOrganization as getUserFromApi,
+} from '../api/users';
 
 // just a subset of fields on the JWT right now
 export type User = {
@@ -11,15 +14,18 @@ export type User = {
 	teamSlugs: string[];
 };
 
-type AuthContextValue = {
-	user: any;
+export type AuthContextValue = {
+	user;
 	storeUser(userPayload: {
-		token: string;
-		refreshToken: string;
-		username: string;
+		// refreshToken: string;
+		token: { access_token: string };
+		user: ApiUser;
 	}): void;
 	getUser(): void;
 	clearUser(): void;
+	updateUser(user): void;
+	storeToken(args: { token: { access_token: string } }): void;
+	updateUserPermissionsBlock(permissions): void;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -28,7 +34,7 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [user, setUser] = useState<any>();
+	const [user, setUser] = useState<ApiUser>();
 	// attempt to set user on startup
 
 	function storeToken({ token }) {
@@ -36,7 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	}
 	// TODO: put these into types yo
 	// TODO: better solution than local storage?
-	function storeUserAndToken({ token, user }: { token: any; user: any }) {
+	function storeUserAndToken({
+		token,
+		user,
+	}: {
+		token: { access_token: string };
+		user: ApiUser;
+	}) {
 		localStorage.setItem('token', token?.access_token);
 		setUser(user);
 	}
@@ -50,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	}
 
 	function updateUserPermissionsBlock(permissions) {
-		setUser({ ...user, permissions });
+		setUser({ ...(user as ApiUser), permissions });
 	}
 
 	// how to get user from the
@@ -62,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 		return getUserFromApi(userId as string);
 	}
 
-	const value = {
+	const value: AuthContextValue = {
 		user,
 		storeUser: storeUserAndToken,
 		storeToken,

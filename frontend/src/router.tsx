@@ -5,7 +5,7 @@ import Register from './routes/register/register';
 import Dashboard from './routes/dashboard/dashboard';
 import AppLayout from './components/AppLayout';
 import { Epics, loader as epicsLoader } from './routes/epics/Epics';
-import { Epic, loader as epicLoader } from './routes/epics/Epic';
+import { EpicDetails, loader as epicLoader } from './routes/epics/Epic';
 import { Stories } from './routes/stories/Stories';
 import { ResetPassword } from './routes/ResetPassword';
 import { CreateOrganization } from './routes/CreateOrganization';
@@ -35,8 +35,8 @@ export const queryClient = new QueryClient({
 		// this allows us to have a "global" redirect on the loader queries
 		// since there is no way to do this in one place with react-router
 		// or use a ProtectedRoute component (since loaders will fire before it is rendered)
-		onError: (error: any) => {
-			if (error?.status === 401) {
+		onError: (error: Error & { status?: number }) => {
+			if (error.status === 401) {
 				window.location.replace('/login');
 			}
 		},
@@ -94,7 +94,7 @@ export const router = createBrowserRouter([
 							},
 							{
 								path: ':epicId',
-								element: <Epic />,
+								element: <EpicDetails />,
 								loader: epicLoader(queryClient),
 							},
 							{

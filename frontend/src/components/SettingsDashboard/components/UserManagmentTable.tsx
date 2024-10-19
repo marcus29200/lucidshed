@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect } from 'react';
 import { SelectChangeEvent } from '@mui/material/Select';
 import {
 	MaterialReactTable,
-	MRT_RowSelectionState,
 	useMaterialReactTable,
 	type MRT_ColumnDef,
 } from 'material-react-table';
@@ -40,10 +39,6 @@ const UserManagementTable = ({
 	const navigate = useNavigate();
 	const [sortedData, setSortedData] = useState<Epic[]>([]);
 
-	const [activeSortingColumn, setActiveSortingColumn] = useState<string | null>(
-		null
-	);
-	const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
 	const [allEpics, setAllEpics] = useState<Epic[]>(epics); // Hold all epics, even after delete
 
 	useEffect(() => {
@@ -80,11 +75,8 @@ const UserManagementTable = ({
 				sortingStates[activeSortingKey] as boolean
 			);
 			setSortedData(sorted);
-
-			setActiveSortingColumn(activeSortingKey);
 		} else {
 			setSortedData(dataToSort);
-			setActiveSortingColumn(null);
 		}
 	}, [sortingStates, filteredStories]);
 	// Handle the search functionality (filter based on search term)
@@ -107,7 +99,7 @@ const UserManagementTable = ({
 		}
 	}, [searchBar, allEpics]);
 
-	const handleSortingChange = (id: keyof Epic) => {
+	const handleSortingChange = (id: string) => {
 		setSortingStates((prev) => {
 			const currentOrder = prev[id];
 

@@ -25,7 +25,6 @@ const WorkflowNotifications: React.FC = () => {
 	const [anchorEl3, setAnchorEl3] = useState<null | HTMLElement>(null);
 	const [searchTerm3, setSearchTerm3] = useState<string>('');
 	const [searchBar, setSearchBar] = useState<string>('');
-	const [epics, setEpics] = useState<any>('');
 
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchBar(event.target.value);
@@ -33,11 +32,6 @@ const WorkflowNotifications: React.FC = () => {
 
 	useEffect(() => {
 		setCheckedItems(editField);
-	}, []);
-
-	useEffect(() => {
-		// Populate the epics state with data from the imported file
-		setEpics(fieldData);
 	}, []);
 
 	const menuItems3 = ['Select All', 'Epic 1', 'Epic 2', 'Epic 3', 'Epic 4'];
@@ -243,7 +237,7 @@ const WorkflowNotifications: React.FC = () => {
 				</div>
 
 				<FieldManagementTable
-					epics={epics}
+					epics={[]}
 					checkedField={checkedItems}
 					searchBar={searchBar}
 				/>

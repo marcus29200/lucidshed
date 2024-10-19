@@ -10,18 +10,13 @@ const UserManagement: React.FC = () => {
 	const [checkedItems, setCheckedItems] = useState<string[]>([]);
 	const [searchBar, setSearchBar] = useState('');
 	const editField = ['name', 'email', 'createdDate', 'role', 'team'];
-	const [epics, setEpics] = useState('');
+
 	const handleSearchChange = (event) => {
 		console.log('handleSearchChange', event.target.value);
 		setSearchBar(event.target.value);
 	};
 	useEffect(() => {
 		setCheckedItems(editField);
-	}, []);
-
-	useEffect(() => {
-		// Populate the sprints state with data from the imported file
-		setEpics(userData);
 	}, []);
 
 	const menuItems3 = ['Select All', 'Epic 1', 'Epic 2', 'Epic 3', 'Epic 4'];

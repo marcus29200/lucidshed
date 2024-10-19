@@ -74,7 +74,8 @@ export default function SprintSearchInput({
 				return option?.title ?? '';
 			}}
 			renderOption={(props, option) => {
-				const { key, ...optionProps } = props;
+				const { key, ...optionProps } =
+					props as React.HTMLAttributes<HTMLLIElement> & { key: string };
 				return (
 					<li key={key} {...optionProps} value={optionProps.id}>
 						{option.title}

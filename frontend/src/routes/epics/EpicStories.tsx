@@ -1,18 +1,15 @@
 import { Box, Button, Menu, MenuItem, ListItemText } from '@mui/material';
 
-import {
-	FilterIcon,
-	KanbanViewIcon,
-	SearchIcon,
-	TableViewIcon,
-} from '../../icons/icons';
+import { FilterIcon, SearchIcon } from '../../icons/icons';
 import EpicStoriesTable from './EpicStoriesTable';
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Epic } from './Epics';
+import { Story } from '../stories/Stories';
 
 // TODO: add typing for epic
-const EpicStories = ({ epic }) => {
-	const stories: any[] = [];
+const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
+	const stories: Story[] = [];
 	const orgId = useParams().orgId;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [anchorFilterEl, setAnchorFilterEl3] = useState<null | HTMLElement>(
@@ -28,7 +25,7 @@ const EpicStories = ({ epic }) => {
 		string[]
 	>([]);
 
-	const [activeIcon, setActiveIcon] = useState('list'); // Default active icon
+	// const [activeIcon, setActiveIcon] = useState('list'); // Default active icon
 
 	const [addStoryAnchor, setAddStoryAnchor] = useState<null | HTMLElement>(
 		null
@@ -114,15 +111,15 @@ const EpicStories = ({ epic }) => {
 
 		setEditFieldsCheckedItems(newChecked);
 	};
-	const handleIconClick = (icon: string) => {
-		setActiveIcon(icon); // Set the clicked icon as active
-	};
+	// const handleIconClick = (icon: string) => {
+	// 	setActiveIcon(icon); // Set the clicked icon as active
+	// };
 
 	const filteredEditFieldsMenuItems = editFields.filter((item) =>
 		item.toLowerCase().includes(editFieldsSearchTerm.toLowerCase())
 	);
 
-	const allStories: any[] = [];
+	const allStories: string[] = [];
 
 	const handleAddStory = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAddStoryAnchor(event.currentTarget);

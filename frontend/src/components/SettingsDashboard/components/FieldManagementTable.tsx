@@ -6,6 +6,7 @@ import {
 } from 'material-react-table';
 import { MenuItem, Select } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+// TODO: User types
 type Epic = {
 	Tag: string;
 	Role: string;
@@ -30,9 +31,7 @@ const FieldManagementTable = ({
 	});
 	const navigate = useNavigate();
 	const [sortedData, setSortedData] = useState<Epic[]>([]);
-	const [activeSortingColumn, setActiveSortingColumn] = useState<string | null>(
-		null
-	);
+
 	const [allEpics, setAllEpics] = useState<Epic[]>(epics); // Hold all epics, even after delete
 
 	useEffect(() => {
@@ -87,16 +86,13 @@ const FieldManagementTable = ({
 				sortingStates[activeSortingKey] as boolean
 			);
 			setSortedData(sorted);
-
-			setActiveSortingColumn(activeSortingKey);
 		} else {
 			setSortedData(dataToSort);
-			setActiveSortingColumn(null);
 		}
 	}, [sortingStates, filteredStories]);
 	// Handle the search functionality (filter based on search term)
 
-	const handleSortingChange = (id: keyof Epic) => {
+	const handleSortingChange = (id: string) => {
 		setSortingStates((prev) => {
 			const currentOrder = prev[id];
 
@@ -144,7 +140,7 @@ const FieldManagementTable = ({
 				Cell: ({ row }) => (
 					<Select
 						value={row.original.role[0]} // Default selected value is the first role
-						onChange={(e) => {
+						onChange={() => {
 							// Handle value change if needed
 						}}
 						sx={{

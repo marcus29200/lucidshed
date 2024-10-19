@@ -1,12 +1,4 @@
-import {
-	Box,
-	Divider,
-	Drawer,
-	List,
-	ListItemButton,
-	ListItemIcon,
-	ListItemText,
-} from '@mui/material';
+import { Box, Divider, Drawer, List } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
 import { Checklist, NavigateBefore, Settings } from '@mui/icons-material';

@@ -3,7 +3,6 @@ import {
 	Link,
 	LoaderFunctionArgs,
 	useLoaderData,
-	useNavigate,
 	useParams,
 } from 'react-router-dom';
 import { getSprints, getStoriesForSprint, Sprint } from '../../api/sprints';
@@ -28,7 +27,7 @@ export const getSprintsQuery = (orgId: string) =>
 		queryFn: async () => getSprints(orgId),
 	});
 
-export const loader = (queryClient: QueryClient) => {
+export const loader = (_queryClient: QueryClient) => {
 	return async ({ params }: LoaderFunctionArgs) => {
 		if (!params.orgId) {
 			throw new Error('no org id');
@@ -41,7 +40,9 @@ export const loader = (queryClient: QueryClient) => {
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const { orgId } = useParams();
-	const [selectedSprint, setSelectedSprint] = useState<Sprint>(sprints[0]);
+	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
+		sprints[0]
+	);
 	const [currentStories, setCurrentStories] = useState<Story[]>([]);
 	useMemo(() => {
 		if (selectedSprint) {
@@ -100,70 +101,81 @@ export const Sprints = () => {
 					borderRadius: '12px',
 				}}
 			>
-				<Typography variant="h6" fontSize={16} fontWeight={700} align="left">
-					{selectedSprint.title}
-				</Typography>
-				<div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
-						<Grid item xs={8}>
-							<TextField
-								sx={{
-									'& .MuiInputBase-root': {
-										background: 'white',
-									},
-								}}
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Description"
-								id="description"
-								name="description"
-								multiline
-								value={selectedSprint.description}
-								rows={8}
-							></TextField>
-						</Grid>
-						<Grid item xs={4}>
-							<DatePicker
-								label="Sprint Start date"
-								name="startDate"
-								slotProps={{
-									textField: {
-										variant: 'outlined',
-										size: 'small',
-										margin: 'dense',
-										fullWidth: true,
-										sx: {
+				{selectedSprint && (
+					<>
+						<Typography
+							variant="h6"
+							fontSize={16}
+							fontWeight={700}
+							align="left"
+						>
+							{selectedSprint.title}
+						</Typography>
+						<div
+							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+						>
+							<Grid container spacing={2} sx={{ flexGrow: 1 }}>
+								<Grid item xs={8}>
+									<TextField
+										sx={{
 											'& .MuiInputBase-root': {
 												background: 'white',
 											},
-										},
-									},
-								}}
-								value={new Date(selectedSprint.startDate) as any}
-							></DatePicker>
-							<DatePicker
-								label="Sprint End date"
-								name="endDate"
-								slotProps={{
-									textField: {
-										variant: 'outlined',
-										size: 'small',
-										margin: 'dense',
-										fullWidth: true,
-										sx: {
-											'& .MuiInputBase-root': {
-												background: 'white',
+										}}
+										variant="outlined"
+										size="small"
+										margin="dense"
+										fullWidth
+										label="Description"
+										id="description"
+										name="description"
+										multiline
+										value={selectedSprint.description}
+										rows={8}
+									></TextField>
+								</Grid>
+								<Grid item xs={4}>
+									<DatePicker
+										label="Sprint Start date"
+										name="startDate"
+										slotProps={{
+											textField: {
+												variant: 'outlined',
+												size: 'small',
+												margin: 'dense',
+												fullWidth: true,
+												sx: {
+													'& .MuiInputBase-root': {
+														background: 'white',
+													},
+												},
 											},
-										},
-									},
-								}}
-								value={new Date(selectedSprint.endDate) as any}
-							></DatePicker>
-						</Grid>
-					</Grid>
-				</div>
+										}}
+										value={new Date(selectedSprint.startDate)}
+									></DatePicker>
+									<DatePicker
+										label="Sprint End date"
+										name="endDate"
+										slotProps={{
+											textField: {
+												variant: 'outlined',
+												size: 'small',
+												margin: 'dense',
+												fullWidth: true,
+												sx: {
+													'& .MuiInputBase-root': {
+														background: 'white',
+													},
+												},
+											},
+										}}
+										value={new Date(selectedSprint.endDate)}
+									></DatePicker>
+								</Grid>
+							</Grid>
+						</div>
+					</>
+				)}
 
 				{/* Progress Bar */}
 				<div className="w-full text-left pb-8">
@@ -186,7 +198,7 @@ export const Sprints = () => {
 					/>
 				</div>
 			</Box>
-			{/* stories talbe */}
+			{/* stories table */}
 			<div className="rounded-xl p-4 bg-white mt-4">
 				<SprintStoryTable stories={currentStories} />
 			</div>
