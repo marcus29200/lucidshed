@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from app.database.common.models import MAX_ID_LENGTH, Model
+from app.database.users.models.user import SlimUser
 
 
 class WorkItemSortableField(StrEnum):
@@ -39,11 +40,12 @@ class BaseWorkItem(BaseModel):
     estimated_completion_date: Optional[datetime] = None
     checkin_frequency: Optional[CheckinFrequency] = None
     starred: Optional[bool] = False
-    # TODO Implement relationships for stories/tasks, also the category like related/dependant
     # product_area: Optional[str] = None  # TODO Possible config value, needs definition, should be like priority
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
     # related_tickets: Optional[List[str]] = []  # TODO Create DB models for these relationships
     # related_files: Optional[List[str]] = []  # TODO Create DB models for these relationships
+    assigned_to_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
+    assigned_to: Optional[SlimUser] = None
     created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     archived_at: Optional[datetime] = None

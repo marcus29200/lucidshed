@@ -107,6 +107,17 @@ async def test_should_add_engineering_item_with_created_by_override(data_api: Te
     assert engineering_item["created_by_id"] == "test2@test.com"
 
 
+async def test_should_add_engineering_item_with_assigned_to_override(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    engineering_item = await add_engineering_item(
+        data_api, org["id"], {"assigned_to_id": user["id"]}, headers=headers
+    )
+
+    assert engineering_item["assigned_to_id"] == user["id"]
+    assert engineering_item["assigned_to"]["id"] == user["id"]
+
+
 async def test_should_not_add_engineering_item_with_expired_token(data_api: TestClient):
     org, _, _ = await authenticate(data_api)
 
@@ -224,6 +235,27 @@ async def test_should_get_all_engineering_item_with_iteration_id(data_api: TestC
         f"{data_api.test_org_id}/engineering",
         item_type=EngineeringItemType.STORY.value,
         iteration_id=iteration["id"],
+        headers=headers,
+    )
+
+    assert len(items) == 1
+
+
+async def test_should_get_all_engineering_item_with_assigned_to_id(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test1"}, headers=headers
+    )
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test2", "assigned_to_id": user["id"]}, headers=headers
+    )
+
+    items = await page_results(
+        data_api,
+        f"{data_api.test_org_id}/engineering",
+        item_type=EngineeringItemType.STORY.value,
+        assigned_to_id=user["id"],
         headers=headers,
     )
 
@@ -539,3 +571,18 @@ async def test_should_delete_comment_for_story(data_api: TestClient):
         f"{data_api.test_org_id}/engineering/{story['id']}/comments/{comment['id']}", headers=headers
     )
     assert response.status_code == 404
+
+
+async def test_should_assign_engineering_item_user_and_return_user_info(data_api: TestClient):
+    org, user, headers = await authenticate(data_api)
+
+    story = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "item_type": EngineeringItemType.STORY.value, "assigned_to_id": user["id"]}, headers=headers
+    )
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{story['id']}", headers=headers)
+    assert response.status_code == 200
+
+    engineering_item = response.json()
+    assert engineering_item["assigned_to_id"] == user["id"]
+    assert engineering_item["assigned_to"]["id"] == user["id"]

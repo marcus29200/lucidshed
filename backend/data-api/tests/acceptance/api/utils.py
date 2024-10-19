@@ -119,6 +119,7 @@ async def page_results(
     endpoint,
     item_type: Optional[str] = None,
     iteration_id: Optional[str] = None,
+    assigned_to_id: Optional[str] = None,
     sort: Optional[str] = None,
     limit: Optional[int] = 1000,
     headers: Optional[Dict[str, Any]] = {},
@@ -133,6 +134,7 @@ async def page_results(
         query_params = {
             "item_type": item_type if item_type else "",
             "iteration_id": iteration_id if iteration_id else "",
+            "assigned_to_id": assigned_to_id if assigned_to_id else "",
             "sort": sort if sort else "id",
             "limit": limit,
             "cursor": cursor if cursor else "",

@@ -8,6 +8,8 @@ from app.database.history.controllers.history import HistoryController
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
+from app.database.users.models.user import SlimUser
+from app.database.users.controllers.user import UserController
 
 
 class WorkItemController:
@@ -20,14 +22,18 @@ class WorkItemController:
     async def get(self, *, organization_id: str, id: int) -> Any:
         raise NotImplementedError()
 
-    async def _get(self, *, organization_id: str, id: int, scope: str) -> Dict[str, Any]:
+    async def _get(self, *, organization_id: str, id: int, scope: str) -> Tuple[Dict[str, Any], Optional[SlimUser]]:
         # Get item record here
         record = await data_db.get().fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
 
         if not record:
             raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
 
-        return record
+        user = None
+        if record.get("assigned_to_id"):
+            user = await UserController().get_slim_user(id=record["assigned_to_id"])
+
+        return record, user
 
     async def get_all(
         self,
@@ -50,6 +56,7 @@ class WorkItemController:
         item_type: Optional[str] = None,
         iteration_id: Optional[str] = None,
         related_item_id: Optional[int] = None,
+        assigned_to_id: Optional[str] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Dict[str, Any]], str | None]:
@@ -65,6 +72,7 @@ class WorkItemController:
             item_type,
             iteration_id,
             related_item_id,
+            assigned_to_id,
             sort,
             limit,
             offset,

@@ -63,3 +63,12 @@ class User(Model, BaseUser):
     @property
     def password_set(self):
         return self.password and len(self.password) > 3
+
+
+class SlimUser(Model):
+    id: str
+    email: str
+    first_name: str
+    last_name: str
+    picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
+    title: Optional[str] = None

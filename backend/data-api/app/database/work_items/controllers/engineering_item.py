@@ -11,6 +11,7 @@ from app.database.work_items.models.engineering_item import (
     EngineeringLinkType,
 )
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.database.users.controllers.user import UserController
 
 
 class EngineeringController(WorkItemController):
@@ -35,6 +36,7 @@ class EngineeringController(WorkItemController):
             new_item.team_id,
             new_item.due_date,
             new_item.acceptance_criteria,
+            new_item.assigned_to_id,
             new_item.created_by_id or current_user,
             current_user,
         )
@@ -50,12 +52,16 @@ class EngineeringController(WorkItemController):
             current_user,
         )
 
-        return EngineeringItem(**record)
+        user = None
+        if new_item.assigned_to_id:
+            user = await UserController().get_slim_user(id=new_item.assigned_to_id)
+
+        return EngineeringItem(**record, assigned_to=user)
 
     async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
-        record = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
+        record, user = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
 
-        return EngineeringItem(**record)
+        return EngineeringItem(**record, assigned_to=user)
 
     async def get_all(
         self,
@@ -64,6 +70,7 @@ class EngineeringController(WorkItemController):
         item_type: Optional[EngineeringItemType] = None,
         iteration_id: Optional[str] = None,
         related_item_id: Optional[int] = None,
+        assigned_to_id: Optional[str] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -76,6 +83,7 @@ class EngineeringController(WorkItemController):
             item_type=item_type,
             iteration_id=iteration_id,
             related_item_id=related_item_id,
+            assigned_to_id=assigned_to_id,
             sort=sort.value if sort else WorkItemSortableField.ID.value,
             limit=limit,
             cursor=cursor,
@@ -124,6 +132,7 @@ class EngineeringController(WorkItemController):
             old_item_json["deleted_by_id"],
             old_item_json["completed_at"],
             old_item_json["completed_by_id"],
+            old_item_json["assigned_to_id"],
         )
 
         await self.history_controller.create(

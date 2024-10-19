@@ -13,6 +13,7 @@ BASE_WORK_ITEM_FIELDS = f"""
     priority VARCHAR(15),
     estimated_completion_date timestamp with time zone DEFAULT NULL,
     starred BOOLEAN DEFAULT FALSE,
+    assigned_to_id VARCHAR({MAX_ID_LENGTH}),
     archived_at timestamp with time zone DEFAULT NULL,
     archived_by_id VARCHAR({MAX_ID_LENGTH}),
     completed_at timestamp with time zone DEFAULT NULL,
@@ -111,10 +112,11 @@ INSERT INTO engineering_items
     team_id,
     due_date,
     acceptance_criteria,
+    assigned_to_id,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
@@ -148,9 +150,10 @@ WHERE
     AND ($3::int IS NULL OR engineering_items.iteration_id = $3)
     AND ($4::int IS NULL OR (work_item_relationships.item_1 = $4 OR work_item_relationships.item_2 = $4))
     AND ($4::int IS NULL OR engineering_items.id != $4)
-ORDER BY $5
-LIMIT $6
-OFFSET $7;
+    AND ($5::text IS NULL OR engineering_items.assigned_to_id = $5)
+ORDER BY $6
+LIMIT $7
+OFFSET $8;
 """
 
 
@@ -180,7 +183,8 @@ SET
     deleted_at = $20,
     deleted_by_id = $21,
     completed_at = $22,
-    completed_by_id = $23
+    completed_by_id = $23,
+    assigned_to_id = $24
 WHERE
     organization_id = $1 AND id = $2
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
