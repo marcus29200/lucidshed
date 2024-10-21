@@ -12,7 +12,7 @@ function Home() {
 				gap: '2rem',
 			}}
 		>
-			<img src="/logo.svg" />
+			<img src={import.meta.env.BASE_URL + '/logo.svg'} />
 			<Link to="/login">
 				<Button color="primary" variant="contained">
 					Log in

@@ -43,122 +43,125 @@ export const queryClient = new QueryClient({
 	}),
 });
 
-export const router = createBrowserRouter([
-	{
-		path: '/',
-		element: <Home />,
-	},
-	{
-		path: '/login',
-		element: <Login />,
-	},
-	{
-		path: '/register',
-		element: <Register />,
-	},
-	{
-		path: '/reset-password',
-		element: <ResetPassword />,
-	},
-	{
-		path: '/setup/org',
-		element: <CreateOrganization />,
-	},
-	{
-		path: '/setup/user',
-		loader: meLoader(queryClient),
-		element: <UserSignupAdditionalInfo />,
-	},
-	{
-		id: 'user',
-		loader: meLoader(queryClient),
-		errorElement: <Login />,
-		children: [
-			{
-				element: <AppLayout />,
-				path: ':orgId',
-				id: 'org',
-				loader: organizationLoader(queryClient),
-				children: [
-					{
-						index: true,
-						element: <Dashboard />,
-					},
-					{
-						path: 'epics',
-						children: [
-							{
-								index: true,
-								element: <Epics />,
-								loader: epicsLoader(queryClient),
-							},
-							{
-								path: ':epicId',
-								element: <EpicDetails />,
-								loader: epicLoader(queryClient),
-							},
-							{
-								path: ':epicId/dashboard',
-								element: <EpicsDashboard />,
-								loader: epicLoader(queryClient),
-							},
-							{
-								path: 'new',
-								element: <CreateEpic />,
-							},
-						],
-					},
-					{
-						path: 'stories',
-						children: [
-							{
-								index: true,
-								loader: storiesLoader(queryClient),
-								element: <Stories />,
-							},
-							{
-								path: ':storyId',
-								loader: storyLoader(queryClient),
-								action: updateStoryAction(queryClient),
-								element: <Story />,
-							},
-							{
-								path: 'new',
-								action: createStoryAction(queryClient),
-								element: <CreateStory />,
-							},
-						],
-					},
-					{
-						path: 'sprints',
-						children: [
-							{
-								index: true,
-								loader: sprintsLoader(queryClient),
-								element: <Sprints />,
-							},
-							{
-								path: 'new',
-								action: createSprintAction(queryClient),
-								element: <CreateSprint />,
-							},
-							{
-								path: 'dashboard',
-								element: <SprintsDashboard />,
-								loader: sprintsLoader(queryClient),
-							},
-						],
-					},
-					{
-						path: '*',
-						element: <p>Nothing here :(</p>,
-					},
-				],
-			},
-		],
-	},
-	{
-		path: '*',
-		element: <p>Nothing here :(</p>,
-	},
-]);
+export const router = createBrowserRouter(
+	[
+		{
+			path: '/',
+			element: <Home />,
+		},
+		{
+			path: '/login',
+			element: <Login />,
+		},
+		{
+			path: '/register',
+			element: <Register />,
+		},
+		{
+			path: '/reset-password',
+			element: <ResetPassword />,
+		},
+		{
+			path: '/setup/org',
+			element: <CreateOrganization />,
+		},
+		{
+			path: '/setup/user',
+			loader: meLoader(queryClient),
+			element: <UserSignupAdditionalInfo />,
+		},
+		{
+			id: 'user',
+			loader: meLoader(queryClient),
+			errorElement: <Login />,
+			children: [
+				{
+					element: <AppLayout />,
+					path: ':orgId',
+					id: 'org',
+					loader: organizationLoader(queryClient),
+					children: [
+						{
+							index: true,
+							element: <Dashboard />,
+						},
+						{
+							path: 'epics',
+							children: [
+								{
+									index: true,
+									element: <Epics />,
+									loader: epicsLoader(queryClient),
+								},
+								{
+									path: ':epicId',
+									element: <EpicDetails />,
+									loader: epicLoader(queryClient),
+								},
+								{
+									path: ':epicId/dashboard',
+									element: <EpicsDashboard />,
+									loader: epicLoader(queryClient),
+								},
+								{
+									path: 'new',
+									element: <CreateEpic />,
+								},
+							],
+						},
+						{
+							path: 'stories',
+							children: [
+								{
+									index: true,
+									loader: storiesLoader(queryClient),
+									element: <Stories />,
+								},
+								{
+									path: ':storyId',
+									loader: storyLoader(queryClient),
+									action: updateStoryAction(queryClient),
+									element: <Story />,
+								},
+								{
+									path: 'new',
+									action: createStoryAction(queryClient),
+									element: <CreateStory />,
+								},
+							],
+						},
+						{
+							path: 'sprints',
+							children: [
+								{
+									index: true,
+									loader: sprintsLoader(queryClient),
+									element: <Sprints />,
+								},
+								{
+									path: 'new',
+									action: createSprintAction(queryClient),
+									element: <CreateSprint />,
+								},
+								{
+									path: 'dashboard',
+									element: <SprintsDashboard />,
+									loader: sprintsLoader(queryClient),
+								},
+							],
+						},
+						{
+							path: '*',
+							element: <p>Nothing here :(</p>,
+						},
+					],
+				},
+			],
+		},
+		{
+			path: '*',
+			element: <p>Nothing here :(</p>,
+		},
+	],
+	{ basename: import.meta.env.BASE_URL }
+);

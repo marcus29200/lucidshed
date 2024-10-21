@@ -47,7 +47,9 @@ const SiteSettings = () => {
 						>
 							{selectedFile ? (
 								<img
-									src={URL.createObjectURL(selectedFile)}
+									src={
+										import.meta.env.BASE_URL + URL.createObjectURL(selectedFile)
+									}
 									alt="Selected logo"
 									className="w-full h-full object-cover"
 								/>

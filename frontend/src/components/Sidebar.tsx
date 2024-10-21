@@ -92,7 +92,7 @@ const Sidebar = () => {
 			>
 				{expanded ? (
 					<>
-						<img src="/logo.svg" width="140" />
+						<img src={import.meta.env.BASE_URL + '/logo.svg'} width="140" />
 						<NavigateBefore
 							className="cursor-pointer rounded-full border-[1px] border-gray-800"
 							onClick={() => setExpanded(false)}

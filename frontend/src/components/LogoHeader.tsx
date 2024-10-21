@@ -9,7 +9,10 @@ const LogoHeader = ({ children }: { children?: React.ReactNode }) => {
 				marginBottom: '36px',
 			}}
 		>
-			<img src="/logo.svg" style={{ height: '48px' }} />
+			<img
+				src={import.meta.env.BASE_URL + '/logo.svg'}
+				style={{ height: '48px' }}
+			/>
 
 			{children}
 		</div>

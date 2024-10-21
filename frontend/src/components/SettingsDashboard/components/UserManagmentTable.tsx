@@ -128,7 +128,7 @@ const UserManagementTable = ({
 				Cell: ({ row }) => (
 					<div style={{ display: 'flex', alignItems: 'center' }}>
 						<img
-							src={row.original.imageLink} // Use the imageLink from your epics data
+							src={import.meta.env.BASE_URL + row.original.imageLink} // Use the imageLink from your epics data
 							alt={row.original.name}
 							style={{
 								width: '30px', // Set the width of the image
