@@ -29,7 +29,9 @@ export default function SprintSearchInput({
 	const options = enableAddNew
 		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
 		: [...items];
+
 	const navigate = useNavigate();
+
 	return (
 		<Autocomplete
 			value={value}
