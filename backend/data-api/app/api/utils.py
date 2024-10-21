@@ -7,6 +7,7 @@ from sendgrid import Mail, SendGridAPIClient
 
 from app.api.settings import settings
 from app.exceptions.common import SendgridException
+from python_http_client.exceptions import BadRequestsError
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +44,9 @@ def send_mail(to_email: str, subject: str, content: str):
         return
 
     try:
-        sendrgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
+        sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
 
-        sendrgrid_client.send(
+        sendgrid_client.send(
             Mail(
                 from_email=settings.from_email,
                 to_emails=to_email,
@@ -53,7 +54,12 @@ def send_mail(to_email: str, subject: str, content: str):
                 html_content=content,
             )
         )
-    except Exception:
+    except BadRequestsError as e:
+        logger.exception("Unable to send email")
+        logger.info(e.body)
+
+        raise SendgridException()
+    except Exception as e:
         logger.exception("Unable to send email")
 
         raise SendgridException()
