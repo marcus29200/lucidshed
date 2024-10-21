@@ -194,7 +194,6 @@ const StoriesDashboard = () => {
 		setComponentToRemove(component); // Set the component to remove
 		setConfirmationOpen(true); // Open the confirmation dialog
 	};
-	console.log('Component', confirmationOpen);
 	// Confirm the removal of the component
 	const confirmRemoveComponent = () => {
 		if (componentToRemove) {
@@ -217,7 +216,6 @@ const StoriesDashboard = () => {
 				[selectedTemplate]: dashboardComponents, // Save current dashboard state
 			});
 
-			console.log('Saving template|' + selectedTemplate);
 			// Close the save dialog
 			setSelectedTemplate(selectedTemplate);
 			handleCloseSaveDialog();
