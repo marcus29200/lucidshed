@@ -2,9 +2,9 @@ import logging
 
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from sendgrid import SendGridAPIClient
 from starlette.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.engineering_item import router as engineering_item_router

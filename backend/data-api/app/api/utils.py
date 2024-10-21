@@ -3,11 +3,11 @@ import json
 import logging
 from typing import Any, Dict, Optional, Tuple
 
-from sendgrid import Mail, SendGridAPIClient
+from python_http_client.exceptions import BadRequestsError
+from sendgrid import From, Mail, SendGridAPIClient
 
 from app.api.settings import settings
 from app.exceptions.common import SendgridException
-from python_http_client.exceptions import BadRequestsError
 
 logger = logging.getLogger(__name__)
 
@@ -48,21 +48,16 @@ def send_mail(to_email: str, subject: str, content: str):
 
         sendgrid_client.send(
             Mail(
-                from_email=settings.from_email,
+                from_email=From(settings.from_email, name=settings.from_name),
                 to_emails=to_email,
                 subject=subject,
                 html_content=content,
             )
         )
-    except BadRequestsError as e:
-        logger.exception("Unable to send email")
-        logger.error(f"Body content {e.body}")
-        logger.error(f"Reason: {e.reason}")
-
-        raise SendgridException()
     except Exception as e:
         logger.exception("Unable to send email")
-        logger.error(f"Body content {e.body}")
-        logger.error(f"Reason: {e.reason}")
+
+        if isinstance(e, BadRequestsError):
+            logger.error(f"Sendgrid response content {e.body}")
 
         raise SendgridException()

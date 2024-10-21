@@ -38,7 +38,8 @@ class Settings(BaseModel):
 
     # Sendgrid settings
     sendgrid_api_key: Optional[str] = getenv("SENDGRID_API_KEY", None)
-    from_email: Optional[str] = getenv("SENDGRID_FROM_EMAIL", "<LucidShed Support> support@lucidshed.com")
+    from_email: Optional[str] = getenv("SENDGRID_FROM_EMAIL", "support@lucidshed.com")
+    from_name: Optional[str] = getenv("SENDGRID_FROM_NAME", "LucidShed Support")
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}"
