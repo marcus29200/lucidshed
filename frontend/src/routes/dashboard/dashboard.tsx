@@ -204,7 +204,6 @@ const Dashboard: React.FC = () => {
 				[selectedTemplate]: dashboardComponents, // Save current dashboard state
 			});
 
-			console.log('Saving template|' + selectedTemplate);
 			// Close the save dialog
 			setSelectedTemplate(selectedTemplate);
 			handleCloseSaveDialog();
