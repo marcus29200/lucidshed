@@ -64,6 +64,7 @@ const UserComments: React.FC<UserCommentsProps> = ({
 					) : (
 						<p>No comments available.</p>
 					)}
+
 					<div className="bg-white rounded-lg p-6">
 						<div className="flex items-center">
 							<h2 className="text-lg lg:text-2xl font-bold text-gray-900 font-poppins">

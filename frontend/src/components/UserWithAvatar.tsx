@@ -7,6 +7,7 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 	const currentUser: User = useRouteLoaderData('user') as User;
 	const [user, setUser] = useState<User | null>(null);
 	const [initials, setInitials] = useState<string>('');
+
 	useEffect(() => {
 		getUser(userId).then((user) => {
 			if (user?.firstName && user?.lastName) {
@@ -15,6 +16,7 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 			setUser(() => user ?? null);
 		});
 	}, [userId]);
+
 	return (
 		<>
 			{user ? (
