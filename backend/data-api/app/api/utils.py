@@ -56,7 +56,8 @@ def send_mail(to_email: str, subject: str, content: str):
         )
     except BadRequestsError as e:
         logger.exception("Unable to send email")
-        logger.info(e.body)
+        logger.info(f"Body content {e.body}")
+        logger.info(f"Reason: {e.reason}")
 
         raise SendgridException()
     except Exception as e:
