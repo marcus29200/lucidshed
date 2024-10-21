@@ -87,7 +87,7 @@ export const isPermissionsEmpty = (permissions: Permissions) => {
 };
 // TODO: type the api response
 // could be a class to avoid excessive mapping
-export const mapUser = (apiUser: ApiUser): User | undefined => {
+export const mapUser = (apiUser: ApiUser | undefined): User | undefined => {
 	if (!apiUser) {
 		return undefined;
 	}

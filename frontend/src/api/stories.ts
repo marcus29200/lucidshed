@@ -2,6 +2,7 @@ import { BASE_URL } from '../environment';
 import { Story } from '../routes/stories/Stories';
 import { Priority } from './epics';
 import { RawSprint } from './sprints';
+import { ApiUser } from './users';
 import { getAuthHeaders } from './utils';
 
 export type CreateStoryPayload = {
@@ -23,12 +24,12 @@ export type StoryAPI = {
 	status: string;
 	priority: string;
 	estimated_completion_date: Date;
-	checkin_frequency: any | null;
+	checkin_frequency: string | null;
 	starred: boolean;
 	created_by_id: string;
 	modified_by_id: string;
 	assigned_to_id?: string;
-	assigned_to?: any;
+	assigned_to?: ApiUser;
 	archived_at: number | null;
 	completed_at: number | null;
 	item_type: string;
@@ -36,7 +37,7 @@ export type StoryAPI = {
 	estimate: number;
 	start_date: Date | null;
 	due_date: Date | null;
-	acceptance_criteria: any[];
+	acceptance_criteria: string[];
 	iteration_id: number;
 	iteration: RawSprint;
 	id: number;

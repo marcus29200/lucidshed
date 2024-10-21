@@ -59,7 +59,7 @@ export const Story = () => {
 		);
 	}, [story]);
 
-	const [dynamicFields, setDynamicFields] = useState<any>({
+	const [dynamicFields, setDynamicFields] = useState({
 		priority: story.priority,
 		status: story.status,
 		estimate: story.estimate,
@@ -243,7 +243,7 @@ export const Story = () => {
 									onChange={(e) =>
 										setDynamicFields({
 											...dynamicFields,
-											targetDate: e,
+											targetDate: e as Date,
 										})
 									}
 								></DatePicker>
@@ -262,7 +262,7 @@ export const Story = () => {
 									onChange={(e) =>
 										setDynamicFields({
 											...dynamicFields,
-											estimate: e.target.value,
+											estimate: +e.target.value,
 										})
 									}
 								/>

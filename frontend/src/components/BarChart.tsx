@@ -38,7 +38,7 @@ const BarChart: React.FC<ApexChartProps> = ({
 	],
 	sprintData,
 }) => {
-	const [series, setSeries] = useState<any[]>([]);
+	const [series, setSeries] = useState<{ name: string; data: number[] }[]>([]);
 	const [categories, setCategories] = useState<string[]>([]);
 
 	useEffect(() => {
