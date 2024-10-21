@@ -25,9 +25,9 @@ export default function UserSearchInput({
 		queryKey: ['users'],
 		queryFn: async () => getUsers(params.orgId as string),
 	});
+
 	const items = data ?? [];
 	const options = [...items];
-	console.log(options);
 
 	return (
 		<Autocomplete
