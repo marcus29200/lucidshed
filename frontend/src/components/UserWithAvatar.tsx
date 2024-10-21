@@ -27,6 +27,7 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 					>
 						{initials}
 					</Avatar>
+
 					<Typography variant="body1" align="left">
 						{user.firstName} {user.lastName}{' '}
 						{userId === currentUser.id && (

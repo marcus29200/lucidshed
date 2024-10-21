@@ -43,9 +43,6 @@ jobs:
     permissions:
       contents: 'read'
       id-token: 'write'
-    defaults:
-      run:
-        working-directory: ./frontend
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -59,4 +56,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: ./frontend/dist
