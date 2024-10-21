@@ -159,6 +159,7 @@ export const EpicDetails = () => {
 					</Grid>
 				</Grid>
 			</div>
+
 			<br />
 			<EpicStories epic={epic} />
 		</>
