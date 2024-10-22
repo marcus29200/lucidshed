@@ -50,7 +50,12 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
         f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=', user.reset_code)}",
     )
 
-    return JSONResponse({"detail": "Reset code emailed to registered email"})
+    return JSONResponse(
+        {
+            "detail": "Reset code emailed to registered email",
+            "reset_code": user.reset_code,
+        }
+    )
 
 
 @router.post("/reset-password", status_code=200)

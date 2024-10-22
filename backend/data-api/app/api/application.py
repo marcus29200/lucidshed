@@ -55,7 +55,7 @@ class DataApplication(FastAPI):
 
         self.add_middleware(
             CORSMiddleware,
-            allow_origins=[settings.frontend_url],
+            allow_origins=["http://localhost:8080", "https://lucidshed.github.io"],
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
