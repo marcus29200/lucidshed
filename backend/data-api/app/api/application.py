@@ -3,7 +3,6 @@ import logging
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from sendgrid import SendGridAPIClient
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
@@ -60,11 +59,6 @@ class DataApplication(FastAPI):
             allow_methods=["*"],
             allow_headers=["*"],
         )
-
-        if settings.sendgrid_api_key:
-            self.sendgrid_client = SendGridAPIClient(settings.sendgrid_api_key)
-        else:
-            self.sendgrid_client = None
 
         database_pools.set({})
 
