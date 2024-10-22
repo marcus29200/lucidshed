@@ -47,7 +47,7 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     send_mail(
         user.email,
         "Verify your email",
-        f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=', user.reset_code)}",
+        f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=')}={user.reset_code}",
     )
 
     return JSONResponse(
@@ -86,7 +86,7 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
     send_mail(
         user.email,
         "Reset your password",
-        f"Here is your reset link: {join(settings.frontend_url, 'reset-password?code=', user.reset_code)}",
+        f"Here is your reset link: {join(settings.frontend_url, 'reset-password?code=')}={user.reset_code}",
     )
 
     if settings.testing:
