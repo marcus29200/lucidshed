@@ -21,7 +21,7 @@
 			// https://username.github.io/repo-name/one/two?a=b&c=d#qwe becomes
 			// https://username.github.io/repo-name/?/one/two&a=b~and~c=d#qwe
 			// Otherwise, leave pathSegmentsToKeep as 0.
-			var pathSegmentsToKeep = 0;
+			var pathSegmentsToKeep = 1;
 			var l = window.location;
 			l.replace(
 				l.protocol +
@@ -32,14 +32,18 @@
 						.split('/')
 						.slice(0, 1 + pathSegmentsToKeep)
 						.join('/') +
-					'/?/' +
+					'/#/' +
 					l.pathname
 						.slice(1)
 						.split('/')
 						.slice(pathSegmentsToKeep)
 						.join('/')
-						.replace(/&/g, '~and~') +
-					(l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+						.replace(/&/g, '~and~')
+						.replace(/~and~/g, '&') +
+					(l.search
+						? '?' +
+						  l.search.slice(1).replace(/&/g, '~and~').replace(/~and~/g, '&')
+						: '') +
 					l.hash
 			);
 		</script>
