@@ -100,7 +100,7 @@ const Sidebar = () => {
 					</>
 				) : (
 					<img
-						src="/mini-logo.svg"
+						src={import.meta.env.BASE_URL + '/mini-logo.svg'}
 						height="40"
 						className="cursor-pointer"
 						onClick={() => setExpanded(true)}

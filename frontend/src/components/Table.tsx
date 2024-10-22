@@ -111,7 +111,7 @@ const ShedTable = <T extends MRT_RowData>({
 		displayColumnDefOptions: {
 			'mrt-row-actions': {
 				header: '', //change header text
-				size: 40, //make actions column snaller
+				size: 40, //make actions column smaller
 				grow: false,
 			},
 		},
