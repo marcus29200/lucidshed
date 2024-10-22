@@ -67,7 +67,10 @@ export const getEpics = async (
 	return results.items.map(mapEpic);
 };
 
-export const getEpic = async ({ orgId, epicId }: GetEpicPayload) => {
+export const getEpic = async ({
+	orgId,
+	epicId,
+}: GetEpicPayload): Promise<Epic> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}`, {
 		headers: {
 			...getAuthHeaders(),
@@ -76,8 +79,8 @@ export const getEpic = async ({ orgId, epicId }: GetEpicPayload) => {
 	if (!res.ok) {
 		throw await res.json();
 	}
-
-	return await res.json();
+	const epic = await res.json();
+	return mapEpic(epic);
 };
 
 export const deleteEpic = async ({ orgId, epicId }: GetEpicPayload) => {
