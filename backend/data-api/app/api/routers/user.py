@@ -41,7 +41,7 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
 
     if not user.reset_code:
-        raise HTTPException(status_code=500, detail="Unable to create reset code")
+        raise HTTPException(status_code=412, detail="Unable to create reset code")
 
     # TODO Add tests
     send_mail(
@@ -75,8 +75,14 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"
     )
 
-    # TODO Should be updated to send a link when the FE is ready
-    send_mail(user.email, "Reset your password", f"Your reset code is {user.reset_code}")
+    if not user.reset_code:
+        raise HTTPException(status_code=412, detail="Unable to create reset code")
+
+    send_mail(
+        user.email,
+        "Reset your password",
+        f"Here is your reset link: {join(settings.frontend_url, 'reset-password?code=', user.reset_code)}",
+    )
 
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
