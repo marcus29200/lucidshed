@@ -1,4 +1,5 @@
 import logging
+from os.path import join
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
@@ -39,9 +40,15 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     if settings.testing:
         return JSONResponse({"id": user.id, "reset_code": user.reset_code})
 
+    if not user.reset_code:
+        raise HTTPException(status_code=500, detail="Unable to create reset code")
+
     # TODO Add tests
-    # TODO Should be updated to send a link when the FE is ready
-    send_mail(user.email, "Verify your email", f"Your verification code is {user.reset_code}")
+    send_mail(
+        user.email,
+        "Verify your email",
+        f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=', user.reset_code)}",
+    )
 
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 

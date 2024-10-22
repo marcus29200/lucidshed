@@ -19,6 +19,7 @@ class Settings(BaseModel):
     host: str = getenv("APP_HOST", "0.0.0.0")
     port: int = int(getenv("APP_PORT", 8080))
     testing: bool = bool(getenv("TESTING", False))
+    frontend_url: str = getenv("FRONTEND_URL", "http://localhost:3000")
 
     # Database settings
     database_connection_name: Optional[str] = getenv("DATABASE_CONNECTION_NAME", None)
