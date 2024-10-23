@@ -37,7 +37,7 @@ export const queryClient = new QueryClient({
 		// or use a ProtectedRoute component (since loaders will fire before it is rendered)
 		onError: (error: Error & { status?: number }) => {
 			if (error.status === 401) {
-				window.location.replace('/login');
+				window.location.replace('/shed/#/login');
 			}
 		},
 	}),

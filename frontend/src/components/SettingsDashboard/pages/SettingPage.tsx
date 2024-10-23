@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { DesktopChatIcon, LockRaidStorageIcon } from '../../../icons/icons';
 import { Box, IconButton, Modal } from '@mui/material';
+import UserManagement from '../components/UserManagment';
 interface BasicModalProps {
 	open: boolean;
 	setOpen: (value: boolean) => void;
@@ -33,7 +34,7 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 		{
 			icon: PeopleAlt,
 			title: 'User Management',
-			// component: 'UserManagement',
+			component: 'UserManagement',
 		},
 		{ icon: LocalOffer, title: 'Tags' },
 		{ icon: Language, title: 'Product Settings' },
@@ -56,8 +57,8 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 				return <SiteSettings />;
 			case 'Security':
 				return <Security />;
-			// case 'UserManagement':
-			// 	return <UserManagement />;
+			case 'UserManagement':
+				return <UserManagement />;
 			// case "Tags":
 			//   return <Tags />;
 			// case "ProductSetting":

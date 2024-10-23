@@ -14,6 +14,8 @@ export type User = {
 	disabled: boolean;
 	superAdmin: boolean;
 	fullName: string;
+	createdAt: string;
+	team?: string;
 };
 export type Permission = {
 	organization_id: string;
@@ -107,6 +109,8 @@ export const mapUser = (apiUser: ApiUser | undefined): User | undefined => {
 		fullName: `${apiUser.first_name}${
 			apiUser.last_name ? ` ${apiUser.last_name}` : ''
 		}`,
+		createdAt: apiUser.created_at,
+		team: apiUser.team,
 	};
 };
 
@@ -138,6 +142,21 @@ export const getUserWithinOrganization = async (
 export const patchUser = async ({ id, data }: EditUserPayload) => {
 	const res = await fetch(`${BASE_URL}/users/${id}`, {
 		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+		body: JSON.stringify(data),
+	});
+
+	// TODO: implement error handling
+
+	return await res.json();
+};
+
+export const addUser = async ({ orgId, data }) => {
+	const res = await fetch(`${BASE_URL}/${orgId}/users`, {
+		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			...getAuthHeaders(),

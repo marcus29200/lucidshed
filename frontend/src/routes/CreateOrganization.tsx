@@ -69,7 +69,7 @@ export const CreateOrganization = () => {
 							}}
 							sx={{ marginTop: '0px', marginBottom: '32px' }}
 							size="small"
-							label="lucidshed.com/"
+							label="lucidshed"
 							id="id"
 						/>
 

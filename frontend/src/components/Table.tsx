@@ -28,6 +28,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	sortingStates: ColumnStates;
 	handleRowClicked?: (arg: T) => void;
 	actionsEnabled?: boolean;
+	sortingStateEnabled?: boolean;
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -38,6 +39,7 @@ const ShedTable = <T extends MRT_RowData>({
 	setSortingStates,
 	handleRowClicked,
 	actionsEnabled = true,
+	sortingStateEnabled = true,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 	const [lastResetColumn, setLastResetColumn] = useState<string | null>(null);
@@ -142,7 +144,7 @@ const ShedTable = <T extends MRT_RowData>({
 	return (
 		<div>
 			<div className="flex gap-x-2 justify-start pl-5 w-full items-center mb-4">
-				{lastResetColumn && (
+				{lastResetColumn && sortingStateEnabled && (
 					<div className="flex items-center justify-center border border-gray-400 text-gray-400 px-2.5 py-0.5 rounded-full gap-x-2.5">
 						<ArrowUpIcon />
 						<span className="flex-grow text-center text-sm">
@@ -165,7 +167,7 @@ const ShedTable = <T extends MRT_RowData>({
 					</div>
 				)}
 
-				{previousSortingColumn && (
+				{previousSortingColumn && sortingStateEnabled && (
 					<div className="flex flex-row justify-center items-center gap-x-3">
 						<p className="text-black font-poppins">Sort By :</p>
 						<div className="flex items-center justify-center border border-gray-400 text-gray-400 rounded-full h-9">
@@ -194,7 +196,7 @@ const ShedTable = <T extends MRT_RowData>({
 					</div>
 				)}
 
-				{activeSortingColumn && (
+				{activeSortingColumn && sortingStateEnabled && (
 					<div className="flex flex-row justify-center items-center gap-x-3">
 						<p className="text-black font-poppins">Then By :</p>
 						<div className="flex items-center justify-center border border-gray-400 text-gray-400 rounded-full h-9">
