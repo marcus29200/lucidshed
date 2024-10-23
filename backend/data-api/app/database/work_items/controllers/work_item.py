@@ -6,10 +6,10 @@ from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.controllers.history import HistoryController
 from app.database.history.models.history import BaseHistory
+from app.database.users.controllers.user import UserController
+from app.database.users.models.user import SlimUser
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
-from app.database.users.models.user import SlimUser
-from app.database.users.controllers.user import UserController
 
 
 class WorkItemController:
@@ -139,7 +139,7 @@ class WorkItemController:
 
         return WorkItemComment(**record)
 
-    async def get_comments(self, *, organization_id: str, id: int) -> List[WorkItemComment]:
+    async def get_comments(self, *, organization_id: str, id: int) -> Tuple[List[WorkItemComment], Optional[str]]:
         records = await data_db.get().fetch(QUERIES["GET_WORK_ITEM_COMMENTS"], organization_id, id)
 
         # TODO Create history entry

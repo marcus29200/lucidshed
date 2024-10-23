@@ -18,6 +18,8 @@ class UserSessionController:
             user_session.user_id,
             user_session.token,
             datetime.now(UTC) + timedelta(minutes=settings.auth_token_expire_seconds),
+            user_session.ip_address,
+            user_session.user_agent,
         )
 
         # TODO Create history entry
