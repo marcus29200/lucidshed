@@ -1,5 +1,6 @@
 import logging
 from os.path import join
+from typing import List
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
@@ -11,7 +12,7 @@ from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, Res
 from app.api.settings import settings
 from app.api.utils import send_mail
 from app.database.users.models.user import BaseUser, User
-from app.database.users.models.user_session import BaseUserSession
+from app.database.users.models.user_session import BaseUserSession, UserSession
 from app.exceptions.common import ObjectNotFoundException
 
 user_router = APIRouter
@@ -111,7 +112,14 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
 
     access_token = create_access_token(data={"subject": user.email})
 
-    await request.app.user_session_controller.create(user_session=BaseUserSession(user_id=user.id, token=access_token))
+    await request.app.user_session_controller.create(
+        user_session=BaseUserSession(
+            user_id=user.id,
+            token=access_token,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+        )
+    )
 
     return LoginResponse(user=user, token=Token(access_token=access_token, token_type="bearer"))
 
@@ -133,6 +141,16 @@ async def logout(request: Request) -> None:
 )
 async def me(request: Request) -> User:
     return request.state.user
+
+
+@router.get(
+    "/me/sessions",
+    status_code=200,
+    response_model=List[UserSession],
+    dependencies=[Security(get_current_user, scopes=["current_user"])],
+)
+async def me_sessions(request: Request) -> List[UserSession]:
+    return await request.app.user_session_controller.get_all(user_id=request.state.user.id)
 
 
 @router.get(

@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     id VARCHAR({MAX_ID_LENGTH}),
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(256) UNIQUE,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(256),
     expires_at timestamp with time zone DEFAULT NULL,
     created_at timestamp with time zone DEFAULT NOW()
 )
@@ -281,9 +283,11 @@ INSERT INTO user_sessions
     id,
     user_id,
     token,
-    expires_at
+    expires_at,
+    ip_address,
+    user_agent
 )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 """
 

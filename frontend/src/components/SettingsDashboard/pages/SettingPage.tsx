@@ -176,7 +176,7 @@ const MenuOption = ({ icon: Icon, title, onClick }) => (
 		className="flex flex-col items-center gap-y-6 hover:scale-110 hover:shadow-lg hover:shadow-gray-400 p-6 rounded-xl transition-all ease-in-out duration-200 cursor-pointer"
 		onClick={onClick}
 	>
-		<Icon className="text-[#21A223] text-7xl font-bold" />
+		<Icon className="text-[#21A223] text-7xl font-bold !h-14 !w-14" />
 		<h1 className="text-black font-poppins text-[19px] text-center">{title}</h1>
 	</div>
 );

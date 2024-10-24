@@ -237,3 +237,20 @@ async def test_should_delete_user(data_api: TestClient):
 
     response = await data_api.delete(f"users/{user['id']}", headers=headers)
     assert response.status_code == 200
+
+
+async def test_should_store_user_session(data_api: TestClient):
+    _, _, headers = await authenticate(data_api)
+
+    response = await data_api.get("users/me", headers=headers)
+    assert response.status_code == 200
+
+    response = await data_api.get("users/me/sessions", headers=headers)
+    assert response.status_code == 200
+
+    sessions = response.json()
+    assert len(sessions) == 1
+    assert sessions[0]["user_id"]
+    assert sessions[0]["token"]
+    assert sessions[0]["ip_address"] == "127.0.0.1"
+    assert sessions[0]["user_agent"] == "python-httpx/0.27.0"
