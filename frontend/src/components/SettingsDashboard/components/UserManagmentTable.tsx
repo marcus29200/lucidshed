@@ -1,65 +1,111 @@
 import { useState, useEffect } from 'react';
 import { MRT_Row, type MRT_ColumnDef } from 'material-react-table';
-import { MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem } from '@mui/material';
 import { useParams, useRouteLoaderData } from 'react-router-dom';
-import { User } from '../../../api/users';
+import {
+	deleteUserInOrg,
+	updateUserRole,
+	User,
+	UserRole,
+} from '../../../api/users';
 import dayjs from 'dayjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ConfirmationDialog } from '../../DeleteDialog';
 import ShedTable, { TableActions } from '../../Table';
+import { ExpandMore } from '@mui/icons-material';
 
 type UsersDataTableProps = {
 	users: User[];
+	loadUsers: () => void;
 };
 
-const UserManagementTable = ({ users }: UsersDataTableProps) => {
+const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
 	}>({
-		name: true, // Set to true to start with descending order
-		userId: true,
-		startDate: true,
-		progress: true,
-		targetDate: true,
+		fullName: false, // Set to true to start with descending order
+		id: false,
+		email: false,
+		createdAt: false,
+		role: false,
+		team: false,
 	});
 	const currentUser: User = useRouteLoaderData('user') as User;
 	const [openDialog, setOpenDialog] = useState(false);
 
 	const [rowToDelete, setRowToDelete] = useState<MRT_Row<User> | null>(null); // Track which row to delete
+	const [rowToUpdate, setRowToUpdate] = useState<MRT_Row<User> | null>(null); // Track which row to update
+
+	const [anchorRoleEl, setAnchorRoleEl3] = useState<null | HTMLElement>(null);
+
+	// State to hold the filtered users (including searched users)
+	const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
+
+	const handleOpenRoleMenuClick = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
+		setAnchorRoleEl3(event.currentTarget);
+	};
+
+	const handleCloseRoleMenu = () => {
+		setAnchorRoleEl3(null);
+		setRowToUpdate(null);
+	};
 
 	const handleOpenDialog = (row: MRT_Row<User>) => {
 		setRowToDelete(row); // Set the row that will be deleted
 		setOpenDialog(true); // Open the delete confirmation dialog
 	};
-	// const orgId = useParams().orgId;
+	const orgId = useParams().orgId as string;
 
 	useEffect(() => {
 		// When the component first mounts, set filteredUsers to the full list of epics
 		setFilteredUsers(users);
 	}, [users]);
-	// const queryClient = useQueryClient();
-	// const { mutate: removeUser } = useMutation({
-	// 	mutationFn: deleteUser,
-	// 	onError: () => {
-	// 		console.error('wuhh');
-	// 	},
-	// 	onSuccess: async () => {
-	// 		await queryClient.invalidateQueries({ queryKey: ['users'] });
-	// 		navigate(`/${orgId}/users`);
-	// 	},
-	// });
-	const handleDelete = () => {
-		if (rowToDelete) {
-			// removeUser({ orgId: orgId, userId: rowToDelete.original.userId });
+
+	const queryClient = useQueryClient();
+	const { mutate: updateUser } = useMutation({
+		mutationFn: updateUserRole,
+		onError: () => {
+			console.error('wuhh');
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['users'] });
+			loadUsers();
+			setAnchorRoleEl3(null);
+		},
+	});
+	const { mutate: removeUser } = useMutation({
+		mutationFn: deleteUserInOrg,
+		onError: () => {
+			console.error('wuhh');
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['users'] });
+			loadUsers();
+			setAnchorRoleEl3(null);
+			setRowToUpdate(null);
+		},
+	});
+
+	const handleUpdateUserRole = (newRole: UserRole) => {
+		if (rowToUpdate) {
+			updateUser({
+				userId: rowToUpdate.original.id,
+				orgId,
+				newRole,
+			});
 		}
 	};
-
+	const handleDelete = () => {
+		if (rowToDelete) {
+			removeUser({ orgId, userId: rowToDelete.original.id });
+		}
+	};
 	const handleCloseDialog = () => {
 		setOpenDialog(false);
 		setRowToDelete(null); // Reset the selected row when closing
 	};
-	// State to hold the filtered users (including searched users)
-	const [filteredUsers, setFilteredUsers] = useState<User[]>(users);
 
 	const handleSortingChange = (id: string) => {
 		setSortingStates((prev) => {
@@ -150,9 +196,67 @@ const UserManagementTable = ({ users }: UsersDataTableProps) => {
 					Role
 				</span>
 			),
-			Cell: ({ cell }) => {
-				// TODO: add dropdown and update user on change
-				return cell.getValue<string>();
+			Cell: ({ cell, row }) => {
+				const value = cell.getValue<string>();
+
+				return (
+					<>
+						{row.original.id !== currentUser.id && (
+							<IconButton
+								key={row.original.id + '-button'}
+								onClick={(e) => {
+									setRowToUpdate(row);
+									handleOpenRoleMenuClick(e);
+								}}
+							>
+								<ExpandMore />
+							</IconButton>
+						)}
+						<span className="capitalize">{value ?? '-'}</span>
+						<Menu
+							key={row.original.id + '-menu'}
+							anchorEl={anchorRoleEl}
+							open={Boolean(anchorRoleEl)}
+							onClose={handleCloseRoleMenu}
+							slotProps={{
+								paper: {
+									style: {
+										width: '290px',
+										padding: '10px',
+									},
+								},
+							}}
+						>
+							<MenuItem
+								key={row.original.id + '-menu-item1'}
+								onClick={() => {
+									handleUpdateUserRole('admin');
+								}}
+								value="admin"
+							>
+								Admin
+							</MenuItem>
+							<MenuItem
+								key={row.original.id + '-menu-item2'}
+								onClick={() => {
+									handleUpdateUserRole('member');
+								}}
+								value="member"
+							>
+								Member
+							</MenuItem>
+							<MenuItem
+								key={row.original.id + '-menu-item3'}
+								onClick={() => {
+									handleUpdateUserRole('guest');
+								}}
+								value="guest"
+							>
+								Guest
+							</MenuItem>
+						</Menu>
+					</>
+				);
 			},
 		},
 		{
@@ -209,6 +313,7 @@ const UserManagementTable = ({ users }: UsersDataTableProps) => {
 							}
 						/>
 					</div>,
+					// eslint-disable-next-line no-mixed-spaces-and-tabs
 			  ]
 			: [];
 

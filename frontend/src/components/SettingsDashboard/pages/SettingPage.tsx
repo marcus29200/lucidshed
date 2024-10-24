@@ -17,10 +17,7 @@ import {
 import { DesktopChatIcon, LockRaidStorageIcon } from '../../../icons/icons';
 import { Box, IconButton, Modal } from '@mui/material';
 import UserManagement from '../components/UserManagment';
-interface BasicModalProps {
-	open: boolean;
-	setOpen: (value: boolean) => void;
-}
+import { BasicModalProps } from '../settings-dashboard.model';
 
 const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 	const [selectedComponent, setSelectedComponent] = React.useState<
@@ -79,96 +76,98 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 	};
 
 	return (
-		<Modal
-			aria-labelledby="settings"
-			aria-describedby="configure settings"
-			open={open}
-			onClose={() => {
-				setOpen(false);
-				setSelectedComponent(null);
-			}}
-			sx={{
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-			}}
-		>
-			<Box
+		<>
+			<Modal
+				aria-labelledby="settings"
+				aria-describedby="configure settings"
+				open={open}
+				onClose={() => {
+					setOpen(false);
+					setSelectedComponent(null);
+				}}
 				sx={{
-					width: 'calc(100% - 64px)',
-					height: 'calc(100% - 64px)',
-					borderRadius: '35px',
-					boxShadow: '0px 0px 4px 0px #00000040',
-					background: 'white',
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
 				}}
 			>
-				<div className="flex w-full justify-between p-2">
-					{selectedComponent && (
-						<IconButton onClick={() => setSelectedComponent(null)}>
-							<KeyboardReturn fontSize="large" />
-						</IconButton>
-					)}
-					<IconButton
-						onClick={() => {
-							setOpen(false);
-							setSelectedComponent(null);
-						}}
-						sx={{
-							marginLeft: 'auto',
-						}}
-					>
-						<Close fontSize="large" />
-					</IconButton>
-				</div>
-				{selectedComponent ? (
-					<div className="w-full h-[calc(100%_-_68px)] overflow-y-auto pb-10">
-						{renderComponent()}
-					</div>
-				) : (
-					<div className="flex flex-col w-full gap-y-9">
-						<h1 className="text-black font-poppins text-2xl font-bold pl-6 mt-9">
-							Admin Settings
-						</h1>
-						<div
-							className="flex justify-center w-[100%] mx-auto bg-transparent"
-							style={{
-								background:
-									'linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(76, 175, 80, 1) 50%, rgba(255, 255, 255, 0) 100%)',
-								padding: '30px 0',
-								backgroundColor: 'transparent',
+				<Box
+					sx={{
+						width: 'calc(100% - 64px)',
+						height: 'calc(100% - 64px)',
+						borderRadius: '35px',
+						boxShadow: '0px 0px 4px 0px #00000040',
+						background: 'white',
+					}}
+				>
+					<div className="flex w-full justify-between p-2">
+						{selectedComponent && (
+							<IconButton onClick={() => setSelectedComponent(null)}>
+								<KeyboardReturn fontSize="large" />
+							</IconButton>
+						)}
+						<IconButton
+							onClick={() => {
+								setOpen(false);
+								setSelectedComponent(null);
+							}}
+							sx={{
+								marginLeft: 'auto',
 							}}
 						>
-							<div className="flex flex-row items-center gap-x-2 py-3 px-3 border-1 w-[50%] border-green-700 rounded-full bg-white">
-								<Search className="text-gray-400" />
-								<input
-									type="text"
-									className="p-1 w-full outline-none"
-									placeholder="Search..."
-									value={searchQuery} // Controlled input value
-									onChange={(e) => setSearchQuery(e.target.value)} // Update search query on change
-								/>
+							<Close fontSize="large" />
+						</IconButton>
+					</div>
+					{selectedComponent ? (
+						<div className="w-full h-[calc(100%_-_68px)] overflow-y-auto pb-10">
+							{renderComponent()}
+						</div>
+					) : (
+						<div className="flex flex-col w-full gap-y-9">
+							<h1 className="text-black font-poppins text-2xl font-bold pl-6 mt-9">
+								Admin Settings
+							</h1>
+							<div
+								className="flex justify-center w-[100%] mx-auto bg-transparent"
+								style={{
+									background:
+										'linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(76, 175, 80, 1) 50%, rgba(255, 255, 255, 0) 100%)',
+									padding: '30px 0',
+									backgroundColor: 'transparent',
+								}}
+							>
+								<div className="flex flex-row items-center gap-x-2 py-3 px-3 border-1 w-[50%] border-green-700 rounded-full bg-white">
+									<Search className="text-gray-400" />
+									<input
+										type="text"
+										className="p-1 w-full outline-none"
+										placeholder="Search..."
+										value={searchQuery} // Controlled input value
+										onChange={(e) => setSearchQuery(e.target.value)} // Update search query on change
+									/>
+								</div>
+							</div>
+							<div className="grid grid-cols-4 gap-y-14 gap-x-10 mx-auto w-[80%] pb-10">
+								{filteredOptions.length > 0 ? (
+									filteredOptions.map((option) => (
+										<MenuOption
+											key={option.title}
+											icon={option.icon}
+											title={option.title}
+											onClick={() => handleMenuClick(option.component)}
+										/>
+									))
+								) : (
+									<p className="text-center col-span-4">
+										No matching options found.
+									</p>
+								)}
 							</div>
 						</div>
-						<div className="grid grid-cols-4 gap-y-14 gap-x-10 mx-auto w-[80%] pb-10">
-							{filteredOptions.length > 0 ? (
-								filteredOptions.map((option) => (
-									<MenuOption
-										key={option.title}
-										icon={option.icon}
-										title={option.title}
-										onClick={() => handleMenuClick(option.component)}
-									/>
-								))
-							) : (
-								<p className="text-center col-span-4">
-									No matching options found.
-								</p>
-							)}
-						</div>
-					</div>
-				)}
-			</Box>
-		</Modal>
+					)}
+				</Box>
+			</Modal>
+		</>
 	);
 };
 

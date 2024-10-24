@@ -3,13 +3,14 @@ import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
 import { QueryClient, queryOptions } from '@tanstack/react-query';
 
+export type UserRole = 'admin' | 'member' | 'guest';
 export type User = {
 	id: string;
 	email: string;
 	firstName: string;
 	lastName?: string;
 	organizationId?: string;
-	role?: string; // TODO: make this an enum
+	role?: UserRole;
 	picture?: string;
 	disabled: boolean;
 	superAdmin: boolean;
@@ -17,19 +18,7 @@ export type User = {
 	createdAt: string;
 	team?: string;
 };
-export type Permission = {
-	organization_id: string;
-	user_id: string;
-	disabled: boolean;
-	role: string;
-	id: string;
-	created_at: string;
-	created_by_id: string;
-	modified_at: string;
-	modified_by_id: string;
-	deleted_at: string;
-	deleted_by_id: string;
-};
+
 export type ApiUser = {
 	email: string;
 	first_name: string;
@@ -60,7 +49,15 @@ export type Permissions = {
 export type OrganizationPermissions = {
 	organization_id?: string;
 	id: string;
-	role: string; // TODO: make this an enum
+	role: UserRole;
+};
+
+export type CreateUserPayload = {
+	email: string;
+	firstName: string;
+	lastName: string;
+	team?: string;
+	role: UserRole;
 };
 
 export type EditUserPayload = {
@@ -102,7 +99,7 @@ export const mapUser = (apiUser: ApiUser | undefined): User | undefined => {
 		email: apiUser.email,
 		firstName: apiUser.first_name,
 		lastName: apiUser.last_name,
-		role: permissions?.role as string,
+		role: permissions?.role as UserRole,
 		organizationId: permissions?.organization_id as string,
 		disabled: apiUser.disabled,
 		superAdmin: apiUser.super_admin,
@@ -154,14 +151,28 @@ export const patchUser = async ({ id, data }: EditUserPayload) => {
 	return await res.json();
 };
 
-export const addUser = async ({ orgId, data }) => {
+export const addUserToOrg = async ({
+	orgId,
+	data,
+}: {
+	orgId: string;
+	data: CreateUserPayload;
+}) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/users`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			...getAuthHeaders(),
 		},
-		body: JSON.stringify(data),
+		body: JSON.stringify({
+			first_name: data.firstName,
+			last_name: data.lastName,
+			email: data.email,
+			team: data.team,
+			permissions: {
+				role: data.role,
+			},
+		}),
 	});
 
 	// TODO: implement error handling
@@ -188,7 +199,7 @@ export const getUsers = async (orgId: string): Promise<User[]> => {
 		throw res;
 	}
 	const usersPage = await res.json();
-	return usersPage.items.map(mapUser);
+	return usersPage.items.map((u) => mapUser(u));
 };
 
 export const usersQuery = (id: string) =>
@@ -204,4 +215,49 @@ export const usersLoader = (queryClient: QueryClient) => {
 		}
 		return queryClient.ensureQueryData(usersQuery(params.orgId));
 	};
+};
+
+export const updateUserRole = async ({
+	orgId,
+	userId,
+	newRole,
+}: {
+	orgId: string;
+	userId: string;
+	newRole: UserRole;
+}) => {
+	const res = await fetch(`${BASE_URL}/${orgId}/users/${userId}/permissions`, {
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+		body: JSON.stringify({
+			role: newRole,
+		}),
+	});
+
+	// TODO: implement error handling
+
+	return await res.json();
+};
+
+export const deleteUserInOrg = async ({
+	orgId,
+	userId,
+}: {
+	orgId: string;
+	userId: string;
+}) => {
+	const res = await fetch(`${BASE_URL}/${orgId}/users/${userId}`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+	});
+
+	// TODO: implement error handling
+
+	return await res.json();
 };

@@ -1,12 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { addUser, getUsers, User } from '../../../api/users';
+import {
+	addUserToOrg,
+	CreateUserPayload,
+	getUsers,
+	User,
+} from '../../../api/users';
 import { Box, Typography, IconButton } from '@mui/material';
 import { SearchIcon } from '../../../icons/icons';
 import TableFiltersButton from '../../TableFiltersButton';
 import { Add } from '@mui/icons-material';
 import UserManagementTable from './UserManagmentTable';
-import { register } from '../../../api/auth';
+import CreateUserModal from '../pages/CreateUserModal';
 
 const UserManagement: React.FC = () => {
 	const orgId = useParams().orgId as string;
@@ -15,19 +20,24 @@ const UserManagement: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
 	const [filterItems, setFilterItems] = useState<string[]>([]);
+	const [openCreateUser, setOpenCreateUser] = useState(false);
 
-	// load initial data
+	// load data
 	useEffect(() => {
 		if (orgId) {
-			getUsers(orgId).then((users) => {
-				setUsers(() => users);
-				setFilterItems(() => [
-					'Select All',
-					...users.map((story) => story.fullName),
-				]);
-			});
+			loadUsers();
 		}
 	}, [orgId]);
+
+	const loadUsers = () => {
+		getUsers(orgId).then((users) => {
+			setUsers(() => users);
+			setFilterItems(() => [
+				'Select All',
+				...users.map((story) => story.fullName),
+			]);
+		});
+	};
 
 	// trigger filter in search bar
 	useMemo(() => {
@@ -42,20 +52,13 @@ const UserManagement: React.FC = () => {
 		setVisibleRows(() => [...users]);
 	}, [users, searchTerm]);
 
-	const handleAddUser = (event): void => {
+	const handleOpenAddUser = (event): void => {
 		event.preventDefault();
-		// TODO: open add user modal
-		// register('jarjarmex@gmail.com').then(() => {
+		setOpenCreateUser(true); // open modal
+	};
 
-		// })
-		// addUser({
-		// 	orgId,
-		// 	data: {
-		// 		email: 'jarjarmex@gmail.com',
-		// 		first_name: 'ricardo2',
-		// 		last_name: 'jimenez2',
-		// 	},
-		// }).then((ok) => console.log(ok));
+	const handleAddUser = (user: CreateUserPayload): void => {
+		addUserToOrg({ orgId, data: user }).then(loadUsers);
 	};
 
 	return (
@@ -109,9 +112,10 @@ const UserManagement: React.FC = () => {
 										background: '#20A224',
 										filter: 'saturate(1.5)',
 									},
+									transition: 'all 0.3s ease-in-out',
 								}}
-								className="rounded-full !w-9 !h-9"
-								onClick={handleAddUser}
+								className="rounded-full !w-14 !h-14"
+								onClick={handleOpenAddUser}
 							>
 								<Add htmlColor="white" />
 							</IconButton>
@@ -119,7 +123,13 @@ const UserManagement: React.FC = () => {
 					</Box>
 				</Box>
 			</Box>
-			<UserManagementTable users={visibleRows} />
+			<UserManagementTable users={visibleRows} loadUsers={loadUsers} />
+
+			<CreateUserModal
+				setOpen={setOpenCreateUser}
+				open={openCreateUser}
+				addUser={handleAddUser}
+			/>
 		</div>
 	);
 };
