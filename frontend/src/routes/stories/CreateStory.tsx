@@ -23,6 +23,7 @@ import {
 	statuses,
 	priorities,
 	ticketTypes,
+	DISABLED_DEFAULT_FIELDS,
 } from './stories.model';
 import { User } from '../../api/users';
 import UserSearchInput from '../sprints/UserSearchInput';
@@ -142,6 +143,9 @@ export const CreateStory = () => {
 											onClick={() =>
 												handleFieldToggle(field as MetadataFieldOption)
 											}
+											disabled={DISABLED_DEFAULT_FIELDS.includes(
+												field as MetadataFieldOption
+											)}
 										>
 											<FormControlLabel
 												control={
@@ -242,29 +246,28 @@ export const CreateStory = () => {
 								</FormControl>
 							)}
 
-							{selectedFields.includes('subType') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="subType-label">
-										Type
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="subType-label"
-										label="Type"
-										id="subType"
-										name="subType"
-									>
-										{ticketTypes.map((subType) => (
-											<MenuItem value={subType.value} key={subType.value}>
-												{subType.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="subType-label">
+									Type
+								</InputLabel>
+								<Select
+									variant="outlined"
+									size="small"
+									margin="dense"
+									fullWidth
+									labelId="subType-label"
+									defaultValue="feature"
+									label="Type"
+									id="subType"
+									name="subType"
+								>
+									{ticketTypes.map((subType) => (
+										<MenuItem value={subType.value} key={subType.value}>
+											{subType.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 							{selectedFields.includes('sprint') && (
 								<>
 									<input

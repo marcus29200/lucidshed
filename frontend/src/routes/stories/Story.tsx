@@ -17,6 +17,7 @@ import SprintSearchInput from '../sprints/SprintSearchInput';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useEffect, useState } from 'react';
 import {
+	DISABLED_DEFAULT_FIELDS,
 	METADATA_FIELD_OPTIONS,
 	MetadataFieldOption,
 	priorities,
@@ -209,6 +210,9 @@ export const Story = () => {
 											onClick={() =>
 												handleFieldToggle(field as MetadataFieldOption)
 											}
+											disabled={DISABLED_DEFAULT_FIELDS.includes(
+												field as MetadataFieldOption
+											)}
 										>
 											<FormControlLabel
 												control={

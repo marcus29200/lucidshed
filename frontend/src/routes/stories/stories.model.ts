@@ -61,4 +61,6 @@ export const METADATA_FIELD_OPTIONS = {
 	attachment: 'Attachments',
 } as const;
 
+export const DISABLED_DEFAULT_FIELDS = ['subType'];
+
 export type MetadataFieldOption = keyof typeof METADATA_FIELD_OPTIONS;
