@@ -9,12 +9,19 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 	const [initials, setInitials] = useState<string>('');
 
 	useEffect(() => {
-		getUser(userId).then((user) => {
-			if (user?.firstName && user?.lastName) {
-				setInitials(`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`);
-			}
-			setUser(() => user ?? null);
-		});
+		if (userId === currentUser.id) {
+			getUser(userId).then((user) => {
+				if (user?.firstName && user?.lastName) {
+					setInitials(`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`);
+				}
+				setUser(() => user ?? null);
+			});
+		} else {
+			setInitials('');
+			setUser(
+				() => ({ id: userId, firstName: 'Other', lastName: 'user' } as User)
+			);
+		}
 	}, [userId]);
 
 	return (
