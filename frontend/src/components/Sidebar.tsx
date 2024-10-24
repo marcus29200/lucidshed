@@ -1,7 +1,13 @@
 import { Box, Divider, Drawer, List } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
-import { Checklist, NavigateBefore, Settings } from '@mui/icons-material';
+import {
+	Checklist,
+	NavigateBefore,
+	NavigateNext,
+	People,
+	Settings,
+} from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
 
@@ -23,9 +29,7 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 	},
 	{
 		label: 'All teams',
-		icon: () => (
-			<Checklist className="border-2 border-current rounded-md px-[1px]" />
-		),
+		icon: () => <People />,
 		dropDown: () => <span></span>,
 		children: [
 			{
@@ -84,7 +88,7 @@ const Sidebar = () => {
 				sx={{
 					display: 'flex',
 					alignItems: 'center',
-					justifyContent: 'flex-start',
+					justifyContent: 'space-around',
 					padding: '20px',
 					gap: '4px',
 					maxHeight: '79px',
@@ -92,19 +96,31 @@ const Sidebar = () => {
 			>
 				{expanded ? (
 					<>
-						<img src={import.meta.env.BASE_URL + '/logo.svg'} width="140" />
+						<div
+							style={{ aspectRatio: '140/40', width: '140px', height: '40px' }}
+						>
+							<img
+								src={import.meta.env.BASE_URL + '/logo.svg'}
+								height="40"
+								width="140"
+							/>
+						</div>
 						<NavigateBefore
-							className="cursor-pointer rounded-full border-[1px] border-gray-800"
+							className="cursor-pointer rounded-full !h-8 !w-8"
 							onClick={() => setExpanded(false)}
 						/>
 					</>
 				) : (
-					<img
-						src={import.meta.env.BASE_URL + '/mini-logo.svg'}
-						height="40"
-						className="cursor-pointer"
-						onClick={() => setExpanded(true)}
-					/>
+					<>
+						<img
+							src={import.meta.env.BASE_URL + '/mini-logo.svg'}
+							height="40"
+						/>
+						<NavigateNext
+							className="cursor-pointer rounded-full !h-8 !w-8"
+							onClick={() => setExpanded(true)}
+						/>
+					</>
 				)}
 			</Box>
 
