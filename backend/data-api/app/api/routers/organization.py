@@ -176,7 +176,7 @@ async def get_organization_user(request: Request, organization_id: str, user_id:
     "/{organization_id}/users",
     status_code=200,
     response_model=PagedResponse,
-    dependencies=[Security(get_current_user, scopes=["admin"])],
+    dependencies=[Security(get_current_user, scopes=["member"])],
 )
 async def get_organization_users(
     request: Request,
