@@ -147,7 +147,7 @@ export const Story = () => {
 
 	const handleEditDescription = (value: string): void => {
 		setDescription(value);
-		handlePatchStory({ title: value });
+		handlePatchStory({ description: value });
 	};
 
 	const handleEditSprint = (value: Sprint): void => {
