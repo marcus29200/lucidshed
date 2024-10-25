@@ -134,6 +134,7 @@ const ShedTable = <T extends MRT_RowData>({
 				right: ['mrt-row-actions'],
 			},
 		},
+		enablePagination: false,
 		renderRowActionMenuItems: actions,
 		muiTableBodyRowProps: ({ row }) => ({
 			onClick: () => handleRowClicked && handleRowClicked(row.original),
