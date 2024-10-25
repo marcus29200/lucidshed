@@ -90,7 +90,7 @@ export const Sprints = () => {
 					<SprintSearchInput
 						enableAddNew={true}
 						sprint={selectedSprint}
-						setSprint={setSelectedSprint}
+						setSprint={(sprint) => setSelectedSprint(sprint)}
 					/>
 				</div>
 			</div>

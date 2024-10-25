@@ -7,6 +7,7 @@ import {
 	FormControl,
 	FormControlLabel,
 	Grid,
+	IconButton,
 	InputLabel,
 	MenuItem,
 	Select,
@@ -15,7 +16,7 @@ import {
 } from '@mui/material';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	DISABLED_DEFAULT_FIELDS,
 	METADATA_FIELD_OPTIONS,
@@ -24,7 +25,7 @@ import {
 	statuses,
 	ticketTypes,
 } from './stories.model';
-import { StoryAPI } from '../../api/stories';
+import { CreateStoryPayload, StoryAPI, updateStory } from '../../api/stories';
 import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
 import UserComments from '../../components/UserComments';
@@ -37,6 +38,10 @@ import {
 } from '../../api/comments';
 import UserSearchInput from '../sprints/UserSearchInput';
 import { mapUser, User } from '../../api/users';
+import { ArrowBack, RotateRight } from '@mui/icons-material';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+
+let debounceTimeId;
 
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
@@ -51,6 +56,7 @@ export const Story = () => {
 	const [assignedTo, setAssignedTo] = useState<User | null>(
 		mapUser(story.assigned_to) ?? null
 	);
+	const [isLoading, setIsLoading] = useState(false);
 
 	useEffect(() => {
 		getAllComments({ orgId: story.organization_id, workItemId: story.id }).then(
@@ -73,7 +79,7 @@ export const Story = () => {
 		[]
 	);
 
-	useEffect(() => {
+	useMemo(() => {
 		const fieldsWithValues = Object.keys(dynamicFields).filter(
 			(field) => !!dynamicFields[field as MetadataFieldOption]
 		);
@@ -103,6 +109,75 @@ export const Story = () => {
 			setComments((prev) => [...prev, mapRawComment(comment)]);
 		});
 	};
+	const queryClient = useQueryClient();
+	const { mutate: patchStory } = useMutation({
+		mutationFn: updateStory,
+		onError: () => {
+			console.error('wuhh');
+			setIsLoading(false);
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['stories'] });
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 1000);
+		},
+	});
+
+	const handlePatchStory = (data: Partial<CreateStoryPayload>) => {
+		if (debounceTimeId) {
+			clearTimeout(debounceTimeId);
+		}
+		debounceTimeId = setTimeout(() => {
+			patchStory({
+				orgId: story.organization_id,
+				storyId: story.id,
+				data,
+			});
+			setIsLoading(true);
+		}, 400);
+	};
+
+	const handleEditTitle = (value: string): void => {
+		setTitle(value);
+		if (value) {
+			handlePatchStory({ title: value });
+		}
+	};
+
+	const handleEditDescription = (value: string): void => {
+		setDescription(value);
+		handlePatchStory({ title: value });
+	};
+
+	const handleEditSprint = (value: Sprint): void => {
+		setSprint(value);
+		handlePatchStory({ iteration_id: value.id });
+	};
+
+	const handleEditAssignedTo = (value: User): void => {
+		setAssignedTo(value);
+		handlePatchStory({ assigned_to_id: value.id });
+	};
+
+	const handleEditDynamicField = (field: string, value): void => {
+		setDynamicFields({
+			...dynamicFields,
+			[field]: value,
+		});
+		if (field === 'subType') {
+			field = 'item_sub_type';
+		}
+		if (field === 'assignedTo') {
+			field = 'assigned_to_id';
+		}
+		if (field === 'targetDate') {
+			value = new Date(value as string).toISOString();
+			field = 'estimated_completion_date';
+		}
+
+		handlePatchStory({ [field]: value });
+	};
 
 	return (
 		<FullHeightSection>
@@ -116,9 +191,22 @@ export const Story = () => {
 			>
 				<Grid container spacing={2} sx={{ paddingBottom: '20px' }}>
 					<Grid item xs={8}>
-						<Typography variant="body1" align="left">
-							Basic Details
-						</Typography>
+						<div className="flex gap-4 items-center">
+							<IconButton onClick={() => navigate('..', { relative: 'path' })}>
+								<ArrowBack className="!h-8 !w-8 text-neutral-dak" />
+							</IconButton>
+
+							<Typography variant="body1" align="left">
+								Basic Details
+							</Typography>
+
+							<RotateRight
+								className="duration-500 text-neutral-regular transition-all animate-spin"
+								style={{
+									opacity: isLoading ? 1 : 0,
+								}}
+							/>
+						</div>
 					</Grid>
 					<Grid item xs={4}>
 						<Button variant="contained" color="success" onClick={() => {}}>
@@ -148,7 +236,7 @@ export const Story = () => {
 								id="title"
 								name="title"
 								value={title}
-								onChange={(e) => setTitle(e.target.value)}
+								onChange={(e) => handleEditTitle(e.target.value)}
 							></TextField>
 							<TextField
 								variant="outlined"
@@ -161,7 +249,7 @@ export const Story = () => {
 								multiline
 								minRows={8}
 								value={description}
-								onChange={(e) => setDescription(e.target.value)}
+								onChange={(e) => handleEditDescription(e.target.value)}
 							/>
 						</Grid>
 						<Grid
@@ -244,12 +332,7 @@ export const Story = () => {
 										},
 									}}
 									value={dynamicFields.targetDate}
-									onChange={(e) =>
-										setDynamicFields({
-											...dynamicFields,
-											targetDate: e as Date,
-										})
-									}
+									onChange={(e) => handleEditDynamicField('targetDate', e)}
 								></DatePicker>
 							)}
 							{selectedFields.includes('estimate') && (
@@ -264,10 +347,7 @@ export const Story = () => {
 									name="estimate"
 									value={dynamicFields.estimate}
 									onChange={(e) =>
-										setDynamicFields({
-											...dynamicFields,
-											estimate: +e.target.value,
-										})
+										handleEditDynamicField('estimate', +e.target.value)
 									}
 								/>
 							)}
@@ -289,10 +369,7 @@ export const Story = () => {
 										name="status"
 										value={dynamicFields.status}
 										onChange={(e) =>
-											setDynamicFields({
-												...dynamicFields,
-												status: e.target.value,
-											})
+											handleEditDynamicField('status', e.target.value)
 										}
 									>
 										{statuses.map((status) => (
@@ -323,10 +400,7 @@ export const Story = () => {
 										name="priority"
 										value={dynamicFields.priority}
 										onChange={(e) =>
-											setDynamicFields({
-												...dynamicFields,
-												priority: e.target.value,
-											})
+											handleEditDynamicField('priority', e.target.value)
 										}
 									>
 										{priorities.map((priority) => (
@@ -356,10 +430,7 @@ export const Story = () => {
 										name="subType"
 										value={dynamicFields.subType}
 										onChange={(e) =>
-											setDynamicFields({
-												...dynamicFields,
-												subType: e.target.value,
-											})
+											handleEditDynamicField('subType', e.target.value)
 										}
 									>
 										{ticketTypes.map((subType) => (
@@ -372,14 +443,10 @@ export const Story = () => {
 							)}
 							{selectedFields.includes('sprint') && (
 								<>
-									<input
-										hidden
-										name="sprint"
-										value={sprint?.id ?? ''}
-										onChange={() => setSprint(() => null)}
-									/>
 									<SprintSearchInput
-										setSprint={setSprint}
+										setSprint={(sprint) => {
+											handleEditSprint(sprint);
+										}}
 										sprint={sprint}
 										id="sprint-selector"
 									/>
@@ -411,14 +478,8 @@ export const Story = () => {
 							{/* TODO: owner */}
 							{selectedFields.includes('assignedTo') && (
 								<>
-									<input
-										hidden
-										name="assignedTo"
-										value={assignedTo?.id ?? ''}
-										onChange={() => setAssignedTo(() => null)}
-									/>
 									<UserSearchInput
-										setUser={setAssignedTo}
+										setUser={(user) => handleEditAssignedTo(user)}
 										user={assignedTo}
 										label="Assigned to"
 										id="user-selector"
@@ -427,26 +488,6 @@ export const Story = () => {
 							)}
 						</Grid>
 					</Grid>
-					<Box
-						sx={{
-							display: 'flex',
-							justifyContent: 'flex-end',
-							gap: '1rem',
-							paddingY: '16px',
-						}}
-					>
-						<Button
-							variant="contained"
-							sx={{ backgroundColor: 'neutral.lightest', color: 'black' }}
-							color="neutral"
-							onClick={() => navigate('..', { relative: 'path' })}
-						>
-							Go back
-						</Button>
-						<Button variant="contained" type="submit">
-							Save changes
-						</Button>
-					</Box>
 				</Form>
 				<Grid container spacing={2}>
 					<Grid item xs={8}>

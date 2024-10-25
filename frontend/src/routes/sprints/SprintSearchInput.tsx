@@ -14,7 +14,7 @@ export default function SprintSearchInput({
 	enableAddNew,
 }: {
 	sprint: Sprint | null;
-	setSprint?: React.Dispatch<React.SetStateAction<Sprint | null>>;
+	setSprint?: (sprint: Sprint) => void;
 	name?: string;
 	id?: string;
 	enableAddNew?: boolean;
@@ -41,7 +41,7 @@ export default function SprintSearchInput({
 					return navigate(`/${params.orgId as string}/sprints/new`);
 				}
 				setValue(() => newValue);
-				setSprint && setSprint(() => newValue);
+				setSprint && setSprint(newValue);
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;

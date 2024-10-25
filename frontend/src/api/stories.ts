@@ -121,7 +121,15 @@ export const getStory = async (orgId: string, storyId: string) => {
 	return await res.json();
 };
 
-export const updateStory = async ({ orgId, storyId, data }) => {
+export const updateStory = async ({
+	orgId,
+	storyId,
+	data,
+}: {
+	orgId: string;
+	storyId: number;
+	data: Partial<CreateStoryPayload>;
+}) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${storyId}`, {
 		method: 'PATCH',
 		headers: {

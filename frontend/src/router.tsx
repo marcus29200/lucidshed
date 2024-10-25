@@ -26,7 +26,6 @@ import {
 	createStoryAction,
 	storiesLoader,
 	storyLoader,
-	updateStoryAction,
 } from './routes/stories/Story.hooks';
 import SprintsDashboard from './routes/sprints/SprintsDashboard';
 
@@ -119,7 +118,6 @@ export const router = createHashRouter([
 							{
 								path: ':storyId',
 								loader: storyLoader(queryClient),
-								action: updateStoryAction(queryClient),
 								element: <Story />,
 							},
 							{

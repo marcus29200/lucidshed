@@ -14,7 +14,7 @@ export default function UserSearchInput({
 	label,
 }: {
 	user: User | null;
-	setUser?: React.Dispatch<React.SetStateAction<User | null>>;
+	setUser?: (user: User) => void;
 	name?: string;
 	id?: string;
 	label?: string;
@@ -35,7 +35,7 @@ export default function UserSearchInput({
 			defaultValue={null}
 			onChange={(_event, newValue) => {
 				setValue(() => newValue);
-				setUser && setUser(() => newValue as User);
+				setUser && setUser(newValue as User);
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;
