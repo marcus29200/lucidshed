@@ -34,6 +34,8 @@ const TEMPLATES = [
 	'TodoList',
 	'EpicUnitsOverview',
 ];
+const TEMPLATES_LEFT_SIDE = ['RoadmapView', 'RecentlyMentioned'];
+const TEMPLATES_RIGHT_SIDE = ['TodoList', 'EpicUnitsOverview'];
 const Dashboard: React.FC = () => {
 	const [oldTemplateName, setOldTemplateName] = useState<string | null>(null);
 	// Dashboard components
@@ -159,6 +161,12 @@ const Dashboard: React.FC = () => {
 		setDashboardComponents((prevComponents) => [...prevComponents, component]);
 		handleCloseAddComponentDialog();
 	};
+	const leftSideHasComponents = !!TEMPLATES_LEFT_SIDE.filter(
+		(templatesLeftSide) => dashboardComponents.includes(templatesLeftSide)
+	).length;
+	const rightSideHasComponents = !!TEMPLATES_RIGHT_SIDE.filter(
+		(templatesLeftSide) => dashboardComponents.includes(templatesLeftSide)
+	).length;
 	const componentsToAdd = availableComponents.filter(
 		(component) => !dashboardComponents.includes(component)
 	);
@@ -506,38 +514,34 @@ const Dashboard: React.FC = () => {
 					</div>
 				</div>
 			</div>
+			{isEditing && !!componentsToAdd.length && (
+				<div
+					className="flex justify-center items-center border-dotted border-2 rounded-md border-gray-300 w-full min-h-40 mt-8"
+					onClick={() => setAddComponentDialogOpen(true)}
+				>
+					<div className="text-center flex flex-col justify-center items-center">
+						<Add className="text-gray-400 text-4xl mb-2" />
+						<p className="text-gray-400 text-sm">Click to add component</p>
+					</div>
+				</div>
+			)}
 			<Grid container spacing={2}>
-				<Grid item xs={12} sm={8}>
+				<Grid item xs={12} sm={rightSideHasComponents ? 8 : 12}>
 					<div className="flex flex-col gap-4 mt-4">
 						{/* Add Component Placeholder */}
-						<div className="flex flex-row gap-x-4">
-							{isEditing && (
-								<div
-									className={`h-full min-h-[50vh] flex justify-center items-center border-dotted border-2 rounded-md border-gray-300`}
-									onClick={() => setAddComponentDialogOpen(true)}
-								>
-									<div className="text-center flex flex-col justify-center items-center">
-										<Add className="text-gray-400 text-4xl mb-2" />
-										<p className="text-gray-400 text-sm">
-											Click to add component
-										</p>
-									</div>
-								</div>
-							)}
-
-							{/* RoadmapView */}
-							{dashboardComponents.includes('RoadmapView') && (
-								<div className="relative w-full">
-									{isEditing && (
-										<Close
-											className="absolute top-2 right-2 text-red-500 cursor-pointer"
-											onClick={() => handleRemoveComponentClick('RoadmapView')}
-										/>
-									)}
-									<RoadmapView />
-								</div>
-							)}
-						</div>
+						<div className="flex flex-row gap-x-4"></div>
+						{/* RoadmapView */}
+						{dashboardComponents.includes('RoadmapView') && (
+							<div className="relative w-full">
+								{isEditing && (
+									<Close
+										className="absolute top-2 right-2 text-red-500 cursor-pointer"
+										onClick={() => handleRemoveComponentClick('RoadmapView')}
+									/>
+								)}
+								<RoadmapView />
+							</div>
+						)}
 
 						{/* RecentlyMentioned */}
 						{dashboardComponents.includes('RecentlyMentioned') && (
@@ -555,7 +559,7 @@ const Dashboard: React.FC = () => {
 						)}
 					</div>
 				</Grid>
-				<Grid item xs={12} sm={4}>
+				<Grid item xs={12} sm={leftSideHasComponents ? 4 : 12}>
 					<div className="flex flex-col gap-4 mt-4 h-full">
 						{/* TodoList and EpicUnitsOverview */}
 						{dashboardComponents.includes('TodoList') && (
@@ -570,6 +574,7 @@ const Dashboard: React.FC = () => {
 							</div>
 						)}
 
+						{/* Overview */}
 						{dashboardComponents.includes('EpicUnitsOverview') && (
 							<div className="relative">
 								{isEditing && (

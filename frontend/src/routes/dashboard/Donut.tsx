@@ -98,7 +98,7 @@ class Donut extends Component<DonutProps, DonutState> {
 	render() {
 		return (
 			<div
-				className="donut"
+				className="donut h-full"
 				style={{
 					display: 'flex',
 					alignItems: 'center',
@@ -228,6 +228,7 @@ class Donut extends Component<DonutProps, DonutState> {
 							options={this.state.options}
 							series={this.state.series}
 							type="donut"
+							className="pb-4"
 						/>
 					)}
 				</div>

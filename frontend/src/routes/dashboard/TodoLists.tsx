@@ -32,7 +32,7 @@ const TodoList: React.FC = () => {
 			: 0
 	);
 	return (
-		<div className="p-6 bg-white rounded-lg shadow-md border-1 border-gray-200 font-poppins">
+		<div className="p-6 bg-white rounded-lg shadow-md border-1 border-gray-200 font-poppins h-full">
 			<div className="flex flex-col gap-y-1.5">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
