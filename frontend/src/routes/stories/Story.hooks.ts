@@ -5,13 +5,7 @@ import {
 	redirect,
 } from 'react-router-dom';
 import { Priority } from '../../api/epics';
-import {
-	createStory,
-	CreateStoryPayload,
-	getStories,
-	getStory,
-	updateStory,
-} from '../../api/stories';
+import { createStory, getStories, getStory } from '../../api/stories';
 
 export const storyQuery = (orgId: string, storyId: string) =>
 	queryOptions({
@@ -73,58 +67,6 @@ export const createStoryAction = (queryClient: QueryClient) => {
 			{ throwOnError: true }
 		);
 
-		return redirect(`/${params.orgId}/stories`);
-	};
-};
-
-export const updateStoryAction = (queryClient: QueryClient) => {
-	return async ({ request, params }: ActionFunctionArgs) => {
-		const formData = await request.formData();
-		const data = Object.fromEntries(formData);
-
-		const estimated_completion_date = data?.targetDate
-			? new Date(data?.targetDate as string).toISOString()
-			: undefined;
-		const submissionData: CreateStoryPayload = {
-			title: data.title as string,
-			description: data.description as string,
-			item_type: 'story',
-			iteration_id: data.sprint ? +data.sprint : undefined,
-			estimated_completion_date,
-			status: undefined,
-			priority: undefined,
-			estimate: undefined,
-			item_sub_type: undefined,
-			assigned_to_id: undefined,
-		};
-		if (data?.status) {
-			submissionData.status = data?.status as string;
-		}
-
-		if (data?.priority) {
-			submissionData.priority = data?.priority as Priority;
-		}
-		if (data?.estimate) {
-			submissionData.estimate = +data?.estimate;
-		}
-		if (data?.subType) {
-			submissionData.item_sub_type = data?.subType as string;
-		}
-		if (data?.assignedTo) {
-			submissionData.assigned_to_id = data?.assignedTo as string;
-		}
-
-		await updateStory({
-			orgId: params.orgId as string,
-			storyId: params.storyId as string,
-			data: submissionData,
-		});
-		await queryClient.invalidateQueries(
-			{
-				queryKey: ['story', params.orgId, params.id],
-			},
-			{ throwOnError: true }
-		);
 		return redirect(`/${params.orgId}/stories`);
 	};
 };
