@@ -22,11 +22,7 @@ import {
 import { CreateStory } from './routes/stories/CreateStory';
 import { Story } from './routes/stories/Story';
 import EpicsDashboard from './routes/epics/EpicDashboard';
-import {
-	createStoryAction,
-	storiesLoader,
-	storyLoader,
-} from './routes/stories/Story.hooks';
+import { storiesLoader, storyLoader } from './routes/stories/Story.hooks';
 import SprintsDashboard from './routes/sprints/SprintsDashboard';
 
 export const queryClient = new QueryClient({
@@ -35,6 +31,8 @@ export const queryClient = new QueryClient({
 		// since there is no way to do this in one place with react-router
 		// or use a ProtectedRoute component (since loaders will fire before it is rendered)
 		onError: (error: Error & { status?: number }) => {
+			console.log(error);
+
 			if (error.status === 401) {
 				window.location.replace('/shed/#/login');
 			}
@@ -71,7 +69,6 @@ export const router = createHashRouter([
 	{
 		id: 'user',
 		loader: meLoader(queryClient),
-		errorElement: <Login />,
 		children: [
 			{
 				element: <AppLayout />,
@@ -122,7 +119,6 @@ export const router = createHashRouter([
 							},
 							{
 								path: 'new',
-								action: createStoryAction(queryClient),
 								element: <CreateStory />,
 							},
 						],

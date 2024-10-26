@@ -12,7 +12,7 @@ import {
 	Checkbox,
 } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
-import { Form, useNavigate } from 'react-router-dom';
+import { Form, useNavigate, useParams } from 'react-router-dom';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useState } from 'react';
 import SprintSearchInput from '../sprints/SprintSearchInput';
@@ -24,14 +24,43 @@ import {
 	priorities,
 	ticketTypes,
 	DISABLED_DEFAULT_FIELDS,
+	TicketType,
+	StoryStatus,
 } from './stories.model';
 import { User } from '../../api/users';
 import UserSearchInput from '../sprints/UserSearchInput';
 import { Epic } from '../epics/Epics';
 import EpicSearchInput from './EpicSearchInput';
+import { linkStoryToEpic, Priority } from '../../api/epics';
+import { SubmitHandler, useController, useForm } from 'react-hook-form';
+import { createStory } from '../../api/stories';
+import { queryClient } from '../../router';
+
+type StoryFormProps = {
+	targetDate?: Date;
+	title: string;
+	description?: string;
+	sprint?: number;
+	priority: Priority;
+	estimate?: number;
+	status?: StoryStatus;
+	subType?: TicketType;
+	assignedTo?: string;
+	epic?: number;
+};
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+		control,
+	} = useForm<StoryFormProps>();
+	// we cannot use register('targetDate') in the mui datepicker
+	// due the type mismatch
+	const targetDateField = useController({ control, name: 'targetDate' });
+
 	const [sprint, setSprint] = useState<Sprint | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
 	const [epic, setEpic] = useState<Epic | null>(null);
@@ -47,12 +76,51 @@ export const CreateStory = () => {
 		'epic',
 	]);
 
+	const params = useParams();
+
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
 			prevSelected.includes(field)
 				? prevSelected.filter((item) => item !== field)
 				: [...prevSelected, field]
 		);
+	};
+
+	const onSubmit: SubmitHandler<StoryFormProps> = async (
+		data: StoryFormProps
+	) => {
+		const estimated_completion_date = data.targetDate
+			? data.targetDate.toISOString()
+			: undefined;
+		const story = await createStory({
+			orgId: params.orgId as string,
+			data: {
+				title: data.title,
+				description: data.description,
+				item_type: 'story',
+				iteration_id: sprint?.id,
+				priority: data.priority,
+				estimate: data.estimate ? +data.estimate : undefined,
+				estimated_completion_date,
+				status: data.status,
+				item_sub_type: data.subType,
+				assigned_to_id: assignedTo?.id,
+			},
+		});
+		if (epic) {
+			// assign epic to story using the /links endpoint
+			await linkStoryToEpic({
+				orgId: params.orgId as string,
+				storyId: story.id,
+				epicId: epic.epicId,
+			});
+		}
+		await queryClient.invalidateQueries(
+			{ queryKey: ['stories'] },
+			{ throwOnError: true }
+		);
+
+		navigate(`/${params.orgId}/stories`);
 	};
 
 	return (
@@ -80,21 +148,37 @@ export const CreateStory = () => {
 					Basic Details
 				</Typography>
 				<Form
-					method="post"
+					onSubmit={handleSubmit(onSubmit)}
 					style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
 				>
 					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 						<Grid item xs={8}>
-							<TextField
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Title"
-								id="title"
-								name="title"
-								required
-							></TextField>
+							<FormControl
+								sx={{
+									width: '100%',
+								}}
+							>
+								<TextField
+									variant="outlined"
+									size="small"
+									margin="dense"
+									fullWidth
+									label="Title"
+									id="title"
+									color={
+										errors.title && errors.title.type === 'maxLength'
+											? 'error'
+											: 'primary'
+									}
+									required
+									{...register('title')}
+								></TextField>
+								{errors.title && errors.title.type === 'maxLength' && (
+									<small role="alert" className="text-left pb-2 text-red-500">
+										Ticket title must be maximum 40 characters.
+									</small>
+								)}
+							</FormControl>
 							<TextField
 								variant="outlined"
 								size="small"
@@ -102,7 +186,7 @@ export const CreateStory = () => {
 								fullWidth
 								label="Description"
 								id="description"
-								name="description"
+								{...register('description')}
 								multiline
 								minRows={8}
 							></TextField>
@@ -177,7 +261,6 @@ export const CreateStory = () => {
 							{selectedFields.includes('targetDate') && (
 								<DatePicker
 									label="Due Date"
-									name="targetDate"
 									slotProps={{
 										textField: {
 											variant: 'outlined',
@@ -186,6 +269,8 @@ export const CreateStory = () => {
 											fullWidth: true,
 										},
 									}}
+									value={targetDateField.field.value}
+									onChange={targetDateField.field.onChange}
 								></DatePicker>
 							)}
 							{selectedFields.includes('estimate') && (
@@ -197,7 +282,7 @@ export const CreateStory = () => {
 									type="number"
 									label="Estimate"
 									id="estimate"
-									name="estimate"
+									{...register('estimate')}
 								/>
 							)}
 
@@ -213,9 +298,9 @@ export const CreateStory = () => {
 										fullWidth
 										labelId="status-label"
 										label="Status"
-										defaultValue={'not-started'}
 										id="status"
-										name="status"
+										defaultValue={'not-started'}
+										{...register('status')}
 									>
 										{statuses.map((status) => (
 											<MenuItem
@@ -242,7 +327,7 @@ export const CreateStory = () => {
 										labelId="priority-label"
 										label="Priority"
 										id="priority"
-										name="priority"
+										{...register('priority')}
 										defaultValue="low"
 									>
 										{priorities.map((priority) => (
@@ -270,7 +355,7 @@ export const CreateStory = () => {
 									defaultValue="feature"
 									label="Type"
 									id="subType"
-									name="subType"
+									{...register('subType')}
 								>
 									{ticketTypes.map((subType) => (
 										<MenuItem value={subType.value} key={subType.value}>

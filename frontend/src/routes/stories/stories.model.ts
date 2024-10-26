@@ -1,3 +1,9 @@
+export const STORY_STATUS = {
+	'not-started': 'Not Started',
+	'in-progress': 'In Progress',
+	done: 'Done',
+} as const;
+export type StoryStatus = (typeof STORY_STATUS)[keyof typeof STORY_STATUS]; // "not-started" | "in-progress" | "done
 export const statuses = [
 	{
 		label: 'Not started',
@@ -30,18 +36,27 @@ export const priorities = [
 		value: 'low',
 	},
 ];
+
+export const TICKET_TYPE = {
+	feature: 'feature',
+	bug: 'bug',
+	task: 'task',
+} as const;
+
+export type TicketType = (typeof TICKET_TYPE)[keyof typeof TICKET_TYPE];
+
 export const ticketTypes = [
 	{
 		label: 'Feature',
-		value: 'feature',
+		value: TICKET_TYPE.feature,
 	},
 	{
 		label: 'Bug',
-		value: 'bug',
+		value: TICKET_TYPE.bug,
 	},
 	{
 		label: 'Task',
-		value: 'task',
+		value: TICKET_TYPE.task,
 	},
 ];
 
@@ -61,11 +76,7 @@ export const METADATA_FIELD_OPTIONS = {
 export const DISABLED_DEFAULT_FIELDS = ['subType'];
 
 export type MetadataFieldOption = keyof typeof METADATA_FIELD_OPTIONS;
-export const STORY_STATUS = {
-	'not-started': 'Not Started',
-	'in-progress': 'In Progress',
-	done: 'Done',
-} as const;
+
 export const STORY_STATUS_PROGRESS = {
 	'not-started': 0,
 	'in-progress': 50,

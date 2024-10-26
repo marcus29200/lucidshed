@@ -14,21 +14,26 @@ export const action = (queryClient: QueryClient) => {
 	return async ({ request, params }: ActionFunctionArgs) => {
 		const formData = await request.formData();
 		const updates = Object.fromEntries(formData);
-		await createSprint({
-			orgId: params.orgId,
-			data: {
-				title: updates.title,
-				description: updates.description,
-				start_date: updates.startDate
-					? new Date(updates.startDate as string).toISOString()
-					: '',
-				end_date: updates.endDate
-					? new Date(updates.endDate as string).toISOString()
-					: '',
-			},
-		});
-		queryClient.invalidateQueries({ queryKey: ['sprints'] });
-		return redirect(`/${params.orgId}/sprints`);
+		try {
+			await createSprint({
+				orgId: params.orgId,
+				data: {
+					title: updates.title,
+					description: updates.description,
+					start_date: updates.startDate
+						? new Date(updates.startDate as string).toISOString()
+						: '',
+					end_date: updates.endDate
+						? new Date(updates.endDate as string).toISOString()
+						: '',
+				},
+			});
+			queryClient.invalidateQueries({ queryKey: ['sprints'] });
+			return redirect(`/${params.orgId}/sprints`);
+		} catch (error) {
+			console.warn(error);
+		}
+		return null;
 	};
 };
 

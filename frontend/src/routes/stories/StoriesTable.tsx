@@ -7,10 +7,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ConfirmationDialog } from '../../components/DeleteDialog';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 import ShedTable, { TableActions } from '../../components/Table';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
 import { STORY_PRIORITY } from './stories.model';
+import { queryClient } from '../../router';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -49,7 +50,6 @@ const StoriesTable = ({
 		// When the component first mounts, set filteredStories to the full list of epics
 		setFilteredStories(stories);
 	}, [stories]);
-	const queryClient = useQueryClient();
 	const { mutate: removeStory } = useMutation({
 		mutationFn: deleteStory,
 		onError: () => {
@@ -58,6 +58,7 @@ const StoriesTable = ({
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: ['stories'] });
 			navigate(`/${orgId}/stories`);
+			setOpenDialog(false); // Close the dialog after successful deletion
 		},
 	});
 	const handleDelete = () => {
@@ -281,7 +282,10 @@ const StoriesTable = ({
 			<ConfirmationDialog
 				open={openDialog}
 				onClose={handleCloseDialog}
-				onDelete={handleDelete}
+				onDelete={() => {
+					closeMenu();
+					handleDelete();
+				}}
 				children={
 					<span className="text-neutral-regular text-base">
 						Are you sure you want to delete this story? This action cannot be

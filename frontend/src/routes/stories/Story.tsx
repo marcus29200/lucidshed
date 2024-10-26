@@ -140,8 +140,10 @@ export const Story = () => {
 
 	const handleEditTitle = (value: string): void => {
 		setTitle(value);
-		if (value) {
+		if (value && value.length < 41) {
 			handlePatchStory({ title: value });
+		} else if (debounceTimeId) {
+			clearTimeout(debounceTimeId);
 		}
 	};
 
@@ -216,7 +218,7 @@ export const Story = () => {
 				</Grid>
 
 				<Form
-					method="post"
+					onSubmit={(e) => e.preventDefault()}
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
@@ -226,18 +228,26 @@ export const Story = () => {
 				>
 					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 						<Grid item xs={8}>
-							<TextField
-								variant="outlined"
-								size="small"
-								required
-								margin="dense"
-								fullWidth
-								label="Title"
-								id="title"
-								name="title"
-								value={title}
-								onChange={(e) => handleEditTitle(e.target.value)}
-							></TextField>
+							<FormControl fullWidth>
+								<TextField
+									variant="outlined"
+									size="small"
+									required
+									margin="dense"
+									fullWidth
+									label="Title"
+									id="title"
+									name="title"
+									color={title.length > 40 ? 'error' : 'primary'}
+									value={title}
+									onChange={(e) => handleEditTitle(e.target.value)}
+								></TextField>
+								{title.length > 40 && (
+									<small role="alert" className="text-left pb-2 text-red-500">
+										Ticket title must be maximum 40 characters.
+									</small>
+								)}
+							</FormControl>
 							<TextField
 								variant="outlined"
 								size="small"
