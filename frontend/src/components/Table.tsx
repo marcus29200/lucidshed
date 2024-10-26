@@ -51,6 +51,8 @@ const ShedTable = <T extends MRT_RowData>({
 	);
 
 	const sortData = (data: T[], sortBy: string, sortOrder: boolean) => {
+		console.log({ sortBy, sortOrder });
+
 		return [...data].sort((a, b) => {
 			const valueA = a[sortBy] ? String(a[sortBy]) : '';
 			const valueB = b[sortBy] ? String(b[sortBy]) : '';

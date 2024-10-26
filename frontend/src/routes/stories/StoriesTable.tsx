@@ -10,6 +10,7 @@ import ShedTable, { TableActions } from '../../components/Table';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
+import { STORY_PRIORITY, STORY_STATUS } from './stories.model';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -29,6 +30,8 @@ const StoriesTable = ({
 		startDate: true,
 		progress: true,
 		targetDate: true,
+		priority: true,
+		status: true,
 	});
 	const navigate = useNavigate();
 
@@ -146,6 +149,42 @@ const StoriesTable = ({
 					</span>
 				),
 			},
+			{
+				accessorKey: 'priority',
+				id: 'priority',
+				header: 'Priority',
+				size: 200,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('priority')}
+					>
+						Priority
+					</span>
+				),
+				Cell: ({ cell }) => {
+					return STORY_PRIORITY[cell.getValue<string>()] ?? 'Small';
+				},
+			},
+			{
+				accessorKey: 'status',
+				id: 'status',
+				header: 'Status',
+				size: 200,
+				enableColumnActions: false,
+				Header: () => (
+					<span
+						className="cursor-pointer"
+						onClick={() => handleSortingChange('status')}
+					>
+						Status
+					</span>
+				),
+				Cell: ({ cell }) => {
+					return STORY_STATUS[cell.getValue<string>()] ?? 'Not Started';
+				},
+			},
 
 			{
 				accessorKey: 'startDate',
@@ -197,6 +236,7 @@ const StoriesTable = ({
 			checkedField.includes(column.accessorKey as string)
 		);
 	}, [checkedField]);
+
 	const actions: TableActions<Story> = ({ row, closeMenu }) => [
 		<MenuItem
 			key={`${row.id}-0`}

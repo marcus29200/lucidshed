@@ -27,15 +27,25 @@ import {
 } from './stories.model';
 import { User } from '../../api/users';
 import UserSearchInput from '../sprints/UserSearchInput';
+import { Epic } from '../epics/Epics';
+import EpicSearchInput from './EpicSearchInput';
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
 	const [sprint, setSprint] = useState<Sprint | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
+	const [epic, setEpic] = useState<Epic | null>(null);
 
-	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>(
-		[]
-	);
+	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>([
+		'targetDate',
+		'estimate',
+		'status',
+		'priority',
+		'subType',
+		'sprint',
+		'assignedTo',
+		'epic',
+	]);
 
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
@@ -233,6 +243,7 @@ export const CreateStory = () => {
 										label="Priority"
 										id="priority"
 										name="priority"
+										defaultValue="low"
 									>
 										{priorities.map((priority) => (
 											<MenuItem
@@ -320,6 +331,22 @@ export const CreateStory = () => {
 										user={assignedTo}
 										id="assignedTo-selector"
 										label="Assigned to"
+									/>
+								</>
+							)}
+							{selectedFields.includes('epic') && (
+								<>
+									<input
+										hidden
+										name="epic"
+										value={epic?.epicId ?? ''}
+										onChange={() => setAssignedTo(() => null)}
+									/>
+									<EpicSearchInput
+										setEpic={setEpic}
+										epic={epic}
+										id="epic-selector"
+										label="Epic"
 									/>
 								</>
 							)}

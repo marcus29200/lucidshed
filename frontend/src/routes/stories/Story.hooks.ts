@@ -4,7 +4,7 @@ import {
 	LoaderFunctionArgs,
 	redirect,
 } from 'react-router-dom';
-import { Priority } from '../../api/epics';
+import { linkStoryToEpic, Priority } from '../../api/epics';
 import { createStory, getStories, getStory } from '../../api/stories';
 
 export const storyQuery = (orgId: string, storyId: string) =>
@@ -47,7 +47,7 @@ export const createStoryAction = (queryClient: QueryClient) => {
 		const estimated_completion_date = data.targetDate
 			? new Date(data.targetDate.toString()).toISOString()
 			: undefined;
-		await createStory({
+		const story = await createStory({
 			orgId: params.orgId as string,
 			data: {
 				title: data.title as string,
@@ -62,6 +62,14 @@ export const createStoryAction = (queryClient: QueryClient) => {
 				assigned_to_id: data.assignedTo as string,
 			},
 		});
+		if (data.epic) {
+			// assign epic to story using the /links endpoint
+			await linkStoryToEpic({
+				orgId: params.orgId as string,
+				storyId: story.id,
+				epicId: +data.epic,
+			});
+		}
 		await queryClient.invalidateQueries(
 			{ queryKey: ['stories'] },
 			{ throwOnError: true }

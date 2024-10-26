@@ -1,5 +1,6 @@
 import { BASE_URL } from '../environment';
 import { Story } from '../routes/stories/Stories';
+import { STORY_PRIORITY_VALUE } from '../routes/stories/stories.model';
 import { Priority } from './epics';
 import { RawSprint } from './sprints';
 import { ApiUser } from './users';
@@ -22,7 +23,7 @@ export type StoryAPI = {
 	title: string;
 	description: string;
 	status: string;
-	priority: string;
+	priority?: Priority;
 	estimated_completion_date: Date;
 	checkin_frequency: string | null;
 	starred: boolean;
@@ -57,6 +58,7 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		assignedToId: rawStory.assigned_to_id,
 		status: rawStory.status,
 		orgId: rawStory.organization_id,
+		priority: STORY_PRIORITY_VALUE[rawStory.priority ?? 'low'],
 	};
 };
 
@@ -66,7 +68,7 @@ export const createStory = async ({
 }: {
 	orgId: string;
 	data: CreateStoryPayload;
-}) => {
+}): Promise<StoryAPI> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering`, {
 		method: 'POST',
 		headers: {

@@ -17,11 +17,14 @@ export type Story = {
 	assignedToId?: string;
 	status?: string;
 	orgId: string;
+	priority?: number; // 1 - critical 2 - high 3 - medium 4 - low
 };
 const tableColumnIds = [
 	'name',
 	'progress',
 	'storyId',
+	'status',
+	'priority',
 	'startDate',
 	'targetDate',
 ];
