@@ -23,7 +23,6 @@ const tableColumnIds = [
 	'name',
 	'progress',
 	'storyId',
-	'status',
 	'priority',
 	'startDate',
 	'targetDate',

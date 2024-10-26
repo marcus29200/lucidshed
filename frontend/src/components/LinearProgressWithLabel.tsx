@@ -1,4 +1,10 @@
-export function LinearProgressWithLabel({ value }: { value: number }) {
+export function LinearProgressWithLabel({
+	value,
+	showLabel = false,
+}: {
+	value: number;
+	showLabel?: boolean;
+}) {
 	let progressColor = '';
 
 	if (value === 100) {
@@ -36,12 +42,14 @@ export function LinearProgressWithLabel({ value }: { value: number }) {
 					}}
 				></div>
 			</div>
-			<span
-				className="text-end pr-2"
-				style={{ color: '#9e9e9e', fontSize: '0.875rem' }}
-			>
-				{value}%
-			</span>
+			{showLabel && (
+				<span
+					className="text-end pr-2"
+					style={{ color: '#9e9e9e', fontSize: '0.875rem' }}
+				>
+					{value}%
+				</span>
+			)}
 		</div>
 	);
 }

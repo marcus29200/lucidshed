@@ -66,6 +66,11 @@ export const STORY_STATUS = {
 	'in-progress': 'In Progress',
 	done: 'Done',
 } as const;
+export const STORY_STATUS_PROGRESS = {
+	'not-started': 0,
+	'in-progress': 50,
+	done: 100,
+} as const;
 export const STORY_PRIORITY = {
 	'1': 'Critical',
 	'2': 'High',

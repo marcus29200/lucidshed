@@ -10,7 +10,7 @@ import ShedTable, { TableActions } from '../../components/Table';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
-import { STORY_PRIORITY, STORY_STATUS } from './stories.model';
+import { STORY_PRIORITY } from './stories.model';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -165,24 +165,6 @@ const StoriesTable = ({
 				),
 				Cell: ({ cell }) => {
 					return STORY_PRIORITY[cell.getValue<string>()] ?? 'Small';
-				},
-			},
-			{
-				accessorKey: 'status',
-				id: 'status',
-				header: 'Status',
-				size: 200,
-				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('status')}
-					>
-						Status
-					</span>
-				),
-				Cell: ({ cell }) => {
-					return STORY_STATUS[cell.getValue<string>()] ?? 'Not Started';
 				},
 			},
 

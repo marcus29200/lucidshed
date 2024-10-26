@@ -1,6 +1,9 @@
 import { BASE_URL } from '../environment';
 import { Story } from '../routes/stories/Stories';
-import { STORY_PRIORITY_VALUE } from '../routes/stories/stories.model';
+import {
+	STORY_PRIORITY_VALUE,
+	STORY_STATUS_PROGRESS,
+} from '../routes/stories/stories.model';
 import { Priority } from './epics';
 import { RawSprint } from './sprints';
 import { ApiUser } from './users';
@@ -53,7 +56,7 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		targetDate: rawStory.estimated_completion_date,
 		storyId: rawStory.id,
 		name: rawStory.title,
-		progress: 0,
+		progress: STORY_STATUS_PROGRESS[rawStory.status],
 		startDate: rawStory.start_date,
 		assignedToId: rawStory.assigned_to_id,
 		status: rawStory.status,
