@@ -56,7 +56,7 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		targetDate: rawStory.estimated_completion_date,
 		storyId: rawStory.id,
 		name: rawStory.title,
-		progress: STORY_STATUS_PROGRESS[rawStory.status],
+		progress: STORY_STATUS_PROGRESS[rawStory.status] ?? 0,
 		startDate: rawStory.start_date,
 		assignedToId: rawStory.assigned_to_id,
 		status: rawStory.status,
