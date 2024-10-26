@@ -93,7 +93,7 @@ const StoriesTable = ({
 	};
 
 	const handleRowClicked = (story: Story) => {
-		navigate(`./${story.storyId}`, { relative: 'path' });
+		navigate(`/${orgId}/stories/${story.storyId}`);
 	};
 
 	// Filter columns based on the checkedField array
