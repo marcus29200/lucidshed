@@ -1,9 +1,17 @@
 import { Box } from '@mui/material';
 import Sidebar from './Sidebar';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import AppHeader from './AppHeader';
+import { UsersContext } from '../hooks/users';
+import { useQuery } from '@tanstack/react-query';
+import { getUsers } from '../api/users';
 
 const AppLayout = () => {
+	const params = useParams();
+	const { data } = useQuery({
+		queryKey: ['users'],
+		queryFn: async () => getUsers(params.orgId as string),
+	});
 	return (
 		<Box sx={{ display: 'flex', height: '100vh' }}>
 			<Sidebar />
@@ -18,7 +26,9 @@ const AppLayout = () => {
 				>
 					<AppHeader></AppHeader>
 					<Box sx={{ padding: '1rem', overflowY: 'auto' }}>
-						<Outlet />
+						<UsersContext.Provider value={data ?? []}>
+							<Outlet />
+						</UsersContext.Provider>
 					</Box>
 				</Box>
 			</Box>

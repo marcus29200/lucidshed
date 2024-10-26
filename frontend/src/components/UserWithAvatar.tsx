@@ -1,28 +1,14 @@
-import { useEffect, useState } from 'react';
-import { getUser, User } from '../api/users';
+import { useContext } from 'react';
+import { User } from '../api/users';
 import { Avatar, Box, Typography } from '@mui/material';
 import { useRouteLoaderData } from 'react-router-dom';
+import { UsersContext } from '../hooks/users';
 
 const UserWithAvatar = ({ userId }: { userId: string }) => {
 	const currentUser: User = useRouteLoaderData('user') as User;
-	const [user, setUser] = useState<User | null>(null);
-	const [initials, setInitials] = useState<string>('');
-
-	useEffect(() => {
-		if (userId === currentUser.id) {
-			getUser(userId).then((user) => {
-				if (user?.firstName && user?.lastName) {
-					setInitials(`${user.firstName.charAt(0)}${user.lastName.charAt(0)}`);
-				}
-				setUser(() => user ?? null);
-			});
-		} else {
-			setInitials('');
-			setUser(
-				() => ({ id: userId, firstName: 'Other', lastName: 'user' } as User)
-			);
-		}
-	}, [userId]);
+	const users = useContext(UsersContext);
+	const user = users.find((u) => u.id === userId);
+	const initials = `${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0)}`;
 
 	return (
 		<>
@@ -45,7 +31,7 @@ const UserWithAvatar = ({ userId }: { userId: string }) => {
 					</Typography>
 				</Box>
 			) : (
-				<p>Loading...</p>
+				<p>&nbsp;</p>
 			)}
 		</>
 	);

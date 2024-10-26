@@ -1,10 +1,9 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { useQuery } from '@tanstack/react-query';
-import { CircularProgress } from '@mui/material';
-import { getUsers, User } from '../../api/users';
-import { useParams } from 'react-router-dom';
+import { User } from '../../api/users';
+import { UsersContext } from '../../hooks/users';
+import { useRouteLoaderData } from 'react-router-dom';
 
 export default function UserSearchInput({
 	user,
@@ -19,16 +18,12 @@ export default function UserSearchInput({
 	id?: string;
 	label?: string;
 }) {
+	const currentUser: User = useRouteLoaderData('user') as User;
+	const users = React.useContext(UsersContext);
 	const [value, setValue] = React.useState<User | null>(user);
-	const params = useParams();
-	const { data, isLoading } = useQuery({
-		queryKey: ['users'],
-		queryFn: async () => getUsers(params.orgId as string),
-	});
-
-	const items = data ?? [];
-	const options = [...items];
-
+	// first option is always current user
+	const options = users.filter((user) => user.id !== currentUser.id);
+	options.unshift(currentUser);
 	return (
 		<Autocomplete
 			value={value}
@@ -42,21 +37,12 @@ export default function UserSearchInput({
 				const filtered = options.filter((opt) =>
 					opt.firstName.toLowerCase().includes(inputValue.toLowerCase())
 				);
-				// Suggest the creation of a new value
-				// if (inputValue !== '' && filtered.length === 0 && enableAddNew) {
-				// 	filtered.push({
-				// 		inputValue: 'add-new',
-				// 		title: `Add new user`,
-				// 	});
-				// }
-
 				return filtered;
 			}}
 			selectOnFocus
 			clearOnBlur
 			sx={{ minWidth: '200px' }}
 			handleHomeEndKeys
-			loading={isLoading}
 			id={id}
 			options={options}
 			isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -70,6 +56,11 @@ export default function UserSearchInput({
 				return (
 					<li key={key} {...optionProps} value={optionProps.id}>
 						{option.fullName}
+						{option.id === currentUser.id && (
+							<span className="text-neutral-regular font-semibold text-xs">
+								(You)
+							</span>
+						)}
 					</li>
 				);
 			}}
@@ -89,9 +80,6 @@ export default function UserSearchInput({
 							...params.InputProps,
 							endAdornment: (
 								<React.Fragment>
-									{isLoading ? (
-										<CircularProgress color="inherit" size={20} />
-									) : null}
 									{params.InputProps.endAdornment}
 								</React.Fragment>
 							),
