@@ -136,6 +136,31 @@ export const linkStoryToEpic = async ({
 	return await res.json();
 };
 
+export const removeLinkStoryToEpic = async ({
+	orgId,
+	epicId,
+	storyId,
+}: {
+	orgId: string;
+	epicId: number;
+	storyId: number;
+}) => {
+	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}/links`, {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+		body: JSON.stringify({
+			item_id: storyId,
+		}),
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+	return await res.json();
+};
+
 export const getRelatedStories = async (
 	orgId: string,
 	epicId: number

@@ -47,6 +47,7 @@ import { ArrowBack, RotateRight } from '@mui/icons-material';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import EpicSearchInput from './EpicSearchInput';
 import { Epic } from '../epics/Epics';
+import { linkStoryToEpic, removeLinkStoryToEpic } from '../../api/epics';
 
 let debounceTimeId;
 
@@ -65,6 +66,7 @@ export const Story = () => {
 		mapUser(story.assigned_to) ?? null
 	);
 	const [isLoading, setIsLoading] = useState(false);
+	const [originalEpic, setOriginalEpic] = useState<Epic | null>(null);
 
 	useEffect(() => {
 		getAllComments({ orgId: story.organization_id, workItemId: story.id }).then(
@@ -72,9 +74,10 @@ export const Story = () => {
 				setComments(comments);
 			}
 		);
-		getRelatedEpic(story.organization_id, story.id).then((relatedEpic) =>
-			setEpic(relatedEpic)
-		);
+		getRelatedEpic(story.organization_id, story.id).then((relatedEpic) => {
+			setEpic(relatedEpic);
+			setOriginalEpic(relatedEpic);
+		});
 	}, [story]);
 
 	const [dynamicFields, setDynamicFields] = useState({
@@ -174,6 +177,43 @@ export const Story = () => {
 	const handleEditAssignedTo = (value: User): void => {
 		setAssignedTo(value);
 		handlePatchStory({ assigned_to_id: value.id });
+	};
+
+	const handleEditEpic = async (value: Epic | null) => {
+		setEpic(value);
+
+		if (!originalEpic && value) {
+			setIsLoading(true);
+			// assign epic to story using the /links endpoint
+			await linkStoryToEpic({
+				orgId: story.organization_id,
+				storyId: story.id,
+				epicId: value.epicId,
+			});
+			setOriginalEpic(value);
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 300);
+			return;
+		}
+		if (originalEpic && !value) {
+			setIsLoading(true);
+			// assign epic to story using the /links endpoint
+			try {
+				await removeLinkStoryToEpic({
+					orgId: story.organization_id,
+					storyId: story.id,
+					epicId: originalEpic.epicId,
+				});
+			} catch (error) {
+				console.warn(error);
+			}
+			setOriginalEpic(null);
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 300);
+			return;
+		}
 	};
 
 	const handleEditDynamicField = (field: string, value): void => {
@@ -514,6 +554,7 @@ export const Story = () => {
 								<>
 									<EpicSearchInput
 										epic={epic}
+										setEpic={handleEditEpic}
 										id="epic-selector"
 										label="Epic"
 									/>
