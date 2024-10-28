@@ -3,7 +3,7 @@ export const STORY_STATUS = {
 	'in-progress': 'In Progress',
 	done: 'Done',
 } as const;
-export type StoryStatus = (typeof STORY_STATUS)[keyof typeof STORY_STATUS]; // "not-started" | "in-progress" | "done
+export type StoryStatus = keyof typeof STORY_STATUS; // "not-started" | "in-progress" | "done
 export const statuses = [
 	{
 		label: 'Not started',

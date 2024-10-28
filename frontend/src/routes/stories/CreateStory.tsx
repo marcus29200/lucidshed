@@ -33,7 +33,7 @@ import { Epic } from '../epics/Epics';
 import EpicSearchInput from './EpicSearchInput';
 import { linkStoryToEpic, Priority } from '../../api/epics';
 import { SubmitHandler, useController, useForm } from 'react-hook-form';
-import { createStory } from '../../api/stories';
+import { createStory, updateStory } from '../../api/stories';
 import { queryClient } from '../../router';
 
 type StoryFormProps = {
@@ -107,6 +107,15 @@ export const CreateStory = () => {
 				assigned_to_id: assignedTo?.id,
 			},
 		});
+		if (data.status && data.status !== 'not-started') {
+			await updateStory({
+				orgId: params.orgId as string,
+				storyId: story.id,
+				data: {
+					start_date: new Date().toISOString(),
+				},
+			});
+		}
 		if (epic) {
 			// assign epic to story using the /links endpoint
 			await linkStoryToEpic({

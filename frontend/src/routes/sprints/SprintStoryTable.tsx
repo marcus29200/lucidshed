@@ -11,6 +11,7 @@ const tableColumnIds = [
 	'name',
 	'progress',
 	'storyId',
+	'priority',
 	'startDate',
 	'targetDate',
 ];

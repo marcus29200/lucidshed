@@ -146,6 +146,19 @@ export const Story = () => {
 			clearTimeout(debounceTimeId);
 		}
 		debounceTimeId = setTimeout(() => {
+			const fieldToUpdate = Object.keys(data)[0];
+			if (data[fieldToUpdate] === undefined) {
+				// change undefined by null
+				// null clears the value in the database
+				data[fieldToUpdate] = null;
+			}
+			if (data.status === 'in-progress') {
+				data.start_date = new Date().toISOString();
+				data.completed_at = null;
+			}
+			if (data.status === 'done') {
+				data.completed_at = new Date().toISOString();
+			}
 			patchStory({
 				orgId: story.organization_id,
 				storyId: story.id,
@@ -169,14 +182,14 @@ export const Story = () => {
 		handlePatchStory({ description: value });
 	};
 
-	const handleEditSprint = (value: Sprint): void => {
+	const handleEditSprint = (value: Sprint | null): void => {
 		setSprint(value);
-		handlePatchStory({ iteration_id: value.id });
+		handlePatchStory({ iteration_id: value?.id });
 	};
 
-	const handleEditAssignedTo = (value: User): void => {
+	const handleEditAssignedTo = (value: User | null): void => {
 		setAssignedTo(value);
-		handlePatchStory({ assigned_to_id: value.id });
+		handlePatchStory({ assigned_to_id: value?.id });
 	};
 
 	const handleEditEpic = async (value: Epic | null) => {

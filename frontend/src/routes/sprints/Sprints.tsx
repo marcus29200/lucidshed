@@ -37,18 +37,35 @@ export const loader = (_queryClient: QueryClient) => {
 		// return queryClient.ensureQueryData(getSprintsQuery(params.orgId))
 	};
 };
+
+const getSprintProgress = (stories: Story[]) => {
+	let completed = 0;
+	let inProgress = 0;
+	const total = stories.length;
+	stories.forEach((story) => {
+		if (story.status === 'done') {
+			completed++;
+		} else if (story.status === 'in-progress') {
+			inProgress++;
+		}
+	});
+	const progress = ((completed + inProgress / 2) / total) * 100;
+	return progress;
+};
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const { orgId } = useParams();
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
 		sprints[0]
 	);
+	const [sprintProgress, setSprintProgress] = useState<number>(0);
 	const [currentStories, setCurrentStories] = useState<Story[]>([]);
 	useMemo(() => {
 		if (selectedSprint) {
 			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
 				(stories) => {
 					setCurrentStories(() => stories);
+					setSprintProgress(getSprintProgress(stories));
 				}
 			);
 		}
@@ -183,7 +200,9 @@ export const Sprints = () => {
 						<label className="text-xs text-neutral-regular block">
 							Sprint Status
 						</label>
-						<div className="text-base font-semibold">{0}% to complete</div>
+						<div className="text-base font-semibold">
+							{sprintProgress.toFixed(2)}% to complete
+						</div>
 					</div>
 					<LinearProgress
 						sx={{
@@ -194,7 +213,7 @@ export const Sprints = () => {
 							},
 						}}
 						variant="determinate"
-						value={0}
+						value={sprintProgress}
 					/>
 				</div>
 			</Box>

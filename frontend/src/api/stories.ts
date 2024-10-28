@@ -4,6 +4,7 @@ import { Story } from '../routes/stories/Stories';
 import {
 	STORY_PRIORITY_VALUE,
 	STORY_STATUS_PROGRESS,
+	StoryStatus,
 } from '../routes/stories/stories.model';
 import { mapEpic, Priority } from './epics';
 import { RawSprint } from './sprints';
@@ -17,16 +18,18 @@ export type CreateStoryPayload = {
 	priority?: Priority;
 	item_type: 'story';
 	estimate?: number;
-	iteration_id?: number;
+	iteration_id?: number | null;
 	status?: string; // TODO: Enum of statuses
 	item_sub_type?: string;
-	assigned_to_id?: string;
+	assigned_to_id?: string | null;
+	start_date?: string | null;
+	completed_at?: string | null;
 };
 
 export type StoryAPI = {
 	title: string;
 	description: string;
-	status: string;
+	status: StoryStatus;
 	priority?: Priority;
 	estimated_completion_date: Date;
 	checkin_frequency: string | null;

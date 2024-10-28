@@ -7,6 +7,7 @@ import { SearchIcon } from '../../icons/icons';
 import EditFieldsButton from '../../components/EditFieldsButton';
 import { useState } from 'react';
 import TableFiltersButton from '../../components/TableFiltersButton';
+import { StoryStatus } from './stories.model';
 
 export type Story = {
 	storyId: number;
@@ -15,7 +16,7 @@ export type Story = {
 	startDate: Date | null;
 	progress: number;
 	assignedToId?: string;
-	status?: string;
+	status?: StoryStatus;
 	orgId: string;
 	createdDate: Date;
 	modifiedDate: Date;
