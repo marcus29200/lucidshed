@@ -1,5 +1,7 @@
 import { BASE_URL } from '../environment';
 import { ApiEpic, Epic } from '../routes/epics/Epics';
+import { Story } from '../routes/stories/Stories';
+import { mapRawStory } from './stories';
 import { getAuthHeaders } from './utils';
 // TODO: place this type in a shared model
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
@@ -132,4 +134,23 @@ export const linkStoryToEpic = async ({
 		throw await res.json();
 	}
 	return await res.json();
+};
+
+export const getRelatedStories = async (
+	orgId: string,
+	epicId: number
+): Promise<Story[]> => {
+	const url = `${BASE_URL}/${orgId}/engineering?item_type=story&related_item_id=${epicId}`;
+
+	const res = await fetch(url, {
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+
+	const results = await res.json();
+	return results.items.map(mapRawStory);
 };

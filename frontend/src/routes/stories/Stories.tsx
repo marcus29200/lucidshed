@@ -17,6 +17,8 @@ export type Story = {
 	assignedToId?: string;
 	status?: string;
 	orgId: string;
+	createdDate: Date;
+	modifiedDate: Date;
 	priority?: number; // 1 - critical 2 - high 3 - medium 4 - low
 };
 const tableColumnIds = [

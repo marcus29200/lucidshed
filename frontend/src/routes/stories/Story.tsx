@@ -25,7 +25,12 @@ import {
 	statuses,
 	ticketTypes,
 } from './stories.model';
-import { CreateStoryPayload, StoryAPI, updateStory } from '../../api/stories';
+import {
+	CreateStoryPayload,
+	getRelatedEpic,
+	StoryAPI,
+	updateStory,
+} from '../../api/stories';
 import { mapPayloadToSprint, Sprint } from '../../api/sprints';
 import dayjs from 'dayjs';
 import UserComments from '../../components/UserComments';
@@ -40,6 +45,8 @@ import UserSearchInput from '../sprints/UserSearchInput';
 import { mapUser, User } from '../../api/users';
 import { ArrowBack, RotateRight } from '@mui/icons-material';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import EpicSearchInput from './EpicSearchInput';
+import { Epic } from '../epics/Epics';
 
 let debounceTimeId;
 
@@ -52,6 +59,7 @@ export const Story = () => {
 	const [sprint, setSprint] = useState<Sprint | null>(
 		mapPayloadToSprint(story.iteration) ?? null
 	);
+	const [epic, setEpic] = useState<Epic | null>(null);
 
 	const [assignedTo, setAssignedTo] = useState<User | null>(
 		mapUser(story.assigned_to) ?? null
@@ -63,6 +71,9 @@ export const Story = () => {
 			(comments) => {
 				setComments(comments);
 			}
+		);
+		getRelatedEpic(story.organization_id, story.id).then((relatedEpic) =>
+			setEpic(relatedEpic)
 		);
 	}, [story]);
 
@@ -89,8 +100,11 @@ export const Story = () => {
 		if (assignedTo) {
 			fieldsWithValues.push('assignedTo');
 		}
+		if (epic) {
+			fieldsWithValues.push('epic');
+		}
 		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
-	}, [dynamicFields, sprint, assignedTo]);
+	}, [dynamicFields, sprint, assignedTo, epic]);
 
 	const handleFieldToggle = (field: MetadataFieldOption) => {
 		setSelectedFields((prevSelected) =>
@@ -493,6 +507,15 @@ export const Story = () => {
 										user={assignedTo}
 										label="Assigned to"
 										id="user-selector"
+									/>
+								</>
+							)}
+							{selectedFields.includes('epic') && (
+								<>
+									<EpicSearchInput
+										epic={epic}
+										id="epic-selector"
+										label="Epic"
 									/>
 								</>
 							)}

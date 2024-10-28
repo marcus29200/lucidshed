@@ -80,15 +80,15 @@ const EpicStoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 	const columns = useMemo<MRT_ColumnDef<Story>[]>(() => {
 		const allColumns: MRT_ColumnDef<Story>[] = [
 			{
-				accessorKey: 'storyName',
-				id: 'storyName',
+				accessorKey: 'name',
+				id: 'name',
 				header: 'Epic Name',
 				size: 100,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('storyName')}
+						onClick={() => handleSortingChange('name')}
 					>
 						Story Name
 					</span>
@@ -116,15 +116,15 @@ const EpicStoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 			},
 
 			{
-				accessorKey: 'ticketNumber',
-				id: 'ticketNumber',
-				header: 'Epic Id',
+				accessorKey: 'storyId',
+				id: 'storyId',
+				header: 'Story Id',
 				size: 200,
 				enableColumnActions: false,
 				Header: () => (
 					<span
 						className="cursor-pointer"
-						onClick={() => handleSortingChange('ticketNumber')}
+						onClick={() => handleSortingChange('storyId')}
 					>
 						Ticket Number
 					</span>
@@ -259,6 +259,7 @@ const EpicStoriesTable = ({ stories, checkedField }: StoryDataTableProps) => {
 			columns={columns}
 			filteredItems={filteredStories}
 			setSortingStates={setSortingStates}
+			actionsEnabled={false}
 			actions={actions}
 			sortingStates={sortingStates}
 		/>

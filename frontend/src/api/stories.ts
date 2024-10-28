@@ -1,10 +1,11 @@
 import { BASE_URL } from '../environment';
+import { Epic } from '../routes/epics/Epics';
 import { Story } from '../routes/stories/Stories';
 import {
 	STORY_PRIORITY_VALUE,
 	STORY_STATUS_PROGRESS,
 } from '../routes/stories/stories.model';
-import { Priority } from './epics';
+import { mapEpic, Priority } from './epics';
 import { RawSprint } from './sprints';
 import { ApiUser } from './users';
 import { getAuthHeaders } from './utils';
@@ -62,6 +63,8 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		status: rawStory.status,
 		orgId: rawStory.organization_id,
 		priority: STORY_PRIORITY_VALUE[rawStory.priority ?? 'low'],
+		createdDate: rawStory.created_at,
+		modifiedDate: rawStory.modified_at,
 	};
 };
 
@@ -184,4 +187,24 @@ export const getStoriesAssignedToMe = async (
 
 	const results = await res.json();
 	return results?.items.map(mapRawStory);
+};
+
+export const getRelatedEpic = async (
+	orgId: string,
+	storyId: number
+): Promise<Epic | null> => {
+	const url = `${BASE_URL}/${orgId}/engineering?item_type=epic&related_item_id=${storyId}`;
+
+	const res = await fetch(url, {
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+
+	const results = await res.json();
+	const epic = results?.items[0];
+	return epic ? mapEpic(epic) : null;
 };

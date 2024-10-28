@@ -6,11 +6,11 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Epic } from './Epics';
 import { Story } from '../stories/Stories';
+import { useQuery } from '@tanstack/react-query';
+import { getRelatedStories } from '../../api/epics';
 
-// TODO: add typing for epic
-const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
-	const stories: Story[] = [];
-	const orgId = useParams().orgId;
+const EpicStories = ({ epic }: { epic: Epic }) => {
+	const orgId = useParams().orgId as string;
 	const [searchTerm, setSearchTerm] = useState('');
 	const [anchorFilterEl, setAnchorFilterEl3] = useState<null | HTMLElement>(
 		null
@@ -24,14 +24,11 @@ const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
 	const [editFieldsCheckedItems, setEditFieldsCheckedItems] = useState<
 		string[]
 	>([]);
-
-	// const [activeIcon, setActiveIcon] = useState('list'); // Default active icon
-
-	const [addStoryAnchor, setAddStoryAnchor] = useState<null | HTMLElement>(
-		null
-	);
-	const [searchStoryTerm, setSearchStoryTerm] = useState('');
-	const [selectedStories, setSelectedStories] = useState<string[]>([]);
+	const { data } = useQuery({
+		queryKey: ['epics'],
+		queryFn: async () => getRelatedStories(orgId, epic.epicId),
+	});
+	const stories: Story[] = data ?? [];
 
 	const filteredItems = stories.filter((epic) =>
 		epic.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -79,9 +76,9 @@ const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
 		item.toLowerCase().includes(filterSearchTerm.toLowerCase())
 	);
 	const editFields = [
-		'storyName',
+		'name',
 		'progress',
-		'ticketNumber',
+		'storyId',
 		'createdDate',
 		'modifiedDate',
 	];
@@ -111,41 +108,9 @@ const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
 
 		setEditFieldsCheckedItems(newChecked);
 	};
-	// const handleIconClick = (icon: string) => {
-	// 	setActiveIcon(icon); // Set the clicked icon as active
-	// };
 
 	const filteredEditFieldsMenuItems = editFields.filter((item) =>
 		item.toLowerCase().includes(editFieldsSearchTerm.toLowerCase())
-	);
-
-	const allStories: string[] = [];
-
-	const handleAddStory = (event: React.MouseEvent<HTMLButtonElement>) => {
-		setAddStoryAnchor(event.currentTarget);
-	};
-
-	const handleCloseAddStory = () => {
-		setAddStoryAnchor(null);
-	};
-
-	const handleSearchStory = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchStoryTerm(event.target.value);
-	};
-
-	// Update handleToggle2 to store the selected story
-	const handleToggle2 = (item: string) => {
-		const newChecked = selectedStories.includes(item)
-			? selectedStories.filter((checkedItem) => checkedItem !== item)
-			: [...selectedStories, item];
-		setSelectedStories(newChecked);
-
-		// todo: Save the clicked story to selectedStory state
-		handleCloseAddStory();
-	};
-	// Filter stories based on the search term
-	const filteredMenuStories = allStories.filter((story) =>
-		story.toLowerCase().includes(searchStoryTerm.toLowerCase())
 	);
 
 	return (
@@ -256,79 +221,7 @@ const EpicStories = ({ epic: _epic }: { epic: Epic }) => {
 								)}
 							</Menu>
 						</div>
-						{/* stories list dropdown */}
-						<div className="  flex justify-end items-end">
-							<Button
-								variant="outlined"
-								onClick={handleAddStory}
-								sx={{
-									paddingX: '76px',
-									borderRadius: '10px',
-									fontFamily: 'Poppins, sans-serif',
-									paddingY: '13px',
-									borderColor: '#A7AAB4',
-									fontSize: '16px',
-								}}
-							>
-								<span className="text-neutral-regular">Add Story</span>
-							</Button>
-							<Menu
-								anchorEl={addStoryAnchor}
-								open={Boolean(addStoryAnchor)}
-								onClose={handleCloseAddStory}
-								slotProps={{
-									paper: {
-										style: {
-											width: '290px',
-											padding: '10px',
-										},
-									},
-								}}
-							>
-								{/* Search Bar */}
-								<div className="flex flex-row items-center gap-x-2 p-2 border border-neutral-light rounded-xl mb-4">
-									<SearchIcon />
-									<input
-										type="text"
-										className="p-1 w-full outline-none"
-										placeholder="Search..."
-										onChange={handleSearchStory}
-										value={searchStoryTerm}
-										onKeyDown={(e) => {
-											// Prevent focus shifting to menu items
-											e.stopPropagation();
-										}}
-									/>
-								</div>
 
-								{/* Menu Items with Checkboxes */}
-								{filteredMenuStories.length > 0 ? (
-									filteredMenuStories.map((item, index) => (
-										<MenuItem
-											key={index}
-											onClick={() => handleToggle2(item)} // Click handler for selecting story
-											sx={{
-												fontFamily: 'Poppins, sans-serif',
-												padding: '4px 8px', // Adjust padding to reduce the gap between items
-												marginTop: '8px',
-											}}
-										>
-											<ListItemText
-												primary={item}
-												sx={{
-													marginLeft: '4px',
-													marginTop: '8px',
-												}} // Adjust text margin
-											/>
-										</MenuItem>
-									))
-								) : (
-									<div className="px-4 py-2 text-gray-500">
-										No results found
-									</div>
-								)}
-							</Menu>
-						</div>
 						{/* Navigation to new story flow */}
 						<Link to={`/${orgId}/stories/new`}>
 							<Button
