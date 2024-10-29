@@ -11,18 +11,33 @@ import { deleteEpic } from '../../api/epics';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 import ShedTable, { ColumnStates, TableActions } from '../../components/Table';
 import { copyLink } from '../../api/utils';
+import { getStoredSortState } from '../../shared/table.utils';
 type EpicDataTableProps = {
 	epics: Epic[];
 	checkedField: string[]; // Array of field names selected by the user
 };
+const EPICS_TABLE_ID = 'epics-table';
 const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
-	const [sortingStates, setSortingStates] = useState<ColumnStates>({
+	const sortStates = {
 		name: true, // Set to true to start with descending order
-		progress: true,
-		epicId: true,
-		startDate: true,
-		endDate: true,
-	});
+		progress: null,
+		epicId: null,
+		startDate: null,
+		endDate: null,
+	};
+	const initialSorting = getStoredSortState(EPICS_TABLE_ID);
+	if (Object.keys(initialSorting).length) {
+		for (const key in sortStates) {
+			if (Object.prototype.hasOwnProperty.call(sortStates, key)) {
+				if (initialSorting[key] !== undefined) {
+					sortStates[key] = initialSorting[key];
+				} else {
+					sortStates[key] = null;
+				}
+			}
+		}
+	}
+	const [sortingStates, setSortingStates] = useState<ColumnStates>(sortStates);
 	const navigate = useNavigate();
 
 	const [openDialog, setOpenDialog] = useState(false);
@@ -59,24 +74,6 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	// State to hold the filtered stories (including searched stories)
 	const [filteredEpics, setFilteredEpics] = useState<Epic[]>(epics);
 
-	const handleSortingChange = (id: keyof Epic) => {
-		setSortingStates((prev) => {
-			const currentOrder = prev[id];
-
-			const newSortingState = Object.keys(prev).reduce((acc, key) => {
-				if (key === id) {
-					acc[key] =
-						currentOrder === null || currentOrder === false ? true : false;
-				} else {
-					acc[key] = null;
-				}
-				return acc;
-			}, {} as typeof sortingStates);
-
-			return newSortingState;
-		});
-	};
-
 	const handleRowClicked = (epic: Epic) => {
 		navigate(`./${epic.epicId}`, { relative: 'path' });
 	};
@@ -90,14 +87,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				header: 'Epic Name',
 				size: 100,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('name')}
-					>
-						Epic Name
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Epic Name</span>,
 			},
 			{
 				accessorKey: 'progress',
@@ -109,14 +99,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
 					return <LinearProgressWithLabel value={progress} />;
 				},
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('progress')}
-					>
-						Progress
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Progress</span>,
 			},
 
 			{
@@ -125,14 +108,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				header: 'Epic Id',
 				size: 200,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('epicId')}
-					>
-						EpicId
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">EpicId</span>,
 			},
 
 			{
@@ -141,14 +117,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				header: 'Start Date',
 				size: 150,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('startDate')}
-					>
-						Start Date
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -163,14 +132,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				header: 'Target Date',
 				size: 150,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('endDate')}
-					>
-						Target Date
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -266,6 +228,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 
 	return (
 		<ShedTable
+			tableId={EPICS_TABLE_ID}
 			columns={columns}
 			filteredItems={filteredEpics}
 			setSortingStates={setSortingStates}

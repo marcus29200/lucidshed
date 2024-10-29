@@ -17,23 +17,42 @@ type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
 	stories: Story[];
 	actionsEnabled?: boolean;
+	initialSorting: {
+		[key: string]: boolean | null;
+	};
+	tableId: string;
 };
+
 const StoriesTable = ({
 	stories,
 	checkedField,
 	actionsEnabled = true,
+	initialSorting,
+	tableId,
 }: StoryDataTableProps) => {
+	const sortStates = {
+		name: true, // Set to true to start with descending order
+		storyId: null,
+		startDate: null,
+		progress: null,
+		targetDate: null,
+		priority: null,
+		status: null,
+	};
+	if (Object.keys(initialSorting).length) {
+		for (const key in sortStates) {
+			if (Object.prototype.hasOwnProperty.call(sortStates, key)) {
+				if (initialSorting[key] !== undefined) {
+					sortStates[key] = initialSorting[key];
+				} else {
+					sortStates[key] = null;
+				}
+			}
+		}
+	}
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
-	}>({
-		name: true, // Set to true to start with descending order
-		storyId: true,
-		startDate: true,
-		progress: true,
-		targetDate: true,
-		priority: true,
-		status: true,
-	});
+	}>(sortStates);
 	const navigate = useNavigate();
 
 	const [openDialog, setOpenDialog] = useState(false);
@@ -74,24 +93,6 @@ const StoriesTable = ({
 	// State to hold the filtered stories (including searched stories)
 	const [filteredStories, setFilteredStories] = useState<Story[]>(stories);
 
-	const handleSortingChange = (id: string) => {
-		setSortingStates((prev) => {
-			const currentOrder = prev[id];
-
-			const newSortingState = Object.keys(prev).reduce((acc, key) => {
-				if (key === id) {
-					acc[key] =
-						currentOrder === null || currentOrder === false ? true : false;
-				} else {
-					acc[key] = null;
-				}
-				return acc;
-			}, {} as typeof sortingStates);
-
-			return newSortingState;
-		});
-	};
-
 	const handleRowClicked = (story: Story) => {
 		navigate(`/${orgId}/stories/${story.storyId}`);
 	};
@@ -105,14 +106,7 @@ const StoriesTable = ({
 				header: 'Story Name',
 				size: 100,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('name')}
-					>
-						Story Name
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Story Name</span>,
 			},
 			{
 				accessorKey: 'progress',
@@ -125,14 +119,7 @@ const StoriesTable = ({
 
 					return <LinearProgressWithLabel value={progress} />;
 				},
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('progress')}
-					>
-						Progress
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Progress</span>,
 			},
 
 			{
@@ -141,14 +128,7 @@ const StoriesTable = ({
 				header: 'Story ID',
 				size: 200,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('storyId')}
-					>
-						Story ID
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Story ID</span>,
 			},
 			{
 				accessorKey: 'priority',
@@ -156,14 +136,7 @@ const StoriesTable = ({
 				header: 'Priority',
 				size: 200,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('priority')}
-					>
-						Priority
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Priority</span>,
 				Cell: ({ cell }) => {
 					return STORY_PRIORITY[cell.getValue<string>()] ?? 'Small';
 				},
@@ -175,14 +148,7 @@ const StoriesTable = ({
 				header: 'Start Date',
 				size: 150,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('startDate')}
-					>
-						Start Date
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -197,14 +163,7 @@ const StoriesTable = ({
 				header: 'Target Date',
 				size: 150,
 				enableColumnActions: false,
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('targetDate')}
-					>
-						Target Date
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -299,6 +258,7 @@ const StoriesTable = ({
 
 	return (
 		<ShedTable
+			tableId={tableId}
 			columns={columns}
 			filteredItems={filteredStories}
 			setSortingStates={setSortingStates}

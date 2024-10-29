@@ -23,14 +23,7 @@ const FieldManagementTable = ({
 	checkedField,
 	searchBar,
 }: FieldManagementTableProps) => {
-	const [sortingStates, setSortingStates] = useState<{
-		[key: string]: boolean | null;
-	}>({
-		Tag: true,
-		Role: true,
-	});
 	const navigate = useNavigate();
-	const [sortedData, setSortedData] = useState<Epic[]>([]);
 
 	const [allEpics, setAllEpics] = useState<Epic[]>(epics); // Hold all epics, even after delete
 
@@ -61,54 +54,8 @@ const FieldManagementTable = ({
 			setFilteredStories(allEpics); // If no search term, show all stories
 		}
 	}, [searchBar, allEpics]);
-	const sortData = (data: Epic[], sortBy: keyof Epic, sortOrder: boolean) => {
-		return [...data].sort((a, b) => {
-			const valueA = a[sortBy] ? String(a[sortBy]) : '';
-			const valueB = b[sortBy] ? String(b[sortBy]) : '';
-			if (valueA < valueB) return sortOrder ? 1 : -1;
-			if (valueA > valueB) return sortOrder ? -1 : 1;
-			return 0;
-		});
-	};
 
-	// Handle sorting logic
-	useEffect(() => {
-		const activeSortingKey = Object.keys(sortingStates).find(
-			(key) => sortingStates[key] !== null
-		) as keyof Epic | undefined;
-
-		const dataToSort = filteredStories; // Sort the filtered (searched) stories
-
-		if (activeSortingKey) {
-			const sorted = sortData(
-				dataToSort,
-				activeSortingKey,
-				sortingStates[activeSortingKey] as boolean
-			);
-			setSortedData(sorted);
-		} else {
-			setSortedData(dataToSort);
-		}
-	}, [sortingStates, filteredStories]);
 	// Handle the search functionality (filter based on search term)
-
-	const handleSortingChange = (id: string) => {
-		setSortingStates((prev) => {
-			const currentOrder = prev[id];
-
-			const newSortingState = Object.keys(prev).reduce((acc, key) => {
-				if (key === id) {
-					acc[key] =
-						currentOrder === null || currentOrder === false ? true : false;
-				} else {
-					acc[key] = null;
-				}
-				return acc;
-			}, {} as typeof sortingStates);
-
-			return newSortingState;
-		});
-	};
 
 	// Filter columns based on the checkedField array
 	const columns = useMemo<MRT_ColumnDef<Epic>[]>(() => {
@@ -123,14 +70,7 @@ const FieldManagementTable = ({
 						<span>{row.original.name}</span> {/* Display the name */}
 					</div>
 				),
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('Tag')}
-					>
-						Tag
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Tag</span>,
 			},
 			{
 				accessorKey: 'role',
@@ -162,14 +102,7 @@ const FieldManagementTable = ({
 						))}
 					</Select>
 				),
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('Role')}
-					>
-						Field
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Field</span>,
 			},
 
 			{
@@ -190,14 +123,7 @@ const FieldManagementTable = ({
 						</div>
 					);
 				},
-				Header: () => (
-					<span
-						className="cursor-pointer"
-						onClick={() => handleSortingChange('action')}
-					>
-						Action
-					</span>
-				),
+				Header: () => <span className="cursor-pointer">Action</span>,
 			},
 		];
 
@@ -207,9 +133,8 @@ const FieldManagementTable = ({
 	}, [checkedField]);
 	const table = useMaterialReactTable({
 		columns,
-		data: sortedData,
+		data: filteredStories,
 
-		manualSorting: true,
 		enableGlobalFilter: false,
 		enableColumnFilters: false,
 		enableBottomToolbar: false,

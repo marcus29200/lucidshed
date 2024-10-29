@@ -26,6 +26,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	handleRowClicked?: (arg: T) => void;
 	actionsEnabled?: boolean;
 	sortingStateEnabled?: boolean;
+	tableId: string;
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -36,11 +37,16 @@ const ShedTable = <T extends MRT_RowData>({
 	setSortingStates: _setSortingStates,
 	handleRowClicked,
 	actionsEnabled = true,
+	tableId,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 
+	// sortOrder: true === 'desc', false === 'asc
 	const sortData = (data: T[], sortBy: string, sortOrder: boolean) => {
 		return [...data].sort((a, b) => {
+			if (typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number') {
+				return (sortOrder ? 1 : -1) * (a[sortBy] - b[sortBy]);
+			}
 			const valueA = a[sortBy] ? String(a[sortBy]) : '';
 			const valueB = b[sortBy] ? String(b[sortBy]) : '';
 			if (valueA < valueB) return sortOrder ? 1 : -1;
@@ -49,13 +55,18 @@ const ShedTable = <T extends MRT_RowData>({
 		});
 	};
 
-	// Handle sorting logic
+	const initialActiveSorting = Object.keys(sortingStates)
+		.filter((key) => sortingStates[key] !== null)
+		.map((key) => ({ id: key, desc: sortingStates[key] as boolean }))
+		.slice(0, 1);
+	const [sorting, setSorting] = useState(initialActiveSorting);
+
 	useEffect(() => {
 		const activeSortingKey = Object.keys(sortingStates).find(
 			(key) => sortingStates[key] !== null
 		);
 
-		const dataToSort = filteredItems; // Sort the filtered (searched) stories
+		const dataToSort = filteredItems.slice(0); // Sort the filtered (searched) stories
 
 		if (activeSortingKey) {
 			const sorted = sortData(
@@ -63,16 +74,31 @@ const ShedTable = <T extends MRT_RowData>({
 				activeSortingKey,
 				sortingStates[activeSortingKey] as boolean
 			);
+
 			setSortedData(sorted);
 		} else {
 			setSortedData(dataToSort);
 		}
 	}, [sortingStates, filteredItems]);
 
+	useEffect(() => {
+		console.log(sorting);
+
+		if (sorting.length) {
+			localStorage.setItem(`${tableId}_sortKey`, sorting[0].id);
+			localStorage.setItem(
+				`${tableId}_sortOrder`,
+				!sorting[0].desc ? 'asc' : 'desc'
+			);
+		} else {
+			localStorage.removeItem(`${tableId}_sortKey`);
+		}
+	}, [sorting]);
+
 	const table: MRT_TableInstance<T> = useMaterialReactTable({
 		columns,
 		data: sortedData,
-		manualSorting: true,
+		onSortingChange: setSorting,
 		enableBottomToolbar: false,
 		enableTopToolbar: false,
 		enableRowActions: actionsEnabled,
@@ -108,7 +134,9 @@ const ShedTable = <T extends MRT_RowData>({
 				left: ['mrt-row-expand', 'mrt-row-select'],
 				right: ['mrt-row-actions'],
 			},
+			sorting: initialActiveSorting,
 		},
+		state: { sorting },
 		enablePagination: false,
 		renderRowActionMenuItems: actions,
 		muiTableBodyRowProps: ({ row }) => ({

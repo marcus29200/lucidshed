@@ -8,6 +8,7 @@ import EditFieldsButton from '../../components/EditFieldsButton';
 import { useState } from 'react';
 import TableFiltersButton from '../../components/TableFiltersButton';
 import { StoryStatus } from './stories.model';
+import { getStoredSortState } from '../../shared/table.utils';
 
 export type Story = {
 	storyId: number;
@@ -30,7 +31,7 @@ const tableColumnIds = [
 	'startDate',
 	'targetDate',
 ];
-
+const BASE_STORIES_TABLE_ID = 'base-stories-table';
 export const Stories = () => {
 	const stories: Story[] = (useLoaderData() as StoryAPI[]).map(mapRawStory);
 
@@ -45,6 +46,7 @@ export const Stories = () => {
 		useState<string[]>(tableColumnIds);
 
 	const filterItems = ['Select All', ...stories.map((story) => story.name)];
+	const initialSorting = getStoredSortState(BASE_STORIES_TABLE_ID);
 
 	return (
 		<FullHeightSection className="bg-white p-4 shadow !rounded-lg flex flex-col font-poppins">
@@ -114,6 +116,8 @@ export const Stories = () => {
 			</Box>
 
 			<StoriesTable
+				tableId={BASE_STORIES_TABLE_ID}
+				initialSorting={initialSorting}
 				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
 			/>

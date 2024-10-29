@@ -13,23 +13,39 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ConfirmationDialog } from '../../DeleteDialog';
 import ShedTable, { TableActions } from '../../Table';
 import { ExpandMore } from '@mui/icons-material';
+import { getStoredSortState } from '../../../shared/table.utils';
 
 type UsersDataTableProps = {
 	users: User[];
 	loadUsers: () => void;
 };
 
+const USER_MANAGEMENT_TABLE_ID = 'user-management-table';
+
 const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
-	const [sortingStates, setSortingStates] = useState<{
-		[key: string]: boolean | null;
-	}>({
+	const sortStates = {
 		fullName: false, // Set to true to start with descending order
 		id: false,
 		email: false,
 		createdAt: false,
 		role: false,
 		team: false,
-	});
+	};
+	const initialSorting = getStoredSortState(USER_MANAGEMENT_TABLE_ID);
+	if (Object.keys(initialSorting).length) {
+		for (const key in sortStates) {
+			if (Object.prototype.hasOwnProperty.call(sortStates, key)) {
+				if (initialSorting[key] !== undefined) {
+					sortStates[key] = initialSorting[key];
+				} else {
+					sortStates[key] = null;
+				}
+			}
+		}
+	}
+	const [sortingStates, setSortingStates] = useState<{
+		[key: string]: boolean | null;
+	}>(sortStates);
 	const currentUser: User = useRouteLoaderData('user') as User;
 	const [openDialog, setOpenDialog] = useState(false);
 
@@ -107,24 +123,6 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 		setRowToDelete(null); // Reset the selected row when closing
 	};
 
-	const handleSortingChange = (id: string) => {
-		setSortingStates((prev) => {
-			const currentOrder = prev[id];
-
-			const newSortingState = Object.keys(prev).reduce((acc, key) => {
-				if (key === id) {
-					acc[key] =
-						currentOrder === null || currentOrder === false ? true : false;
-				} else {
-					acc[key] = null;
-				}
-				return acc;
-			}, {} as typeof sortingStates);
-
-			return newSortingState;
-		});
-	};
-
 	const columns: MRT_ColumnDef<User>[] = [
 		{
 			accessorKey: 'fullName',
@@ -132,14 +130,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 			header: 'Name',
 			size: 100,
 			enableColumnActions: false,
-			Header: () => (
-				<span
-					className="cursor-pointer"
-					onClick={() => handleSortingChange('fullName')}
-				>
-					Name
-				</span>
-			),
+			Header: () => <span className="cursor-pointer">Name</span>,
 		},
 		{
 			accessorKey: 'email',
@@ -147,14 +138,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 			header: 'Email',
 			size: 200,
 			enableColumnActions: false,
-			Header: () => (
-				<span
-					className="cursor-pointer"
-					onClick={() => handleSortingChange('email')}
-				>
-					Email
-				</span>
-			),
+			Header: () => <span className="cursor-pointer">Email</span>,
 			Cell: ({ cell }) => {
 				return <span className="text-blue-500">{cell.getValue<string>()}</span>;
 			},
@@ -166,14 +150,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 			header: 'Created Date',
 			size: 150,
 			enableColumnActions: false,
-			Header: () => (
-				<span
-					className="cursor-pointer"
-					onClick={() => handleSortingChange('createdAt')}
-				>
-					Created Date
-				</span>
-			),
+			Header: () => <span className="cursor-pointer">Created Date</span>,
 			Cell: ({ cell }) => {
 				const formattedCompletionDate =
 					cell.getValue<string>() && cell.getValue<string>() !== '-'
@@ -188,14 +165,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 			header: 'Role',
 			size: 150,
 			enableColumnActions: false,
-			Header: () => (
-				<span
-					className="cursor-pointer"
-					onClick={() => handleSortingChange('role')}
-				>
-					Role
-				</span>
-			),
+			Header: () => <span className="cursor-pointer">Role</span>,
 			Cell: ({ cell, row }) => {
 				const value = cell.getValue<string>();
 
@@ -265,14 +235,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 			header: 'Team',
 			size: 150,
 			enableColumnActions: false,
-			Header: () => (
-				<span
-					className="cursor-pointer"
-					onClick={() => handleSortingChange('team')}
-				>
-					Team
-				</span>
-			),
+			Header: () => <span className="cursor-pointer">Team</span>,
 			Cell: ({ cell }) => {
 				// TODO: add dropdown and update user on change
 				const currentTeam = cell.getValue<string>();
@@ -319,6 +282,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 
 	return (
 		<ShedTable
+			tableId={USER_MANAGEMENT_TABLE_ID}
 			columns={columns}
 			filteredItems={filteredUsers}
 			setSortingStates={setSortingStates}
