@@ -668,7 +668,7 @@ const StoriesDashboard = () => {
 			<ConfirmationDialog
 				open={confirmationOpen}
 				onClose={cancelRemoveComponent}
-				onDelete={confirmRemoveComponent}
+				onConfirm={confirmRemoveComponent}
 			>
 				<p className="font-poppins">
 					You are about to remove the <strong>{componentToRemove}</strong> from

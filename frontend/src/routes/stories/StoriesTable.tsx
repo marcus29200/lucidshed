@@ -21,6 +21,7 @@ type StoryDataTableProps = {
 		[key: string]: boolean | null;
 	};
 	tableId: string;
+	parentActions?: TableActions<Story>;
 };
 
 const StoriesTable = ({
@@ -29,6 +30,7 @@ const StoriesTable = ({
 	actionsEnabled = true,
 	initialSorting,
 	tableId,
+	parentActions,
 }: StoryDataTableProps) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -241,7 +243,7 @@ const StoriesTable = ({
 			<ConfirmationDialog
 				open={openDialog}
 				onClose={handleCloseDialog}
-				onDelete={() => {
+				onConfirm={() => {
 					closeMenu();
 					handleDelete();
 				}}
@@ -262,7 +264,7 @@ const StoriesTable = ({
 			columns={columns}
 			filteredItems={filteredStories}
 			setSortingStates={setSortingStates}
-			actions={actions}
+			actions={parentActions ?? actions}
 			sortingStates={sortingStates}
 			handleRowClicked={handleRowClicked}
 			actionsEnabled={actionsEnabled}

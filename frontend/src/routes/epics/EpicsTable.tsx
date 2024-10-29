@@ -210,7 +210,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			<ConfirmationDialog
 				open={openDialog}
 				onClose={handleCloseDialog}
-				onDelete={() => {
+				onConfirm={() => {
 					handleDelete();
 					closeMenu();
 				}}

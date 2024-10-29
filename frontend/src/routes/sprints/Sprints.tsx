@@ -14,13 +14,14 @@ import {
 	Typography,
 } from '@mui/material';
 import SprintStoryTable from './SprintStoryTable';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
 import { Story } from '../stories/Stories';
 import { getStoriesProgress } from '../../shared/stories.mapper';
+import { updateStory } from '../../api/stories';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -41,7 +42,7 @@ export const loader = (_queryClient: QueryClient) => {
 
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
-	const { orgId } = useParams();
+	const orgId = useParams().orgId as string;
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
 		sprints[0]
 	);
@@ -52,11 +53,22 @@ export const Sprints = () => {
 			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
 				(stories) => {
 					setCurrentStories(() => stories);
-					setSprintProgress(getStoriesProgress(stories).progress);
 				}
 			);
 		}
 	}, [selectedSprint]);
+
+	useEffect(() => {
+		setSprintProgress(getStoriesProgress(currentStories).progress);
+	}, [currentStories]);
+
+	const onRemoveStory = (storyId: number) => {
+		updateStory({ orgId, storyId, data: { iteration_id: null } }).then(() => {
+			setCurrentStories((stories) =>
+				stories.filter((story) => story.storyId !== storyId)
+			);
+		});
+	};
 
 	if (!sprints.length) {
 		return (
@@ -206,7 +218,10 @@ export const Sprints = () => {
 			</Box>
 			{/* stories table */}
 			<div className="rounded-xl p-4 bg-white mt-4">
-				<SprintStoryTable stories={currentStories} />
+				<SprintStoryTable
+					stories={currentStories}
+					handleRemoveStory={onRemoveStory}
+				/>
 			</div>
 		</>
 	);

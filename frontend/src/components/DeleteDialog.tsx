@@ -10,7 +10,7 @@ export const ConfirmationDialog = ({
 	children,
 	open,
 	onClose,
-	onDelete,
+	onConfirm,
 	title = 'Confirm Deletion',
 	confirmButton = 'Delete',
 	cancelButton = 'Cancel',
@@ -41,7 +41,7 @@ export const ConfirmationDialog = ({
 				}}
 			>
 				<Button
-					onClick={onDelete}
+					onClick={onConfirm}
 					variant="contained"
 					color="success"
 					sx={{

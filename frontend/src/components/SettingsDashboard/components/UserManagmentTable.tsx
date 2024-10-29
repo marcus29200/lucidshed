@@ -267,7 +267,7 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 						<ConfirmationDialog
 							open={openDialog}
 							onClose={handleCloseDialog}
-							onDelete={handleDelete}
+							onConfirm={handleDelete}
 							children={
 								<span className="text-neutral-regular text-base">
 									Are you sure you want to delete this user? This action cannot

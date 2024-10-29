@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import EditFieldsButton from '../../components/EditFieldsButton';
@@ -7,6 +7,8 @@ import { SearchIcon } from '../../icons/icons';
 import { Story } from '../stories/Stories';
 import StoriesTable from '../stories/StoriesTable';
 import { getStoredSortState } from '../../shared/table.utils';
+import { TableActions } from '../../components/Table';
+import { ConfirmationDialog } from '../../components/DeleteDialog';
 
 const tableColumnIds = [
 	'name',
@@ -19,7 +21,13 @@ const tableColumnIds = [
 
 const SPRINT_STORIES_TABLE_ID = 'sprint-stories-table';
 
-const SprintStoryTable = ({ stories }: { stories: Story[] }) => {
+const SprintStoryTable = ({
+	stories,
+	handleRemoveStory,
+}: {
+	stories: Story[];
+	handleRemoveStory: (storyId: number) => void;
+}) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
 		storyId: null,
@@ -45,7 +53,8 @@ const SprintStoryTable = ({ stories }: { stories: Story[] }) => {
 		[key: string]: boolean | null;
 	}>(sortStates);
 	const [searchTerm, setSearchTerm] = useState('');
-	const { orgId } = useParams();
+	const [openDialog, setOpenDialog] = useState(false);
+	const orgId = useParams().orgId as string;
 
 	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
 
@@ -56,6 +65,35 @@ const SprintStoryTable = ({ stories }: { stories: Story[] }) => {
 		useState<string[]>(tableColumnIds);
 
 	const filterItems = ['Select All', ...stories.map((story) => story.name)];
+
+	const actions: TableActions<Story> = ({ row, closeMenu }) => [
+		<MenuItem
+			key={`${row.original.storyId}-0`}
+			onClick={() => {
+				closeMenu();
+				handleRemoveStory(row.original.storyId);
+			}}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif', color: 'red' }}
+		>
+			Remove from sprint
+		</MenuItem>,
+		<div>
+			{/* Dialog box */}
+			<ConfirmationDialog
+				open={openDialog}
+				onClose={() => setOpenDialog(false)}
+				onConfirm={() => {
+					closeMenu();
+					handleRemoveStory(row.original.storyId);
+				}}
+				children={
+					<span className="text-neutral-regular text-base">
+						Are you sure you want to remove this story from ?
+					</span>
+				}
+			/>
+		</div>,
+	];
 
 	return (
 		<div>
@@ -127,8 +165,8 @@ const SprintStoryTable = ({ stories }: { stories: Story[] }) => {
 				tableId={SPRINT_STORIES_TABLE_ID}
 				initialSorting={sortingStates}
 				stories={visibleRows}
-				actionsEnabled={false}
 				checkedField={editFieldsCheckedItems}
+				parentActions={actions}
 			/>
 		</div>
 	);
