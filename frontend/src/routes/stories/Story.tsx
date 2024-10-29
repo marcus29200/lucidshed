@@ -261,7 +261,7 @@ export const Story = () => {
 				<Grid container spacing={2} sx={{ paddingBottom: '20px' }}>
 					<Grid item xs={8}>
 						<div className="flex gap-4 items-center">
-							<IconButton onClick={() => navigate('..', { relative: 'path' })}>
+							<IconButton onClick={() => navigate(-1)}>
 								<ArrowBack className="!h-8 !w-8 text-neutral-dak" />
 							</IconButton>
 

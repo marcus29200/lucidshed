@@ -453,7 +453,7 @@ export const CreateStory = () => {
 							variant="contained"
 							sx={{ backgroundColor: 'neutral.lightest', color: 'black' }}
 							color="neutral"
-							onClick={() => navigate('..', { relative: 'path' })}
+							onClick={() => navigate(-1)}
 						>
 							Cancel
 						</Button>

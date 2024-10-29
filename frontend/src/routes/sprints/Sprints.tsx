@@ -20,6 +20,7 @@ import { Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
 import { Story } from '../stories/Stories';
+import { getStoriesProgress } from '../../shared/stories.mapper';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -38,20 +39,6 @@ export const loader = (_queryClient: QueryClient) => {
 	};
 };
 
-const getSprintProgress = (stories: Story[]) => {
-	let completed = 0;
-	let inProgress = 0;
-	const total = stories.length;
-	stories.forEach((story) => {
-		if (story.status === 'done') {
-			completed++;
-		} else if (story.status === 'in-progress') {
-			inProgress++;
-		}
-	});
-	const progress = ((completed + inProgress / 2) / total) * 100;
-	return progress;
-};
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const { orgId } = useParams();
@@ -65,7 +52,7 @@ export const Sprints = () => {
 			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
 				(stories) => {
 					setCurrentStories(() => stories);
-					setSprintProgress(getSprintProgress(stories));
+					setSprintProgress(getStoriesProgress(stories).progress);
 				}
 			);
 		}

@@ -15,6 +15,8 @@ import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import EpicStories from './EpicStories';
 import { Epic } from './Epics';
+import { useState } from 'react';
+import { StoriesProgress } from '../../shared/stories.mapper';
 
 export const epicDetailQuery = (orgId: string, epicId: number) =>
 	queryOptions({
@@ -39,6 +41,15 @@ export const loader = (queryClient: QueryClient) => {
 export const EpicDetails = () => {
 	const epic = useLoaderData() as Epic;
 	const orgId = useParams().orgId as string;
+	const [progress, setProgress] = useState<StoriesProgress>({
+		progress: 0,
+		completed: 0,
+		total: 0,
+	});
+
+	const handleSetProgress = (storiesProgress: StoriesProgress) => {
+		setProgress(storiesProgress);
+	};
 	return (
 		<>
 			<div className="flex space-x-4 pb-4">
@@ -126,8 +137,8 @@ export const EpicDetails = () => {
 
 								<CircularProgressbar
 									className="!w-48"
-									value={60}
-									text={`${60}% `}
+									value={progress.progress}
+									text={`${progress.progress.toFixed(2)}% `}
 									styles={buildStyles({
 										// Rotation of path and trail, in number of turns (0-1)
 										rotation: 0.25,
@@ -152,7 +163,7 @@ export const EpicDetails = () => {
 									})}
 								/>
 								<p className="text-gray-500 text-left mt-2">
-									0/20 Stories Completed
+									{progress.completed}/{progress.total} Stories Completed
 								</p>
 							</div>
 						</div>
@@ -161,7 +172,7 @@ export const EpicDetails = () => {
 			</div>
 
 			<br />
-			<EpicStories epic={epic} />
+			<EpicStories epic={epic} setProgress={handleSetProgress} />
 		</>
 	);
 };
