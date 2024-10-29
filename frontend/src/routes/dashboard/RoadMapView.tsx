@@ -42,7 +42,9 @@ const RoadmapView: React.FC = () => {
 					{epics.map((epic) => (
 						<Card
 							name={epic.name}
-							endDate={dayjs(epic.endDate).format('MMM DD, YYYY')}
+							endDate={
+								epic.endDate ? dayjs(epic.endDate).format('MMM DD, YYYY') : ''
+							}
 							progress={epic.progress}
 							epicId={epic.epicId}
 							startDate={epic.startDate}
@@ -66,10 +68,12 @@ const Card: React.FC<Epic> = ({ endDate, name, progress }) => (
 		{/* Member avatars and date */}
 		<div className="flex justify-between items-center mt-4">
 			{/* Date with calendar icon */}
-			<div className="flex items-center text-gray-400 text-sm ml-auto">
-				<CalendarMonth className="mr-1" />
-				<p>{endDate}</p>
-			</div>
+			{endDate && (
+				<div className="flex items-center text-gray-400 text-sm ml-auto">
+					<CalendarMonth className="mr-1" />
+					<p>{endDate}</p>
+				</div>
+			)}
 		</div>
 	</div>
 );
