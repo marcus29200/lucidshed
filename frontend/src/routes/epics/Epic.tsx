@@ -95,10 +95,14 @@ export const EpicDetails = () => {
 										<div className="mb-4">
 											<p className="text-gray-500">Estimated Completion</p>
 											<div className="flex items-center space-x-2">
-												<span className=" text-lg">
-													{epic && dayjs(epic.endDate).format('MMM DD, YYYY')}
-												</span>
-												<CalendarMonthRounded className="text-gray-400" />
+												{epic && epic.endDate && (
+													<>
+														<span className=" text-lg">
+															{dayjs(epic.endDate).format('MMM DD, YYYY')}
+														</span>
+														<CalendarMonthRounded className="text-gray-400" />
+													</>
+												)}
 											</div>
 										</div>
 
