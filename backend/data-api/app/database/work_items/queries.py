@@ -135,7 +135,8 @@ FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS 
 WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
-SELECT
+SELECT DISTINCT
+    $6,
     engineering_items.*,
     {LOAD_ITERATION},
     {LOAD_TEAM}

@@ -498,6 +498,33 @@ async def test_should_link_epic_to_story(data_app):
     assert result
 
 
+async def test_should_get_all_unique_linked_items(data_app):
+    org = await create_organization(data_app)
+    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    story_2 = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+
+    await data_app.engineering_controller.link(
+        organization_id=org.id,
+        item_1=epic.id,
+        item_2=story.id,
+        link_type=EngineeringLinkType.RELATED,
+        current_user="test@test.com"
+    )
+    await data_app.engineering_controller.link(
+        organization_id=org.id,
+        item_1=epic.id,
+        item_2=story_2.id,
+        link_type=EngineeringLinkType.RELATED,
+        current_user="test@test.com"
+    )
+
+    linked_items, _ = await data_app.engineering_controller.get_all(organization_id=org.id, item_type=EngineeringItemType.EPIC)
+
+    assert len(linked_items) == 1
+
+
 async def test_should_get_all_linked_items(data_app):
     org = await create_organization(data_app)
     epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
