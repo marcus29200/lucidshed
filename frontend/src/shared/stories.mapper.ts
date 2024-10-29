@@ -17,6 +17,6 @@ export const getStoriesProgress = (stories: Story[]): StoriesProgress => {
 			inProgress++;
 		}
 	});
-	const progress = ((completed + inProgress / 2) / total) * 100;
+	const progress = total ? ((completed + inProgress / 2) / total) * 100 : 0;
 	return { progress, completed, total };
 };
