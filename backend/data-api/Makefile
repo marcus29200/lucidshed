@@ -13,7 +13,10 @@ format:
 	$(POETRY) run mypy -p app
 
 api:
-	$(POETRY) run api
+	$(POETRY) run api  --env-file=.env
+
+test:
+	$(POETRY) run pytest -n auto
 
 coverage:
-	$(POETRY) run pytest --cov=app --cov-report=html
+	$(POETRY) run pytest -n auto --cov=app --cov-report=html

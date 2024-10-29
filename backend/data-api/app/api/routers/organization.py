@@ -1,4 +1,5 @@
 import logging
+from os.path import join
 from typing import Dict, List, Optional
 from uuid import uuid4
 
@@ -142,7 +143,7 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
         send_mail(
             user.email,
             "You've been invited to an organization",
-            f"Finish setting up your account, your verification code is {user.reset_code}",
+            f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=')}{user.reset_code}",
         )
 
         if settings.testing is True:
@@ -150,7 +151,6 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
     else:
         org = await request.app.organization_controller.get(id=organization_id)
 
-        # TODO Should be updated to send a link when the FE is ready
         send_mail(
             user.email,
             "You've been invited to an organization",

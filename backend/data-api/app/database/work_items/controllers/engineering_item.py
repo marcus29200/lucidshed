@@ -3,6 +3,7 @@ from typing import List, Optional, Tuple
 from app.api.settings import data_db
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
+from app.database.users.controllers.user import UserController
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -11,7 +12,6 @@ from app.database.work_items.models.engineering_item import (
     EngineeringLinkType,
 )
 from app.database.work_items.models.work_item import WorkItemSortableField
-from app.database.users.controllers.user import UserController
 
 
 class EngineeringController(WorkItemController):
