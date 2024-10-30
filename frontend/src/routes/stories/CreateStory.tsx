@@ -167,6 +167,7 @@ export const CreateStory = () => {
 							<FormControl
 								sx={{
 									width: '100%',
+									paddingBottom: '14px',
 								}}
 							>
 								<TextField

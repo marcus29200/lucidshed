@@ -296,7 +296,12 @@ export const Story = () => {
 				>
 					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 						<Grid item xs={8}>
-							<FormControl fullWidth>
+							<FormControl
+								fullWidth
+								sx={{
+									paddingBottom: '14px',
+								}}
+							>
 								<TextField
 									variant="outlined"
 									size="small"

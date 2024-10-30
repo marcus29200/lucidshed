@@ -12,7 +12,7 @@ const DescriptionRichEditor = ({ onChange, value }) => {
 		editorProps: {
 			attributes: {
 				class:
-					'flex flex-col px-4 py-3 justify-start border-b border-r border-l border-gray-700 items-start w-full gap-3  text-base pt-4 rounded-bl-md rounded-br-md outline-none',
+					'flex flex-col px-4 py-3 justify-start border-b border-r border-l border-gray-400 group-hover/editor:border-gray-600 items-start w-full gap-3  text-base pt-4 rounded-bl-xl rounded-br-xl outline-none',
 			},
 		},
 		onUpdate: ({ editor }) => {
@@ -22,7 +22,7 @@ const DescriptionRichEditor = ({ onChange, value }) => {
 	});
 
 	return (
-		<div className="w-full px-4">
+		<div className="w-full group/editor">
 			<Toolbar editor={editor} />
 			<EditorContent style={{ whiteSpace: 'pre-line' }} editor={editor} />
 		</div>
