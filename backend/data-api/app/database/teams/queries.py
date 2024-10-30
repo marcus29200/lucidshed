@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     {BASE_MODEL_FIELDS},
-    title VARCHAR({MAX_ID_LENGTH}),
+    title VARCHAR(256),
     description TEXT
 )
     """
