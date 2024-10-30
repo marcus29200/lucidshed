@@ -10,7 +10,7 @@ import ShedTable, { TableActions } from '../../components/Table';
 import { useMutation } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
-import { STORY_PRIORITY } from './stories.model';
+import { STORY_PRIORITY, STORY_STATUS } from './stories.model';
 import { queryClient } from '../../router';
 
 type StoryDataTableProps = {
@@ -122,6 +122,9 @@ const StoriesTable = ({
 					return <LinearProgressWithLabel value={progress} />;
 				},
 				Header: () => <span className="cursor-pointer">Progress</span>,
+				GroupedCell: ({ row }) => {
+					return STORY_STATUS[row.original.status ?? 'in-progress'];
+				},
 			},
 
 			{

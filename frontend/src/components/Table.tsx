@@ -1,3 +1,4 @@
+import { Chip } from '@mui/material';
 import {
 	MaterialReactTable,
 	MRT_Row,
@@ -39,51 +40,14 @@ const ShedTable = <T extends MRT_RowData>({
 	actionsEnabled = true,
 	tableId,
 }: ShedTableProps<T>) => {
-	const [sortedData, setSortedData] = useState<T[]>([]);
-
-	// sortOrder: true === 'desc', false === 'asc
-	const sortData = (data: T[], sortBy: string, sortOrder: boolean) => {
-		return [...data].sort((a, b) => {
-			if (typeof a[sortBy] === 'number' && typeof b[sortBy] === 'number') {
-				return (sortOrder ? 1 : -1) * (a[sortBy] - b[sortBy]);
-			}
-			const valueA = a[sortBy] ? String(a[sortBy]) : '';
-			const valueB = b[sortBy] ? String(b[sortBy]) : '';
-			if (valueA < valueB) return sortOrder ? 1 : -1;
-			if (valueA > valueB) return sortOrder ? -1 : 1;
-			return 0;
-		});
-	};
-
 	const initialActiveSorting = Object.keys(sortingStates)
 		.filter((key) => sortingStates[key] !== null)
 		.map((key) => ({ id: key, desc: sortingStates[key] as boolean }))
 		.slice(0, 1);
 	const [sorting, setSorting] = useState(initialActiveSorting);
+	const [grouping, setGrouping] = useState(['progress']);
 
 	useEffect(() => {
-		const activeSortingKey = Object.keys(sortingStates).find(
-			(key) => sortingStates[key] !== null
-		);
-
-		const dataToSort = filteredItems.slice(0); // Sort the filtered (searched) stories
-
-		if (activeSortingKey) {
-			const sorted = sortData(
-				dataToSort,
-				activeSortingKey,
-				sortingStates[activeSortingKey] as boolean
-			);
-
-			setSortedData(sorted);
-		} else {
-			setSortedData(dataToSort);
-		}
-	}, [sortingStates, filteredItems]);
-
-	useEffect(() => {
-		console.log(sorting);
-
 		if (sorting.length) {
 			localStorage.setItem(`${tableId}_sortKey`, sorting[0].id);
 			localStorage.setItem(
@@ -94,13 +58,19 @@ const ShedTable = <T extends MRT_RowData>({
 			localStorage.removeItem(`${tableId}_sortKey`);
 		}
 	}, [sorting]);
+	console.log(filteredItems);
 
 	const table: MRT_TableInstance<T> = useMaterialReactTable({
 		columns,
-		data: sortedData,
+		data: filteredItems,
 		onSortingChange: setSorting,
 		enableBottomToolbar: false,
 		enableTopToolbar: false,
+		enableColumnDragging: false,
+		enableColumnOrdering: false,
+		enableColumnFilterModes: false,
+		enableGlobalFilter: false,
+		enableHiding: false,
 		enableRowActions: actionsEnabled,
 		muiTableHeadProps: {
 			sx: {
@@ -126,17 +96,12 @@ const ShedTable = <T extends MRT_RowData>({
 				borderRadius: '12px',
 			},
 		},
-
+		enableGrouping: true,
 		initialState: {
-			showColumnFilters: false,
-			showGlobalFilter: true,
-			columnPinning: {
-				left: ['mrt-row-expand', 'mrt-row-select'],
-				right: ['mrt-row-actions'],
-			},
 			sorting: initialActiveSorting,
+			grouping: grouping,
 		},
-		state: { sorting },
+		state: { sorting, grouping },
 		enablePagination: false,
 		renderRowActionMenuItems: actions,
 		muiTableBodyRowProps: ({ row }) => ({
@@ -147,6 +112,7 @@ const ShedTable = <T extends MRT_RowData>({
 
 	return (
 		<div>
+			<Chip />
 			<MaterialReactTable table={table} />
 		</div>
 	);
