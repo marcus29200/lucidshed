@@ -35,6 +35,7 @@ import { linkStoryToEpic, Priority } from '../../api/epics';
 import { SubmitHandler, useController, useForm } from 'react-hook-form';
 import { createStory, updateStory } from '../../api/stories';
 import { queryClient } from '../../router';
+import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 
 type StoryFormProps = {
 	targetDate?: Date;
@@ -60,6 +61,7 @@ export const CreateStory = () => {
 	// we cannot use register('targetDate') in the mui datepicker
 	// due the type mismatch
 	const targetDateField = useController({ control, name: 'targetDate' });
+	const descriptionField = useController({ control, name: 'description' });
 
 	const [sprint, setSprint] = useState<Sprint | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
@@ -165,6 +167,7 @@ export const CreateStory = () => {
 							<FormControl
 								sx={{
 									width: '100%',
+									paddingBottom: '14px',
 								}}
 							>
 								<TextField
@@ -188,17 +191,10 @@ export const CreateStory = () => {
 									</small>
 								)}
 							</FormControl>
-							<TextField
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Description"
-								id="description"
-								{...register('description')}
-								multiline
-								minRows={8}
-							></TextField>
+							<DescriptionRichEditor
+								onChange={descriptionField.field.onChange}
+								value={descriptionField.field.value}
+							/>
 						</Grid>
 						<Grid
 							item

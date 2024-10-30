@@ -48,6 +48,7 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import EpicSearchInput from './EpicSearchInput';
 import { Epic } from '../epics/Epics';
 import { linkStoryToEpic, removeLinkStoryToEpic } from '../../api/epics';
+import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 
 let debounceTimeId;
 
@@ -295,7 +296,12 @@ export const Story = () => {
 				>
 					<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 						<Grid item xs={8}>
-							<FormControl fullWidth>
+							<FormControl
+								fullWidth
+								sx={{
+									paddingBottom: '14px',
+								}}
+							>
 								<TextField
 									variant="outlined"
 									size="small"
@@ -315,18 +321,9 @@ export const Story = () => {
 									</small>
 								)}
 							</FormControl>
-							<TextField
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Description"
-								id="description"
-								name="description"
-								multiline
-								minRows={8}
+							<DescriptionRichEditor
+								onChange={handleEditDescription}
 								value={description}
-								onChange={(e) => handleEditDescription(e.target.value)}
 							/>
 						</Grid>
 						<Grid
