@@ -33,7 +33,7 @@ class CheckinFrequency(StrEnum):
 
 
 class BaseWorkItem(BaseModel):
-    title: Optional[str] = Field("", max_length=40)
+    title: Optional[str] = Field("", max_length=256)
     description: Optional[str] = ""
     status: Optional[str] = None
     priority: Optional[Priority] = None

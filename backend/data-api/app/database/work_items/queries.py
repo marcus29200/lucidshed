@@ -7,7 +7,7 @@ BASE_WORK_ITEM_FIELDS = f"""
     id SERIAL PRIMARY KEY,
     organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     {BASE_MODEL_FIELDS},
-    title VARCHAR(40),
+    title VARCHAR(256),
     description TEXT,
     status VARCHAR(15),
     priority VARCHAR(15),
