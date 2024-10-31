@@ -21,7 +21,7 @@ curl --request POST \
   --header 'Content-Type: application/json' \
   --data '{
   "reset_code": "code from previous call",
-  "password": "Test password
+  "password": "Test password"
 }'
 ```
 You should get a 200 from this, now you can login
