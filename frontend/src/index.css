@@ -108,6 +108,7 @@ button:focus-visible {
 	scrollbar-color: #32c5ff #f0f0f0;
 }
 
+/* custom editor */
 .tiptap {
 	& h2 {
 		font-size: 20px;
@@ -130,5 +131,21 @@ button:focus-visible {
 	}
 	& li {
 		text-align: left;
+	}
+	& img {
+		display: block;
+		height: auto;
+		margin: 1.5rem 0;
+		max-width: 100%;
+
+		&.ProseMirror-selectednode {
+			outline: 3px solid #32c5ff;
+		}
+	}
+}
+
+@layer components {
+	.active-tiptap-style {
+		@apply !text-primary  !bg-primary/10;
 	}
 }
