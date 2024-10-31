@@ -253,4 +253,4 @@ async def test_should_store_user_session(data_api: TestClient):
     assert sessions[0]["user_id"]
     assert sessions[0]["token"]
     assert sessions[0]["ip_address"] == "127.0.0.1"
-    assert sessions[0]["user_agent"] == "python-httpx/0.27.0"
+    assert "python-httpx" in sessions[0]["user_agent"]

@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.12.5-slim
+FROM python:3.12.7-slim
 
 # Copy only the pyproject.toml and poetry.lock files to the container first
 COPY . /app
