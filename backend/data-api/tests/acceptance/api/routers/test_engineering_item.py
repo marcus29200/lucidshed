@@ -177,7 +177,7 @@ async def test_should_not_get_engineering_item_with_expired_token(data_api: Test
     assert response.status_code == 401
 
 
-async def test_get_engineering_item_should_include_iteration_details(data_api: TestClient):
+async def test_should_get_engineering_item_and_include_iteration_details(data_api: TestClient):
     org, _, headers = await authenticate(data_api)
 
     iteration = await add_iteration(data_api, org["id"], headers=headers)
