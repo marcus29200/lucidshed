@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from app.api.settings import data_db
-from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.controllers.history import HistoryController
 from app.database.history.models.history import BaseHistory
@@ -46,43 +45,8 @@ class WorkItemController:
     ) -> Tuple[List[Any], str | None]:
         raise NotImplementedError()
 
-    # TODO this probably doesn't belong as a shared function
-    async def _get_all(
-        self,
-        *,
-        organization_id: str,
-        scope: str,
-        sort: Optional[str] = "id",
-        item_type: Optional[str] = None,
-        iteration_id: Optional[str] = None,
-        related_item_id: Optional[int] = None,
-        assigned_to_id: Optional[str] = None,
-        limit: Optional[int] = 1000,
-        cursor: Optional[str] = None,
-    ) -> Tuple[List[Dict[str, Any]], str | None]:
-        offset = 0
-        if cursor:
-            sort, offset, extra = parse_cursor(cursor)
-
-            item_type = extra.get("item_type") or item_type
-
-        records = await data_db.get().fetch(
-            QUERIES[f"GET_ALL_{scope}_ITEM"],
-            organization_id,
-            item_type,
-            iteration_id,
-            related_item_id,
-            assigned_to_id,
-            sort,
-            limit,
-            offset,
-        )
-
-        cursor = None
-        if len(records) == limit:
-            cursor = generate_cursor(sort, offset + limit, {"item_type": item_type})
-
-        return records, cursor
+    async def _get_all(self, **kwargs) -> Tuple[List[Dict[str, Any]], str | None]:
+        raise NotImplementedError()
 
     async def update(self, *, organization_id: str, id: int, updated_item: Any, current_user: str) -> Any:
         raise NotImplementedError()

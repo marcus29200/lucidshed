@@ -1,6 +1,7 @@
 from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
@@ -61,13 +62,22 @@ class SupportController(WorkItemController):
         if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
 
-        records, cursor = await super()._get_all(
-            organization_id=organization_id,
-            sort=sort.value if sort else WorkItemSortableField.ID.value,
-            limit=limit,
-            cursor=cursor,
-            scope="SUPPORT",
+        if cursor:
+            sort, offset, extra = parse_cursor(cursor)
+
+            item_type = extra.get("item_type") or item_type
+
+        records = await data_db.get().fetch(
+            QUERIES["GET_ALL_SUPPORT_ITEM"],
+            organization_id,
+            sort,
+            limit,
+            offset,
         )
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit, {"item_type": item_type})
 
         return [SupportItem(**record) for record in records], cursor
 

@@ -1,6 +1,7 @@
 from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.users.controllers.user import UserController
@@ -68,9 +69,9 @@ class EngineeringController(WorkItemController):
         *,
         organization_id: str,
         item_type: Optional[EngineeringItemType] = None,
-        iteration_id: Optional[str] = None,
+        iteration_id: Optional[int] = None,
         related_item_id: Optional[int] = None,
-        assigned_to_id: Optional[str] = None,
+        assigned_to_id: Optional[int] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -78,17 +79,33 @@ class EngineeringController(WorkItemController):
         if sort and sort not in WorkItemSortableField:
             raise Exception("Invalid sort parameter")
 
-        records, cursor = await super()._get_all(
-            organization_id=organization_id,
+        filter_conditions = determine_get_all_filter_conditions(
             item_type=item_type,
             iteration_id=iteration_id,
             related_item_id=related_item_id,
             assigned_to_id=assigned_to_id,
-            sort=sort.value if sort else WorkItemSortableField.ID.value,
-            limit=limit,
-            cursor=cursor,
-            scope="ENGINEERING",
         )
+
+        query: str = QUERIES["GET_ALL_ENGINEERING_ITEM"]
+        query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+
+        offset = 0
+        if cursor:
+            sort, offset, extra = parse_cursor(cursor)
+
+            item_type = extra.get("item_type") or item_type
+
+        records = await data_db.get().fetch(
+            query,
+            organization_id,
+            sort if sort else WorkItemSortableField.ID.value,
+            limit,
+            offset,
+        )
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit, {"item_type": item_type})
 
         return [EngineeringItem(**record) for record in records], cursor
 
@@ -158,3 +175,31 @@ class EngineeringController(WorkItemController):
         )
 
         return result == "DELETE 1"
+
+
+def determine_get_all_filter_conditions(
+    item_type: Optional[EngineeringItemType] = None,
+    iteration_id: Optional[int] = None,
+    related_item_id: Optional[int] = None,
+    assigned_to_id: Optional[int] = None,
+) -> List[str]:
+    filter_conditions = []
+    if item_type is not None:
+        filter_conditions.append(f"engineering_items.item_type = '{item_type.value}'")
+    if iteration_id is not None:
+        if iteration_id == -1:
+            filter_conditions.append("engineering_items.iteration_id IS NULL")
+        else:
+            filter_conditions.append(f"engineering_items.iteration_id = '{iteration_id}'")
+    if related_item_id is not None:
+        filter_conditions.append(
+            f"work_item_relationships.item_1 = '{related_item_id}' OR work_item_relationships.item_2 = '{related_item_id}'"  # noqa
+        )
+        filter_conditions.append(f"engineering_items.id != '{related_item_id}'")
+    if assigned_to_id is not None:
+        if assigned_to_id == -1:
+            filter_conditions.append("engineering_items.assigned_to_id IS NULL")
+        else:
+            filter_conditions.append(f"engineering_items.assigned_to_id = '{assigned_to_id}'")
+
+    return filter_conditions

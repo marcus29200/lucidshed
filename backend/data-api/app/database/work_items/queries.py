@@ -136,7 +136,7 @@ WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
 SELECT DISTINCT
-    $6,
+    $2,
     engineering_items.*,
     {LOAD_ITERATION},
     {LOAD_TEAM}
@@ -147,14 +147,10 @@ LEFT JOIN work_item_relationships
 WHERE
     engineering_items.organization_id = $1
     AND engineering_items.deleted_at IS NULL
-    AND ($2::text IS NULL OR engineering_items.item_type = $2)
-    AND ($3::int IS NULL OR engineering_items.iteration_id = $3)
-    AND ($4::int IS NULL OR (work_item_relationships.item_1 = $4 OR work_item_relationships.item_2 = $4))
-    AND ($4::int IS NULL OR engineering_items.id != $4)
-    AND ($5::text IS NULL OR engineering_items.assigned_to_id = $5)
-ORDER BY $6
-LIMIT $7
-OFFSET $8;
+    $FILTER_CONDITIONS
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
 """
 
 

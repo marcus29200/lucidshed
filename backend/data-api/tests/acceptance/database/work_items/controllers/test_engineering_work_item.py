@@ -510,17 +510,19 @@ async def test_should_get_all_unique_linked_items(data_app):
         item_1=epic.id,
         item_2=story.id,
         link_type=EngineeringLinkType.RELATED,
-        current_user="test@test.com"
+        current_user="test@test.com",
     )
     await data_app.engineering_controller.link(
         organization_id=org.id,
         item_1=epic.id,
         item_2=story_2.id,
         link_type=EngineeringLinkType.RELATED,
-        current_user="test@test.com"
+        current_user="test@test.com",
     )
 
-    linked_items, _ = await data_app.engineering_controller.get_all(organization_id=org.id, item_type=EngineeringItemType.EPIC)
+    linked_items, _ = await data_app.engineering_controller.get_all(
+        organization_id=org.id, item_type=EngineeringItemType.EPIC
+    )
 
     assert len(linked_items) == 1
 
