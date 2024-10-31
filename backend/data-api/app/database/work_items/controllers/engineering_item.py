@@ -184,18 +184,22 @@ def determine_get_all_filter_conditions(
     assigned_to_id: Optional[str] = None,
 ) -> List[str]:
     filter_conditions = []
+    
     if item_type is not None:
         filter_conditions.append(f"engineering_items.item_type = '{item_type.value}'")
+
     if iteration_id is not None:
         if iteration_id == -1:
             filter_conditions.append("engineering_items.iteration_id IS NULL")
         else:
             filter_conditions.append(f"engineering_items.iteration_id = {iteration_id}")
+
     if related_item_id is not None:
         filter_conditions.append(
             f"(work_item_relationships.item_1 = {related_item_id} OR work_item_relationships.item_2 = {related_item_id})"  # noqa
         )
         filter_conditions.append(f"engineering_items.id != {related_item_id}")
+
     if assigned_to_id is not None:
         if assigned_to_id == -1:
             filter_conditions.append("engineering_items.assigned_to_id IS NULL")
