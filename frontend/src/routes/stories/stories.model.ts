@@ -83,6 +83,12 @@ export const STORY_STATUS_PROGRESS = {
 	done: 100,
 } as const;
 export const STORY_PRIORITY = {
+	critical: 'Critical',
+	high: 'High',
+	medium: 'Medium',
+	low: 'Small',
+} as const;
+export const STORY_PRIORITY_MAPPER = {
 	'1': 'Critical',
 	'2': 'High',
 	'3': 'Medium',
@@ -94,3 +100,16 @@ export const STORY_PRIORITY_VALUE = {
 	medium: 3,
 	low: 4,
 } as const;
+
+export const GROUP_STORIES_OPTIONS = [
+	{
+		label: 'Status',
+		value: 'statusLabel',
+	},
+	{
+		label: 'Priority',
+		value: 'priorityLabel',
+	},
+];
+
+export type GroupStoriesOption = 'statusLabel' | 'priorityLabel';

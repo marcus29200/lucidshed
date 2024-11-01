@@ -1,0 +1,73 @@
+import { Button, Menu, Switch, FormControlLabel } from '@mui/material';
+import { useState } from 'react';
+
+const GroupByButton = ({
+	options,
+	setSelectedItem,
+	selectItem,
+}: {
+	options: { label: string; value: string }[];
+	setSelectedItem: React.Dispatch<React.SetStateAction<string | undefined>>;
+	selectItem: string | undefined;
+}) => {
+	const [anchorMenuEl, setAnchorMenuEl] = useState<null | HTMLElement>(null);
+
+	const handleClickMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+		setAnchorMenuEl(event.currentTarget);
+	};
+
+	const handleCloseMenu = () => {
+		setAnchorMenuEl(null);
+	};
+
+	return (
+		<>
+			<Button
+				variant="outlined"
+				onClick={handleClickMenu}
+				sx={{
+					paddingX: '76px',
+					borderRadius: '10px',
+					fontFamily: 'Poppins, sans-serif',
+					paddingY: '13px',
+					fontSize: '16px',
+				}}
+			>
+				<span>
+					Group by
+					{selectItem && (
+						<>: {options.find((opt) => opt.value === selectItem)?.label}</>
+					)}
+				</span>
+			</Button>
+			<Menu
+				anchorEl={anchorMenuEl}
+				open={Boolean(anchorMenuEl)}
+				onClose={handleCloseMenu}
+				slotProps={{
+					paper: {
+						style: {
+							width: '290px',
+							padding: '10px',
+						},
+					},
+				}}
+			>
+				{/* Menu Items with Checkboxes */}
+				{options.map((item) => (
+					<FormControlLabel
+						control={
+							<Switch
+								checked={item.value === selectItem}
+								onChange={() => setSelectedItem(item.value)}
+							/>
+						}
+						label={item.label}
+					/>
+				))}
+			</Menu>
+		</>
+	);
+};
+
+export default GroupByButton;

@@ -1,14 +1,23 @@
 import { Box, Button, MenuItem } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import EditFieldsButton from '../../components/EditFieldsButton';
 import TableFiltersButton from '../../components/TableFiltersButton';
 import { SearchIcon } from '../../icons/icons';
 import { Story } from '../stories/Stories';
 import StoriesTable from '../stories/StoriesTable';
-import { getStoredSortState } from '../../shared/table.utils';
+import {
+	getStoredGroupByOption,
+	getStoredSortState,
+	setStoredGroupByOption,
+} from '../../shared/table.utils';
 import { TableActions } from '../../components/Table';
 import { ConfirmationDialog } from '../../components/DeleteDialog';
+import GroupByButton from '../../components/GroupByButton';
+import {
+	GROUP_STORIES_OPTIONS,
+	GroupStoriesOption,
+} from '../stories/stories.model';
 
 const tableColumnIds = [
 	'name',
@@ -65,6 +74,15 @@ const SprintStoryTable = ({
 		useState<string[]>(tableColumnIds);
 
 	const filterItems = ['Select All', ...stories.map((story) => story.name)];
+
+	const initialGroupBy = getStoredGroupByOption(SPRINT_STORIES_TABLE_ID);
+	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
+
+	useEffect(() => {
+		if (groupBy) {
+			setStoredGroupByOption(SPRINT_STORIES_TABLE_ID, groupBy as string);
+		}
+	}, [groupBy]);
 
 	const actions: TableActions<Story> = ({ row, closeMenu }) => [
 		<MenuItem
@@ -160,8 +178,17 @@ const SprintStoryTable = ({
 					</Box>
 				</Box>
 			</Box>
-
+			{visibleRows.length && (
+				<div className="text-left">
+					<GroupByButton
+						options={GROUP_STORIES_OPTIONS}
+						selectItem={groupBy}
+						setSelectedItem={setGroupBy}
+					/>
+				</div>
+			)}
 			<StoriesTable
+				group={groupBy as GroupStoriesOption}
 				tableId={SPRINT_STORIES_TABLE_ID}
 				initialSorting={sortingStates}
 				stories={visibleRows}
