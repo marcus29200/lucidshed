@@ -119,7 +119,7 @@ const BacklogStoriesTable = ({
 			}}
 			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 		>
-			Move to selected sprint
+			Move to "{selectedSprint.title}"
 		</MenuItem>,
 	];
 	if (!visibleRows.length) {
