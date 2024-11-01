@@ -215,3 +215,25 @@ export const getRelatedEpic = async (
 	const epic = results?.items[0];
 	return epic ? mapEpic(epic) : null;
 };
+
+export const getStoriesWithoutIteration = async (
+	orgId: string,
+	search?: string
+): Promise<Story[]> => {
+	let url = `${BASE_URL}/${orgId}/engineering?item_type=story&iteration_id=-1`;
+	if (search) {
+		url += `&search=${search}`;
+	}
+
+	const res = await fetch(url, {
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+
+	const results = await res.json();
+	return results?.items.map(mapRawStory);
+};

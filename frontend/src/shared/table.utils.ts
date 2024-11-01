@@ -24,10 +24,14 @@ export const getStoredGroupByOption = (tableId: string): string | undefined => {
 
 export const setStoredGroupByOption = (
 	tableId: string,
-	value: string
+	value?: string
 ): void => {
 	try {
-		localStorage.setItem(`${tableId}_groupOption`, value);
+		if (value) {
+			localStorage.setItem(`${tableId}_groupOption`, value);
+			return;
+		}
+		localStorage.removeItem(`${tableId}_groupOption`);
 	} catch (e) {
 		console.error(e);
 	}

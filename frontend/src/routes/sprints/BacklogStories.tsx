@@ -1,8 +1,6 @@
-import { Box, Button, MenuItem } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
 import EditFieldsButton from '../../components/EditFieldsButton';
-import TableFiltersButton from '../../components/TableFiltersButton';
 import { SearchIcon } from '../../icons/icons';
 import { Story } from '../stories/Stories';
 import StoriesTable from '../stories/StoriesTable';
@@ -11,13 +9,20 @@ import {
 	getStoredSortState,
 	setStoredGroupByOption,
 } from '../../shared/table.utils';
-import { TableActions } from '../../components/Table';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
 import GroupByButton from '../../components/GroupByButton';
 import {
 	GROUP_STORIES_OPTIONS,
 	GroupStoriesOption,
 } from '../stories/stories.model';
+import { useQuery } from '@tanstack/react-query';
+import {
+	getStoriesWithoutIteration,
+	mapRawStory,
+	updateStory,
+} from '../../api/stories';
+import { useParams } from 'react-router-dom';
+import { TableActions } from '../../components/Table';
+import { Sprint } from '../../api/sprints';
 
 const tableColumnIds = [
 	'name',
@@ -28,14 +33,16 @@ const tableColumnIds = [
 	'targetDate',
 ];
 
-const SPRINT_STORIES_TABLE_ID = 'sprint-stories-table';
+const BACKLOG_STORIES_TABLE_ID = 'backlog-stories-table';
 
-const SprintStoryTable = ({
-	stories,
-	handleRemoveStory,
+const BacklogStoriesTable = ({
+	removedStory,
+	setAddedStory,
+	selectedSprint,
 }: {
-	stories: Story[];
-	handleRemoveStory: (storyId: number) => void;
+	removedStory: Story | undefined;
+	setAddedStory: React.Dispatch<React.SetStateAction<Story | undefined>>;
+	selectedSprint: Sprint;
 }) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -46,7 +53,7 @@ const SprintStoryTable = ({
 		priority: null,
 		status: null,
 	};
-	const initialSorting = getStoredSortState(SPRINT_STORIES_TABLE_ID);
+	const initialSorting = getStoredSortState(BACKLOG_STORIES_TABLE_ID);
 	if (Object.keys(initialSorting).length) {
 		for (const key in sortStates) {
 			if (Object.prototype.hasOwnProperty.call(sortStates, key)) {
@@ -62,54 +69,66 @@ const SprintStoryTable = ({
 		[key: string]: boolean | null;
 	}>(sortStates);
 	const [searchTerm, setSearchTerm] = useState('');
-	const [openDialog, setOpenDialog] = useState(false);
+
 	const orgId = useParams().orgId as string;
 
-	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
-
+	const { data } = useQuery({
+		queryKey: ['storiesWithoutIteration'],
+		queryFn: async () => getStoriesWithoutIteration(orgId),
+	});
+	const stories = data ?? [];
 	const visibleRows: Story[] = [...stories].filter((story) =>
 		story.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 	const [editFieldsCheckedItems, setEditFieldsCheckedItems] =
 		useState<string[]>(tableColumnIds);
 
-	const filterItems = ['Select All', ...stories.map((story) => story.name)];
-
-	const initialGroupBy = getStoredGroupByOption(SPRINT_STORIES_TABLE_ID);
+	const initialGroupBy = getStoredGroupByOption(BACKLOG_STORIES_TABLE_ID);
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
 
 	useEffect(() => {
-		setStoredGroupByOption(SPRINT_STORIES_TABLE_ID, groupBy as string);
+		setStoredGroupByOption(BACKLOG_STORIES_TABLE_ID, groupBy);
 	}, [groupBy]);
+
+	useEffect(() => {
+		if (removedStory) {
+			stories.push(removedStory);
+		}
+	}, [removedStory]);
+
+	const handleAddStory = (storyId: number) => {
+		updateStory({
+			orgId,
+			storyId,
+			data: { iteration_id: selectedSprint.id },
+		}).then((story) => {
+			setAddedStory(() => mapRawStory(story));
+			const toRemove = stories.findIndex((s) => s.storyId === storyId);
+			if (toRemove !== -1) {
+				stories.splice(toRemove, 1);
+			}
+		});
+	};
 
 	const actions: TableActions<Story> = ({ row, closeMenu }) => [
 		<MenuItem
 			key={`${row.original.storyId}-0`}
 			onClick={() => {
 				closeMenu();
-				handleRemoveStory(row.original.storyId);
+				handleAddStory(row.original.storyId);
 			}}
-			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif', color: 'red' }}
+			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 		>
-			Remove from sprint
+			Move to selected sprint
 		</MenuItem>,
-		<div>
-			{/* Dialog box */}
-			<ConfirmationDialog
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
-				onConfirm={() => {
-					closeMenu();
-					handleRemoveStory(row.original.storyId);
-				}}
-				children={
-					<span className="text-neutral-regular text-base">
-						Are you sure you want to remove this story from ?
-					</span>
-				}
-			/>
-		</div>,
 	];
+	if (!visibleRows.length) {
+		return (
+			<div className="text-neutral-regular italic pb-4">
+				No stories in backlog
+			</div>
+		);
+	}
 
 	return (
 		<div>
@@ -143,36 +162,12 @@ const SprintStoryTable = ({
 								}}
 							/>
 						</div>
-						{/* filters  */}
-						<TableFiltersButton
-							filterItems={filterItems}
-							filterCheckedItems={filterCheckedItems}
-							setFilterCheckedItems={setFilterCheckedItems}
+						{/* edit fields */}
+						<EditFieldsButton
+							fields={tableColumnIds}
+							setEditFieldsCheckedItems={setEditFieldsCheckedItems}
+							editFieldsCheckedItems={editFieldsCheckedItems}
 						/>
-						{/* create epic and edit fields button */}
-						<div className="grid gap-2">
-							{/* Navigation to new story flow */}
-							<Link to={`/${orgId}/stories/new`}>
-								<Button
-									variant="contained"
-									sx={{
-										paddingX: '70px',
-										borderRadius: '10px',
-										fontFamily: 'Poppins, sans-serif',
-										paddingY: '13px',
-										fontSize: '16px',
-									}}
-								>
-									Create Story
-								</Button>
-							</Link>
-							{/* edit fields */}
-							<EditFieldsButton
-								fields={tableColumnIds}
-								setEditFieldsCheckedItems={setEditFieldsCheckedItems}
-								editFieldsCheckedItems={editFieldsCheckedItems}
-							/>
-						</div>
 					</Box>
 				</Box>
 			</Box>
@@ -187,7 +182,7 @@ const SprintStoryTable = ({
 			)}
 			<StoriesTable
 				group={groupBy as GroupStoriesOption}
-				tableId={SPRINT_STORIES_TABLE_ID}
+				tableId={BACKLOG_STORIES_TABLE_ID}
 				initialSorting={sortingStates}
 				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
@@ -197,4 +192,4 @@ const SprintStoryTable = ({
 	);
 };
 
-export default SprintStoryTable;
+export default BacklogStoriesTable;

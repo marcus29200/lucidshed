@@ -62,9 +62,7 @@ export const Stories = () => {
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
 
 	useEffect(() => {
-		if (groupBy) {
-			setStoredGroupByOption(BASE_STORIES_TABLE_ID, groupBy as string);
-		}
+		setStoredGroupByOption(BASE_STORIES_TABLE_ID, groupBy);
 	}, [groupBy]);
 
 	return (
@@ -133,7 +131,7 @@ export const Stories = () => {
 					</Box>
 				</Box>
 			</Box>
-			{visibleRows.length && (
+			{!!visibleRows.length && (
 				<div className="text-left">
 					<GroupByButton
 						options={GROUP_STORIES_OPTIONS}

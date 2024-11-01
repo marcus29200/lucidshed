@@ -88,10 +88,9 @@ const EpicStories = ({
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
 
 	useEffect(() => {
-		if (groupBy) {
-			setStoredGroupByOption(EPIC_STORIES_TABLE_ID, groupBy as string);
-		}
+		setStoredGroupByOption(EPIC_STORIES_TABLE_ID, groupBy as string);
 	}, [groupBy]);
+
 	useEffect(() => {
 		setProgress(getStoriesProgress(stories));
 	}, [stories]);
@@ -169,7 +168,7 @@ const EpicStories = ({
 						</Box>
 					</Box>
 				</Box>
-				{filteredItems.length && (
+				{!!filteredItems.length && (
 					<div className="text-left">
 						<GroupByButton
 							options={GROUP_STORIES_OPTIONS}

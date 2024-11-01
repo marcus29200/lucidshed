@@ -276,7 +276,7 @@ const StoriesTable = ({
 					return (
 						<div key={key} className="mt-4">
 							<Typography
-								variant="h5"
+								variant="h6"
 								textAlign="left"
 								padding="10px 0"
 								fontWeight="semibold"

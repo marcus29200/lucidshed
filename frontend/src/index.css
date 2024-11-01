@@ -110,6 +110,7 @@ button:focus-visible {
 
 /* custom editor */
 .tiptap {
+	text-align: left;
 	& h2 {
 		font-size: 20px;
 	}

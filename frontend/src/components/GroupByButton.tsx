@@ -59,7 +59,12 @@ const GroupByButton = ({
 						control={
 							<Switch
 								checked={item.value === selectItem}
-								onChange={() => setSelectedItem(item.value)}
+								onChange={() => {
+									setSelectedItem(() =>
+										item.value !== selectItem ? item.value : undefined
+									);
+									handleCloseMenu();
+								}}
 							/>
 						}
 						label={item.label}
