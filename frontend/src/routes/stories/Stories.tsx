@@ -5,10 +5,19 @@ import { mapRawStory, StoryAPI } from '../../api/stories';
 import StoriesTable from './StoriesTable';
 import { SearchIcon } from '../../icons/icons';
 import EditFieldsButton from '../../components/EditFieldsButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TableFiltersButton from '../../components/TableFiltersButton';
-import { StoryStatus } from './stories.model';
-import { getStoredSortState } from '../../shared/table.utils';
+import {
+	GROUP_STORIES_OPTIONS,
+	GroupStoriesOption,
+	StoryStatus,
+} from './stories.model';
+import {
+	getStoredGroupByOption,
+	getStoredSortState,
+	setStoredGroupByOption,
+} from '../../shared/table.utils';
+import GroupByButton from '../../components/GroupByButton';
 
 export type Story = {
 	storyId: number;
@@ -17,11 +26,13 @@ export type Story = {
 	startDate: Date | null;
 	progress: number;
 	assignedToId?: string;
-	status?: StoryStatus;
+	status: StoryStatus;
 	orgId: string;
 	createdDate: Date;
 	modifiedDate: Date;
-	priority?: number; // 1 - critical 2 - high 3 - medium 4 - low
+	priority: number; // 1 - critical 2 - high 3 - medium 4 - low
+	priorityLabel: string;
+	statusLabel: string;
 };
 const tableColumnIds = [
 	'name',
@@ -47,6 +58,14 @@ export const Stories = () => {
 
 	const filterItems = ['Select All', ...stories.map((story) => story.name)];
 	const initialSorting = getStoredSortState(BASE_STORIES_TABLE_ID);
+	const initialGroupBy = getStoredGroupByOption(BASE_STORIES_TABLE_ID);
+	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
+
+	useEffect(() => {
+		if (groupBy) {
+			setStoredGroupByOption(BASE_STORIES_TABLE_ID, groupBy as string);
+		}
+	}, [groupBy]);
 
 	return (
 		<FullHeightSection className="bg-white p-4 shadow !rounded-lg flex flex-col font-poppins">
@@ -114,8 +133,17 @@ export const Stories = () => {
 					</Box>
 				</Box>
 			</Box>
-
+			{visibleRows.length && (
+				<div className="text-left">
+					<GroupByButton
+						options={GROUP_STORIES_OPTIONS}
+						selectItem={groupBy}
+						setSelectedItem={setGroupBy}
+					/>
+				</div>
+			)}
 			<StoriesTable
+				group={groupBy as GroupStoriesOption}
 				tableId={BASE_STORIES_TABLE_ID}
 				initialSorting={initialSorting}
 				stories={visibleRows}

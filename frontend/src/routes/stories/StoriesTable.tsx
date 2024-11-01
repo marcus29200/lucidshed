@@ -1,4 +1,4 @@
-import { MenuItem } from '@mui/material';
+import { MenuItem, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { Story } from './Stories';
 import { MRT_Row, MRT_ColumnDef } from 'material-react-table';
@@ -10,7 +10,7 @@ import ShedTable, { TableActions } from '../../components/Table';
 import { useMutation } from '@tanstack/react-query';
 import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
-import { STORY_PRIORITY } from './stories.model';
+import { STORY_PRIORITY_MAPPER } from './stories.model';
 import { queryClient } from '../../router';
 
 type StoryDataTableProps = {
@@ -22,6 +22,7 @@ type StoryDataTableProps = {
 	};
 	tableId: string;
 	parentActions?: TableActions<Story>;
+	group?: 'statusLabel' | 'priorityLabel';
 };
 
 const StoriesTable = ({
@@ -31,6 +32,7 @@ const StoriesTable = ({
 	initialSorting,
 	tableId,
 	parentActions,
+	group,
 }: StoryDataTableProps) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -94,6 +96,12 @@ const StoriesTable = ({
 	};
 	// State to hold the filtered stories (including searched stories)
 	const [filteredStories, setFilteredStories] = useState<Story[]>(stories);
+	// group stories by status
+	let groupedStories = {};
+	if (group) {
+		groupedStories = Object.groupBy(filteredStories, (item) => item[group]);
+	}
+	console.log(groupedStories);
 
 	const handleRowClicked = (story: Story) => {
 		navigate(`/${orgId}/stories/${story.storyId}`);
@@ -107,7 +115,7 @@ const StoriesTable = ({
 				id: 'name',
 				header: 'Story Name',
 				size: 100,
-				enableColumnActions: false,
+				enableColumnActions: true,
 				Header: () => <span className="cursor-pointer">Story Name</span>,
 			},
 			{
@@ -116,6 +124,7 @@ const StoriesTable = ({
 				header: 'Progress',
 				size: 200,
 				enableColumnActions: false,
+				enableColumnFilter: false,
 				Cell: ({ cell }) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
 
@@ -129,7 +138,7 @@ const StoriesTable = ({
 				id: 'storyId',
 				header: 'Story ID',
 				size: 200,
-				enableColumnActions: false,
+				enableColumnActions: true,
 				Header: () => <span className="cursor-pointer">Story ID</span>,
 			},
 			{
@@ -138,9 +147,10 @@ const StoriesTable = ({
 				header: 'Priority',
 				size: 200,
 				enableColumnActions: false,
+				enableColumnFilter: false,
 				Header: () => <span className="cursor-pointer">Priority</span>,
 				Cell: ({ cell }) => {
-					return STORY_PRIORITY[cell.getValue<string>()] ?? 'Small';
+					return STORY_PRIORITY_MAPPER[cell.getValue<string>()] ?? 'Small';
 				},
 			},
 
@@ -149,7 +159,7 @@ const StoriesTable = ({
 				id: 'startDate',
 				header: 'Start Date',
 				size: 150,
-				enableColumnActions: false,
+				enableColumnActions: true,
 				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
@@ -164,7 +174,7 @@ const StoriesTable = ({
 				id: 'targetDate',
 				header: 'Target Date',
 				size: 150,
-				enableColumnActions: false,
+				enableColumnActions: true,
 				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
@@ -258,17 +268,53 @@ const StoriesTable = ({
 		</div>,
 	];
 
+	if (Object.keys(groupedStories).length) {
+		return (
+			<>
+				{Object.keys(groupedStories).map((key) => {
+					const stories = groupedStories[key];
+					return (
+						<div key={key} className="mt-4">
+							<Typography
+								variant="h5"
+								textAlign="left"
+								padding="10px 0"
+								fontWeight="semibold"
+							>
+								{key}
+							</Typography>
+
+							<ShedTable
+								tableId={tableId}
+								columns={columns}
+								columFiltersEnabled={true}
+								filteredItems={stories}
+								setSortingStates={setSortingStates}
+								actions={parentActions ?? actions}
+								sortingStates={sortingStates}
+								handleRowClicked={handleRowClicked}
+								actionsEnabled={actionsEnabled}
+							/>
+						</div>
+					);
+				})}
+			</>
+		);
+	}
+
 	return (
-		<ShedTable
-			tableId={tableId}
-			columns={columns}
-			filteredItems={filteredStories}
-			setSortingStates={setSortingStates}
-			actions={parentActions ?? actions}
-			sortingStates={sortingStates}
-			handleRowClicked={handleRowClicked}
-			actionsEnabled={actionsEnabled}
-		/>
+		<>
+			<ShedTable
+				tableId={tableId}
+				columns={columns}
+				filteredItems={filteredStories}
+				setSortingStates={setSortingStates}
+				actions={parentActions ?? actions}
+				sortingStates={sortingStates}
+				handleRowClicked={handleRowClicked}
+				actionsEnabled={actionsEnabled}
+			/>
+		</>
 	);
 };
 

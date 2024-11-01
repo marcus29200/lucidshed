@@ -14,7 +14,16 @@ import {
 	getStoriesProgress,
 	StoriesProgress,
 } from '../../shared/stories.mapper';
-import { getStoredSortState } from '../../shared/table.utils';
+import {
+	getStoredGroupByOption,
+	getStoredSortState,
+	setStoredGroupByOption,
+} from '../../shared/table.utils';
+import GroupByButton from '../../components/GroupByButton';
+import {
+	GROUP_STORIES_OPTIONS,
+	GroupStoriesOption,
+} from '../stories/stories.model';
 const tableColumnIds = [
 	'name',
 	'progress',
@@ -75,6 +84,14 @@ const EpicStories = ({
 		? ['Select All', ...stories.map((epic) => epic.name)]
 		: [];
 
+	const initialGroupBy = getStoredGroupByOption(EPIC_STORIES_TABLE_ID);
+	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
+
+	useEffect(() => {
+		if (groupBy) {
+			setStoredGroupByOption(EPIC_STORIES_TABLE_ID, groupBy as string);
+		}
+	}, [groupBy]);
 	useEffect(() => {
 		setProgress(getStoriesProgress(stories));
 	}, [stories]);
@@ -152,8 +169,17 @@ const EpicStories = ({
 						</Box>
 					</Box>
 				</Box>
-
+				{filteredItems.length && (
+					<div className="text-left">
+						<GroupByButton
+							options={GROUP_STORIES_OPTIONS}
+							selectItem={groupBy}
+							setSelectedItem={setGroupBy}
+						/>
+					</div>
+				)}
 				<StoriesTable
+					group={groupBy as GroupStoriesOption}
 					tableId={EPIC_STORIES_TABLE_ID}
 					initialSorting={sortingStates}
 					stories={filteredItems}

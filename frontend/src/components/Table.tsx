@@ -27,6 +27,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	actionsEnabled?: boolean;
 	sortingStateEnabled?: boolean;
 	tableId: string;
+	columFiltersEnabled?: boolean;
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -38,6 +39,7 @@ const ShedTable = <T extends MRT_RowData>({
 	handleRowClicked,
 	actionsEnabled = true,
 	tableId,
+	columFiltersEnabled = false,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 
@@ -128,8 +130,7 @@ const ShedTable = <T extends MRT_RowData>({
 		},
 
 		initialState: {
-			showColumnFilters: false,
-			showGlobalFilter: true,
+			showColumnFilters: columFiltersEnabled,
 			columnPinning: {
 				left: ['mrt-row-expand', 'mrt-row-select'],
 				right: ['mrt-row-actions'],

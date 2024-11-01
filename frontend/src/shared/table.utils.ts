@@ -11,3 +11,24 @@ export const getStoredSortState = (
 		return {};
 	}
 };
+
+export const getStoredGroupByOption = (tableId: string): string | undefined => {
+	try {
+		const storedGroupOption = localStorage.getItem(`${tableId}_groupOption`);
+		if (!storedGroupOption) return;
+		return storedGroupOption;
+	} catch (e) {
+		console.error(e);
+	}
+};
+
+export const setStoredGroupByOption = (
+	tableId: string,
+	value: string
+): void => {
+	try {
+		localStorage.setItem(`${tableId}_groupOption`, value);
+	} catch (e) {
+		console.error(e);
+	}
+};

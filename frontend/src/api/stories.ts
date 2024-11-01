@@ -2,7 +2,9 @@ import { BASE_URL } from '../environment';
 import { Epic } from '../routes/epics/Epics';
 import { Story } from '../routes/stories/Stories';
 import {
+	STORY_PRIORITY,
 	STORY_PRIORITY_VALUE,
+	STORY_STATUS,
 	STORY_STATUS_PROGRESS,
 	StoryStatus,
 } from '../routes/stories/stories.model';
@@ -30,7 +32,7 @@ export type StoryAPI = {
 	title: string;
 	description: string;
 	status: StoryStatus;
-	priority?: Priority;
+	priority: Priority;
 	estimated_completion_date: Date;
 	checkin_frequency: string | null;
 	starred: boolean;
@@ -64,10 +66,12 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		startDate: rawStory.start_date,
 		assignedToId: rawStory.assigned_to_id,
 		status: rawStory.status,
+		statusLabel: STORY_STATUS[rawStory.status],
 		orgId: rawStory.organization_id,
 		priority: STORY_PRIORITY_VALUE[rawStory.priority ?? 'low'],
 		createdDate: rawStory.created_at,
 		modifiedDate: rawStory.modified_at,
+		priorityLabel: STORY_PRIORITY[rawStory.priority] ?? 'Small',
 	};
 };
 
