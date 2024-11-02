@@ -21,7 +21,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
 		progress: null,
-		epicId: null,
+		id: null,
 		startDate: null,
 		endDate: null,
 	};
@@ -56,10 +56,10 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	}, [epics]);
 	const handleDelete = () => {
 		if (rowToDelete) {
-			const epicIdToDelete = rowToDelete.original.epicId;
+			const epicIdToDelete = rowToDelete.original.id;
 			deleteEpic({ orgId, epicId: epicIdToDelete }).then(() => {
 				setFilteredEpics((prevData) =>
-					prevData.filter((epic) => epic.epicId !== epicIdToDelete)
+					prevData.filter((epic) => epic.id !== epicIdToDelete)
 				);
 			});
 
@@ -75,7 +75,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	const [filteredEpics, setFilteredEpics] = useState<Epic[]>(epics);
 
 	const handleRowClicked = (epic: Epic) => {
-		navigate(`./${epic.epicId}`, { relative: 'path' });
+		navigate(`./${epic.id}`, { relative: 'path' });
 	};
 
 	// Filter columns based on the checkedField array
@@ -103,8 +103,8 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			},
 
 			{
-				accessorKey: 'epicId',
-				id: 'epicId',
+				accessorKey: 'id',
+				id: 'id',
 				header: 'Epic Id',
 				size: 200,
 				enableColumnActions: false,
@@ -153,7 +153,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			key={`${row.id}-0`}
 			onClick={() => {
 				closeMenu();
-				copyLink(row.original.epicId.toString());
+				copyLink(row.original.id.toString());
 			}}
 			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 		>
@@ -163,7 +163,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 			key={`${row.id}-3`}
 			onClick={() => {
 				// Access the epicId from the row data
-				const epicId = row.getValue('epicId');
+				const epicId = row.getValue('id');
 				// Do something with the epicId, e.g., pass it to another component or function
 				navigate(`./${epicId}`, { relative: 'path' });
 				closeMenu();

@@ -28,7 +28,7 @@ export type ApiEpic = {
 export type Epic = {
 	name: string;
 	progress: number;
-	epicId: number;
+	id: number;
 	startDate: string;
 	endDate: string;
 	priority?: Priority;
@@ -44,7 +44,7 @@ export const loader = (_queryClient: QueryClient) => {
 		// return await queryClient.ensureQueryData(epicsQuery(params.orgId, params.search))
 	};
 };
-const tableColumnIds = ['name', 'progress', 'epicId', 'startDate', 'endDate'];
+const tableColumnIds = ['name', 'progress', 'id', 'startDate', 'endDate'];
 
 export const Epics = () => {
 	const epics: Epic[] = useLoaderData() as Epic[];

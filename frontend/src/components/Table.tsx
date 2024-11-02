@@ -1,4 +1,5 @@
-import { Button } from '@mui/material';
+import { MoreVert } from '@mui/icons-material';
+import { Button, IconButton, Menu, Typography } from '@mui/material';
 import {
 	MaterialReactTable,
 	MRT_Row,
@@ -68,6 +69,7 @@ const ShedTable = <T extends MRT_RowData>({
 		.slice(0, 1);
 	const [sorting, setSorting] = useState(initialActiveSorting);
 	const [rowSelection, setRowSelection] = useState({});
+	const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
 	useEffect(() => {
 		const activeSortingKey = Object.keys(sortingStates).find(
@@ -166,16 +168,27 @@ const ShedTable = <T extends MRT_RowData>({
 		}),
 	});
 
+	useEffect(() => {
+		setSelectedRows(Object.keys(rowSelection).filter((key) => key));
+	}, [rowSelection]);
+
 	return (
 		<div>
-			{!!Object.keys(rowSelection).length && (
+			{!!selectedRows.length && (
 				<>
+					<Typography variant="body1" textAlign="left">
+						{`${selectedRows.length} selected`}
+					</Typography>
+					{/* display dropdown with available options */}
+					{/* options are managed in the parent component */}
+					<IconButton>
+						<MoreVert />
+					</IconButton>
+					<Menu open={false}></Menu>
 					<Button
 						onClick={() => {
 							handleClickUpdateSelected &&
-								handleClickUpdateSelected(
-									Object.keys(table.getState().rowSelection)
-								);
+								handleClickUpdateSelected(selectedRows);
 						}}
 					>
 						Update selected rows

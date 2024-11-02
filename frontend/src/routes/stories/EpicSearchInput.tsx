@@ -52,7 +52,7 @@ export default function EpicSearchInput({
 			loading={isLoading}
 			id={id}
 			options={options}
-			isOptionEqualToValue={(option, value) => option.epicId === value.epicId}
+			isOptionEqualToValue={(option, value) => option.id === value.id}
 			getOptionLabel={(option) => {
 				return option.name ?? '';
 			}}

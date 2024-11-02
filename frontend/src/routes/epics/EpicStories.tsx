@@ -27,7 +27,7 @@ import {
 const tableColumnIds = [
 	'name',
 	'progress',
-	'storyId',
+	'id',
 	'priority',
 	'startDate',
 	'targetDate',
@@ -42,7 +42,7 @@ const EpicStories = ({
 }) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
-		storyId: null,
+		id: null,
 		startDate: null,
 		progress: null,
 		targetDate: null,
@@ -72,7 +72,7 @@ const EpicStories = ({
 		useState<string[]>(tableColumnIds);
 	const { data, isLoading } = useQuery({
 		queryKey: ['epics'],
-		queryFn: async () => getRelatedStories(orgId, epic.epicId),
+		queryFn: async () => getRelatedStories(orgId, epic.id),
 	});
 	const stories: Story[] = data ?? [];
 

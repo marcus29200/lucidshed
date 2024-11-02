@@ -53,14 +53,14 @@ export const EpicDetails = () => {
 	return (
 		<>
 			<div className="flex space-x-4 pb-4">
-				<Link to={`/${orgId}/epics/${epic.epicId}`}>
+				<Link to={`/${orgId}/epics/${epic.id}`}>
 					<button className="flex gap-x-1 justify-center items-center px-24 py-3 transition bg-green-500 border-none text-white rounded-md font-bold hover:border-none hover:bg-green-600/80 relative">
 						<HomeIcon className="text-white -ml-3" />
 						<span className="mt-1">Stories</span>
 						<div className="absolute -bottom-1 rounded h-0.5 w-full bg-green-500"></div>
 					</button>
 				</Link>
-				<Link to={`/${orgId}/epics/${epic.epicId}/dashboard`}>
+				<Link to={`/${orgId}/epics/${epic.id}/dashboard`}>
 					<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-50 text-gray-300 rounded-md font-bold border-none hover:border-none shadow-neutral">
 						<Settings className="text-gray-300 -ml-3" />
 						Reporting

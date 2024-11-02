@@ -20,7 +20,7 @@ import {
 import GroupByButton from '../../components/GroupByButton';
 
 export type Story = {
-	storyId: number;
+	id: number;
 	name: string;
 	targetDate: Date;
 	startDate: Date | null;
@@ -37,7 +37,7 @@ export type Story = {
 const tableColumnIds = [
 	'name',
 	'progress',
-	'storyId',
+	'id',
 	'priority',
 	'startDate',
 	'targetDate',

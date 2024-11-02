@@ -190,7 +190,7 @@ const FieldManagementTable = ({
 				key={3}
 				onClick={() => {
 					// Access the epicId from the row data
-					const epicId = row.getValue('epicId');
+					const epicId = row.getValue('id');
 					// Do something with the epicId, e.g., pass it to another component or function
 					navigate(`/epicInfoDashboard/${epicId}`);
 					closeMenu();

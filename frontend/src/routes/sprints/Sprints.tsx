@@ -65,7 +65,7 @@ export const Sprints = () => {
 	const onRemoveStory = (storyId: number) => {
 		updateStory({ orgId, storyId, data: { iteration_id: null } }).then(() => {
 			setCurrentStories((stories) =>
-				stories.filter((story) => story.storyId !== storyId)
+				stories.filter((story) => story.id !== storyId)
 			);
 		});
 	};

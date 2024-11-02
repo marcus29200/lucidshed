@@ -5,7 +5,7 @@ import { getStories, getStory } from '../../api/stories';
 export const storyQuery = (orgId: string, storyId: string) =>
 	queryOptions({
 		queryKey: ['story', orgId, storyId],
-		queryFn: async () => getStory(orgId, storyId),
+		queryFn: async () => getStory(orgId, +storyId),
 	});
 
 export const storyLoader = (queryClient: QueryClient) => {

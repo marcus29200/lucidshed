@@ -48,9 +48,9 @@ const TodoList: React.FC = () => {
 			<div className="max-h-[340px] overflow-y-auto space-y-4 scrollbar-hide custom-scrollbar pr-3">
 				{items.map((story) => (
 					<Task
-						key={'story-' + story.storyId}
+						key={'story-' + story.id}
 						title={story.name}
-						ticket={story.storyId.toString()}
+						ticket={story.id.toString()}
 						due={dayjs(story.targetDate).format('MMM DD, YYYY')}
 						completed={story.status === 'done'}
 						orgId={params.orgId as string}

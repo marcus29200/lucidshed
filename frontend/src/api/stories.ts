@@ -60,7 +60,7 @@ export type StoryAPI = {
 export const mapRawStory = (rawStory: StoryAPI): Story => {
 	return {
 		targetDate: rawStory.estimated_completion_date,
-		storyId: rawStory.id,
+		id: rawStory.id,
 		name: rawStory.title,
 		progress: STORY_STATUS_PROGRESS[rawStory.status] ?? 0,
 		startDate: rawStory.start_date,
@@ -123,7 +123,7 @@ export const getStories = async (
 	return results?.items;
 };
 
-export const getStory = async (orgId: string, storyId: string) => {
+export const getStory = async (orgId: string, storyId: number) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${storyId}`, {
 		headers: {
 			...getAuthHeaders(),

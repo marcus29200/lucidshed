@@ -123,7 +123,7 @@ export const CreateStory = () => {
 			await linkStoryToEpic({
 				orgId: params.orgId as string,
 				storyId: story.id,
-				epicId: epic.epicId,
+				epicId: epic.id,
 			});
 		}
 		await queryClient.invalidateQueries(
@@ -429,7 +429,7 @@ export const CreateStory = () => {
 									<input
 										hidden
 										name="epic"
-										value={epic?.epicId ?? ''}
+										value={epic?.id ?? ''}
 										onChange={() => setAssignedTo(() => null)}
 									/>
 									<EpicSearchInput

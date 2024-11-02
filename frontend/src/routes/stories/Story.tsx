@@ -202,7 +202,7 @@ export const Story = () => {
 			await linkStoryToEpic({
 				orgId: story.organization_id,
 				storyId: story.id,
-				epicId: value.epicId,
+				epicId: value.id,
 			});
 			setOriginalEpic(value);
 			setTimeout(() => {
@@ -217,7 +217,7 @@ export const Story = () => {
 				await removeLinkStoryToEpic({
 					orgId: story.organization_id,
 					storyId: story.id,
-					epicId: originalEpic.epicId,
+					epicId: originalEpic.id,
 				});
 			} catch (error) {
 				console.warn(error);

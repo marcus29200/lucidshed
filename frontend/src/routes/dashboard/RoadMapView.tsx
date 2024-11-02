@@ -46,9 +46,9 @@ const RoadmapView: React.FC = () => {
 								epic.endDate ? dayjs(epic.endDate).format('MMM DD, YYYY') : ''
 							}
 							progress={epic.progress}
-							epicId={epic.epicId}
+							id={epic.id}
 							startDate={epic.startDate}
-							key={'epic-' + epic.epicId}
+							key={'epic-' + epic.id}
 						/>
 					))}
 				</div>

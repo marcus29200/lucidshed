@@ -28,7 +28,7 @@ export const mapEpic = (epic: ApiEpic): Epic => {
 	return {
 		name: epic.title,
 		progress: 0,
-		epicId: epic.id,
+		id: epic.id,
 		startDate: epic.start_date || '-',
 		endDate: epic.estimated_completion_date,
 		priority: epic.priority,

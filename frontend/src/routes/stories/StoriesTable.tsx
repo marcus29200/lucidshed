@@ -36,7 +36,7 @@ const StoriesTable = ({
 }: StoryDataTableProps) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
-		storyId: null,
+		id: null,
 		startDate: null,
 		progress: null,
 		targetDate: null,
@@ -86,7 +86,7 @@ const StoriesTable = ({
 	});
 	const handleDelete = () => {
 		if (rowToDelete) {
-			removeStory({ orgId: orgId, storyId: rowToDelete.original.storyId });
+			removeStory({ orgId: orgId, storyId: rowToDelete.original.id });
 		}
 	};
 
@@ -103,7 +103,7 @@ const StoriesTable = ({
 	}
 
 	const handleRowClicked = (story: Story) => {
-		navigate(`/${orgId}/stories/${story.storyId}`);
+		navigate(`/${orgId}/stories/${story.id}`);
 	};
 
 	const handleClickUpdateSelected = (rows: string[]) => {
@@ -137,8 +137,8 @@ const StoriesTable = ({
 			},
 
 			{
-				accessorKey: 'storyId',
-				id: 'storyId',
+				accessorKey: 'id',
+				id: 'id',
 				header: 'Story ID',
 				size: 200,
 				enableColumnActions: true,
@@ -199,7 +199,7 @@ const StoriesTable = ({
 			key={`${row.id}-0`}
 			onClick={() => {
 				closeMenu();
-				copyLink(row.original.storyId.toString());
+				copyLink(row.original.id.toString());
 			}}
 			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
 		>
@@ -228,7 +228,7 @@ const StoriesTable = ({
 			key={`${row.id}-3`}
 			onClick={() => {
 				// Access the storyId from the row data
-				const storyId = row.getValue('storyId');
+				const storyId = row.getValue('id');
 				navigate(`./${storyId}`, { relative: 'path' });
 				closeMenu();
 			}}
