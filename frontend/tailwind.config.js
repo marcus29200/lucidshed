@@ -12,6 +12,11 @@ export default {
 				'fade-black': 'rgb(28, 28, 26)',
 				yellows: 'rgb(229, 255, 0)',
 				primary: '#20A224',
+				'primary-lightest': '#DFF6F3',
+				'primary-lighter': '#BFEDE8',
+				'primary-light': '#80DBD0',
+				'primary-dark': '#18771B',
+				'primary-darker': '#0D440F',
 			},
 			animation: {
 				blink: 'blink 1s infinite',

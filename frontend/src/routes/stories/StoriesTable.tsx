@@ -12,6 +12,8 @@ import { deleteStory } from '../../api/stories';
 import { copyLink } from '../../api/utils';
 import { STORY_PRIORITY_MAPPER } from './stories.model';
 import { queryClient } from '../../router';
+import { SelectedMenuOption } from '../../shared/table.model';
+import { Edit } from '@mui/icons-material';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -109,6 +111,12 @@ const StoriesTable = ({
 	const handleClickUpdateSelected = (rows: string[]) => {
 		console.log(rows);
 	};
+	const selectedRowsActions: SelectedMenuOption[] = [
+		{
+			label: 'Update selected stories',
+			onClick: handleClickUpdateSelected,
+		},
+	];
 
 	// Filter columns based on the checkedField array
 	const columns = useMemo<MRT_ColumnDef<Story>[]>(() => {
@@ -299,7 +307,7 @@ const StoriesTable = ({
 								sortingStates={sortingStates}
 								handleRowClicked={handleRowClicked}
 								actionsEnabled={actionsEnabled}
-								handleClickUpdateSelected={handleClickUpdateSelected}
+								selectedRowActions={selectedRowsActions}
 								enableRowSelection={true}
 							/>
 						</div>
@@ -320,7 +328,7 @@ const StoriesTable = ({
 				sortingStates={sortingStates}
 				handleRowClicked={handleRowClicked}
 				actionsEnabled={actionsEnabled}
-				handleClickUpdateSelected={handleClickUpdateSelected}
+				selectedRowActions={selectedRowsActions}
 				enableRowSelection={true}
 			/>
 		</>

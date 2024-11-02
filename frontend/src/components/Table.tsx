@@ -1,5 +1,5 @@
 import { MoreVert } from '@mui/icons-material';
-import { Button, IconButton, Menu, Typography } from '@mui/material';
+import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import {
 	MaterialReactTable,
 	MRT_Row,
@@ -9,6 +9,7 @@ import {
 	type MRT_ColumnDef,
 } from 'material-react-table';
 import { useEffect, useState } from 'react';
+import { SelectedMenuOption } from '../shared/table.model';
 
 export type ColumnStates = { [key: string]: boolean | null };
 
@@ -31,7 +32,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	tableId: string;
 	columFiltersEnabled?: boolean;
 	enableRowSelection?: boolean;
-	handleClickUpdateSelected?: (rows: string[]) => void;
+	selectedRowActions?: SelectedMenuOption[];
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -45,7 +46,7 @@ const ShedTable = <T extends MRT_RowData>({
 	tableId,
 	columFiltersEnabled = false,
 	enableRowSelection = false,
-	handleClickUpdateSelected,
+	selectedRowActions,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 
@@ -70,6 +71,18 @@ const ShedTable = <T extends MRT_RowData>({
 	const [sorting, setSorting] = useState(initialActiveSorting);
 	const [rowSelection, setRowSelection] = useState({});
 	const [selectedRows, setSelectedRows] = useState<string[]>([]);
+	const [anchorSelectedMenuEl, setAnchorSelectedMenuEl] =
+		useState<null | HTMLElement>(null);
+
+	const handleClickSelectedMenu = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
+		setAnchorSelectedMenuEl(event.currentTarget);
+	};
+
+	const handleCloseSelectedMenu = () => {
+		setAnchorSelectedMenuEl(null);
+	};
 
 	useEffect(() => {
 		const activeSortingKey = Object.keys(sortingStates).find(
@@ -166,6 +179,7 @@ const ShedTable = <T extends MRT_RowData>({
 				},
 			},
 		}),
+		getRowId: (originalRow) => originalRow.id,
 	});
 
 	useEffect(() => {
@@ -175,25 +189,51 @@ const ShedTable = <T extends MRT_RowData>({
 	return (
 		<div>
 			{!!selectedRows.length && (
-				<>
+				<div
+					className={`flex gap-4 items-center bg-primary-lightest px-3 py-1 w-max rounded-lg shadow-sm saturate-200 mb-2 ${
+						selectedRowActions ? 'pr-1' : ''
+					}`}
+				>
 					<Typography variant="body1" textAlign="left">
-						{`${selectedRows.length} selected`}
+						{`${selectedRows.length} item(s) selected`}
 					</Typography>
 					{/* display dropdown with available options */}
 					{/* options are managed in the parent component */}
-					<IconButton>
-						<MoreVert />
-					</IconButton>
-					<Menu open={false}></Menu>
-					<Button
-						onClick={() => {
-							handleClickUpdateSelected &&
-								handleClickUpdateSelected(selectedRows);
-						}}
-					>
-						Update selected rows
-					</Button>
-				</>
+					{selectedRowActions && (
+						<>
+							<IconButton onClick={handleClickSelectedMenu}>
+								<MoreVert />
+							</IconButton>
+							<Menu
+								anchorEl={anchorSelectedMenuEl}
+								open={Boolean(anchorSelectedMenuEl)}
+								onClose={handleCloseSelectedMenu}
+							>
+								{selectedRowActions.map((action) => (
+									<MenuItem
+										key={action.label}
+										sx={{
+											px: 2,
+											pt: 1,
+											color: !action.isDestructive ? '#000' : 'red',
+											fontFamily: 'Poppins, sans-serif',
+											display: 'flex',
+											alignItems: 'center',
+											gap: 1,
+										}}
+										onClick={() => {
+											action.onClick(selectedRows);
+											handleCloseSelectedMenu();
+										}}
+									>
+										{action.icon && action.icon()}
+										{action.label}
+									</MenuItem>
+								))}
+							</Menu>
+						</>
+					)}
+				</div>
 			)}
 			<MaterialReactTable table={table} />
 		</div>
