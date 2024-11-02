@@ -1,6 +1,12 @@
 import { Box, Divider, Drawer, List } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { BookIcon, DashboardIcon, EpicIcon, SprintIcon } from '../icons/icons';
+import {
+	BookIcon,
+	BoxIcon,
+	DashboardIcon,
+	EpicIcon,
+	SprintIcon,
+} from '../icons/icons';
 import {
 	NavigateBefore,
 	NavigateNext,
@@ -50,6 +56,13 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 				label: 'Sprints',
 				icon: () => <SprintIcon />,
 				canAdd: true,
+				paddingOffset: 32,
+			},
+			{
+				to: 'backlog',
+				label: 'Backlog',
+				icon: () => <BoxIcon />,
+				canAdd: false,
 				paddingOffset: 32,
 			},
 		],

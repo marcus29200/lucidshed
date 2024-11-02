@@ -1,4 +1,4 @@
-import { Box, MenuItem } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import EditFieldsButton from '../../components/EditFieldsButton';
 import { SearchIcon } from '../../icons/icons';
@@ -14,16 +14,8 @@ import {
 	GROUP_STORIES_OPTIONS,
 	GroupStoriesOption,
 } from '../stories/stories.model';
-import { useQuery } from '@tanstack/react-query';
-import {
-	getStoriesWithoutIteration,
-	mapRawStory,
-	updateStory,
-} from '../../api/stories';
-import { useParams } from 'react-router-dom';
-import { TableActions } from '../../components/Table';
-import { Sprint } from '../../api/sprints';
 
+import { useLoaderData } from 'react-router-dom';
 const tableColumnIds = [
 	'name',
 	'progress',
@@ -35,15 +27,7 @@ const tableColumnIds = [
 
 const BACKLOG_STORIES_TABLE_ID = 'backlog-stories-table';
 
-const BacklogStoriesTable = ({
-	removedStory,
-	setAddedStory,
-	selectedSprint,
-}: {
-	removedStory: Story | undefined;
-	setAddedStory: React.Dispatch<React.SetStateAction<Story | undefined>>;
-	selectedSprint: Sprint;
-}) => {
+const BacklogList = () => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
 		storyId: null,
@@ -70,13 +54,9 @@ const BacklogStoriesTable = ({
 	}>(sortStates);
 	const [searchTerm, setSearchTerm] = useState('');
 
-	const orgId = useParams().orgId as string;
+	const stories = useLoaderData() as Story[];
+	console.log(stories);
 
-	const { data } = useQuery({
-		queryKey: ['storiesWithoutIteration'],
-		queryFn: async () => getStoriesWithoutIteration(orgId),
-	});
-	const stories = data ?? [];
 	const visibleRows: Story[] = [...stories].filter((story) =>
 		story.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
@@ -90,48 +70,17 @@ const BacklogStoriesTable = ({
 		setStoredGroupByOption(BACKLOG_STORIES_TABLE_ID, groupBy);
 	}, [groupBy]);
 
-	useEffect(() => {
-		if (removedStory) {
-			stories.push(removedStory);
-		}
-	}, [removedStory]);
-
-	const handleAddStory = (storyId: number) => {
-		updateStory({
-			orgId,
-			storyId,
-			data: { iteration_id: selectedSprint.id },
-		}).then((story) => {
-			setAddedStory(() => mapRawStory(story));
-			const toRemove = stories.findIndex((s) => s.storyId === storyId);
-			if (toRemove !== -1) {
-				stories.splice(toRemove, 1);
-			}
-		});
-	};
-
-	const actions: TableActions<Story> = ({ row, closeMenu }) => [
-		<MenuItem
-			key={`${row.original.storyId}-0`}
-			onClick={() => {
-				closeMenu();
-				handleAddStory(row.original.storyId);
-			}}
-			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif' }}
-		>
-			Move to "{selectedSprint.title}"
-		</MenuItem>,
-	];
-	if (!visibleRows.length) {
-		return (
-			<div className="text-neutral-regular italic pb-4">
-				No stories in backlog
-			</div>
-		);
-	}
-
 	return (
-		<div>
+		<div className="rounded-xl p-4 bg-white mt-4">
+			{/* backlog table */}
+			<Typography
+				variant="h5"
+				textAlign="left"
+				padding="10px 0"
+				fontWeight="semibold"
+			>
+				Backlog
+			</Typography>
 			<Box
 				sx={{
 					display: 'flex',
@@ -186,10 +135,10 @@ const BacklogStoriesTable = ({
 				initialSorting={sortingStates}
 				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
-				parentActions={actions}
+				actionsEnabled={false}
 			/>
 		</div>
 	);
 };
 
-export default BacklogStoriesTable;
+export default BacklogList;

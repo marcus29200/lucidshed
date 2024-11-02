@@ -22,7 +22,6 @@ import SprintSearchInput from './SprintSearchInput';
 import { Story } from '../stories/Stories';
 import { getStoriesProgress } from '../../shared/stories.mapper';
 import { updateStory } from '../../api/stories';
-import BacklogStoriesTable from './BacklogStories';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -49,8 +48,6 @@ export const Sprints = () => {
 	);
 	const [sprintProgress, setSprintProgress] = useState<number>(0);
 	const [currentStories, setCurrentStories] = useState<Story[]>([]);
-	const [removedStory, setRemovedStory] = useState<Story | undefined>();
-	const [addedStory, setAddedStory] = useState<Story | undefined>();
 	useMemo(() => {
 		if (selectedSprint) {
 			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
@@ -65,20 +62,10 @@ export const Sprints = () => {
 		setSprintProgress(getStoriesProgress(currentStories).progress);
 	}, [currentStories]);
 
-	useEffect(() => {
-		if (addedStory) {
-			setCurrentStories((stories) => stories.concat([addedStory]));
-		}
-		setSprintProgress(getStoriesProgress(currentStories).progress);
-	}, [addedStory]);
-
 	const onRemoveStory = (storyId: number) => {
 		updateStory({ orgId, storyId, data: { iteration_id: null } }).then(() => {
 			setCurrentStories((stories) =>
 				stories.filter((story) => story.storyId !== storyId)
-			);
-			setRemovedStory(
-				currentStories.find((story) => story.storyId === storyId)
 			);
 		});
 	};
@@ -234,23 +221,6 @@ export const Sprints = () => {
 				<SprintStoryTable
 					stories={currentStories}
 					handleRemoveStory={onRemoveStory}
-				/>
-			</div>
-
-			{/* backlog table */}
-			<div className="rounded-xl p-4 bg-white mt-4">
-				<Typography
-					variant="h5"
-					textAlign="left"
-					padding="10px 0"
-					fontWeight="semibold"
-				>
-					Backlog
-				</Typography>
-				<BacklogStoriesTable
-					removedStory={removedStory}
-					selectedSprint={selectedSprint as Sprint}
-					setAddedStory={setAddedStory}
 				/>
 			</div>
 		</>

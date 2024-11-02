@@ -517,3 +517,38 @@ export const Heading2Icon = (props: React.SVGProps<SVGSVGElement>) => (
 		</svg>
 	</SvgIcon>
 );
+
+export const BoxIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<SvgIcon>
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path
+				d="M3.16992 7.43994L11.9999 12.5499L20.7699 7.46994"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M12 21.61V12.54"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M2.39014 13.2501V14.8301C2.39014 16.2101 3.38014 17.8901 4.59014 18.5601L9.93014 21.5301C11.0701 22.1601 12.9401 22.1601 14.0801 21.5301L19.4201 18.5601C20.6301 17.8901 21.6201 16.2101 21.6201 14.8301V9.17006C21.6201 7.79006 20.6301 6.11006 19.4201 5.44006L14.0801 2.47006C12.9401 1.84006 11.0701 1.84006 9.93014 2.47006L4.59014 5.44006C3.38014 6.11006 2.39014 7.79006 2.39014 9.17006"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	</SvgIcon>
+);
