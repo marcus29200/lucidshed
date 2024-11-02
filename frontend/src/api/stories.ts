@@ -34,7 +34,7 @@ export type StoryAPI = {
 	description: string;
 	status: StoryStatus;
 	priority: Priority;
-	estimated_completion_date: Date;
+	estimated_completion_date?: Date;
 	checkin_frequency: string | null;
 	starred: boolean;
 	created_by_id: string;
@@ -60,7 +60,9 @@ export type StoryAPI = {
 
 export const mapRawStory = (rawStory: StoryAPI): Story => {
 	return {
-		targetDate: rawStory.estimated_completion_date,
+		targetDate: rawStory.estimated_completion_date
+			? new Date(rawStory.estimated_completion_date)
+			: undefined,
 		id: rawStory.id,
 		name: rawStory.title,
 		progress: STORY_STATUS_PROGRESS[rawStory.status] ?? 0,

@@ -20,7 +20,7 @@ import GroupByButton from '../../components/GroupByButton';
 export type Story = {
 	id: number;
 	name: string;
-	targetDate: Date;
+	targetDate?: Date;
 	startDate: Date | null;
 	progress: number;
 	assignedToId?: string;

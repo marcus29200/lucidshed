@@ -2,17 +2,21 @@ import { MoreVert } from '@mui/icons-material';
 import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import {
 	MaterialReactTable,
-	MRT_Row,
-	MRT_RowData,
-	MRT_TableInstance,
+	type MRT_Row,
+	type MRT_RowData,
+	type MRT_TableInstance,
 	useMaterialReactTable,
 	type MRT_ColumnDef,
+	type MRT_Icons,
 } from 'material-react-table';
 import { useEffect, useState } from 'react';
 import { SelectedMenuOption } from '../shared/table.model';
+import { DocumentFilterIcon } from '../icons/icons';
 
 export type ColumnStates = { [key: string]: boolean | null };
-
+const customIcons: Partial<MRT_Icons> = {
+	FilterListIcon: () => <DocumentFilterIcon />,
+};
 export type TableActions<T extends MRT_RowData> = (props: {
 	closeMenu: () => void;
 	row: MRT_Row<T>;
@@ -184,6 +188,11 @@ const ShedTable = <T extends MRT_RowData>({
 			},
 		}),
 		getRowId: (originalRow) => originalRow.id,
+		columnFilterDisplayMode: 'popover',
+		muiFilterTextFieldProps: {
+			className: 'table-filter',
+		},
+		icons: customIcons,
 	});
 
 	useEffect(() => {

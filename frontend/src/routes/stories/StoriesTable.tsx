@@ -208,7 +208,7 @@ const StoriesTable = ({
 				id: 'name',
 				header: 'Story Name',
 				size: 100,
-				enableColumnActions: true,
+				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">Story Name</span>,
 			},
 			{
@@ -217,7 +217,13 @@ const StoriesTable = ({
 				header: 'Progress',
 				size: 200,
 				enableColumnActions: false,
-				enableColumnFilter: false,
+				filterFn: 'weakEquals',
+				filterSelectOptions: [
+					{ value: 50, label: 'In Progress' },
+					{ value: 100, label: 'Done' },
+					{ value: '0', label: 'Not Started' },
+				],
+				filterVariant: 'select',
 				Cell: ({ cell }) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
 
@@ -231,7 +237,7 @@ const StoriesTable = ({
 				id: 'id',
 				header: 'Story ID',
 				size: 200,
-				enableColumnActions: true,
+				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">Story ID</span>,
 			},
 			{
@@ -240,7 +246,14 @@ const StoriesTable = ({
 				header: 'Priority',
 				size: 200,
 				enableColumnActions: false,
-				enableColumnFilter: false,
+				filterFn: 'weakEquals',
+				filterSelectOptions: [
+					{ value: '1', label: 'Critical' },
+					{ value: '2', label: 'High' },
+					{ value: '3', label: 'Medium' },
+					{ value: '4', label: 'Small' },
+				],
+				filterVariant: 'select',
 				Header: () => <span className="cursor-pointer">Priority</span>,
 				Cell: ({ cell }) => {
 					return STORY_PRIORITY_MAPPER[cell.getValue<string>()] ?? 'Small';
@@ -252,13 +265,13 @@ const StoriesTable = ({
 				id: 'startDate',
 				header: 'Start Date',
 				size: 150,
-				enableColumnActions: true,
+				enableColumnActions: false,
+				filterVariant: 'date-range',
 				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
-					const formattedCompletionDate =
-						cell.getValue<string>() && cell.getValue<string>() !== '-'
-							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
-							: '-';
+					const formattedCompletionDate = cell.getValue<Date>()
+						? format(cell.getValue<Date>(), 'MMM dd, yyyy')
+						: '-';
 					return formattedCompletionDate;
 				},
 			},
@@ -267,13 +280,13 @@ const StoriesTable = ({
 				id: 'targetDate',
 				header: 'Target Date',
 				size: 150,
-				enableColumnActions: true,
+				enableColumnActions: false,
+				filterVariant: 'date-range',
 				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {
-					const formattedCompletionDate =
-						cell.getValue<string>() && cell.getValue<string>() !== '-'
-							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
-							: '-';
+					const formattedCompletionDate = cell.getValue<Date>()
+						? format(cell.getValue<string>(), 'MMM dd, yyyy')
+						: '-';
 					return formattedCompletionDate;
 				},
 			},
