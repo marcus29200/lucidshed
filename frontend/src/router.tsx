@@ -24,6 +24,8 @@ import { Story } from './routes/stories/Story';
 import EpicsDashboard from './routes/epics/EpicDashboard';
 import { storiesLoader, storyLoader } from './routes/stories/Story.hooks';
 import SprintsDashboard from './routes/sprints/SprintsDashboard';
+import BacklogList from './routes/backlog/BacklogList';
+import { backlogLoader } from './routes/backlog/backlog.loaders';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -140,6 +142,16 @@ export const router = createHashRouter([
 								path: 'dashboard',
 								element: <SprintsDashboard />,
 								loader: sprintsLoader(queryClient),
+							},
+						],
+					},
+					{
+						path: 'backlog',
+						children: [
+							{
+								index: true,
+								loader: backlogLoader(queryClient),
+								element: <BacklogList />,
 							},
 						],
 					},
