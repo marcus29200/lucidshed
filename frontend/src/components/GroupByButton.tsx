@@ -25,11 +25,12 @@ const GroupByButton = ({
 			<Button
 				variant="outlined"
 				onClick={handleClickMenu}
+				color="neutral"
 				sx={{
-					paddingX: '76px',
+					paddingX: '16px',
 					borderRadius: '10px',
 					fontFamily: 'Poppins, sans-serif',
-					paddingY: '13px',
+					paddingY: '8px',
 					fontSize: '16px',
 				}}
 			>

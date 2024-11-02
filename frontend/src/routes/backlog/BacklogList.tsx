@@ -1,6 +1,5 @@
 import { Box, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import EditFieldsButton from '../../components/EditFieldsButton';
 import { SearchIcon } from '../../icons/icons';
 import { Story } from '../stories/Stories';
 import StoriesTable from '../stories/StoriesTable';
@@ -16,7 +15,7 @@ import {
 } from '../stories/stories.model';
 
 import { useLoaderData } from 'react-router-dom';
-const tableColumnIds = [
+const editFieldsCheckedItems = [
 	'name',
 	'progress',
 	'id',
@@ -60,8 +59,6 @@ const BacklogList = () => {
 	const visibleRows: Story[] = [...stories].filter((story) =>
 		story.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
-	const [editFieldsCheckedItems, setEditFieldsCheckedItems] =
-		useState<string[]>(tableColumnIds);
 
 	const initialGroupBy = getStoredGroupByOption(BACKLOG_STORIES_TABLE_ID);
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
@@ -72,63 +69,47 @@ const BacklogList = () => {
 
 	return (
 		<div className="rounded-xl p-4 bg-white mt-4">
-			{/* backlog table */}
-			<Typography
-				variant="h5"
-				textAlign="left"
-				padding="10px 0"
-				fontWeight="semibold"
-			>
-				Backlog
-			</Typography>
 			<Box
 				sx={{
-					display: 'flex',
-					justifyContent: 'flex-end',
-					paddingX: '12px',
-					paddingY: '6px',
+					paddingBottom: '32px',
 				}}
 			>
-				<Box className="flex flex-col gap-2">
-					<Box
-						sx={{
-							display: 'flex',
-							gap: '8px',
-						}}
-					>
-						{/* Search Bar */}
-						<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-2.5 border border-neutral-light rounded-xl">
-							<SearchIcon />
-							<input
-								type="text"
-								className="p-1 w-full outline-none"
-								placeholder="Search Stories Here"
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								onKeyDown={(e) => {
-									// Prevent focus shifting to menu items
-									e.stopPropagation();
-								}}
-							/>
-						</div>
-						{/* edit fields */}
-						<EditFieldsButton
-							fields={tableColumnIds}
-							setEditFieldsCheckedItems={setEditFieldsCheckedItems}
-							editFieldsCheckedItems={editFieldsCheckedItems}
+				<Typography variant="h6" textAlign="left">
+					Backlog
+				</Typography>
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						gap: '8px',
+					}}
+				>
+					{/* Search Bar */}
+					<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-1 border border-neutral-light rounded-xl">
+						<SearchIcon />
+						<input
+							type="text"
+							className="p-1 w-full outline-none"
+							placeholder="Search Stories Here"
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							onKeyDown={(e) => {
+								// Prevent focus shifting to menu items
+								e.stopPropagation();
+							}}
 						/>
-					</Box>
+					</div>
+
+					<div className="flex gap-2">
+						<GroupByButton
+							options={GROUP_STORIES_OPTIONS}
+							selectItem={groupBy}
+							setSelectedItem={setGroupBy}
+						/>
+					</div>
 				</Box>
 			</Box>
-			{!!visibleRows.length && (
-				<div className="text-left">
-					<GroupByButton
-						options={GROUP_STORIES_OPTIONS}
-						selectItem={groupBy}
-						setSelectedItem={setGroupBy}
-					/>
-				</div>
-			)}
+
 			<StoriesTable
 				group={groupBy as GroupStoriesOption}
 				tableId={BACKLOG_STORIES_TABLE_ID}
