@@ -33,6 +33,10 @@ type ShedTableProps<T extends MRT_RowData> = {
 	columFiltersEnabled?: boolean;
 	enableRowSelection?: boolean;
 	selectedRowActions?: SelectedMenuOption[];
+	setRowSelection?: React.Dispatch<
+		React.SetStateAction<{ [key: string]: boolean }>
+	>;
+	selectedRows?: { [key: string]: boolean };
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -190,16 +194,25 @@ const ShedTable = <T extends MRT_RowData>({
 		<div>
 			{!!selectedRows.length && (
 				<div
-					className={`flex gap-4 items-center bg-primary-lightest px-3 py-1 w-max rounded-lg shadow-sm saturate-200 mb-2 ${
-						selectedRowActions ? 'pr-1' : ''
+					className={`flex gap-4 items-center bg-primary-lightest px-3 py-1 w-max rounded-lg shadow-sm saturate-200 mb-2${
+						selectedRowActions && selectedRowActions.length > 1 ? ' pr-1' : ''
+					}${
+						selectedRowActions && selectedRowActions.length === 1
+							? ' cursor-pointer'
+							: ''
 					}`}
+					onClick={() => {
+						if (selectedRowActions?.length === 1) {
+							selectedRowActions[0].onClick(selectedRows);
+						}
+					}}
 				>
 					<Typography variant="body1" textAlign="left">
-						{`${selectedRows.length} item(s) selected`}
+						{`Edit ${selectedRows.length} stories`}
 					</Typography>
 					{/* display dropdown with available options */}
 					{/* options are managed in the parent component */}
-					{selectedRowActions && (
+					{selectedRowActions && selectedRowActions.length > 1 && (
 						<>
 							<IconButton onClick={handleClickSelectedMenu}>
 								<MoreVert />

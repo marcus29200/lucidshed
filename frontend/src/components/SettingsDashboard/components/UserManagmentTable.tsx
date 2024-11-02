@@ -10,7 +10,7 @@ import {
 } from '../../../api/users';
 import dayjs from 'dayjs';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ConfirmationDialog } from '../../DeleteDialog';
+import { ConfirmationDialog } from '../../ConfirmationDialog';
 import ShedTable, { TableActions } from '../../Table';
 import { ExpandMore } from '@mui/icons-material';
 import { getStoredSortState } from '../../../shared/table.utils';

@@ -29,7 +29,7 @@ import {
 	Save,
 	Settings,
 } from '@mui/icons-material';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { Sprint } from '../../api/sprints';
 import SprintSearchInput from './SprintSearchInput';
 

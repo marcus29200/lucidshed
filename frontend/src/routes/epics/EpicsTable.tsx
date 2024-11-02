@@ -4,7 +4,7 @@ import { MRT_Row, type MRT_ColumnDef } from 'material-react-table';
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Epic } from './Epics';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 
 import { format } from 'date-fns';
 import { deleteEpic } from '../../api/epics';

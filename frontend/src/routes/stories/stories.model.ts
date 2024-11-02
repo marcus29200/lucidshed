@@ -1,3 +1,5 @@
+import { Priority } from '../../api/epics';
+
 export const STORY_STATUS = {
 	'not-started': 'Not Started',
 	'in-progress': 'In Progress',
@@ -113,3 +115,16 @@ export const GROUP_STORIES_OPTIONS = [
 ];
 
 export type GroupStoriesOption = 'statusLabel' | 'priorityLabel';
+
+export type StoryFormProps = {
+	targetDate?: Date;
+	title: string;
+	description?: string;
+	sprint?: number;
+	priority: Priority;
+	estimate?: number;
+	status?: StoryStatus;
+	subType?: TicketType;
+	assignedTo?: string;
+	epic?: number;
+};

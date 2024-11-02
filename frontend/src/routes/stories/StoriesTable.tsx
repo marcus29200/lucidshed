@@ -3,17 +3,23 @@ import { useEffect, useMemo, useState } from 'react';
 import { Story } from './Stories';
 import { MRT_Row, MRT_ColumnDef } from 'material-react-table';
 import { format } from 'date-fns';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 import ShedTable, { TableActions } from '../../components/Table';
 import { useMutation } from '@tanstack/react-query';
-import { deleteStory } from '../../api/stories';
+import {
+	CreateStoryPayload,
+	deleteStory,
+	updateStory,
+} from '../../api/stories';
 import { copyLink } from '../../api/utils';
 import { STORY_PRIORITY_MAPPER } from './stories.model';
-import { queryClient } from '../../router';
 import { SelectedMenuOption } from '../../shared/table.model';
-import { Edit } from '@mui/icons-material';
+import MassEditStoriesDialog from './MassEditStoriesDialog';
+import { linkStoryToEpic } from '../../api/epics';
+import { toast, Zoom } from 'react-toastify';
+import { queryClient } from '../../router';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -62,8 +68,21 @@ const StoriesTable = ({
 	const navigate = useNavigate();
 
 	const [openDialog, setOpenDialog] = useState(false);
+	const [openStoryFormDialog, setOpenStoryFormDialog] = useState(false);
 
 	const [rowToDelete, setRowToDelete] = useState<MRT_Row<Story> | null>(null); // Track which row to delete
+	const [rowsToUpdate, setRowsToUpdate] = useState<string[] | null>(null); // Track which row to delete
+	const [rowsUpdated, setRowsUpdated] = useState<number>(0); // Track which row to delete
+	const location = useLocation();
+	const { mutate: patchStory } = useMutation({
+		mutationFn: updateStory,
+		onError: () => {
+			console.error('wuhh');
+		},
+		onSuccess: async () => {
+			setRowsUpdated((prev) => prev + 1);
+		},
+	});
 
 	const handleOpenDialog = (row: MRT_Row<Story>) => {
 		setRowToDelete(row); // Set the row that will be deleted
@@ -109,7 +128,8 @@ const StoriesTable = ({
 	};
 
 	const handleClickUpdateSelected = (rows: string[]) => {
-		console.log(rows);
+		setRowsToUpdate(() => rows);
+		setOpenStoryFormDialog(true);
 	};
 	const selectedRowsActions: SelectedMenuOption[] = [
 		{
@@ -117,6 +137,68 @@ const StoriesTable = ({
 			onClick: handleClickUpdateSelected,
 		},
 	];
+
+	const handleUpdateSelectedStories = async (
+		formData: Omit<CreateStoryPayload, 'item_type'>
+	) => {
+		console.log(rowsToUpdate);
+
+		if (!rowsToUpdate) {
+			return;
+		}
+		const { epicId } = formData;
+		setRowsUpdated(0);
+		// remove falsy values to avoid override current values
+		const cleanData: Partial<CreateStoryPayload> = {};
+		for (const field in formData) {
+			if (Object.prototype.hasOwnProperty.call(formData, field)) {
+				const value = formData[field];
+				if (value) {
+					cleanData[field] = value;
+				}
+			}
+		}
+		if (!Object.keys(cleanData).length) {
+			return;
+		}
+		console.log(cleanData);
+
+		for (let i = 0; i < rowsToUpdate.length; i++) {
+			const storyId = +rowsToUpdate[i];
+			patchStory({ orgId: orgId as string, storyId: storyId, data: cleanData });
+			if (epicId) {
+				await linkStoryToEpic({
+					orgId: orgId as string,
+					storyId,
+					epicId,
+				});
+			}
+		}
+	};
+
+	useEffect(() => {
+		if (rowsUpdated === rowsToUpdate?.length) {
+			setRowsToUpdate(null);
+			// TODO: make toast a shared function
+			toast(
+				`${rowsUpdated} ${
+					rowsUpdated > 1 ? 'stories' : 'story'
+				} updated successfully`,
+				{
+					position: 'top-right',
+					autoClose: 3000,
+					hideProgressBar: true,
+					closeOnClick: true,
+					theme: 'light',
+					type: 'success',
+					transition: Zoom,
+				}
+			);
+			queryClient.invalidateQueries({ queryKey: ['stories'] });
+			// updates the tables...
+			navigate(location.pathname);
+		}
+	}, [rowsUpdated]);
 
 	// Filter columns based on the checkedField array
 	const columns = useMemo<MRT_ColumnDef<Story>[]>(() => {
@@ -313,6 +395,16 @@ const StoriesTable = ({
 						</div>
 					);
 				})}
+				<MassEditStoriesDialog
+					open={openStoryFormDialog}
+					onClose={() => setOpenStoryFormDialog(false)}
+					onConfirm={(formData) => {
+						if (formData) {
+							handleUpdateSelectedStories(formData);
+						}
+						setOpenStoryFormDialog(false);
+					}}
+				/>
 			</>
 		);
 	}
@@ -330,6 +422,16 @@ const StoriesTable = ({
 				actionsEnabled={actionsEnabled}
 				selectedRowActions={selectedRowsActions}
 				enableRowSelection={true}
+			/>
+			<MassEditStoriesDialog
+				open={openStoryFormDialog}
+				onClose={() => setOpenStoryFormDialog(false)}
+				onConfirm={(formData) => {
+					if (formData) {
+						handleUpdateSelectedStories(formData);
+					}
+					setOpenStoryFormDialog(false);
+				}}
 			/>
 		</>
 	);

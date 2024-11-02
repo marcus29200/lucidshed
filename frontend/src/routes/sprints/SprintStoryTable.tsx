@@ -12,7 +12,7 @@ import {
 	setStoredGroupByOption,
 } from '../../shared/table.utils';
 import { TableActions } from '../../components/Table';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import GroupByButton from '../../components/GroupByButton';
 import {
 	GROUP_STORIES_OPTIONS,

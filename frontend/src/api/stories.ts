@@ -26,6 +26,7 @@ export type CreateStoryPayload = {
 	assigned_to_id?: string | null;
 	start_date?: string | null;
 	completed_at?: string | null;
+	epicId?: number | null;
 };
 
 export type StoryAPI = {

@@ -29,7 +29,7 @@ import {
 	Save,
 	Settings,
 } from '@mui/icons-material';
-import { ConfirmationDialog } from '../../components/DeleteDialog';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 
 // TODO: add types
 const EpicsDashboard = () => {

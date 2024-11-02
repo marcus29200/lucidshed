@@ -24,31 +24,17 @@ import {
 	priorities,
 	ticketTypes,
 	DISABLED_DEFAULT_FIELDS,
-	TicketType,
-	StoryStatus,
+	StoryFormProps,
 } from './stories.model';
 import { User } from '../../api/users';
 import UserSearchInput from '../sprints/UserSearchInput';
 import { Epic } from '../epics/Epics';
 import EpicSearchInput from './EpicSearchInput';
-import { linkStoryToEpic, Priority } from '../../api/epics';
+import { linkStoryToEpic } from '../../api/epics';
 import { SubmitHandler, useController, useForm } from 'react-hook-form';
 import { createStory, updateStory } from '../../api/stories';
 import { queryClient } from '../../router';
 import DescriptionRichEditor from '../../components/DescriptionRichEditor';
-
-type StoryFormProps = {
-	targetDate?: Date;
-	title: string;
-	description?: string;
-	sprint?: number;
-	priority: Priority;
-	estimate?: number;
-	status?: StoryStatus;
-	subType?: TicketType;
-	assignedTo?: string;
-	epic?: number;
-};
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
