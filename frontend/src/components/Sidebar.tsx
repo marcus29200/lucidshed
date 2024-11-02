@@ -7,12 +7,7 @@ import {
 	EpicIcon,
 	SprintIcon,
 } from '../icons/icons';
-import {
-	NavigateBefore,
-	NavigateNext,
-	People,
-	Settings,
-} from '@mui/icons-material';
+import { NavigateBefore, NavigateNext, Settings } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
 
@@ -33,39 +28,32 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 		icon: () => <DashboardIcon />,
 	},
 	{
-		label: 'All teams',
-		icon: () => <People />,
-		dropDown: () => <span></span>,
-		children: [
-			{
-				to: 'epics',
-				label: 'Epics',
-				icon: () => <EpicIcon />,
-				canAdd: true,
-				paddingOffset: 32,
-			},
-			{
-				to: 'stories',
-				label: 'Stories',
-				icon: () => <BookIcon />,
-				canAdd: true,
-				paddingOffset: 32,
-			},
-			{
-				to: 'sprints',
-				label: 'Sprints',
-				icon: () => <SprintIcon />,
-				canAdd: true,
-				paddingOffset: 32,
-			},
-			{
-				to: 'backlog',
-				label: 'Backlog',
-				icon: () => <BoxIcon />,
-				canAdd: false,
-				paddingOffset: 32,
-			},
-		],
+		to: 'epics',
+		label: 'Epics',
+		icon: () => <EpicIcon />,
+		canAdd: true,
+		paddingOffset: 32,
+	},
+	{
+		to: 'stories',
+		label: 'Stories',
+		icon: () => <BookIcon />,
+		canAdd: true,
+		paddingOffset: 32,
+	},
+	{
+		to: 'sprints',
+		label: 'Sprints',
+		icon: () => <SprintIcon />,
+		canAdd: true,
+		paddingOffset: 32,
+	},
+	{
+		to: 'backlog',
+		label: 'Backlog',
+		icon: () => <BoxIcon />,
+		canAdd: false,
+		paddingOffset: 32,
 	},
 ];
 
