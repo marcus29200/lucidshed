@@ -190,7 +190,6 @@ const StoriesDashboard = () => {
 
 	// Add a component to the dashboard
 	const handleRemoveComponentClick = (component: string) => {
-		console.log('handleRemoveComponentClick');
 		setComponentToRemove(component); // Set the component to remove
 		setConfirmationOpen(true); // Open the confirmation dialog
 	};

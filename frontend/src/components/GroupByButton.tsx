@@ -56,6 +56,7 @@ const GroupByButton = ({
 				{/* Menu Items with Checkboxes */}
 				{options.map((item) => (
 					<FormControlLabel
+						key={item.value}
 						control={
 							<Switch
 								checked={item.value === selectItem}

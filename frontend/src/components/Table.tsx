@@ -1,3 +1,4 @@
+import { Button } from '@mui/material';
 import {
 	MaterialReactTable,
 	MRT_Row,
@@ -28,6 +29,8 @@ type ShedTableProps<T extends MRT_RowData> = {
 	sortingStateEnabled?: boolean;
 	tableId: string;
 	columFiltersEnabled?: boolean;
+	enableRowSelection?: boolean;
+	handleClickUpdateSelected?: (rows: string[]) => void;
 };
 
 const ShedTable = <T extends MRT_RowData>({
@@ -40,6 +43,8 @@ const ShedTable = <T extends MRT_RowData>({
 	actionsEnabled = true,
 	tableId,
 	columFiltersEnabled = false,
+	enableRowSelection = false,
+	handleClickUpdateSelected,
 }: ShedTableProps<T>) => {
 	const [sortedData, setSortedData] = useState<T[]>([]);
 
@@ -62,6 +67,7 @@ const ShedTable = <T extends MRT_RowData>({
 		.map((key) => ({ id: key, desc: sortingStates[key] as boolean }))
 		.slice(0, 1);
 	const [sorting, setSorting] = useState(initialActiveSorting);
+	const [rowSelection, setRowSelection] = useState({});
 
 	useEffect(() => {
 		const activeSortingKey = Object.keys(sortingStates).find(
@@ -84,8 +90,6 @@ const ShedTable = <T extends MRT_RowData>({
 	}, [sortingStates, filteredItems]);
 
 	useEffect(() => {
-		console.log(sorting);
-
 		if (sorting.length) {
 			localStorage.setItem(`${tableId}_sortKey`, sorting[0].id);
 			localStorage.setItem(
@@ -104,6 +108,8 @@ const ShedTable = <T extends MRT_RowData>({
 		enableBottomToolbar: false,
 		enableTopToolbar: false,
 		enableRowActions: actionsEnabled,
+		enableRowSelection,
+		enableBatchRowSelection: false,
 		muiTableHeadProps: {
 			sx: {
 				backgroundColor: '#F9FAFC',
@@ -137,17 +143,45 @@ const ShedTable = <T extends MRT_RowData>({
 			},
 			sorting: initialActiveSorting,
 		},
-		state: { sorting },
+		state: { sorting, rowSelection },
+		onRowSelectionChange: setRowSelection,
 		enablePagination: false,
 		renderRowActionMenuItems: actions,
 		muiTableBodyRowProps: ({ row }) => ({
 			onClick: () => handleRowClicked && handleRowClicked(row.original),
-			sx: { cursor: handleRowClicked ? 'pointer' : 'default' },
+			sx: {
+				cursor: handleRowClicked ? 'pointer' : 'default',
+				'&.Mui-selected': {
+					'& td::after': {
+						background: '#f2fff2  !important',
+					},
+					'&:hover td::after': {
+						filter: 'saturate(1.75)',
+					},
+				},
+				'&:hover td::after': {
+					background: '#f7f7f7  !important',
+				},
+			},
 		}),
 	});
 
 	return (
 		<div>
+			{!!Object.keys(rowSelection).length && (
+				<>
+					<Button
+						onClick={() => {
+							handleClickUpdateSelected &&
+								handleClickUpdateSelected(
+									Object.keys(table.getState().rowSelection)
+								);
+						}}
+					>
+						Update selected rows
+					</Button>
+				</>
+			)}
 			<MaterialReactTable table={table} />
 		</div>
 	);

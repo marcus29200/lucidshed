@@ -101,10 +101,13 @@ const StoriesTable = ({
 	if (group) {
 		groupedStories = Object.groupBy(filteredStories, (item) => item[group]);
 	}
-	console.log(groupedStories);
 
 	const handleRowClicked = (story: Story) => {
 		navigate(`/${orgId}/stories/${story.storyId}`);
+	};
+
+	const handleClickUpdateSelected = (rows: string[]) => {
+		console.log(rows);
 	};
 
 	// Filter columns based on the checkedField array
@@ -275,14 +278,16 @@ const StoriesTable = ({
 					const stories = groupedStories[key];
 					return (
 						<div key={key} className="mt-4">
-							<Typography
-								variant="h6"
-								textAlign="left"
-								padding="10px 0"
-								fontWeight="semibold"
-							>
-								{key}
-							</Typography>
+							<div className="flex gap-4">
+								<Typography
+									variant="h6"
+									textAlign="left"
+									padding="10px 0"
+									fontWeight="semibold"
+								>
+									{key}
+								</Typography>
+							</div>
 
 							<ShedTable
 								tableId={tableId}
@@ -294,6 +299,8 @@ const StoriesTable = ({
 								sortingStates={sortingStates}
 								handleRowClicked={handleRowClicked}
 								actionsEnabled={actionsEnabled}
+								handleClickUpdateSelected={handleClickUpdateSelected}
+								enableRowSelection={true}
 							/>
 						</div>
 					);
@@ -313,6 +320,8 @@ const StoriesTable = ({
 				sortingStates={sortingStates}
 				handleRowClicked={handleRowClicked}
 				actionsEnabled={actionsEnabled}
+				handleClickUpdateSelected={handleClickUpdateSelected}
+				enableRowSelection={true}
 			/>
 		</>
 	);
