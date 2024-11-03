@@ -1,5 +1,12 @@
 import { MoreVert } from '@mui/icons-material';
-import { IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import {
+	FormControlLabel,
+	IconButton,
+	Menu,
+	MenuItem,
+	Switch,
+	Typography,
+} from '@mui/material';
 import {
 	MaterialReactTable,
 	type MRT_Row,
@@ -11,7 +18,7 @@ import {
 } from 'material-react-table';
 import { useEffect, useState } from 'react';
 import { SelectedMenuOption } from '../shared/table.model';
-import { DocumentFilterIcon } from '../icons/icons';
+import { DocumentFilterIcon, StatusListIcon } from '../icons/icons';
 
 export type ColumnStates = { [key: string]: boolean | null };
 const customIcons: Partial<MRT_Icons> = {
@@ -81,6 +88,8 @@ const ShedTable = <T extends MRT_RowData>({
 	const [selectedRows, setSelectedRows] = useState<string[]>([]);
 	const [anchorSelectedMenuEl, setAnchorSelectedMenuEl] =
 		useState<null | HTMLElement>(null);
+	const [anchorVisibleColsMenuEl, setAnchorVisibleColsMenuEl] =
+		useState<null | HTMLElement>(null);
 
 	const handleClickSelectedMenu = (
 		event: React.MouseEvent<HTMLButtonElement>
@@ -90,6 +99,16 @@ const ShedTable = <T extends MRT_RowData>({
 
 	const handleCloseSelectedMenu = () => {
 		setAnchorSelectedMenuEl(null);
+	};
+
+	const handleClickVisibleColsMenu = (
+		event: React.MouseEvent<HTMLButtonElement>
+	) => {
+		setAnchorVisibleColsMenuEl(event.currentTarget);
+	};
+
+	const handleCloseVisibleColsMenu = () => {
+		setAnchorVisibleColsMenuEl(null);
 	};
 
 	useEffect(() => {
@@ -147,6 +166,73 @@ const ShedTable = <T extends MRT_RowData>({
 				header: '', //change header text
 				size: 40, //make actions column smaller
 				grow: false,
+				Header: ({ table: tab }) => {
+					const visibleCols = tab
+						.getVisibleFlatColumns()
+						.filter((col) => !!col.accessorFn)
+						.reduce((visible, col) => {
+							return { ...visible, [col.id]: true };
+						}, {});
+					const columns = tab
+						.getAllColumns()
+						.filter((col) => !!col.accessorFn)
+						.map((col) => ({
+							id: col.id,
+							label: col.columnDef.header as string,
+						}));
+					columns.forEach((col) => {
+						if (!visibleCols[col.id]) {
+							visibleCols[col.id] = false;
+						}
+					});
+					return (
+						<>
+							<IconButton onClick={handleClickVisibleColsMenu}>
+								<StatusListIcon />
+							</IconButton>
+							<Menu
+								anchorEl={anchorVisibleColsMenuEl}
+								open={Boolean(anchorVisibleColsMenuEl)}
+								onClose={handleCloseVisibleColsMenu}
+								slotProps={{
+									paper: {
+										sx: {
+											'& .MuiList-root': {
+												minWidth: 200,
+												paddingInline: '16px',
+												display: 'flex',
+												flexDirection: 'column',
+												alignItems: 'flex-start',
+												borderRadius: 1,
+											},
+										},
+									},
+								}}
+							>
+								<Typography variant="body2">Displayed fields</Typography>
+								{columns.map((option) => (
+									<FormControlLabel
+										key={option.id}
+										control={
+											<Switch
+												checked={tab.getColumn(option.id).getIsVisible()}
+												onChange={() => {
+													tab.setColumnVisibility({
+														...visibleCols,
+														[option.id]: !tab
+															.getColumn(option.id)
+															.getIsVisible(),
+													});
+												}}
+											/>
+										}
+										label={option.label}
+									/>
+								))}
+							</Menu>
+						</>
+					);
+				},
 			},
 		},
 		muiTablePaperProps: {

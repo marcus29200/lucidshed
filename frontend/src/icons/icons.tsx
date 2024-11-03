@@ -602,3 +602,24 @@ export const DocumentFilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
 		</svg>
 	</SvgIcon>
 );
+
+export const StatusListIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<SvgIcon>
+		<svg
+			width="30"
+			height="30"
+			viewBox="0 0 30 30"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<circle cx="21.25" cy="10" r="5" fill="currentColor" />
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M23.2344 7.75H19.2656C18.7013 8.24806 18.3258 8.95509 18.2603 9.75H23.75C23.9228 9.75 24.0854 9.70615 24.2273 9.62897C24.1353 8.88345 23.7699 8.22263 23.2344 7.75ZM14.2544 9.75C14.2789 9.05256 14.4054 8.38107 14.6195 7.75H6.25C5.69772 7.75 5.25 8.19772 5.25 8.75C5.25 9.30228 5.69772 9.75 6.25 9.75H14.2544ZM15.5047 14C16.0679 14.8074 16.7969 15.4905 17.6424 16H6.25C5.69772 16 5.25 15.5523 5.25 15C5.25 14.4477 5.69772 14 6.25 14H15.5047ZM6.25 20.25C5.69772 20.25 5.25 20.6977 5.25 21.25C5.25 21.8023 5.69772 22.25 6.25 22.25H23.75C24.3023 22.25 24.75 21.8023 24.75 21.25C24.75 20.6977 24.3023 20.25 23.75 20.25H6.25Z"
+				fill="currentColor"
+			/>
+		</svg>
+	</SvgIcon>
+);
