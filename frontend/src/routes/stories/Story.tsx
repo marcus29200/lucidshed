@@ -3,9 +3,7 @@ import FullHeightSection from '../../components/FullHeightSection';
 import {
 	Box,
 	Button,
-	Checkbox,
 	FormControl,
-	FormControlLabel,
 	Grid,
 	IconButton,
 	InputLabel,
@@ -16,15 +14,8 @@ import {
 } from '@mui/material';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useEffect, useMemo, useState } from 'react';
-import {
-	DISABLED_DEFAULT_FIELDS,
-	METADATA_FIELD_OPTIONS,
-	MetadataFieldOption,
-	priorities,
-	statuses,
-	ticketTypes,
-} from './stories.model';
+import { useEffect, useState } from 'react';
+import { priorities, statuses, ticketTypes } from './stories.model';
 import {
 	CreateStoryPayload,
 	getRelatedEpic,
@@ -66,6 +57,7 @@ export const Story = () => {
 	const [assignedTo, setAssignedTo] = useState<User | null>(
 		mapUser(story.assigned_to) ?? null
 	);
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [originalEpic, setOriginalEpic] = useState<Epic | null>(null);
 
@@ -84,39 +76,12 @@ export const Story = () => {
 	const [dynamicFields, setDynamicFields] = useState({
 		priority: story.priority,
 		status: story.status,
-		estimate: story.estimate,
+		estimate: story.estimate ?? undefined,
 		subType: story.item_sub_type,
 		targetDate: story.estimated_completion_date
 			? dayjs(story.estimated_completion_date).toDate()
 			: undefined,
 	});
-	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>(
-		[]
-	);
-
-	useMemo(() => {
-		const fieldsWithValues = Object.keys(dynamicFields).filter(
-			(field) => !!dynamicFields[field as MetadataFieldOption]
-		);
-		if (sprint) {
-			fieldsWithValues.push('sprint');
-		}
-		if (assignedTo) {
-			fieldsWithValues.push('assignedTo');
-		}
-		if (epic) {
-			fieldsWithValues.push('epic');
-		}
-		setSelectedFields(fieldsWithValues as MetadataFieldOption[]);
-	}, [dynamicFields, sprint, assignedTo, epic]);
-
-	const handleFieldToggle = (field: MetadataFieldOption) => {
-		setSelectedFields((prevSelected) =>
-			prevSelected.includes(field)
-				? prevSelected.filter((item) => item !== field)
-				: [...prevSelected, field]
-		);
-	};
 
 	const handleAddComment = (newComment: CreateCommentPayload) => {
 		createComment({
@@ -335,241 +300,157 @@ export const Story = () => {
 								gap: '8px',
 							}}
 						>
-							<FormControl>
-								<InputLabel
-									sx={{
-										color: 'gray',
-										textAlign: 'left',
-										fontFamily: 'Poppins, sans-serif',
+							<Typography
+								variant="body1"
+								className="!font-semibold text-neutral-regular text-left underline"
+							>
+								Ticket Relationship
+							</Typography>
+							<>
+								<SprintSearchInput
+									setSprint={(sprint) => {
+										handleEditSprint(sprint);
 									}}
-									htmlFor="add-ticket-details-label"
-								>
-									Add Ticket Details
+									sprint={sprint}
+									id="sprint-selector"
+								/>
+							</>
+
+							<>
+								<EpicSearchInput
+									epic={epic}
+									setEpic={handleEditEpic}
+									id="epic-selector"
+									label="Epic"
+								/>
+							</>
+
+							<>
+								<UserSearchInput
+									setUser={(user) => handleEditAssignedTo(user)}
+									user={assignedTo}
+									label="Assigned to"
+									id="user-selector"
+								/>
+							</>
+
+							<Typography
+								variant="body1"
+								className="!font-semibold text-left text-neutral-regular underline pt-8"
+							>
+								Ticket Fields
+							</Typography>
+
+							<TextField
+								variant="outlined"
+								size="small"
+								margin="dense"
+								fullWidth
+								type="number"
+								label="Estimate"
+								id="estimate"
+								name="estimate"
+								value={dynamicFields.estimate}
+								onChange={(e) =>
+									handleEditDynamicField('estimate', +e.target.value)
+								}
+							/>
+
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="status-label">
+									Status
 								</InputLabel>
 								<Select
-									id="add-ticket-details-label"
-									sx={{ marginTop: 1.2, borderRadius: `8px`, paddingY: 1 }}
-									multiple
-									value={selectedFields}
-									onChange={(e) => {
-										setSelectedFields(
-											typeof e.target.value === 'string'
-												? (e.target.value.split(',') as MetadataFieldOption[])
-												: e.target.value
-										);
-									}}
-									renderValue={(selected) =>
-										selected.map((s) => METADATA_FIELD_OPTIONS[s]).join(', ')
-									}
-									fullWidth
+									variant="outlined"
 									size="small"
+									margin="dense"
+									fullWidth
+									labelId="status-label"
+									label="Status"
+									defaultValue={'not-started'}
+									id="status"
+									name="status"
+									value={dynamicFields.status}
+									onChange={(e) =>
+										handleEditDynamicField('status', e.target.value)
+									}
 								>
-									{Object.keys(METADATA_FIELD_OPTIONS).map((field) => (
-										<MenuItem
-											key={field}
-											value={field}
-											sx={{ height: '30px' }}
-											onClick={() =>
-												handleFieldToggle(field as MetadataFieldOption)
-											}
-											disabled={DISABLED_DEFAULT_FIELDS.includes(
-												field as MetadataFieldOption
-											)}
-										>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={selectedFields.includes(
-															field as MetadataFieldOption
-														)}
-													/>
-												}
-												label={
-													METADATA_FIELD_OPTIONS[field as MetadataFieldOption]
-												}
-											/>
+									{statuses.map((status) => (
+										<MenuItem value={status.value} key={status.value ?? 'none'}>
+											{status.label}
 										</MenuItem>
 									))}
 								</Select>
 							</FormControl>
-							{/* THIS IS WHERE WE ADD ALL OF OUR FIELDS */}
-							{selectedFields.includes('targetDate') && (
-								<DatePicker
-									label="Due Date"
-									name="targetDate"
-									slotProps={{
-										textField: {
-											variant: 'outlined',
-											size: 'small',
-											margin: 'dense',
-											fullWidth: true,
-										},
-									}}
-									value={dynamicFields.targetDate}
-									onChange={(e) => handleEditDynamicField('targetDate', e)}
-								></DatePicker>
-							)}
-							{selectedFields.includes('estimate') && (
-								<TextField
+
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="priority-label">
+									Priority
+								</InputLabel>
+								<Select
 									variant="outlined"
 									size="small"
 									margin="dense"
 									fullWidth
-									type="number"
-									label="Estimate"
-									id="estimate"
-									name="estimate"
-									value={dynamicFields.estimate}
+									labelId="priority-label"
+									label="Priority"
+									id="priority"
+									name="priority"
+									value={dynamicFields.priority}
 									onChange={(e) =>
-										handleEditDynamicField('estimate', +e.target.value)
+										handleEditDynamicField('priority', e.target.value)
 									}
-								/>
-							)}
+								>
+									{priorities.map((priority) => (
+										<MenuItem
+											value={priority.value}
+											key={priority.value ?? 'none'}
+										>
+											{priority.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 
-							{selectedFields.includes('status') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="status-label">
-										Status
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="status-label"
-										label="Status"
-										defaultValue={'not-started'}
-										id="status"
-										name="status"
-										value={dynamicFields.status}
-										onChange={(e) =>
-											handleEditDynamicField('status', e.target.value)
-										}
-									>
-										{statuses.map((status) => (
-											<MenuItem
-												value={status.value}
-												key={status.value ?? 'none'}
-											>
-												{status.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
-
-							{selectedFields.includes('priority') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="priority-label">
-										Priority
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="priority-label"
-										label="Priority"
-										id="priority"
-										name="priority"
-										value={dynamicFields.priority}
-										onChange={(e) =>
-											handleEditDynamicField('priority', e.target.value)
-										}
-									>
-										{priorities.map((priority) => (
-											<MenuItem
-												value={priority.value}
-												key={priority.value ?? 'none'}
-											>
-												{priority.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
-							{selectedFields.includes('subType') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="subType-label">
-										Type
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="subType-label"
-										label="Type"
-										id="subType"
-										name="subType"
-										value={dynamicFields.subType}
-										onChange={(e) =>
-											handleEditDynamicField('subType', e.target.value)
-										}
-									>
-										{ticketTypes.map((subType) => (
-											<MenuItem value={subType.value} key={subType.value}>
-												{subType.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
-							{selectedFields.includes('sprint') && (
-								<>
-									<SprintSearchInput
-										setSprint={(sprint) => {
-											handleEditSprint(sprint);
-										}}
-										sprint={sprint}
-										id="sprint-selector"
-									/>
-								</>
-							)}
-
-							{selectedFields.includes('attachment') && (
-								<TextField
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="subType-label">
+									Type
+								</InputLabel>
+								<Select
 									variant="outlined"
 									size="small"
 									margin="dense"
 									fullWidth
-									label="Attachments"
-									id="attachments"
-									name="attachments"
-								/>
-							)}
-							{selectedFields.includes('tags') && (
-								<TextField
-									variant="outlined"
-									size="small"
-									margin="dense"
-									fullWidth
-									label="Tags"
-									id="tags"
-									name="tags"
-								/>
-							)}
-							{/* TODO: owner */}
-							{selectedFields.includes('assignedTo') && (
-								<>
-									<UserSearchInput
-										setUser={(user) => handleEditAssignedTo(user)}
-										user={assignedTo}
-										label="Assigned to"
-										id="user-selector"
-									/>
-								</>
-							)}
-							{selectedFields.includes('epic') && (
-								<>
-									<EpicSearchInput
-										epic={epic}
-										setEpic={handleEditEpic}
-										id="epic-selector"
-										label="Epic"
-									/>
-								</>
-							)}
+									labelId="subType-label"
+									label="Type"
+									id="subType"
+									name="subType"
+									value={dynamicFields.subType}
+									onChange={(e) =>
+										handleEditDynamicField('subType', e.target.value)
+									}
+								>
+									{ticketTypes.map((subType) => (
+										<MenuItem value={subType.value} key={subType.value}>
+											{subType.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+							<DatePicker
+								label="Due Date"
+								name="targetDate"
+								slotProps={{
+									textField: {
+										variant: 'outlined',
+										size: 'small',
+										margin: 'dense',
+										fullWidth: true,
+									},
+								}}
+								value={dynamicFields.targetDate}
+								onChange={(e) => handleEditDynamicField('targetDate', e)}
+							></DatePicker>
 						</Grid>
 					</Grid>
 				</Form>

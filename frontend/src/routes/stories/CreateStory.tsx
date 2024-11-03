@@ -8,8 +8,6 @@ import {
 	Typography,
 	MenuItem,
 	Button,
-	FormControlLabel,
-	Checkbox,
 } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
 import { Form, useNavigate, useParams } from 'react-router-dom';
@@ -18,12 +16,9 @@ import { useState } from 'react';
 import SprintSearchInput from '../sprints/SprintSearchInput';
 import { Sprint } from '../../api/sprints';
 import {
-	MetadataFieldOption,
-	METADATA_FIELD_OPTIONS,
 	statuses,
 	priorities,
 	ticketTypes,
-	DISABLED_DEFAULT_FIELDS,
 	StoryFormProps,
 } from './stories.model';
 import { User } from '../../api/users';
@@ -53,26 +48,7 @@ export const CreateStory = () => {
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
 	const [epic, setEpic] = useState<Epic | null>(null);
 
-	const [selectedFields, setSelectedFields] = useState<MetadataFieldOption[]>([
-		'targetDate',
-		'estimate',
-		'status',
-		'priority',
-		'subType',
-		'sprint',
-		'assignedTo',
-		'epic',
-	]);
-
 	const params = useParams();
-
-	const handleFieldToggle = (field: MetadataFieldOption) => {
-		setSelectedFields((prevSelected) =>
-			prevSelected.includes(field)
-				? prevSelected.filter((item) => item !== field)
-				: [...prevSelected, field]
-		);
-	};
 
 	const onSubmit: SubmitHandler<StoryFormProps> = async (
 		data: StoryFormProps
@@ -191,147 +167,122 @@ export const CreateStory = () => {
 								gap: '8px',
 							}}
 						>
-							<FormControl>
-								<InputLabel
-									sx={{
-										color: 'gray',
-										textAlign: 'left',
-										fontFamily: 'Poppins, sans-serif',
-									}}
-									htmlFor="add-ticket-details-label"
-								>
-									Add Ticket Details
+							<Typography
+								variant="body1"
+								className="!font-semibold text-neutral-regular text-left underline"
+							>
+								Ticket Relationship
+							</Typography>
+							<>
+								<input
+									hidden
+									name="sprint"
+									value={sprint?.id ?? ''}
+									onChange={() => setSprint(() => null)}
+								/>
+								<SprintSearchInput
+									setSprint={setSprint}
+									sprint={sprint}
+									id="sprint-selector"
+								/>
+							</>
+
+							<>
+								<input
+									hidden
+									name="epic"
+									value={epic?.id ?? ''}
+									onChange={() => setAssignedTo(() => null)}
+								/>
+								<EpicSearchInput
+									setEpic={setEpic}
+									epic={epic}
+									id="epic-selector"
+									label="Epic"
+								/>
+							</>
+
+							<>
+								<input
+									hidden
+									name="assignedTo"
+									value={assignedTo?.id ?? ''}
+									onChange={() => setAssignedTo(() => null)}
+								/>
+								<UserSearchInput
+									setUser={setAssignedTo}
+									user={assignedTo}
+									id="assignedTo-selector"
+									label="Assigned to"
+								/>
+							</>
+
+							<Typography
+								variant="body1"
+								className="!font-semibold text-left text-neutral-regular underline pt-8"
+							>
+								Ticket Fields
+							</Typography>
+
+							<TextField
+								variant="outlined"
+								size="small"
+								margin="dense"
+								fullWidth
+								type="number"
+								label="Estimate"
+								id="estimate"
+								{...register('estimate')}
+							/>
+
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="status-label">
+									Status
 								</InputLabel>
 								<Select
-									id="add-ticket-details-label"
-									sx={{ marginTop: 1.2, borderRadius: `8px`, paddingY: 1 }}
-									multiple
-									value={selectedFields}
-									onChange={(e) => {
-										setSelectedFields(
-											typeof e.target.value === 'string'
-												? (e.target.value.split(',') as MetadataFieldOption[])
-												: e.target.value
-										);
-									}}
-									renderValue={(selected) =>
-										selected.map((s) => METADATA_FIELD_OPTIONS[s]).join(', ')
-									}
-									fullWidth
-									size="small"
-								>
-									{Object.keys(METADATA_FIELD_OPTIONS).map((field) => (
-										<MenuItem
-											key={field}
-											value={field}
-											sx={{ height: '30px' }}
-											onClick={() =>
-												handleFieldToggle(field as MetadataFieldOption)
-											}
-											disabled={DISABLED_DEFAULT_FIELDS.includes(
-												field as MetadataFieldOption
-											)}
-										>
-											<FormControlLabel
-												control={
-													<Checkbox
-														checked={selectedFields.includes(
-															field as MetadataFieldOption
-														)}
-													/>
-												}
-												label={
-													METADATA_FIELD_OPTIONS[field as MetadataFieldOption]
-												}
-											/>
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-							{/* THIS IS WHERE WE ADD ALL OF OUR FIELDS */}
-							{selectedFields.includes('targetDate') && (
-								<DatePicker
-									label="Due Date"
-									slotProps={{
-										textField: {
-											variant: 'outlined',
-											size: 'small',
-											margin: 'dense',
-											fullWidth: true,
-										},
-									}}
-									value={targetDateField.field.value}
-									onChange={targetDateField.field.onChange}
-								></DatePicker>
-							)}
-							{selectedFields.includes('estimate') && (
-								<TextField
 									variant="outlined"
 									size="small"
 									margin="dense"
 									fullWidth
-									type="number"
-									label="Estimate"
-									id="estimate"
-									{...register('estimate')}
-								/>
-							)}
+									labelId="status-label"
+									label="Status"
+									id="status"
+									defaultValue="not-started"
+									{...register('status')}
+								>
+									{statuses.map((status) => (
+										<MenuItem value={status.value} key={status.value ?? 'none'}>
+											{status.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 
-							{selectedFields.includes('status') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="status-label">
-										Status
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="status-label"
-										label="Status"
-										id="status"
-										defaultValue={'not-started'}
-										{...register('status')}
-									>
-										{statuses.map((status) => (
-											<MenuItem
-												value={status.value}
-												key={status.value ?? 'none'}
-											>
-												{status.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
-
-							{selectedFields.includes('priority') && (
-								<FormControl sx={{ width: '100%', marginTop: '4px' }}>
-									<InputLabel size="small" id="priority-label">
-										Priority
-									</InputLabel>
-									<Select
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										labelId="priority-label"
-										label="Priority"
-										id="priority"
-										{...register('priority')}
-										defaultValue="low"
-									>
-										{priorities.map((priority) => (
-											<MenuItem
-												value={priority.value}
-												key={priority.value ?? 'none'}
-											>
-												{priority.label}
-											</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-							)}
+							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
+								<InputLabel size="small" id="priority-label">
+									Priority
+								</InputLabel>
+								<Select
+									variant="outlined"
+									size="small"
+									margin="dense"
+									fullWidth
+									labelId="priority-label"
+									label="Priority"
+									id="priority"
+									{...register('priority')}
+									defaultValue="low"
+								>
+									{priorities.map((priority) => (
+										<MenuItem
+											value={priority.value}
+											key={priority.value ?? 'none'}
+										>
+											{priority.label}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 
 							<FormControl sx={{ width: '100%', marginTop: '4px' }}>
 								<InputLabel size="small" id="subType-label">
@@ -355,77 +306,19 @@ export const CreateStory = () => {
 									))}
 								</Select>
 							</FormControl>
-							{selectedFields.includes('sprint') && (
-								<>
-									<input
-										hidden
-										name="sprint"
-										value={sprint?.id ?? ''}
-										onChange={() => setSprint(() => null)}
-									/>
-									<SprintSearchInput
-										setSprint={setSprint}
-										sprint={sprint}
-										id="sprint-selector"
-									/>
-								</>
-							)}
-
-							{selectedFields.includes('attachment') && (
-								<TextField
-									variant="outlined"
-									size="small"
-									margin="dense"
-									fullWidth
-									label="Attachments"
-									id="attachments"
-									name="attachments"
-								/>
-							)}
-							{selectedFields.includes('tags') && (
-								<TextField
-									variant="outlined"
-									size="small"
-									margin="dense"
-									fullWidth
-									label="Tags"
-									id="tags"
-									name="tags"
-								/>
-							)}
-							{/* TODO: owner */}
-							{selectedFields.includes('assignedTo') && (
-								<>
-									<input
-										hidden
-										name="assignedTo"
-										value={assignedTo?.id ?? ''}
-										onChange={() => setAssignedTo(() => null)}
-									/>
-									<UserSearchInput
-										setUser={setAssignedTo}
-										user={assignedTo}
-										id="assignedTo-selector"
-										label="Assigned to"
-									/>
-								</>
-							)}
-							{selectedFields.includes('epic') && (
-								<>
-									<input
-										hidden
-										name="epic"
-										value={epic?.id ?? ''}
-										onChange={() => setAssignedTo(() => null)}
-									/>
-									<EpicSearchInput
-										setEpic={setEpic}
-										epic={epic}
-										id="epic-selector"
-										label="Epic"
-									/>
-								</>
-							)}
+							<DatePicker
+								label="Due Date"
+								slotProps={{
+									textField: {
+										variant: 'outlined',
+										size: 'small',
+										margin: 'dense',
+										fullWidth: true,
+									},
+								}}
+								value={targetDateField.field.value}
+								onChange={targetDateField.field.onChange}
+							></DatePicker>
 						</Grid>
 					</Grid>
 					<Box

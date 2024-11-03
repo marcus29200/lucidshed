@@ -29,6 +29,10 @@ export default function EpicSearchInput({
 	const items = data ?? [];
 	const options = [...items];
 
+	React.useEffect(() => {
+		setValue(epic);
+	}, [epic]);
+
 	return (
 		<Autocomplete
 			value={value}
@@ -52,7 +56,7 @@ export default function EpicSearchInput({
 			loading={isLoading}
 			id={id}
 			options={options}
-			isOptionEqualToValue={(option, value) => option.id === value.id}
+			isOptionEqualToValue={(option, value) => option.id == value.id}
 			getOptionLabel={(option) => {
 				return option.name ?? '';
 			}}
