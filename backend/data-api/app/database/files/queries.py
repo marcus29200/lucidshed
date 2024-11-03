@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS files (
     id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     organization_id VARCHAR({MAX_ID_LENGTH}),
     {BASE_MODEL_FIELDS},
-    path VARCHAR(255) NOT NULL  
+    file_name VARCHAR(255) NOT NULL,
+    path VARCHAR(255) NOT NULL
 )
     """
 ]
@@ -22,11 +23,12 @@ INSERT INTO files
 (
     id,
     organization_id,
+    file_name,
     path,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 """
 
@@ -44,7 +46,10 @@ FILE_QUERIES[
 SELECT * FROM files
 WHERE
     organization_id = $1
-    AND deleted_at IS NULL;
+    AND deleted_at IS NULL
+ORDER BY $2
+LIMIT $3
+OFFSET $4;
 """
 
 

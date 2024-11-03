@@ -1,5 +1,6 @@
 import random
 import string
+from unittest.mock import patch
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -9,8 +10,6 @@ from app.api.dependencies.database import close_pool, data_db, get_pool
 from app.api.settings import database_pools, settings
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.utils import create_database, delete_database, init_database_tables
-
-from unittest.mock import patch
 
 
 def setup():
@@ -92,7 +91,10 @@ async def data_api() -> AsyncClient:  # type: ignore
         await cleanup(test_org_id)
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(autouse=True)
 async def mock_gcs():
-    with patch("app.database.files.controllers.file.storage.Client") as mock:
-        yield mock
+    with patch("app.database.files.models.file.storage.Client") as mock_client:
+        mock_client.return_value.bucket.return_value.blob.return_value.generate_signed_url.return_value = (
+            "http://test.com/test"
+        )
+        yield mock_client

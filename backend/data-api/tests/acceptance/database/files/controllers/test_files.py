@@ -3,7 +3,6 @@ import pytest
 from app.database.files.models.file import File
 from tests.acceptance.database.organizations.controllers.test_organizations import create_organization
 from tests.acceptance.database.utils import create_file, page_results
-from unittest.mock import patch, Mock
 
 pytestmark = pytest.mark.asyncio
 

@@ -1,8 +1,8 @@
 from typing import Any, Dict, Optional
 
+from app.database.files.models.file import BaseFile, File
 from app.database.iterations.models.iteration import BaseIteration, Iteration
 from app.database.teams.models.team import BaseTeam, Team
-from app.database.files.models.file import BaseFile, File
 
 
 async def page_results(

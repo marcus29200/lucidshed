@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
 from app.api.routers.support_item import router as support_item_router
@@ -14,6 +15,7 @@ from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
 from app.database.common.queries import USER_INIT_STATEMENTS
+from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
 from app.database.organizations.controllers.organization import OrganizationController
@@ -21,7 +23,6 @@ from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
-from app.database.files.controllers.file import FileController
 from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
@@ -48,6 +49,7 @@ class DataApplication(FastAPI):
         self.include_router(support_item_router, prefix="/{organization_id}/support")
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
         self.include_router(team_router, prefix="/{organization_id}/teams")
+        self.include_router(file_router, prefix="/{organization_id}/files")
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
