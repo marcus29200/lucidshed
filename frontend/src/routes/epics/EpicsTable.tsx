@@ -6,12 +6,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Epic } from './Epics';
 import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 
-import { format } from 'date-fns';
 import { deleteEpic } from '../../api/epics';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
 import ShedTable, { ColumnStates, TableActions } from '../../components/Table';
 import { copyLink } from '../../api/utils';
 import { getStoredSortState } from '../../shared/table.utils';
+import dayjs from 'dayjs';
 type EpicDataTableProps = {
 	epics: Epic[];
 	checkedField: string[]; // Array of field names selected by the user
@@ -121,7 +121,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
-							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
+							? dayjs(new Date(cell.getValue<string>())).format('MMM DD, YYYY')
 							: '-';
 					return formattedCompletionDate;
 				},
@@ -136,7 +136,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				Cell: ({ cell }) => {
 					const formattedCompletionDate =
 						cell.getValue<string>() && cell.getValue<string>() !== '-'
-							? format(new Date(cell.getValue<string>()), 'MMM dd, yyyy')
+							? dayjs(new Date(cell.getValue<string>())).format('MMM DD, YYYY')
 							: '-';
 					return formattedCompletionDate;
 				},

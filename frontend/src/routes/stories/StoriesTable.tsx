@@ -2,7 +2,6 @@ import { MenuItem, Typography } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { Story } from './Stories';
 import { MRT_Row, MRT_ColumnDef } from 'material-react-table';
-import { format } from 'date-fns';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { LinearProgressWithLabel } from '../../components/LinearProgressWithLabel';
@@ -20,6 +19,7 @@ import MassEditStoriesDialog from './MassEditStoriesDialog';
 import { linkStoryToEpic } from '../../api/epics';
 import { toast, Zoom } from 'react-toastify';
 import { queryClient } from '../../router';
+import dayjs from 'dayjs';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -270,7 +270,7 @@ const StoriesTable = ({
 				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate = cell.getValue<Date>()
-						? format(cell.getValue<Date>(), 'MMM dd, yyyy')
+						? dayjs(cell.getValue<Date>()).format('MMM DD, YYYY')
 						: '-';
 					return formattedCompletionDate;
 				},
@@ -285,7 +285,7 @@ const StoriesTable = ({
 				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {
 					const formattedCompletionDate = cell.getValue<Date>()
-						? format(cell.getValue<string>(), 'MMM dd, yyyy')
+						? dayjs(cell.getValue<Date>()).format('MMM DD, YYYY')
 						: '-';
 					return formattedCompletionDate;
 				},
