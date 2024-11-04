@@ -12,7 +12,7 @@ SIGNED_URL_EXPIRATION_MINUTES = 60 * 15
 
 class FileSortableField(StrEnum):
     ID: str = "id"
-    file_name: str = "title"
+    FILE_NAME: str = "file_name"
     CREATED_AT: str = "created_at"
     MODIFIED_AT: str = "modified_at"
 

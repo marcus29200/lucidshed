@@ -1,5 +1,5 @@
 from os.path import join
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from uuid import uuid4
 
 from google.cloud import storage
@@ -11,7 +11,6 @@ from app.database.files.models.file import BaseFile, File
 from app.exceptions.common import ObjectNotFoundException
 
 
-# Finish updating based on audit log models
 class FileController:
     async def create(self, organization_id: str, file: BaseFile, current_user: str) -> File:
         file_id = uuid4().hex
@@ -20,7 +19,7 @@ class FileController:
             file_id,
             organization_id,
             file.file_name,
-            join(settings.gcs_path, organization_id, file_id),
+            join(settings.gcs_path or "", organization_id, file_id),
             current_user,
             current_user,
         )
@@ -42,7 +41,7 @@ class FileController:
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
-    ) -> List[File]:
+    ) -> Tuple[List[File], Optional[str]]:
         offset = 0
         if cursor:
             sort, offset, _ = parse_cursor(cursor)

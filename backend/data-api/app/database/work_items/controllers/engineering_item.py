@@ -184,7 +184,7 @@ def determine_get_all_filter_conditions(
     assigned_to_id: Optional[str] = None,
 ) -> List[str]:
     filter_conditions = []
-    
+
     if item_type is not None:
         filter_conditions.append(f"engineering_items.item_type = '{item_type.value}'")
 
