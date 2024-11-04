@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional
 
+from app.database.files.models.file import BaseFile, File
 from app.database.iterations.models.iteration import BaseIteration, Iteration
 from app.database.teams.models.team import BaseTeam, Team
 
@@ -67,3 +68,16 @@ async def create_team(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}
     assert team.id
 
     return team
+
+
+async def create_file(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}) -> File:
+    data = {"file_name": "Test"}
+    data.update(**overrides)
+
+    file = BaseFile(**data)
+
+    file = await data_app.file_controller.create(organization_id=org_id, file=file, current_user="test@test.com")
+
+    assert file.id
+
+    return file

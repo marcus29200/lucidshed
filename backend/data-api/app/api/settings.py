@@ -37,6 +37,10 @@ class Settings(BaseModel):
     google_client_id: Optional[str] = getenv("GOOGLE_CLIENT_ID", None)
     google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
 
+    # Google Cloud Storage settings
+    gcs_bucket: Optional[str] = getenv("GCS_BUCKET", None)
+    gcs_path: Optional[str] = getenv("GCS_PATH", "/api/files")
+
     # Sendgrid settings
     sendgrid_api_key: Optional[str] = getenv("SENDGRID_API_KEY", None)
     from_email: Optional[str] = getenv("SENDGRID_FROM_EMAIL", "support@lucidshed.com")

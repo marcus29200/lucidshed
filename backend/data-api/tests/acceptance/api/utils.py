@@ -181,7 +181,7 @@ async def add_iteration(
     response = await data_api.post(f"{organization_id}/iterations", json=data, headers=headers)
 
     if response.status_code != expected_status_code:
-        raise AssertionError(f"{response.status_code} != {expected_status_code}")
+        raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
 
     return response.json()
 
@@ -201,6 +201,6 @@ async def add_team(
     response = await data_api.post(f"{organization_id}/teams", json=data, headers=headers)
 
     if response.status_code != expected_status_code:
-        raise AssertionError(f"{response.status_code} != {expected_status_code}")
+        raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
 
     return response.json()

@@ -42,7 +42,6 @@ class BaseWorkItem(BaseModel):
     starred: Optional[bool] = False
     # product_area: Optional[str] = None  # TODO Possible config value, needs definition, should be like priority
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
-    # related_tickets: Optional[List[str]] = []  # TODO Create DB models for these relationships
     # related_files: Optional[List[str]] = []  # TODO Create DB models for these relationships
     assigned_to_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     assigned_to: Optional[SlimUser] = None
