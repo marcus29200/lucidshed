@@ -71,7 +71,7 @@ async def create_team(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}
 
 
 async def create_file(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}) -> File:
-    data = {"content": "Test"}
+    data = {"file_name": "Test"}
     data.update(**overrides)
 
     file = BaseFile(**data)

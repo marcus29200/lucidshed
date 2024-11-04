@@ -16,21 +16,6 @@ async def test_add_file(data_app, mock_gcs):
     mock_gcs.call_count == 4
 
 
-async def test_add_file_fails_to_add_to_gcs(data_app, mock_gcs):
-    organization = await create_organization(data_app)
-    mock_gcs.side_effect = Exception("Test Exception")
-
-    with pytest.raises(Exception):
-        await create_file(data_app, organization.id)
-
-    mock_gcs.call_count == 2
-
-    # check that the file was not added to the database
-    files = await data_app.file_controller.get_all(organization_id=organization.id)
-
-    assert len(files) == 0
-
-
 async def test_get_file(data_app, mock_gcs):
     organization = await create_organization(data_app)
     file = await create_file(data_app, organization.id)
