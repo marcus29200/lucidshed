@@ -7,11 +7,19 @@ Install these before getting started
 - [Pyenv](https://github.com/pyenv/pyenv)
 
 
+
 ## Running the project
 
 ### Running project for frontend development
 
 - Run `docker compose up` inside `backend/data-api/`, this should start the db and api on http://localhost:8080
+
+### Prereq to backend development
+- Clone the project into a directory
+`git clone git@github.com:LucidShed/shed.git`
+- Set up pyenv, use python 3.12
+`cd backend/data-api;`
+`pyenv local 3.12.3`
 
 ### Running project for backend development
 
