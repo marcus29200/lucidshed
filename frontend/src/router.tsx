@@ -4,17 +4,17 @@ import Login from './routes/Login';
 import Register from './routes/register/register';
 import Dashboard from './routes/dashboard/dashboard';
 import AppLayout from './components/AppLayout';
-import { Epics, loader as epicsLoader } from './routes/epics/Epics';
-import { EpicDetails, loader as epicLoader } from './routes/epics/Epic';
+import { Epics, epicsLoader } from './routes/epics/Epics';
+import { EpicDetails, epicLoader } from './routes/epics/Epic';
 import { Stories } from './routes/stories/Stories';
 import { ResetPassword } from './routes/ResetPassword';
 import { CreateOrganization } from './routes/CreateOrganization';
-import { loader as organizationLoader } from './api/organizations';
-import { loader as meLoader } from './api/users';
+import { organizationLoader } from './api/organizations';
+import { meLoader } from './api/users';
 import { CreateEpic } from './routes/epics/CreateEpic';
 import UserSignupAdditionalInfo from './routes/UserSignupAdditionalInfo';
 import { QueryCache, QueryClient } from '@tanstack/react-query';
-import { Sprints, loader as sprintsLoader } from './routes/sprints/Sprints';
+import { Sprints, sprintsLoader } from './routes/sprints/Sprints';
 import {
 	CreateSprint,
 	action as createSprintAction,

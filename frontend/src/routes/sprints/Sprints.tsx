@@ -14,7 +14,7 @@ import {
 	Typography,
 } from '@mui/material';
 import SprintStoryTable from './SprintStoryTable';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
 import { Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
@@ -29,7 +29,7 @@ export const getSprintsQuery = (orgId: string) =>
 		queryFn: async () => getSprints(orgId),
 	});
 
-export const loader = (_queryClient: QueryClient) => {
+export const sprintsLoader = (_queryClient: QueryClient) => {
 	return async ({ params }: LoaderFunctionArgs) => {
 		if (!params.orgId) {
 			throw new Error('no org id');
@@ -40,21 +40,28 @@ export const loader = (_queryClient: QueryClient) => {
 	};
 };
 
+const SELECTED_SPRINT_KEY = 'last-sprint-viewed'; // key to store selected sprint in local storage
+
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const orgId = useParams().orgId as string;
+	let defaultSprint: string | Sprint | null =
+		localStorage.getItem(SELECTED_SPRINT_KEY);
+	// if no stored sprint, default to the first one
+	defaultSprint = defaultSprint ? JSON.parse(defaultSprint) : sprints[0];
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
-		sprints[0]
+		defaultSprint as Sprint | null
 	);
 	const [sprintProgress, setSprintProgress] = useState<number>(0);
 	const [currentStories, setCurrentStories] = useState<Story[]>([]);
-	useMemo(() => {
+	useEffect(() => {
 		if (selectedSprint) {
 			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
 				(stories) => {
 					setCurrentStories(() => stories);
 				}
 			);
+			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
 		}
 	}, [selectedSprint]);
 

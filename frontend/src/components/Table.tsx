@@ -289,7 +289,7 @@ const ShedTable = <T extends MRT_RowData>({
 		<div>
 			{!!selectedRows.length && (
 				<div
-					className={`flex gap-4 items-center bg-primary-lightest px-3 py-1 w-max rounded-lg shadow-sm saturate-200 mb-2${
+					className={`flex transition-all duration-300 hover:saturate-150 gap-4 items-center bg-primary px-3 py-1 w-max rounded-lg shadow-sm saturate-200 mb-2${
 						selectedRowActions && selectedRowActions.length > 1 ? ' pr-1' : ''
 					}${
 						selectedRowActions && selectedRowActions.length === 1
@@ -302,7 +302,12 @@ const ShedTable = <T extends MRT_RowData>({
 						}
 					}}
 				>
-					<Typography variant="body1" textAlign="left">
+					<Typography
+						variant="body1"
+						textAlign="left"
+						color="white"
+						fontWeight="600"
+					>
 						{`Edit ${selectedRows.length} stories`}
 					</Typography>
 					{/* display dropdown with available options */}

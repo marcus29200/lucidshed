@@ -75,7 +75,7 @@ export const meQuery = () =>
 		queryKey: ['me'],
 		queryFn: async () => getMe(),
 	});
-export const loader = (queryClient: QueryClient) => {
+export const meLoader = (queryClient: QueryClient) => {
 	return async () => {
 		return queryClient.ensureQueryData(meQuery());
 	};

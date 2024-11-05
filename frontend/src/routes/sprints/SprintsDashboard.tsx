@@ -299,7 +299,7 @@ const StoriesDashboard = () => {
 					<Link to={`/${orgId}/sprints`}>
 						<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-50 text-gray-300 rounded-md font-bold border-none hover:border-none shadow-neutral">
 							<HomeIcon className="text-gray-300 -ml-3" />
-							<span className="mt-1">Epic</span>
+							<span className="mt-1">Stories</span>
 						</button>
 					</Link>
 					<Link to={`/${orgId}/sprints/dashboard`}>

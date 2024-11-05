@@ -24,7 +24,7 @@ export const epicDetailQuery = (orgId: string, epicId: number) =>
 		queryFn: async () => getEpic({ orgId, epicId }),
 	});
 
-export const loader = (queryClient: QueryClient) => {
+export const epicLoader = (queryClient: QueryClient) => {
 	return async ({ params }: LoaderFunctionArgs) => {
 		if (!params.orgId) {
 			throw new Error('No org id provided');

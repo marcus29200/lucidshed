@@ -33,7 +33,7 @@ export type Epic = {
 	description?: string;
 };
 
-export const loader = (_queryClient: QueryClient) => {
+export const epicsLoader = (_queryClient: QueryClient) => {
 	return async ({ params }: LoaderFunctionArgs) => {
 		if (!params.orgId) {
 			throw new Error('No org id provided');
