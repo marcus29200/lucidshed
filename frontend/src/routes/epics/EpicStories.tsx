@@ -76,7 +76,6 @@ const EpicStories = ({
 		queryKey: ['epicRelatedStories-' + epic.id],
 		queryFn: async () => getRelatedStories(orgId, epic.id),
 	});
-	console.log({ isLoading });
 
 	const stories: Story[] = data ?? [];
 
@@ -98,7 +97,7 @@ const EpicStories = ({
 	useEffect(() => {
 		setProgress(getStoriesProgress(stories));
 	}, [stories]);
-	if (isLoading) return <CircularProgress />;
+
 	return (
 		<>
 			<div className="rounded-xl bg-white p-4">
@@ -117,6 +116,14 @@ const EpicStories = ({
 								gap: '8px',
 							}}
 						>
+							{isLoading && (
+								<CircularProgress
+									className="self-baseline"
+									color="inherit"
+									size={20}
+								/>
+							)}
+
 							{/* Search Bar */}
 							<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-2.5 border border-neutral-light rounded-xl">
 								<SearchIcon />

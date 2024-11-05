@@ -54,7 +54,6 @@ const BacklogList = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 
 	const stories = useLoaderData() as Story[];
-	console.log(stories);
 
 	const visibleRows: Story[] = [...stories].filter((story) =>
 		story.name.toLowerCase().includes(searchTerm.toLowerCase())

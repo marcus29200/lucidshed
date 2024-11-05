@@ -141,8 +141,6 @@ const StoriesTable = ({
 	const handleUpdateSelectedStories = async (
 		formData: Omit<CreateStoryPayload, 'item_type'>
 	) => {
-		console.log(rowsToUpdate);
-
 		if (!rowsToUpdate) {
 			return;
 		}
@@ -161,7 +159,6 @@ const StoriesTable = ({
 		if (!Object.keys(cleanData).length) {
 			return;
 		}
-		console.log(cleanData);
 
 		for (let i = 0; i < rowsToUpdate.length; i++) {
 			const storyId = +rowsToUpdate[i];
