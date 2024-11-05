@@ -152,4 +152,7 @@ button:focus-visible {
 	.active-tiptap-style {
 		@apply !text-primary  !bg-primary/10;
 	}
+	.outline-solid {
+		outline-style: solid;
+	}
 }

@@ -64,7 +64,7 @@ const Toolbar = ({ editor }: Props) => {
 	return (
 		<div
 			className="px-2 py-1 rounded-tl-xl rounded-tr-xl flex justify-between items-start
-    gap-5 w-full flex-wrap border border-gray-400 group-hover/editor:border-gray-600 group-focus-within/editor:!border-primary transition-all duration-100"
+    gap-5 w-full flex-wrap outline-solid outline-1 outline-gray-400 group-hover/editor:outline-gray-600 group-focus-within/editor:!outline-primary transition-all duration-100"
 		>
 			<div className="flex justify-start items-center gap-2 w-full lg:w-10/12 flex-wrap ">
 				<IconButton

@@ -22,7 +22,7 @@ const DescriptionRichEditor = ({ onChange, value }) => {
 		editorProps: {
 			attributes: {
 				class:
-					'flex flex-col px-4 py-3 justify-start border-b border-r border-l border-gray-400 group-hover/editor:border-gray-600 items-start w-full gap-3  text-base pt-4 rounded-bl-xl rounded-br-xl outline-none group-focus-within/editor:!border-primary transition-all duration-100',
+					'px-4 py-3 justify-start outline-solid outline-1 outline-gray-400 group-hover/editor:outline-gray-600 group-focus-within/editor:!outline-primary group-focus-within/editor:!outline-2 outline-offset-0 items-start w-full gap-3  text-base pt-4 rounded-bl-xl rounded-br-xl outline-none transition-all duration-100',
 			},
 		},
 		onUpdate: ({ editor }) => {

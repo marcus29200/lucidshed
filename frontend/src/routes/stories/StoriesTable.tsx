@@ -374,20 +374,18 @@ const StoriesTable = ({
 	if (Object.keys(groupedStories).length) {
 		return (
 			<>
-				{Object.keys(groupedStories).map((key) => {
+				{Object.keys(groupedStories).map((key, index) => {
 					const stories = groupedStories[key];
 					return (
-						<div key={key} className="mt-4">
-							<div className="flex gap-4">
-								<Typography
-									variant="h6"
-									textAlign="left"
-									padding="10px 0"
-									fontWeight="semibold"
-								>
-									{key}
-								</Typography>
-							</div>
+						<div key={key} className={index > 0 ? 'mt-4' : ''}>
+							<Typography
+								variant="h6"
+								textAlign="left"
+								padding="10px 0"
+								fontWeight="semibold"
+							>
+								{key}
+							</Typography>
 
 							<ShedTable
 								tableId={tableId}
@@ -420,7 +418,7 @@ const StoriesTable = ({
 	}
 
 	return (
-		<>
+		<div className="py-2.5">
 			<ShedTable
 				tableId={tableId}
 				columns={columns}
@@ -443,7 +441,7 @@ const StoriesTable = ({
 					setOpenStoryFormDialog(false);
 				}}
 			/>
-		</>
+		</div>
 	);
 };
 
