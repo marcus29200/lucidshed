@@ -89,6 +89,14 @@ const EpicStories = ({
 		setProgress(getStoriesProgress(stories));
 	}, [stories]);
 
+	const handleStoryUpdated = (updatedStory: Story) => {
+		stories.forEach((story, index) => {
+			if (story.id === updatedStory.id) {
+				stories[index] = updatedStory;
+			}
+		});
+	};
+
 	return (
 		<>
 			<div className="rounded-xl bg-white p-4">
@@ -145,6 +153,7 @@ const EpicStories = ({
 					stories={filteredItems}
 					actionsEnabled={false}
 					checkedField={editFieldsCheckedItems}
+					onStoryUpdated={handleStoryUpdated}
 				/>
 			</div>
 		</>

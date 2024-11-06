@@ -5,7 +5,7 @@ import {
 	useLoaderData,
 	useParams,
 } from 'react-router-dom';
-import { getSprints, getStoriesForSprint, Sprint } from '../../api/sprints';
+import { getSprints, Sprint } from '../../api/sprints';
 import {
 	Box,
 	Grid,
@@ -19,9 +19,6 @@ import { DatePicker } from '@mui/x-date-pickers';
 import { Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
-import { Story } from '../stories/Stories';
-import { getStoriesProgress } from '../../shared/stories.mapper';
-import { updateStory } from '../../api/stories';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -53,29 +50,12 @@ export const Sprints = () => {
 		defaultSprint as Sprint | null
 	);
 	const [sprintProgress, setSprintProgress] = useState<number>(0);
-	const [currentStories, setCurrentStories] = useState<Story[]>([]);
+
 	useEffect(() => {
 		if (selectedSprint) {
-			getStoriesForSprint({ orgId, sprintId: selectedSprint.id }).then(
-				(stories) => {
-					setCurrentStories(() => stories);
-				}
-			);
 			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
 		}
 	}, [selectedSprint]);
-
-	useEffect(() => {
-		setSprintProgress(getStoriesProgress(currentStories).progress);
-	}, [currentStories]);
-
-	const onRemoveStory = (storyId: number) => {
-		updateStory({ orgId, storyId, data: { iteration_id: null } }).then(() => {
-			setCurrentStories((stories) =>
-				stories.filter((story) => story.id !== storyId)
-			);
-		});
-	};
 
 	if (!sprints.length) {
 		return (
@@ -224,12 +204,14 @@ export const Sprints = () => {
 				</div>
 			</Box>
 			{/* stories table */}
-			<div className="rounded-xl p-4 bg-white mt-4">
-				<SprintStoryTable
-					stories={currentStories}
-					handleRemoveStory={onRemoveStory}
-				/>
-			</div>
+			{!!selectedSprint && (
+				<div className="rounded-xl p-4 bg-white mt-4">
+					<SprintStoryTable
+						sprint={selectedSprint}
+						setSprintProgress={setSprintProgress}
+					/>
+				</div>
+			)}
 		</>
 	);
 };

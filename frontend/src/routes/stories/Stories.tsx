@@ -58,6 +58,14 @@ export const Stories = () => {
 		setStoredGroupByOption(BASE_STORIES_TABLE_ID, groupBy);
 	}, [groupBy]);
 
+	const handleStoryUpdated = (updatedStory: Story) => {
+		stories.forEach((story, index) => {
+			if (story.id === updatedStory.id) {
+				stories[index] = updatedStory;
+			}
+		});
+	};
+
 	return (
 		<FullHeightSection className="bg-white p-4 shadow !rounded-lg flex flex-col font-poppins">
 			<Box
@@ -122,6 +130,7 @@ export const Stories = () => {
 				initialSorting={initialSorting}
 				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
+				onStoryUpdated={handleStoryUpdated}
 			/>
 		</FullHeightSection>
 	);

@@ -16,6 +16,10 @@ import {
 	GROUP_STORIES_OPTIONS,
 	GroupStoriesOption,
 } from '../stories/stories.model';
+import { getStoriesForSprint, Sprint } from '../../api/sprints';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { getStoriesProgress } from '../../shared/stories.mapper';
+import { StoryAPI, updateStory } from '../../api/stories';
 
 const editFieldsCheckedItems = [
 	'name',
@@ -29,11 +33,11 @@ const editFieldsCheckedItems = [
 const SPRINT_STORIES_TABLE_ID = 'sprint-stories-table';
 
 const SprintStoryTable = ({
-	stories,
-	handleRemoveStory,
+	sprint,
+	setSprintProgress,
 }: {
-	stories: Story[];
-	handleRemoveStory: (storyId: number) => void;
+	sprint: Sprint;
+	setSprintProgress: React.Dispatch<React.SetStateAction<number>>;
 }) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -63,23 +67,67 @@ const SprintStoryTable = ({
 	const [openDialog, setOpenDialog] = useState(false);
 	const orgId = useParams().orgId as string;
 
-	const visibleRows: Story[] = [...stories].filter((story) =>
-		story.name.toLowerCase().includes(searchTerm.toLowerCase())
+	const { data } = useQuery({
+		// add sprintId to query key to avoid caching issues when sprint
+		// see details with different sprints
+		queryKey: ['sprintRelatedStories-' + sprint.id],
+		queryFn: async () => getStoriesForSprint({ orgId, sprintId: sprint.id }),
+	});
+
+	const stories: Story[] = data ?? [];
+
+	const filteredItems = stories.filter((epic) =>
+		epic.name.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	const initialGroupBy = getStoredGroupByOption(SPRINT_STORIES_TABLE_ID);
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
 
+	const { mutate: patchStory } = useMutation({
+		mutationFn: updateStory,
+		onError: () => {
+			console.error('wuhh');
+		},
+		onSuccess: async (updatedStory: StoryAPI) => {
+			handleRemoveStory(updatedStory.id);
+		},
+	});
+
 	useEffect(() => {
 		setStoredGroupByOption(SPRINT_STORIES_TABLE_ID, groupBy as string);
 	}, [groupBy]);
+
+	useEffect(() => {
+		setSprintProgress(getStoriesProgress(stories).progress);
+	}, [stories]);
+
+	const handleStoryUpdated = (updatedStory: Story) => {
+		stories.forEach((story, index) => {
+			if (story.id === updatedStory.id) {
+				stories[index] = updatedStory;
+			}
+		});
+		setSprintProgress(getStoriesProgress(stories).progress);
+	};
+
+	const handleRemoveStory = (id: number) => {
+		const removed = stories.findIndex((story) => story.id === id);
+		if (removed !== -1) {
+			stories.splice(removed, 1);
+			setSprintProgress(getStoriesProgress(stories).progress);
+		}
+	};
 
 	const actions: TableActions<Story> = ({ row, closeMenu }) => [
 		<MenuItem
 			key={`${row.original.id}-0`}
 			onClick={() => {
 				closeMenu();
-				handleRemoveStory(row.original.id);
+				patchStory({
+					orgId,
+					storyId: row.original.id,
+					data: { iteration_id: null },
+				});
 			}}
 			sx={{ px: 6, py: 1, fontFamily: 'Poppins, sans-serif', color: 'red' }}
 		>
@@ -156,9 +204,10 @@ const SprintStoryTable = ({
 				group={groupBy as GroupStoriesOption}
 				tableId={SPRINT_STORIES_TABLE_ID}
 				initialSorting={sortingStates}
-				stories={visibleRows}
+				stories={filteredItems}
 				checkedField={editFieldsCheckedItems}
 				parentActions={actions}
+				onStoryUpdated={handleStoryUpdated}
 			/>
 		</div>
 	);

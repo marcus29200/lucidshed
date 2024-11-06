@@ -65,7 +65,13 @@ const BacklogList = () => {
 	useEffect(() => {
 		setStoredGroupByOption(BACKLOG_STORIES_TABLE_ID, groupBy);
 	}, [groupBy]);
-
+	const handleStoryUpdated = (updatedStory: Story) => {
+		stories.forEach((story, index) => {
+			if (story.id === updatedStory.id) {
+				stories[index] = updatedStory;
+			}
+		});
+	};
 	return (
 		<div className="rounded-xl p-4 bg-white mt-4">
 			<Box
@@ -116,6 +122,7 @@ const BacklogList = () => {
 				stories={visibleRows}
 				checkedField={editFieldsCheckedItems}
 				actionsEnabled={false}
+				onStoryUpdated={handleStoryUpdated}
 			/>
 		</div>
 	);

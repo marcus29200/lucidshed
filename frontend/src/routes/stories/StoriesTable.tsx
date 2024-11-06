@@ -10,6 +10,8 @@ import { useMutation } from '@tanstack/react-query';
 import {
 	CreateStoryPayload,
 	deleteStory,
+	mapRawStory,
+	StoryAPI,
 	updateStory,
 } from '../../api/stories';
 import { copyLink } from '../../api/utils';
@@ -31,6 +33,7 @@ type StoryDataTableProps = {
 	tableId: string;
 	parentActions?: TableActions<Story>;
 	group?: 'statusLabel' | 'priorityLabel';
+	onStoryUpdated?: (story: Story) => void;
 };
 
 const StoriesTable = ({
@@ -41,6 +44,7 @@ const StoriesTable = ({
 	tableId,
 	parentActions,
 	group,
+	onStoryUpdated,
 }: StoryDataTableProps) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -74,13 +78,15 @@ const StoriesTable = ({
 	const [rowsToUpdate, setRowsToUpdate] = useState<string[] | null>(null); // Track which row to delete
 	const [rowsUpdated, setRowsUpdated] = useState<number>(0); // Track which row to delete
 	const location = useLocation();
+
 	const { mutate: patchStory } = useMutation({
 		mutationFn: updateStory,
 		onError: () => {
 			console.error('wuhh');
 		},
-		onSuccess: async () => {
+		onSuccess: async (updatedStory: StoryAPI) => {
 			setRowsUpdated((prev) => prev + 1);
+			onStoryUpdated && onStoryUpdated(mapRawStory(updatedStory));
 		},
 	});
 
@@ -94,6 +100,7 @@ const StoriesTable = ({
 		// When the component first mounts, set filteredStories to the full list of epics
 		setFilteredStories(stories);
 	}, [stories]);
+
 	const { mutate: removeStory } = useMutation({
 		mutationFn: deleteStory,
 		onError: () => {
