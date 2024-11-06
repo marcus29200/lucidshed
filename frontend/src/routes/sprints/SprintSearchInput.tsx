@@ -30,6 +30,9 @@ export default function SprintSearchInput({
 		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
 		: [...items];
 
+	React.useEffect(() => {
+		setValue(sprint);
+	}, [sprint]);
 	const navigate = useNavigate();
 
 	return (

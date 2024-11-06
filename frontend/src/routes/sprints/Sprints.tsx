@@ -1,24 +1,35 @@
-import { QueryClient, queryOptions } from '@tanstack/react-query';
+import { QueryClient, queryOptions, useMutation } from '@tanstack/react-query';
 import {
 	Link,
 	LoaderFunctionArgs,
 	useLoaderData,
 	useParams,
 } from 'react-router-dom';
-import { getSprints, Sprint } from '../../api/sprints';
+import {
+	CreateSprintPayload,
+	getSprints,
+	patchSprint,
+	Sprint,
+} from '../../api/sprints';
 import {
 	Box,
+	FormControl,
 	Grid,
+	IconButton,
+	InputLabel,
 	LinearProgress,
+	MenuItem,
+	Select,
 	TextField,
-	Typography,
 } from '@mui/material';
 import SprintStoryTable from './SprintStoryTable';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Settings } from '@mui/icons-material';
+import { Close, RotateRight, Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
+import { queryClient } from '../../router';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 
 export const getSprintsQuery = (orgId: string) =>
 	queryOptions({
@@ -38,7 +49,7 @@ export const sprintsLoader = (_queryClient: QueryClient) => {
 };
 
 const SELECTED_SPRINT_KEY = 'last-sprint-viewed'; // key to store selected sprint in local storage
-
+let debounceTimeId;
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const orgId = useParams().orgId as string;
@@ -50,12 +61,55 @@ export const Sprints = () => {
 		defaultSprint as Sprint | null
 	);
 	const [sprintProgress, setSprintProgress] = useState<number>(0);
+	const [isLoading, setIsLoading] = useState(false);
+	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
+	const { mutate: updateSprint } = useMutation({
+		mutationFn: patchSprint,
+		onError: () => {
+			console.error('wuhh');
+			setIsLoading(false);
+		},
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['sprints'] });
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 1000);
+		},
+	});
+
+	const handlePatchSprint = (data: Partial<CreateSprintPayload>) => {
+		if (debounceTimeId) {
+			clearTimeout(debounceTimeId);
+		}
+		debounceTimeId = setTimeout(() => {
+			updateSprint({
+				orgId: orgId,
+				sprintId: (selectedSprint as Sprint).id,
+				data,
+			});
+			setIsLoading(true);
+		}, 400);
+	};
 	useEffect(() => {
 		if (selectedSprint) {
 			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
 		}
 	}, [selectedSprint]);
+
+	const handleEditTitle = (value: string): void => {
+		setSelectedSprint((prev) => ({ ...prev!, title: value }));
+		if (value) {
+			handlePatchSprint({ title: value });
+		} else if (debounceTimeId) {
+			clearTimeout(debounceTimeId);
+		}
+	};
+
+	const handleEditDescription = (value: string): void => {
+		setSelectedSprint((prev) => ({ ...prev!, description: value }));
+		handlePatchSprint({ description: value });
+	};
 
 	if (!sprints.length) {
 		return (
@@ -89,12 +143,62 @@ export const Sprints = () => {
 						Reporting
 					</button>
 				</Link>
-				<div className="ml-auto flex-1">
-					<SprintSearchInput
-						enableAddNew={true}
-						sprint={selectedSprint}
-						setSprint={(sprint) => setSelectedSprint(sprint)}
-					/>
+				<div className="ml-auto flex-1 flex gap-2 items-center">
+					<div className="flex-1">
+						<SprintSearchInput
+							enableAddNew={true}
+							sprint={selectedSprint}
+							setSprint={(sprint) => setSelectedSprint(sprint)}
+						/>
+					</div>
+					{!!selectedSprint && (
+						<div className="pt-2">
+							<IconButton onClick={() => setOpenDeleteDialog(true)}>
+								<Close />
+							</IconButton>
+							<ConfirmationDialog
+								open={openDeleteDialog}
+								onClose={() => setOpenDeleteDialog(false)}
+								onConfirm={() => {
+									// TODO: handle delete sprint
+									// it should prompt where to place the stories
+								}}
+								children={
+									<>
+										<div className="flex flex-col gap-4">
+											<span className="text-neutral-regular text-base">
+												Are you sure you want to remove this sprint ?
+											</span>
+											<FormControl>
+												<InputLabel size="small" id="sprint-label">
+													Move stories to sprint:
+												</InputLabel>
+												<Select
+													variant="outlined"
+													size="small"
+													margin="dense"
+													labelId="sprint-label"
+													label="Move stories to sprint:"
+													id="targetSprint"
+												>
+													{sprints
+														.filter((sprint) => sprint.id !== selectedSprint.id)
+														.map((sprint) => (
+															<MenuItem
+																value={sprint.id}
+																key={sprint.id ?? 'none'}
+															>
+																{sprint.title}
+															</MenuItem>
+														))}
+												</Select>
+											</FormControl>
+										</div>
+									</>
+								}
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 			<Box
@@ -106,14 +210,27 @@ export const Sprints = () => {
 			>
 				{selectedSprint && (
 					<>
-						<Typography
-							variant="h6"
-							fontSize={16}
-							fontWeight={700}
-							align="left"
-						>
-							{selectedSprint.title}
-						</Typography>
+						<div className="grid grid-cols-12 gap-x-4 items-center">
+							<TextField
+								variant="outlined"
+								size="small"
+								required
+								margin="dense"
+								className="col-span-8"
+								fullWidth
+								label="Title"
+								id="title"
+								name="title"
+								value={selectedSprint.title}
+								onChange={(e) => handleEditTitle(e.target.value)}
+							></TextField>
+							<RotateRight
+								className="duration-500 text-neutral-regular transition-all animate-spin"
+								style={{
+									opacity: isLoading ? 1 : 0,
+								}}
+							/>
+						</div>
 						<div
 							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
 						>
@@ -135,6 +252,7 @@ export const Sprints = () => {
 										multiline
 										value={selectedSprint.description}
 										rows={8}
+										onChange={(e) => handleEditDescription(e.target.value)}
 									></TextField>
 								</Grid>
 								<Grid item xs={4}>
