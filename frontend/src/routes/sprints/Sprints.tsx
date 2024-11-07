@@ -22,11 +22,13 @@ import {
 	MenuItem,
 	Select,
 	TextField,
+	Tooltip,
+	tooltipClasses,
 } from '@mui/material';
 import SprintStoryTable from './SprintStoryTable';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Close, RotateRight, Settings } from '@mui/icons-material';
+import { Delete, RotateRight, Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
 import { queryClient } from '../../router';
@@ -180,9 +182,6 @@ export const Sprints = () => {
 					</div>
 					{!!selectedSprint && (
 						<div className="pt-2">
-							<IconButton onClick={() => setOpenDeleteDialog(true)}>
-								<Close />
-							</IconButton>
 							<ConfirmationDialog
 								open={openDeleteDialog}
 								onClose={() => setOpenDeleteDialog(false)}
@@ -190,13 +189,11 @@ export const Sprints = () => {
 									deleteSelectedSprint();
 									setOpenDeleteDialog(false);
 								}}
+								title={`Delete sprint "${selectedSprint.title}"?`}
 								disabledConfirm={confirmDeletionName !== selectedSprint.title}
 								children={
 									<>
-										<div className="flex flex-col gap-4">
-											<span className="text-neutral-regular text-base">
-												Are you sure you want to remove this sprint ?
-											</span>
+										<div className="flex flex-col gap-4 pt-4">
 											<FormControl>
 												<InputLabel size="small" id="sprint-label">
 													Move stories to sprint:
@@ -232,17 +229,25 @@ export const Sprints = () => {
 														))}
 												</Select>
 											</FormControl>
-											<TextField
-												variant="outlined"
-												size="small"
-												margin="dense"
-												className="col-span-8"
-												fullWidth
-												label={'Enter sprint name: ' + selectedSprint.title}
-												placeholder={selectedSprint.title}
-												value={confirmDeletionName}
-												onChange={(e) => setConfirmDeletionName(e.target.value)}
-											></TextField>
+											<div>
+												<TextField
+													variant="outlined"
+													size="small"
+													margin="dense"
+													className="col-span-8"
+													fullWidth
+													label="Sprint title"
+													placeholder={selectedSprint.title}
+													value={confirmDeletionName}
+													onChange={(e) =>
+														setConfirmDeletionName(e.target.value)
+													}
+												></TextField>
+												<small className="text-neutral-regular">
+													To confirm deletion, enter the title of the sprint in
+													the text input field.
+												</small>
+											</div>
 										</div>
 									</>
 								}
@@ -261,25 +266,40 @@ export const Sprints = () => {
 				{selectedSprint && (
 					<>
 						<div className="grid grid-cols-12 gap-x-4 items-center">
-							<TextField
-								variant="outlined"
-								size="small"
-								required
-								margin="dense"
-								className="col-span-8"
-								fullWidth
-								label="Title"
-								id="title"
-								name="title"
-								value={selectedSprint.title}
-								onChange={(e) => handleEditTitle(e.target.value)}
-							></TextField>
-							<RotateRight
-								className="duration-500 text-neutral-regular transition-all animate-spin"
-								style={{
-									opacity: isLoading ? 1 : 0,
-								}}
-							/>
+							<div className="col-span-8">
+								<TextField
+									variant="outlined"
+									size="small"
+									required
+									margin="dense"
+									fullWidth
+									label="Title"
+									id="title"
+									name="title"
+									value={selectedSprint.title}
+									onChange={(e) => handleEditTitle(e.target.value)}
+								></TextField>
+								<RotateRight
+									className="duration-500 text-neutral-regular transition-all animate-spin"
+									style={{
+										opacity: isLoading ? 1 : 0,
+									}}
+								/>
+							</div>
+							<div className="col-span-4 text-right pb-4">
+								<Tooltip
+									title="Delete sprint"
+									PopperProps={{
+										sx: {
+											[`& .${tooltipClasses.tooltip}`]: { background: '#000' },
+										},
+									}}
+								>
+									<IconButton onClick={() => setOpenDeleteDialog(true)}>
+										<Delete color="error" />
+									</IconButton>
+								</Tooltip>
+							</div>
 						</div>
 						<div
 							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
