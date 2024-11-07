@@ -35,9 +35,13 @@ const SPRINT_STORIES_TABLE_ID = 'sprint-stories-table';
 const SprintStoryTable = ({
 	sprint,
 	setSprintProgress,
+	targetSprint,
+	setTargetSprint,
 }: {
 	sprint: Sprint;
 	setSprintProgress: React.Dispatch<React.SetStateAction<number>>;
+	targetSprint: number | null;
+	setTargetSprint: React.Dispatch<React.SetStateAction<number | null>>;
 }) => {
 	const sortStates = {
 		name: true, // Set to true to start with descending order
@@ -100,6 +104,19 @@ const SprintStoryTable = ({
 	useEffect(() => {
 		setSprintProgress(getStoriesProgress(stories).progress);
 	}, [stories]);
+
+	useEffect(() => {
+		if (targetSprint !== 0) {
+			stories.forEach((story) => {
+				patchStory({
+					orgId,
+					storyId: story.id,
+					data: { iteration_id: targetSprint },
+				});
+			});
+			setTargetSprint(0);
+		}
+	}, [targetSprint]);
 
 	const handleStoryUpdated = (updatedStory: Story) => {
 		stories.forEach((story, index) => {

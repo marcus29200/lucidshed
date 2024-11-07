@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import {
 	CreateSprintPayload,
+	deleteSprint,
 	getSprints,
 	patchSprint,
 	Sprint,
@@ -63,6 +64,9 @@ export const Sprints = () => {
 	const [sprintProgress, setSprintProgress] = useState<number>(0);
 	const [isLoading, setIsLoading] = useState(false);
 	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+	const [targetDeletion, setTargetDeletion] = useState<string>('');
+	const [targetSprint, setTargetSprint] = useState<number | null>(0);
+	const [confirmDeletionName, setConfirmDeletionName] = useState('');
 
 	const { mutate: updateSprint } = useMutation({
 		mutationFn: patchSprint,
@@ -109,6 +113,29 @@ export const Sprints = () => {
 	const handleEditDescription = (value: string): void => {
 		setSelectedSprint((prev) => ({ ...prev!, description: value }));
 		handlePatchSprint({ description: value });
+	};
+
+	const deleteSelectedSprint = async () => {
+		const target: number | null =
+			targetDeletion === 'backlog' ? null : +targetDeletion;
+		setTargetSprint(target);
+		try {
+			await deleteSprint({ orgId, sprintId: (selectedSprint as Sprint).id });
+			await queryClient.invalidateQueries({ queryKey: ['sprints'] });
+			localStorage.removeItem(SELECTED_SPRINT_KEY);
+			setTargetDeletion('');
+			const deletedItem = sprints.findIndex(
+				(sprint) => sprint.id === (selectedSprint as Sprint).id
+			);
+			if (deletedItem !== -1) {
+				sprints.splice(deletedItem, 1);
+			}
+			if (sprints.length) {
+				setSelectedSprint(sprints[0]);
+			}
+		} catch (error) {
+			console.warn(error);
+		}
 	};
 
 	if (!sprints.length) {
@@ -160,9 +187,10 @@ export const Sprints = () => {
 								open={openDeleteDialog}
 								onClose={() => setOpenDeleteDialog(false)}
 								onConfirm={() => {
-									// TODO: handle delete sprint
-									// it should prompt where to place the stories
+									deleteSelectedSprint();
+									setOpenDeleteDialog(false);
 								}}
+								disabledConfirm={confirmDeletionName !== selectedSprint.title}
 								children={
 									<>
 										<div className="flex flex-col gap-4">
@@ -180,7 +208,18 @@ export const Sprints = () => {
 													labelId="sprint-label"
 													label="Move stories to sprint:"
 													id="targetSprint"
+													defaultValue="backlog"
+													onChange={(event) => {
+														setTargetDeletion(event.target.value);
+													}}
 												>
+													<MenuItem
+														value="backlog"
+														key="backlog"
+														className="!border-b-1 !border-gray-400"
+													>
+														<p className="text-neutral-regular">Backlog</p>
+													</MenuItem>
 													{sprints
 														.filter((sprint) => sprint.id !== selectedSprint.id)
 														.map((sprint) => (
@@ -193,6 +232,17 @@ export const Sprints = () => {
 														))}
 												</Select>
 											</FormControl>
+											<TextField
+												variant="outlined"
+												size="small"
+												margin="dense"
+												className="col-span-8"
+												fullWidth
+												label={'Enter sprint name: ' + selectedSprint.title}
+												placeholder={selectedSprint.title}
+												value={confirmDeletionName}
+												onChange={(e) => setConfirmDeletionName(e.target.value)}
+											></TextField>
 										</div>
 									</>
 								}
@@ -327,6 +377,8 @@ export const Sprints = () => {
 					<SprintStoryTable
 						sprint={selectedSprint}
 						setSprintProgress={setSprintProgress}
+						targetSprint={targetSprint}
+						setTargetSprint={setTargetSprint}
 					/>
 				</div>
 			)}

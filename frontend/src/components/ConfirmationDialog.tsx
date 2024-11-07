@@ -6,6 +6,17 @@ import {
 	Button,
 } from '@mui/material';
 
+export type ConfirmDialogProps = {
+	children: React.ReactNode;
+	open: boolean;
+	onClose: () => void;
+	onConfirm: () => void;
+	title?: string;
+	confirmButton?: string;
+	cancelButton?: string;
+	disabledConfirm?: boolean;
+};
+
 export const ConfirmationDialog = ({
 	children,
 	open,
@@ -14,7 +25,8 @@ export const ConfirmationDialog = ({
 	title = 'Confirm Deletion',
 	confirmButton = 'Delete',
 	cancelButton = 'Cancel',
-}) => {
+	disabledConfirm = false,
+}: ConfirmDialogProps) => {
 	return (
 		<Dialog
 			open={open}
@@ -41,19 +53,6 @@ export const ConfirmationDialog = ({
 				}}
 			>
 				<Button
-					onClick={onConfirm}
-					variant="contained"
-					color="success"
-					sx={{
-						width: '100px',
-						height: '40px',
-						borderRadius: '10px',
-						fontFamily: 'Poppins, sans-serif',
-					}}
-				>
-					{confirmButton}
-				</Button>
-				<Button
 					onClick={onClose}
 					variant="outlined"
 					sx={{
@@ -64,6 +63,20 @@ export const ConfirmationDialog = ({
 					}}
 				>
 					{cancelButton}
+				</Button>
+				<Button
+					onClick={onConfirm}
+					variant="contained"
+					color="success"
+					sx={{
+						width: '100px',
+						height: '40px',
+						borderRadius: '10px',
+						fontFamily: 'Poppins, sans-serif',
+					}}
+					disabled={disabledConfirm}
+				>
+					{confirmButton}
 				</Button>
 			</DialogActions>
 		</Dialog>
