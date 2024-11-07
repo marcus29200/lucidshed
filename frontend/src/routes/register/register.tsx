@@ -1,22 +1,23 @@
 import { FormEvent, useState } from 'react';
 import { Button, Container, TextField, Typography } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { register } from '../../api/auth';
 import LogoHeader from '../../components/LogoHeader';
 
 const Register = () => {
 	const [email, setEmail] = useState('');
-	const navigate = useNavigate();
+	const [registerStatus, setRegisterStatus] = useState<
+		'successfully' | 'failed' | null
+	>(null);
 	const { mutate } = useMutation({
 		mutationFn: register,
-		onSuccess: ({ reset_code }) => {
-			// do nothing currently with the data
-			// just go to login to finish logging in
-			navigate(`/reset-password?code=${reset_code}`);
+		onSuccess: () => {
+			setRegisterStatus('successfully');
 		},
 		onError: (error) => {
 			console.error(error);
+			setRegisterStatus(null);
 		},
 	});
 
@@ -29,7 +30,7 @@ const Register = () => {
 		<>
 			<LogoHeader>
 				<div style={{ display: 'inline-flex', gap: '6px' }}>
-					<Typography variant="body2">Don't have an account?</Typography>
+					<Typography variant="body2">Already have an account?</Typography>
 					<Link to="/login">
 						<Typography
 							color="primary"
@@ -52,32 +53,56 @@ const Register = () => {
 				>
 					15-day free trial, access all features
 				</Typography>
-				<div
-					style={{
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					<form style={{ width: '100%' }} onSubmit={onSubmit}>
-						<TextField
-							margin="normal"
-							required
-							fullWidth
-							id="email"
-							label="Email"
-							name="email"
-							size="small"
-							autoFocus
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-						/>
-						<Button type="submit" fullWidth variant="contained" color="primary">
-							Get started for free
-						</Button>
-					</form>
-				</div>
+				{!registerStatus ? (
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<form style={{ width: '100%' }} onSubmit={onSubmit}>
+							<TextField
+								margin="normal"
+								required
+								fullWidth
+								id="email"
+								label="Email"
+								name="email"
+								size="small"
+								autoFocus
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+							/>
+							<Button
+								type="submit"
+								fullWidth
+								variant="contained"
+								color="primary"
+							>
+								Get started for free
+							</Button>
+						</form>
+					</div>
+				) : (
+					<>
+						<Typography variant="h6">
+							Thank you for registering to Lucidshed!
+						</Typography>
+						<br />
+						<Typography variant="body1">
+							To activate your account, please verify your email address by
+							clicking on the link we sent to{' '}
+							<span className="text-primary">{email}</span>. If you did not
+							receive the email, please check your spam folder.
+						</Typography>
+						<Typography variant="body1">
+							Please note that this confirmation step is required to complete
+							your registration and access your account.
+						</Typography>
+					</>
+				)}
 			</Container>
 		</>
 	);
