@@ -59,6 +59,25 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
 
 
+async def test_should_patch_engineering_item_epic_and_not_modify_type_automatically(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    engineering_item = await add_engineering_item(
+        data_api, org["id"], {"item_type": EngineeringItemType.EPIC}, headers=headers
+    )
+
+    assert engineering_item["item_type"] == EngineeringItemType.EPIC
+
+    response = await data_api.patch(
+        f"{org['id']}/engineering/{engineering_item['id']}", json={"title": "Test Updated"}, headers=headers
+    )
+    assert response.status_code == 200
+
+    engineering_item = response.json()
+    assert engineering_item["title"] == "Test Updated"
+    assert engineering_item["item_type"] == EngineeringItemType.EPIC
+
+
 async def test_should_add_engineering_item_with_estimated_completion_date_in_iso_format_with_timezone(
     data_api: TestClient,
 ):
