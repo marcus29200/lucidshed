@@ -29,7 +29,7 @@ export type Epic = {
 	id: number;
 	startDate: string;
 	endDate: string;
-	priority?: Priority;
+	priority: Priority;
 	description?: string;
 };
 

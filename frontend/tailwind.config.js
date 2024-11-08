@@ -4,7 +4,7 @@ export default {
 	theme: {
 		extend: {
 			colors: {
-				'neutral-dak': '#242831',
+				'neutral-dark': '#242831',
 				'neutral-regular': '#717584',
 				'neutral-light': '#A7AAB4',
 				'neutral-lighter': '#E9EAEC',
@@ -17,6 +17,8 @@ export default {
 				'primary-light': '#80DBD0',
 				'primary-dark': '#18771B',
 				'primary-darker': '#0D440F',
+				secondary: '#E5B710',
+				error: '#ED254E',
 			},
 			animation: {
 				blink: 'blink 1s infinite',

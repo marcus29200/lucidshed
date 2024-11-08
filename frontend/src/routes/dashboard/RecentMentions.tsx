@@ -69,7 +69,7 @@ const RecentlyMentioned: React.FC = () => {
 			</div>
 
 			{/* Scrollable container for mentions */}
-			<div className="max-h-[280px] overflow-y-auto space-y-4 scrollbar-hide custom-scrollbar">
+			<div className="max-h-[280px] overflow-y-auto space-y-4 scrollbar-hide">
 				<table className="min-w-full bg-white border rounded-md overflow-hidden">
 					<thead className="bg-[#E9EAEC] rounded-md">
 						<tr className="text-left text-gray-500 border-b">
