@@ -32,10 +32,10 @@ export const queryClient = new QueryClient({
 		// this allows us to have a "global" redirect on the loader queries
 		// since there is no way to do this in one place with react-router
 		// or use a ProtectedRoute component (since loaders will fire before it is rendered)
-		onError: (error: Error & { status?: number }) => {
+		onError: (error: Error & { status?: number; detail?: string }) => {
 			console.log(error);
 
-			if (error.status === 401) {
+			if (error.status === 401 || error.detail === 'Invalid Token') {
 				window.location.replace('/shed/#/login');
 			}
 		},

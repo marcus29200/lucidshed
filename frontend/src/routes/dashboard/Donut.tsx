@@ -59,7 +59,7 @@ class Donut extends Component<DonutProps, DonutState> {
 									fontFamily: 'Poppins, sans-serif',
 									fontWeight: 700,
 									formatter: () => {
-										return '100%';
+										return `${this.getPercentage(this.props.completed)}%`;
 									},
 								},
 							},
@@ -134,16 +134,6 @@ class Donut extends Component<DonutProps, DonutState> {
 						>
 							Completed
 						</span>
-						<span
-							style={{
-								fontSize: '14px',
-								fontWeight: 'bold',
-								color: '#00E396',
-								fontFamily: 'Poppins, sans-serif',
-							}}
-						>
-							{this.props.completed}
-						</span>
 					</div>
 					<div
 						style={{
@@ -172,16 +162,6 @@ class Donut extends Component<DonutProps, DonutState> {
 						>
 							In Progress
 						</span>
-						<span
-							style={{
-								fontSize: '14px',
-								fontWeight: 'bold',
-								color: '#FEB019',
-								fontFamily: 'Poppins, sans-serif',
-							}}
-						>
-							{this.props.inProgress}
-						</span>
 					</div>
 					<div
 						style={{
@@ -209,16 +189,6 @@ class Donut extends Component<DonutProps, DonutState> {
 							}}
 						>
 							Not Started
-						</span>
-						<span
-							style={{
-								fontSize: '14px',
-								fontWeight: 'bold',
-								color: '#FF4560',
-								fontFamily: 'Poppins, sans-serif',
-							}}
-						>
-							{this.props.notStarted}
 						</span>
 					</div>
 				</div>

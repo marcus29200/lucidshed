@@ -88,29 +88,6 @@ button:focus-visible {
 	border-radius: 12px;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-	width: 10px;
-	height: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-	background: #f0f0f0; /* Track color */
-	border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-	background-color: #32c5ff; /* Scrollbar thumb color (green) */
-	border-radius: 10px;
-	border: 3px solid #f0f0f0; /* Makes the thumb appear rounded */
-}
-
-/* For Firefox */
-.custom-scrollbar {
-	scrollbar-width: thin;
-	scrollbar-color: #32c5ff #f0f0f0;
-}
-
 /* custom editor */
 .tiptap {
 	text-align: left;

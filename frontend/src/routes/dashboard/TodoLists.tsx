@@ -1,11 +1,10 @@
-import { CalendarMonth, CheckCircle } from '@mui/icons-material';
+import { CalendarMonth } from '@mui/icons-material';
 import { DashboardItemIcon } from '../../icons/icons';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
 import { getStoriesAssignedToMe } from '../../api/stories';
 import { User } from '../../api/users';
 import dayjs from 'dayjs';
-import { FormControl, Radio } from '@mui/material';
 
 interface TaskProps {
 	title: string;
@@ -39,13 +38,13 @@ const TodoList: React.FC = () => {
 					<h2 className="text-lg font-bold font-poppins">Todo List</h2>
 				</div>
 
-				<p className="text-sm ml-10 text-gray-400 font-semibold mb-4 font-poppins">
-					Tasks need your immediate attention
+				<p className="text-sm text-gray-400 font-semibold mb-4 font-poppins text-left">
+					Tickets assigned to me
 				</p>
 			</div>
 
 			{/* Container for tasks with vertical scroll */}
-			<div className="max-h-[340px] overflow-y-auto space-y-4 scrollbar-hide custom-scrollbar pr-3">
+			<div className="max-h-[340px] overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
 					<Task
 						key={'story-' + story.id}
@@ -62,41 +61,21 @@ const TodoList: React.FC = () => {
 };
 
 // Define the Task component that accepts TaskProps as props
-const Task: React.FC<TaskProps> = ({
-	title,
-	ticket,
-	due,
-	completed,
-	orgId,
-}) => (
-	<div className="flex flex-col gap-y-4 justify-center items-start w-full mb-4">
-		<div className="flex flex-row justify-between w-full">
-			<div className="flex flex-col gap-y-2">
-				<span
-					className={`text-sm bg-[#FBD9E0] p-2 rounded-lg w-max ${
-						completed ? 'text-pink-600' : 'text-pink-600'
-					}`}
-				>
-					{completed ? 'Completed' : 'Upcoming'}
-				</span>
-				<Link to={`/${orgId}/stories/${ticket}`}>
-					<p className="font-semibold text-black">{title}</p>
-				</Link>
-			</div>
-			<FormControl>
-				<Radio
-					size="small"
-					checked={completed}
-					readOnly={true}
-					checkedIcon={<CheckCircle />}
-				/>
-			</FormControl>
-		</div>
-		<div className="flex flex-row justify-between w-full">
-			<p className="text-xs text-gray-400">Ticket#: {ticket}</p>
+const Task: React.FC<TaskProps> = ({ title, ticket, due, orgId }) => (
+	<div className="shadow-sm p-5 border rounded-lg border-neutral-regular relative">
+		<Link
+			to={`/${orgId}/stories/${ticket}`}
+			className="text-neutral-dark hover:text-neutral-regular "
+		>
+			<h6 className="text-left font-semibold truncate">{title}</h6>
+		</Link>
+		<div className="flex flex-row justify-between w-full flex-wrap items-center">
+			<p className="text-xs">
+				<span className="text-neutral-regular">Ticket#:</span> {ticket}
+			</p>
 			<div className="flex items-center flex-row gap-x-1">
-				<CalendarMonth className="mr-1 text-gray-300" />
-				<p className="text-xs text-gray-400 mr-4">Due: {due}</p>
+				<CalendarMonth className=" text-neutral-regular" />
+				<p className="text-xs text-neutral-regular">Due: {due}</p>
 			</div>
 		</div>
 	</div>
