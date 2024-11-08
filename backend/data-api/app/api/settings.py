@@ -36,6 +36,9 @@ class Settings(BaseModel):
     # Google settings
     google_client_id: Optional[str] = getenv("GOOGLE_CLIENT_ID", None)
     google_client_secret: Optional[str] = getenv("GOOGLE_CLIENT_SECRET", None)
+    google_service_account_email: Optional[str] = getenv(
+        "GOOGLE_SERVICE_ACCOUNT_EMAIL", "test@test.iam.gserviceaccount.com"
+    )
 
     # Google Cloud Storage settings
     gcs_bucket: Optional[str] = getenv("GCS_BUCKET", None)

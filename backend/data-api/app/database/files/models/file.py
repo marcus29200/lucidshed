@@ -1,6 +1,7 @@
 from enum import StrEnum
 from typing import Any, Optional
 
+from google.auth import default, impersonated_credentials
 from google.cloud import storage
 from pydantic import BaseModel, Field
 
@@ -43,5 +44,13 @@ class File(Model, BaseFile):
 
         bucket = client.bucket(settings.gcs_bucket)
         blob = bucket.blob(self.path)
-        url = blob.generate_signed_url(expiration=SIGNED_URL_EXPIRATION_MINUTES)
+
+        credentials, _ = default()
+        target_creds = impersonated_credentials.Credentials(
+            source_credentials=credentials,
+            target_principal=settings.google_service_account_email,
+            target_scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+
+        url = blob.generate_signed_url(expiration=SIGNED_URL_EXPIRATION_MINUTES, credentials=target_creds)
         return url
