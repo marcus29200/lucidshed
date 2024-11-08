@@ -34,8 +34,6 @@ class BaseEngineeringItem(BaseWorkItem):
     # watchers: Optional[List[Watcher]] = []  # TODO Create db models and relationships
 
     def __init__(self, **data):
-        data["item_type"] = data.get("item_type") or EngineeringItemType.STORY.value  # no None values
-
         if isinstance(data.get("iteration"), str):
             data["iteration"] = json.loads(data["iteration"])
         if isinstance(data.get("team"), str):
