@@ -44,7 +44,7 @@ const TodoList: React.FC = () => {
 			</div>
 
 			{/* Container for tasks with vertical scroll */}
-			<div className="max-h-[340px] overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
+			<div className="max-h-[340px] !overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
 					<Task
 						key={'story-' + story.id}

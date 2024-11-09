@@ -3,7 +3,7 @@ import { DashboardItemIcon } from '../../icons/icons';
 import { ArrowDropUpRounded, CalendarMonth } from '@mui/icons-material';
 import { Epic } from '../epics/Epics';
 import { getEpics } from '../../api/epics';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
@@ -18,10 +18,10 @@ const priorityColors = {
 
 // TODO: for now we're using epics
 const RoadmapView: React.FC = () => {
-	const { orgId } = useParams();
+	const orgId = useParams().orgId as string;
 	const { data, isLoading } = useQuery({
 		queryKey: ['epics'],
-		queryFn: async () => getEpics(orgId as string),
+		queryFn: async () => getEpics(orgId),
 	});
 	const epics = data ?? [];
 
@@ -50,7 +50,7 @@ const RoadmapView: React.FC = () => {
 					{' '}
 					{/* Adjust width based on 3 cards */}
 					{epics.map((epic) => (
-						<Card {...epic} key={'epic-' + epic.id} />
+						<Card {...epic} orgId={orgId} key={'epic-' + epic.id} />
 					))}
 				</div>
 			</div>
@@ -59,7 +59,14 @@ const RoadmapView: React.FC = () => {
 };
 
 // Define the Card component that accepts CardProps as props
-const Card: React.FC<Epic> = ({ endDate, name, description, priority }) => (
+const Card: React.FC<Epic & { orgId: string }> = ({
+	endDate,
+	name,
+	description,
+	priority,
+	id,
+	orgId,
+}) => (
 	<div
 		className="shadow-sm p-5 border rounded-lg min-w-[300px] min-h-32 relative"
 		style={{
@@ -69,7 +76,12 @@ const Card: React.FC<Epic> = ({ endDate, name, description, priority }) => (
 		{' '}
 		{/* Ensure card has fixed width */}
 		<h3 className="font-semibold text-lg flex items-center">
-			{name}
+			<Link
+				to={`/${orgId}/epics/${id}`}
+				className="text-neutral-dark hover:text-neutral-regular "
+			>
+				{name}
+			</Link>
 			{/* Date with calendar icon */}
 			{endDate && (
 				<div className="flex items-center text-gray-400 text-sm ml-auto">

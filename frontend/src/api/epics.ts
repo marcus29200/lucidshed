@@ -96,6 +96,23 @@ export const getEpic = async ({
 	return mapEpic(epic);
 };
 
+export const patchEpic = async ({ orgId, epicId, data }): Promise<Epic> => {
+	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}`, {
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+		body: JSON.stringify(data),
+	});
+	if (!res.ok) {
+		throw await res.json();
+	}
+
+	const epic = await res.json();
+	return mapEpic(epic);
+};
+
 export const deleteEpic = async ({ orgId, epicId }: GetEpicPayload) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}`, {
 		headers: {
