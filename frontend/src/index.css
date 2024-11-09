@@ -125,6 +125,23 @@ button:focus-visible {
 	}
 }
 
+/* collapsible */
+.collapsible-header[aria-expanded='true'] svg {
+	transform: rotate(-180deg);
+}
+
+.collapsible-content {
+	max-height: 0px;
+	overflow: hidden;
+	opacity: 0;
+	transition: all 0.2s ease-in-out;
+}
+
+.collapsible-header[aria-expanded='true'] + .collapsible-content {
+	max-height: 100vh;
+	opacity: 1;
+}
+
 @layer components {
 	.active-tiptap-style {
 		@apply !text-primary  !bg-primary/10;

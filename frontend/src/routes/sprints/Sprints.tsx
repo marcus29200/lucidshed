@@ -14,6 +14,7 @@ import {
 } from '../../api/sprints';
 import {
 	Box,
+	Button,
 	FormControl,
 	Grid,
 	IconButton,
@@ -28,7 +29,7 @@ import {
 import SprintStoryTable from './SprintStoryTable';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Delete, RotateRight, Settings } from '@mui/icons-material';
+import { Delete, ExpandMore, RotateRight, Settings } from '@mui/icons-material';
 import { HomeIcon } from '../../icons/icons';
 import SprintSearchInput from './SprintSearchInput';
 import { queryClient } from '../../router';
@@ -52,6 +53,7 @@ export const sprintsLoader = (_queryClient: QueryClient) => {
 };
 
 const SELECTED_SPRINT_KEY = 'last-sprint-viewed'; // key to store selected sprint in local storage
+const DESCRIPTION_EXPANDED_KEY = 'sprint-description-expanded';
 let debounceTimeId;
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
@@ -69,6 +71,10 @@ export const Sprints = () => {
 	const [targetDeletion, setTargetDeletion] = useState<string>('');
 	const [targetSprint, setTargetSprint] = useState<number | null>(0);
 	const [confirmDeletionName, setConfirmDeletionName] = useState('');
+	const [descriptionExpanded, setDescriptionExpanded] = useState(
+		!localStorage.getItem(DESCRIPTION_EXPANDED_KEY) ||
+			localStorage.getItem(DESCRIPTION_EXPANDED_KEY) === '1'
+	);
 
 	const { mutate: updateSprint } = useMutation({
 		mutationFn: patchSprint,
@@ -102,6 +108,13 @@ export const Sprints = () => {
 			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
 		}
 	}, [selectedSprint]);
+
+	useEffect(() => {
+		localStorage.setItem(
+			DESCRIPTION_EXPANDED_KEY,
+			descriptionExpanded ? '1' : '0'
+		);
+	}, [descriptionExpanded]);
 
 	const handleEditTitle = (value: string): void => {
 		setSelectedSprint((prev) => ({ ...prev!, title: value }));
@@ -306,24 +319,36 @@ export const Sprints = () => {
 						>
 							<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 								<Grid item xs={8}>
-									<TextField
-										sx={{
-											'& .MuiInputBase-root': {
-												background: 'white',
-											},
-										}}
-										variant="outlined"
-										size="small"
-										margin="dense"
-										fullWidth
-										label="Description"
-										id="description"
-										name="description"
-										multiline
-										value={selectedSprint.description}
-										rows={8}
-										onChange={(e) => handleEditDescription(e.target.value)}
-									></TextField>
+									<div
+										className="collapsible-header text-left"
+										aria-expanded={descriptionExpanded}
+									>
+										<Button
+											onClick={() => setDescriptionExpanded((prev) => !prev)}
+										>
+											Description
+											<ExpandMore />
+										</Button>
+									</div>
+									<div className="collapsible-content">
+										<TextField
+											sx={{
+												'& .MuiInputBase-root': {
+													background: 'white',
+												},
+											}}
+											variant="outlined"
+											size="small"
+											margin="dense"
+											fullWidth
+											id="description"
+											name="description"
+											multiline
+											value={selectedSprint.description}
+											rows={8}
+											onChange={(e) => handleEditDescription(e.target.value)}
+										></TextField>
+									</div>
 								</Grid>
 								<Grid item xs={4}>
 									<DatePicker
