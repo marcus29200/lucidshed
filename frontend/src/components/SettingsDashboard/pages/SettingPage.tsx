@@ -5,7 +5,6 @@ import Reporting from '../components/Reporting';
 import React from 'react';
 import {
 	Close,
-	KeyboardReturn,
 	Language,
 	LocalOffer,
 	MonetizationOnOutlined,
@@ -22,7 +21,7 @@ import { BasicModalProps } from '../settings-dashboard.model';
 const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 	const [selectedComponent, setSelectedComponent] = React.useState<
 		string | null
-	>(null);
+	>('UserManagement');
 	const [searchQuery, setSearchQuery] = React.useState(''); // State to store search query
 
 	const menuOptions = [
@@ -83,7 +82,8 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 				open={open}
 				onClose={() => {
 					setOpen(false);
-					setSelectedComponent(null);
+					// TODO: set selected component to null
+					// setSelectedComponent(null);
 				}}
 				sx={{
 					display: 'flex',
@@ -101,15 +101,19 @@ const SettingsModal = ({ open, setOpen }: BasicModalProps) => {
 					}}
 				>
 					<div className="flex w-full justify-between p-2">
-						{selectedComponent && (
+						{/* disable back button until we finish this */}
+						{/* users management is the only option active */}
+						<span>&nbsp;</span>
+						{/* {selectedComponent && (
 							<IconButton onClick={() => setSelectedComponent(null)}>
 								<KeyboardReturn fontSize="large" />
 							</IconButton>
-						)}
+						)} */}
 						<IconButton
 							onClick={() => {
 								setOpen(false);
-								setSelectedComponent(null);
+								// TODO: set selected component to null
+								// setSelectedComponent(null);
 							}}
 							sx={{
 								marginLeft: 'auto',
