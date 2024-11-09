@@ -8,7 +8,6 @@ import {
 } from '../../../api/users';
 import { Box, Typography, IconButton } from '@mui/material';
 import { SearchIcon } from '../../../icons/icons';
-import TableFiltersButton from '../../TableFiltersButton';
 import { Add } from '@mui/icons-material';
 import UserManagementTable from './UserManagmentTable';
 import CreateUserModal from '../pages/CreateUserModal';
@@ -18,8 +17,7 @@ const UserManagement: React.FC = () => {
 	const [users, setUsers] = useState<User[]>([]);
 	const [visibleRows, setVisibleRows] = useState<User[]>([]);
 	const [searchTerm, setSearchTerm] = useState('');
-	const [filterCheckedItems, setFilterCheckedItems] = useState<string[]>([]);
-	const [filterItems, setFilterItems] = useState<string[]>([]);
+
 	const [openCreateUser, setOpenCreateUser] = useState(false);
 
 	// load data
@@ -32,10 +30,6 @@ const UserManagement: React.FC = () => {
 	const loadUsers = () => {
 		getUsers(orgId).then((users) => {
 			setUsers(() => users);
-			setFilterItems(() => [
-				'Select All',
-				...users.map((story) => story.fullName),
-			]);
 		});
 	};
 
@@ -82,7 +76,7 @@ const UserManagement: React.FC = () => {
 						}}
 					>
 						{/* Search Bar */}
-						<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-2.5 border border-neutral-light rounded-xl">
+						<div className="flex self-baseline flex-row items-center gap-x-2 px-2 py-1 border border-neutral-light rounded-xl">
 							<SearchIcon />
 							<input
 								type="text"
@@ -96,12 +90,7 @@ const UserManagement: React.FC = () => {
 								}}
 							/>
 						</div>
-						{/* filters  */}
-						<TableFiltersButton
-							filterItems={filterItems}
-							filterCheckedItems={filterCheckedItems}
-							setFilterCheckedItems={setFilterCheckedItems}
-						/>
+
 						{/* create epic and edit fields button */}
 						<div className="grid gap-2">
 							{/* Open add user */}
@@ -114,7 +103,7 @@ const UserManagement: React.FC = () => {
 									},
 									transition: 'all 0.3s ease-in-out',
 								}}
-								className="rounded-full !w-14 !h-14"
+								className="rounded-full !w-10 !h-10"
 								onClick={handleOpenAddUser}
 							>
 								<Add htmlColor="white" />

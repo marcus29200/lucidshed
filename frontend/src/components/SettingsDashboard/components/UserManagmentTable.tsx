@@ -24,12 +24,12 @@ const USER_MANAGEMENT_TABLE_ID = 'user-management-table';
 
 const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 	const sortStates = {
-		fullName: false, // Set to true to start with descending order
-		id: false,
-		email: false,
-		createdAt: false,
-		role: false,
-		team: false,
+		fullName: true, // Set to true to start with descending order
+		id: null,
+		email: null,
+		createdAt: null,
+		role: null,
+		team: null,
 	};
 	const initialSorting = getStoredSortState(USER_MANAGEMENT_TABLE_ID);
 	if (Object.keys(initialSorting).length) {
