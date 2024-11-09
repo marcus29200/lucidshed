@@ -5,6 +5,7 @@ import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
 import { getStoriesAssignedToMe } from '../../api/stories';
 import { User } from '../../api/users';
 import dayjs from 'dayjs';
+import { StoryStatus } from '../stories/stories.model';
 
 interface TaskProps {
 	title: string;
@@ -12,8 +13,13 @@ interface TaskProps {
 	due: string;
 	orgId: string;
 	completed?: boolean; // This is optional because not all tasks are completed
+	status: StoryStatus;
 }
-
+const statusColors = {
+	'in-progress': '#E5B710',
+	done: '#20A224',
+	'not-started': '#717584',
+};
 const TodoList: React.FC = () => {
 	const params = useParams();
 	const { id: userId } = useRouteLoaderData('user') as User;
@@ -23,13 +29,16 @@ const TodoList: React.FC = () => {
 	});
 
 	const items = data ?? [];
-	items.sort((a, b) =>
-		a.targetDate && b.targetDate
-			? dayjs(a.targetDate).diff(dayjs(b.targetDate))
-			: a.targetDate && !b.targetDate
-			? 1
-			: 0
-	);
+	// put the ticket with the oldest target date at the top
+	// items.sort((a, b) =>
+	// 	a.targetDate && b.targetDate
+	// 		? dayjs(a.targetDate).isAfter(dayjs(b.targetDate))
+	// 			? 1
+	// 			: -1
+	// 		: a.targetDate && !b.targetDate
+	// 		? -1
+	// 		: 1
+	// );
 	return (
 		<div className="p-6 bg-white rounded-lg shadow-md border-1 border-gray-200 font-poppins h-full">
 			<div className="flex flex-col gap-y-1.5">
@@ -50,7 +59,12 @@ const TodoList: React.FC = () => {
 						key={'story-' + story.id}
 						title={story.name}
 						ticket={story.id.toString()}
-						due={dayjs(story.targetDate).format('MMM DD, YYYY')}
+						due={
+							story.targetDate
+								? dayjs(story.targetDate).format('MMM DD, YYYY')
+								: '-'
+						}
+						status={story.status}
 						completed={story.status === 'done'}
 						orgId={params.orgId as string}
 					/>
@@ -61,8 +75,13 @@ const TodoList: React.FC = () => {
 };
 
 // Define the Task component that accepts TaskProps as props
-const Task: React.FC<TaskProps> = ({ title, ticket, due, orgId }) => (
-	<div className="shadow-sm p-5 border rounded-lg border-neutral-regular relative">
+const Task: React.FC<TaskProps> = ({ title, ticket, due, orgId, status }) => (
+	<div
+		className="shadow-sm p-5 border rounded-lg relative"
+		style={{
+			borderColor: statusColors[status] ?? '#717584',
+		}}
+	>
 		<Link
 			to={`/${orgId}/stories/${ticket}`}
 			className="text-neutral-dark hover:text-neutral-regular "
