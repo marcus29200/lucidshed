@@ -10,9 +10,7 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class FeatureRequestController(WorkItemController):
-    async def create(
-            self, *, company_id: str, new_item: FeatureRequest, current_user: str
-    ) -> FeatureRequest:
+    async def create(self, *, company_id: str, new_item: FeatureRequest, current_user: str) -> FeatureRequest:
 
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_REQUEST"],
@@ -42,16 +40,18 @@ class FeatureRequestController(WorkItemController):
         record, user = await self._get(company_id=company_id, id=id, scope="FEATURE_REQUEST")
 
         return FeatureRequest(**record, submitted_by=user)
-    
+
     async def get_all(
-            self,
-            *,
-            company_id: str,
-            sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
-            limit: Optional[int] = 1000,
-            cursor: Optional[str] = None,
+        self,
+        *,
+        company_id: str,
+        sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
     ) -> Tuple[List[FeatureRequest], str | None]:
-        if sort and sort not in WorkItemSortableField:  # TODO: add fields to WorkItemSortableField or make a new one for FeatureRequest
+        if (
+            sort and sort not in WorkItemSortableField
+        ):  # TODO: add fields to WorkItemSortableField or make a new one for FeatureRequest
             raise Exception(f"Invalid sort field: {sort}")
 
         # TODO: implement determine_get_all_filter_conditions for FeatureRequest
@@ -80,9 +80,9 @@ class FeatureRequestController(WorkItemController):
             cursor = generate_cursor(sort, offset + limit)
 
         return [FeatureRequest(**record) for record in records], cursor
-    
+
     async def update(
-            self, *, company_id: str, id: int, updated_item: FeatureRequest, current_user: str
+        self, *, company_id: str, id: int, updated_item: FeatureRequest, current_user: str
     ) -> FeatureRequest:
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_FEATURE_REQUEST"],
@@ -126,6 +126,7 @@ class FeatureRequestController(WorkItemController):
         #     )
 
         #     return result == "DELETE 1"
+
 
 # TODO: Implement determine_get_all_filter_conditions for FeatureRequest
 # def determine_get_all_filter_conditions(
