@@ -136,7 +136,7 @@ export const Story = () => {
 
 	const handleEditTitle = (value: string): void => {
 		setTitle(value);
-		if (value && value.length < 41) {
+		if (value) {
 			handlePatchStory({ title: value });
 		} else if (debounceTimeId) {
 			clearTimeout(debounceTimeId);
@@ -276,15 +276,9 @@ export const Story = () => {
 									label="Title"
 									id="title"
 									name="title"
-									color={title.length > 40 ? 'error' : 'primary'}
 									value={title}
 									onChange={(e) => handleEditTitle(e.target.value)}
 								></TextField>
-								{title.length > 40 && (
-									<small role="alert" className="text-left pb-2 text-red-500">
-										Ticket title must be maximum 40 characters.
-									</small>
-								)}
 							</FormControl>
 							<DescriptionRichEditor
 								onChange={handleEditDescription}
