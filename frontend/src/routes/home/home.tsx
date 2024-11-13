@@ -49,6 +49,7 @@ function Home() {
 					justifyContent: 'center',
 					height: '100vh',
 				}}
+				className="absolute md:relative"
 			>
 				<img src={import.meta.env.BASE_URL + '/logo.svg'} />
 				<Link to="/login">
