@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from openai import Client
+from openai import Client, RateLimitError
 from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
@@ -32,14 +32,18 @@ async def perform_engineering_item_request(
     context_text = "\n".join([item.ai_format() for item in context])
 
     # Send the info to the model
-    completion: ChatCompletion = openai_client.beta.chat.completions.parse(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": ENGINEERING_ITEM_BASE_QUERY},
-            {"role": "system", "content": f"Context: {context_text}"},
-        ],
-        response_format=AskLucidRawResponse,
-    )
+    try:
+        completion: ChatCompletion = openai_client.beta.chat.completions.parse(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": ENGINEERING_ITEM_BASE_QUERY},
+                {"role": "system", "content": f"Context: {context_text}"},
+            ],
+            response_format=AskLucidRawResponse,
+        )
+    except RateLimitError as rle:
+        if rle.message.startswith("Request too large"):
+            return "Sorry, that query is too large", []
 
     message = completion.choices[0].message
     if message.refusal:

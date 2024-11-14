@@ -165,6 +165,8 @@ FROM engineering_items
 WHERE
     engineering_items.organization_id = $1
     AND engineering_items.deleted_at IS NULL
+    AND engineering_items.description IS NOT NULL
+    AND engineering_items.description != ''
 """
 
 
