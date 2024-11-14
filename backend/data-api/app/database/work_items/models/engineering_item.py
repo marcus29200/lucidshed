@@ -41,6 +41,9 @@ class BaseEngineeringItem(BaseWorkItem):
 
         super().__init__(**data)
 
+    def ai_format(self):
+        return f"id={self.id}, description={self.description}, status={self.status}"
+
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
     pass

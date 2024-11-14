@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
+from app.api.tools.ask_lucid import perform_engineering_item_request
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -38,6 +39,15 @@ class BaseEngineeringItemLinkPayload(BaseModel):
     item_id: int
 
 
+class AskLucidPayload(BaseModel):
+    query: str
+
+
+class AskLucidResponse(BaseModel):
+    summary: str
+    related_items: List[EngineeringItem]
+
+
 class CreateEngineeringItemLinkPayload(BaseEngineeringItemLinkPayload):
     """
     This payload is directional, so item_1 is the parent and item_2 is the child, so for example if you wanted to
@@ -47,6 +57,23 @@ class CreateEngineeringItemLinkPayload(BaseEngineeringItemLinkPayload):
 
     item_id: int
     link_type: EngineeringLinkType
+
+
+@router.post("/ask-lucid", status_code=200)
+async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayload):
+    # Basic idea here is to take in some query and then use the AI model to get results based on postgres data
+    # Flow:
+    # 1. Get an understanding of the query, figure out if there are any relevant things we can filter on first
+    # 2. Get relevant data from filters from the database
+    # 3. Run the query through the AI model with the relevant data
+    # 4. Ask the AI model to return a list of item ids that are relevant along with a summary of the findings
+    # 5. Load the relevant items using those ids
+    # 6. Return the relevant items and the summary
+    summary, related_items = await perform_engineering_item_request(
+        request.app.engineering_controller, body.query, organization_id
+    )
+
+    return AskLucidResponse(summary=summary, related_items=related_items)
 
 
 @router.post("", status_code=201, response_model=EngineeringItem)

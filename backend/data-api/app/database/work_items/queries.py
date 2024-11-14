@@ -155,6 +155,35 @@ OFFSET $4;
 
 
 WORK_ITEM_QUERIES[
+    "GET_ASK_LUCID_ENGINEERING_ITEM"
+] = f"""
+SELECT
+    engineering_items.*,
+    {LOAD_ITERATION},
+    {LOAD_TEAM}
+FROM engineering_items
+WHERE
+    engineering_items.organization_id = $1
+    AND engineering_items.deleted_at IS NULL
+"""
+
+
+WORK_ITEM_QUERIES[
+    "GET_ENGINEERING_ITEMS_BY_IDS"
+] = f"""
+SELECT
+    engineering_items.*,
+    {LOAD_ITERATION},
+    {LOAD_TEAM}
+FROM engineering_items
+WHERE
+    engineering_items.organization_id = $1
+    AND engineering_items.deleted_at IS NULL
+    AND engineering_items.id = ANY($2)
+"""
+
+
+WORK_ITEM_QUERIES[
     "UPDATE_ENGINEERING_ITEM"
 ] = f"""
 UPDATE engineering_items

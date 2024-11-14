@@ -109,6 +109,16 @@ class EngineeringController(WorkItemController):
 
         return [EngineeringItem(**record) for record in records], cursor
 
+    async def get_ask_lucid_info(self, organization_id: str) -> List[EngineeringItem]:
+        records = await data_db.get().fetch(QUERIES["GET_ASK_LUCID_ENGINEERING_ITEM"], organization_id)
+
+        return [EngineeringItem(**record) for record in records]
+
+    async def get_batch_by_id(self, *, organization_id: str, ids: List[int]) -> List[EngineeringItem]:
+        records = await data_db.get().fetch(QUERIES["GET_ENGINEERING_ITEMS_BY_IDS"], organization_id, ids)
+
+        return [EngineeringItem(**record) for record in records]
+
     async def update(
         self,
         *,
