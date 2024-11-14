@@ -19,6 +19,9 @@ class EngineeringController(WorkItemController):
     async def create(
         self, *, organization_id: str, new_item: BaseEngineeringItem, current_user: str
     ) -> EngineeringItem:
+        if new_item.item_type is None:
+            new_item.item_type = EngineeringItemType.STORY
+
         # Create db record
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
