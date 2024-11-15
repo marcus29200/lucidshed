@@ -32,12 +32,12 @@ jobs:
           --health-retries=5
       opensearch:
         image: opensearchproject/opensearch:2.17.1
-        options: >-
-          - discovery.type=single-node
-          - bootstrap.memory_lock=true   
-          - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
-          - plugins.security.disabled=true
-          - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=Luc1dshedTester!"
+        options: --health-cmd="curl -s http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'" --health-retries=10 --health-interval=5s
+        env:
+          discovery.type: "single-node"
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+          plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "Luc1dshedTester!"
         ports:
           - 9200:9200
 
@@ -56,6 +56,13 @@ jobs:
         pip install poetry
         poetry install
       working-directory: backend/data-api
+
+    - name: Wait for OpenSearch
+      run: |
+          until curl -s http://localhost:9200 -u admin:Luc1dshedTester! | grep '"status":"yellow"' || grep '"status":"green"'; do
+            echo "Waiting for OpenSearch to start..."
+            sleep 5
+          done
 
     - name: Run tests
       run: |
