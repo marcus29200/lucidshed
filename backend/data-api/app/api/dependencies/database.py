@@ -33,6 +33,7 @@ def close_pool(db_name: Optional[str] = None):
 async def data_db_conn(request: Request):
     db_name = request.path_params.get("organization_id")
     if db_name:
+        # TODO Add _data to the end so we can have something to filter on for upgrades
         pool = await get_pool(db_name)
         async with pool.acquire() as data_conn:
             try:
