@@ -59,10 +59,16 @@ jobs:
 
     - name: Wait for OpenSearch
       run: |
-          until curl -s http://localhost:9200 -u admin:Luc1dshedTester! | grep '"status":"yellow"' || grep '"status":"green"'; do
-            echo "Waiting for OpenSearch to start..."
-            sleep 5
-          done
+        timeout=15
+        while ! curl -s -u admin:Luc1dshedTester! http://localhost:9200 | grep -E '"status":"(yellow|green)"'; do
+          echo "Waiting for OpenSearch..."
+          sleep 10
+          timeout=$((timeout - 10))
+          if [ $timeout -le 0 ]; then
+            echo "OpenSearch failed to start in time!"
+            exit 1
+          fi
+        done
 
     - name: Run tests
       run: |
