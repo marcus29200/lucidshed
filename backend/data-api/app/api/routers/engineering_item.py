@@ -78,9 +78,30 @@ async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayloa
 
 @router.post("", status_code=201, response_model=EngineeringItem)
 async def add_engineering_item(request: Request, organization_id: str, body: BaseEngineeringItem) -> EngineeringItem:
-    return await request.app.engineering_controller.create(
+    engineering_item = await request.app.engineering_controller.create(
         organization_id=organization_id, new_item=body, current_user=request.state.user.id
     )
+
+    document = {
+        "id": engineering_item.id,
+        "title": engineering_item.title,
+        "description": engineering_item.description,
+        "status": engineering_item.status,
+        "priority": engineering_item.priority,
+        "creation_date": engineering_item.created_at,
+        "modified_date": engineering_item.modified_at,
+        "item_type": engineering_item.item_type,
+        "item_sub_type": engineering_item.item_sub_type,
+        "iteration_id": engineering_item.iteration_id,
+        "team_id": engineering_item.team_id,
+        "assigned_to_id": engineering_item.assigned_to_id,
+        "created_by_id": engineering_item.created_by_id,
+        "modified_by_id": engineering_item.modified_by_id,
+    }
+
+    request.app.opensearch_client.index(index=organization_id, id=document["id"], body=document)
+
+    return engineering_item
 
 
 @router.get("/{id}", status_code=200, response_model=EngineeringItem)
@@ -117,16 +138,29 @@ async def get_engineering_items(
 async def update_engineering_item(
     request: Request, organization_id: str, id: int, body: BaseEngineeringItem
 ) -> EngineeringItem:
-    return await request.app.engineering_controller.update(
+    engineering_item = await request.app.engineering_controller.update(
         organization_id=organization_id, id=id, updated_item=body, current_user=request.state.user.id
     )
+
+    document = {"doc": body.model_dump(exclude_unset=True)}
+    document["doc"]["modified_date"] = engineering_item.modified_at
+    document["doc"]["modified_by_id"] = engineering_item.modified_by_id
+
+    request.app.opensearch_client.update(index=organization_id, id=id, body=document)
+
+    return engineering_item
 
 
 @router.delete("/{id}", status_code=200)
 async def delete_engineering_item(request: Request, organization_id: str, id: int):
-    return await request.app.engineering_controller.delete(
+    deleted = await request.app.engineering_controller.delete(
         organization_id=organization_id, id=id, current_user=request.state.user.id, scope="ENGINEERING"
     )
+
+    if deleted:
+        request.app.opensearch_client.delete(index=organization_id, id=id)
+
+    return deleted
 
 
 @router.get("/{id}/history", status_code=200)

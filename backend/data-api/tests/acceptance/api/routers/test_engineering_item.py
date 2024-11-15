@@ -1,34 +1,10 @@
-from typing import Any, Dict, Optional
-
 import pytest
 from fastapi.testclient import TestClient
 
 from app.database.work_items.models.engineering_item import EngineeringItemType, EngineeringLinkType
-from tests.acceptance.api.utils import add_iteration, authenticate, expired_headers, page_results
+from tests.acceptance.api.utils import add_engineering_item, add_iteration, authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio
-
-
-async def add_engineering_item(
-    data_api: TestClient,
-    org_id: str,
-    overrides: Optional[Dict[str, Any]] = {},
-    expected_status_code: Optional[int] = 201,
-    headers: Optional[Dict[str, Any]] = {},
-):
-    data = {
-        "title": "test",
-        "description": "test description",
-        "status": "done",
-        "priority": "high",
-    }
-    data.update(**overrides)
-
-    response = await data_api.post(f"{org_id}/engineering", json=data, headers=headers)
-
-    assert response.status_code == expected_status_code
-
-    return response.json()
 
 
 async def test_should_add_engineering_item(data_api: TestClient):

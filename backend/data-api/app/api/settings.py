@@ -52,6 +52,12 @@ class Settings(BaseModel):
     # OpenAI settings
     openai_api_key: Optional[str] = getenv("OPENAI_API_KEY", None)
 
+    # Opensearch settings
+    opensearch_host: Optional[str] = getenv("OPENSEARCH_HOST", "localhost")
+    opensearch_port: Optional[int] = int(getenv("OPENSEARCH_PORT", 9200))
+    opensearch_username: Optional[str] = getenv("OPENSEARCH_USERNAME", "admin")
+    opensearch_password: Optional[str] = getenv("OPENSEARCH_PASSWORD", "Luc1dshedTester!")
+
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}"
 
