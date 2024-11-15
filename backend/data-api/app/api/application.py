@@ -91,6 +91,7 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
         self.file_controller = FileController()
 
+        logger.info(f"Initializing opensearch client with {settings.opensearch_host}:{settings.opensearch_port}")
         self.opensearch_client = OpenSearch(
             hosts=[f"{settings.opensearch_host}:{settings.opensearch_port}"],
             http_auth=(settings.opensearch_username, settings.opensearch_password),
