@@ -26,7 +26,7 @@ class EngineeringController(WorkItemController):
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_ENGINEERING_ITEM"],
-            organization_id,
+            organization_id,  # TODO Remove this
             new_item.title,
             new_item.description,
             new_item.status,
