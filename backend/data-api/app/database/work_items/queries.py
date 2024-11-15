@@ -394,3 +394,45 @@ WHERE
     AND item_1 = $2
     AND item_2 = $3;
 """
+
+FEATURE_REQUEST_QUERIES = {}
+
+FEATURE_REQUEST_INIT_STATEMENTS = [
+    f"""
+CREATE TABLE IF NOT EXISTS feature_requests (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(256),
+    company VARCHAR({MAX_ID_LENGTH}),
+    company_id VARCHAR({MAX_ID_LENGTH}),
+    submitted_by_id VARCHAR({MAX_ID_LENGTH}),
+    submitted_date timestamp with time zone DEFAULT NOW(),
+    feature_assigned VARCHAR({MAX_ID_LENGTH}),
+    description TEXT,
+    comments TEXT[]
+);
+"""
+    f"""
+CREATE TABLE IF NOT EXISTS feature_request_comments (
+    id SERIAL PRIMARY KEY,
+    feature_request_id INT NOT NULL,
+    {BASE_MODEL_FIELDS},
+    description TEXT,
+    PRIMARY KEY (feature_request_id, id)
+);
+"""
+]
+FEATURE_REQUEST_QUERIES[
+    "CREATE_FEATURE_REQUEST"
+] = """
+INSERT INTO feature_requests
+(
+    title,
+    company,
+    submitted_by_id,
+    submitted_date,
+    feature_assigned,
+    description,
+    comments
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+"""
