@@ -93,9 +93,13 @@ async def data_api() -> AsyncClient:  # type: ignore
 
 @pytest_asyncio.fixture(autouse=True)
 async def mock_gcs():
+<<<<<<< HEAD
     with patch("app.database.files.models.file.storage.Client") as mock_client, patch(
         "app.database.files.models.file.default", return_value=("test", "test")
     ):
+=======
+    with patch("app.database.files.models.file.storage.Client") as mock_client, patch("app.database.files.models.file.default", return_value=("test", "test")):
+>>>>>>> origin
         mock_client.return_value.bucket.return_value.blob.return_value.generate_signed_url.return_value = (
             "http://test.com/test"
         )
