@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.feature_request import router as feature_request_router
 from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
@@ -27,6 +28,7 @@ from app.database.users.controllers.user_permission import UserPermissionControl
 from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.database.work_items.controllers.feature_request import FeatureRequestController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
 
@@ -53,6 +55,7 @@ class DataApplication(FastAPI):
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
         self.include_router(team_router, prefix="/{organization_id}/teams")
         self.include_router(file_router, prefix="/{organization_id}/files")
+        self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")   
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
@@ -90,6 +93,7 @@ class DataApplication(FastAPI):
         self.team_controller = TeamController()
         self.history_controller = HistoryController()
         self.file_controller = FileController()
+        self.feature_request_controller = FeatureRequestController()
 
         logger.info(f"Initializing opensearch client with {settings.opensearch_host}:{settings.opensearch_port}")
         self.opensearch_client = OpenSearch(

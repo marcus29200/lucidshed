@@ -413,6 +413,7 @@ FEATURE_REQUEST_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS feature_requests (
     id SERIAL PRIMARY KEY,
+    {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     company VARCHAR({MAX_ID_LENGTH}),
     company_id VARCHAR({MAX_ID_LENGTH}),
@@ -420,7 +421,6 @@ CREATE TABLE IF NOT EXISTS feature_requests (
     submitted_date timestamp with time zone DEFAULT NOW(),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
     description TEXT,
-    comments TEXT[]
 );
 """
     f"""
@@ -444,7 +444,135 @@ INSERT INTO feature_requests
     submitted_date,
     feature_assigned,
     description,
-    comments
+    created_by_id,
+    modified_by_id
+
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "UPDATE_FEATURE_REQUEST"
+] = """
+UPDATE feature_requests
+SET
+    title = $2,
+    company = $3,
+    submitted_by_id = $4,
+    submitted_date = $5,
+    feature_assigned = $6,
+    description = $7,
+    created_by_id = $8,
+    modified_at = NOW(),
+    modified_by_id = $9,
+WHERE
+    id = $1
+RETURNING *;
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "GET_FEATURE_REQUEST"
+] = """
+SELECT * FROM feature_requests WHERE id = $1 AND deleted_at IS NULL;
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "GET_ALL_FEATURE_REQUEST"
+] = """
+SELECT * FROM feature_requests
+WHERE
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "DELETE_FEATURE_REQUEST"
+] = """
+UPDATE feature_requests
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $2
+WHERE
+    id = $1
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "CREATE_FEATURE_REQUEST_COMMENT"
+] = """
+INSERT INTO feature_request_comments
+(
+    id,
+    feature_request_id,
+    description,
+    created_by_id,
+    modified_by_id
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *;
+"""
+
+
+FEATURE_REQUEST_QUERIES[
+    "GET_FEATURE_REQUEST_COMMENT"
+] = """
+SELECT *
+FROM feature_request_comments
+WHERE
+    feature_request_id = $1
+    AND id = $2
+    AND deleted_at IS NULL;
+"""
+
+
+FEATURE_REQUEST_QUERIES[
+    "GET_FEATURE_REQUEST_COMMENTS"
+] = """
+SELECT *
+FROM feature_request_comments
+WHERE
+    feature_request_id = $1
+    AND deleted_at IS NULL;
+"""
+
+
+FEATURE_REQUEST_QUERIES[
+    "UPDATE_FEATURE_REQUEST_COMMENT"
+] = """
+UPDATE feature_request_comments
+SET
+    description = $3,
+    modified_at = NOW(),
+    modified_by_id = $4,
+    deleted_at = $5,
+    deleted_by_id = $6
+WHERE
+    feature_request_id = $1
+    AND id = $2
+RETURNING *;
+"""
+
+FEATURE_REQUEST_QUERIES[
+    "DELETE_FEATURE_REQUEST_COMMENT"
+] = """
+UPDATE feature_request_comments
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $3
+WHERE
+    feature_request_id = $1
+    AND id = $2
+"""
+
+
+FEATURE_REQUEST_QUERIES[
+    "DELETE_FEATURE_REQUEST_COMMENTS"
+] = """
+UPDATE feature_request_comments
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $2
+WHERE
+    feature_request_id = $1
 """

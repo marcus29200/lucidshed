@@ -13,7 +13,7 @@ class BaseCompany(BaseModel):
     settings: Optional[Dict[str, Any]] = {}
 
 
-class Organization(Model, BaseCompany):
+class Company(Model, BaseCompany):
     def __init__(self, **data):
         if isinstance(data.get("settings"), str):
             data["settings"] = json.loads(data.get("settings"))
