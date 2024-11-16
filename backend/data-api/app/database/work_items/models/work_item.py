@@ -59,4 +59,3 @@ class BaseWorkItem(BaseModel):
 
 class WorkItem(Model, BaseWorkItem):
     id: int  # type: ignore
-    organization_id: str = Field(max_length=MAX_ID_LENGTH)

@@ -1,4 +1,3 @@
-from app.database.common.models import MAX_ID_LENGTH
 from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 TEAM_QUERIES = {}
@@ -7,7 +6,6 @@ TEAM_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     description TEXT
@@ -21,13 +19,12 @@ TEAM_QUERIES[
 ] = """
 INSERT INTO teams
 (
-    organization_id,
     title,
     description,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 """
 
@@ -35,7 +32,7 @@ RETURNING *;
 TEAM_QUERIES[
     "GET_TEAM"
 ] = """
-SELECT * FROM teams WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM teams WHERE id = $1 AND deleted_at IS NULL;
 """
 
 
@@ -44,11 +41,10 @@ TEAM_QUERIES[
 ] = """
 SELECT * FROM teams
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 
@@ -57,14 +53,14 @@ TEAM_QUERIES[
 ] = """
 UPDATE teams
 SET
-    title = $3,
-    description = $4,
+    title = $2,
+    description = $3,
     modified_at = NOW(),
-    modified_by_id = $5,
-    deleted_at = $6,
-    deleted_by_id = $7
+    modified_by_id = $4,
+    deleted_at = $5,
+    deleted_by_id = $6
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 RETURNING *;
 """
 
@@ -74,7 +70,7 @@ TEAM_QUERIES[
 UPDATE teams
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 """

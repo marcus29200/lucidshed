@@ -22,11 +22,11 @@ class AskLucidRawResponse(BaseModel):
 
 
 async def perform_engineering_item_request(
-    engineering_controller: EngineeringController, query: str, organization_id: str
+    engineering_controller: EngineeringController, query: str
 ) -> Tuple[str, List[EngineeringItem]]:
     openai_client = Client(api_key=settings.openai_api_key)
 
-    context = await engineering_controller.get_ask_lucid_info(organization_id=organization_id)
+    context = await engineering_controller.get_ask_lucid_info()
 
     # Build context text
     context_text = "\n".join([item.ai_format() for item in context])
@@ -53,8 +53,6 @@ async def perform_engineering_item_request(
     parsed_message = message.parsed  # type: ignore
     if len(parsed_message.related_items) > 0:
         # Load the relevant items using those ids
-        related_items = await engineering_controller.get_batch_by_id(
-            organization_id=organization_id, ids=parsed_message.related_items
-        )
+        related_items = await engineering_controller.get_batch_by_id(ids=parsed_message.related_items)
 
     return parsed_message.summary, related_items

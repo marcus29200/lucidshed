@@ -5,7 +5,6 @@ WORK_ITEM_QUERIES = {}
 
 BASE_WORK_ITEM_FIELDS = f"""
     id SERIAL PRIMARY KEY,
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     description TEXT,
@@ -46,22 +45,20 @@ CREATE TABLE IF NOT EXISTS support_items (
     f"""
 CREATE TABLE IF NOT EXISTS work_item_comments (
     id VARCHAR({MAX_ID_LENGTH}),
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     work_item_id INT NOT NULL,
     {BASE_MODEL_FIELDS},
     description TEXT,
-    PRIMARY KEY (organization_id, id, work_item_id)
+    PRIMARY KEY (id, work_item_id)
 );
     """,
     f"""
 CREATE TABLE IF NOT EXISTS work_item_relationships (
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     item_1 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
     item_2 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
     link_type VARCHAR(30) NOT NULL,
     created_at timestamp with time zone DEFAULT NOW(),
     created_by_id VARCHAR({MAX_ID_LENGTH}),
-    PRIMARY KEY (organization_id, item_1, item_2)
+    PRIMARY KEY (item_1, item_2)
 );
     """,
 ]
@@ -73,7 +70,6 @@ LOAD_ITERATION = """
     FROM iterations
     WHERE
         iterations.id = engineering_items.iteration_id
-        AND iterations.organization_id = $1
         AND iterations.deleted_at IS NULL
     LIMIT 1
 ) AS iteration
@@ -86,7 +82,6 @@ LOAD_TEAM = """
     FROM teams
     WHERE
         teams.id = engineering_items.team_id
-        AND teams.organization_id = $1
         AND teams.deleted_at IS NULL
     LIMIT 1
 ) AS team
@@ -98,7 +93,6 @@ WORK_ITEM_QUERIES[
 ] = f"""
 INSERT INTO engineering_items
 (
-    organization_id,
     title,
     description,
     status,
@@ -116,7 +110,7 @@ INSERT INTO engineering_items
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
@@ -128,7 +122,7 @@ SELECT
     *,
     {LOAD_ITERATION},
     {LOAD_TEAM}
-FROM engineering_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+FROM engineering_items WHERE id = $1 AND deleted_at IS NULL;
 """
 
 
@@ -136,7 +130,7 @@ WORK_ITEM_QUERIES[
     "GET_ALL_ENGINEERING_ITEM"
 ] = f"""
 SELECT DISTINCT
-    $2,
+    $1,
     engineering_items.*,
     {LOAD_ITERATION},
     {LOAD_TEAM}
@@ -145,12 +139,11 @@ LEFT JOIN work_item_relationships
     ON engineering_items.id = work_item_relationships.item_1
     OR engineering_items.id = work_item_relationships.item_2
 WHERE
-    engineering_items.organization_id = $1
-    AND engineering_items.deleted_at IS NULL
+    engineering_items.deleted_at IS NULL
     $FILTER_CONDITIONS
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 
@@ -163,8 +156,7 @@ SELECT
     {LOAD_TEAM}
 FROM engineering_items
 WHERE
-    engineering_items.organization_id = $1
-    AND engineering_items.deleted_at IS NULL
+    engineering_items.deleted_at IS NULL
     AND engineering_items.description IS NOT NULL
     AND engineering_items.description != ''
 """
@@ -179,9 +171,8 @@ SELECT
     {LOAD_TEAM}
 FROM engineering_items
 WHERE
-    engineering_items.organization_id = $1
-    AND engineering_items.deleted_at IS NULL
-    AND engineering_items.id = ANY($2)
+    engineering_items.deleted_at IS NULL
+    AND engineering_items.id = ANY($1)
 """
 
 
@@ -190,31 +181,31 @@ WORK_ITEM_QUERIES[
 ] = f"""
 UPDATE engineering_items
 SET
-    title = $3,
-    description = $4,
-    status = $5,
-    priority = $6,
-    estimated_completion_date = $7,
-    starred = $8,
-    item_type = $9,
-    item_sub_type = $10,
-    estimate = $11,
-    iteration_id = $12,
-    team_id = $13,
-    due_date = $14,
-    acceptance_criteria = $15,
-    created_by_id = $16,
+    title = $2,
+    description = $3,
+    status = $4,
+    priority = $5,
+    estimated_completion_date = $6,
+    starred = $7,
+    item_type = $8,
+    item_sub_type = $9,
+    estimate = $10,
+    iteration_id = $11,
+    team_id = $12,
+    due_date = $13,
+    acceptance_criteria = $14,
+    created_by_id = $15,
     modified_at = NOW(),
-    modified_by_id = $17,
-    archived_at = $18,
-    archived_by_id = $19,
-    deleted_at = $20,
-    deleted_by_id = $21,
-    completed_at = $22,
-    completed_by_id = $23,
-    assigned_to_id = $24
+    modified_by_id = $16,
+    archived_at = $17,
+    archived_by_id = $18,
+    deleted_at = $19,
+    deleted_by_id = $20,
+    completed_at = $21,
+    completed_by_id = $22,
+    assigned_to_id = $23
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
@@ -224,9 +215,9 @@ WORK_ITEM_QUERIES[
 UPDATE engineering_items
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 """
 
 
@@ -235,7 +226,6 @@ WORK_ITEM_QUERIES[
 ] = """
 INSERT INTO support_items
 (
-    organization_id,
     title,
     description,
     status,
@@ -250,7 +240,7 @@ INSERT INTO support_items
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 RETURNING *;
 """
 
@@ -259,35 +249,35 @@ WORK_ITEM_QUERIES[
 ] = """
 UPDATE support_items
 SET
-    title = $3,
-    description = $4,
-    status = $5,
-    priority = $6,
-    estimated_completion_date = $7,
-    starred = $8,
-    owner = $9,
-    customer = $10,
-    primary_contact = $11,
-    secondary_contact = $12,
-    next_response_due = $13,
-    created_by_id = $14,
+    title = $2,
+    description = $3,
+    status = $4,
+    priority = $5,
+    estimated_completion_date = $6,
+    starred = $7,
+    owner = $8,
+    customer = $9,
+    primary_contact = $10,
+    secondary_contact = $11,
+    next_response_due = $12,
+    created_by_id = $13,
     modified_at = NOW(),
-    modified_by_id = $15,
-    archived_at = $16,
-    archived_by_id = $17,
-    deleted_at = $18,
-    deleted_by_id = $19,
-    completed_at = $20,
-    completed_by_id = $21
+    modified_by_id = $14,
+    archived_at = $15,
+    archived_by_id = $16,
+    deleted_at = $17,
+    deleted_by_id = $18,
+    completed_at = $19,
+    completed_by_id = $20
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 RETURNING *;
 """
 
 WORK_ITEM_QUERIES[
     "GET_SUPPORT_ITEM"
 ] = """
-SELECT * FROM support_items WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM support_items WHERE id = $1 AND deleted_at IS NULL;
 """
 
 WORK_ITEM_QUERIES[
@@ -295,11 +285,10 @@ WORK_ITEM_QUERIES[
 ] = """
 SELECT * FROM support_items
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 WORK_ITEM_QUERIES[
@@ -308,9 +297,9 @@ WORK_ITEM_QUERIES[
 UPDATE support_items
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 """
 
 
@@ -320,13 +309,12 @@ WORK_ITEM_QUERIES[
 INSERT INTO work_item_comments
 (
     id,
-    organization_id,
     work_item_id,
     description,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 """
 
@@ -337,9 +325,8 @@ WORK_ITEM_QUERIES[
 SELECT *
 FROM work_item_comments
 WHERE
-    organization_id = $1
-    AND work_item_id = $2
-    AND id = $3
+    work_item_id = $1
+    AND id = $2
     AND deleted_at IS NULL;
 """
 
@@ -350,8 +337,7 @@ WORK_ITEM_QUERIES[
 SELECT *
 FROM work_item_comments
 WHERE
-    organization_id = $1
-    AND work_item_id = $2
+    work_item_id = $1
     AND deleted_at IS NULL;
 """
 
@@ -361,15 +347,14 @@ WORK_ITEM_QUERIES[
 ] = """
 UPDATE work_item_comments
 SET
-    description = $4,
+    description = $3,
     modified_at = NOW(),
-    modified_by_id = $5,
-    deleted_at = $6,
-    deleted_by_id = $7
+    modified_by_id = $4,
+    deleted_at = $5,
+    deleted_by_id = $6
 WHERE
-    organization_id = $1
-    AND work_item_id = $2
-    AND id = $3
+    work_item_id = $1
+    AND id = $2
 RETURNING *;
 """
 
@@ -379,11 +364,10 @@ WORK_ITEM_QUERIES[
 UPDATE work_item_comments
 SET
     deleted_at = NOW(),
-    deleted_by_id = $4
+    deleted_by_id = $3
 WHERE
-    organization_id = $1
-    AND work_item_id = $2
-    AND id = $3
+    work_item_id = $1
+    AND id = $2
 """
 
 
@@ -393,10 +377,9 @@ WORK_ITEM_QUERIES[
 UPDATE work_item_comments
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1
-    AND work_item_id = $2
+    work_item_id = $1
 """
 
 
@@ -405,13 +388,12 @@ WORK_ITEM_QUERIES[
 ] = """
 INSERT INTO work_item_relationships
 (
-    organization_id,
     item_1,
     item_2,
     link_type,
     created_by_id
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4)
 RETURNING *;
 """
 
@@ -421,7 +403,6 @@ WORK_ITEM_QUERIES[
 ] = """
 DELETE FROM work_item_relationships
 WHERE
-    organization_id = $1
-    AND item_1 = $2
-    AND item_2 = $3;
+    item_1 = $1
+    AND item_2 = $2;
 """

@@ -12,6 +12,8 @@ from app.api.settings import data_db, database_pools, settings, user_db
 async def get_pool(db_name: Optional[str] = None):
     if db_name is None:
         db_name = "postgres"
+    elif not db_name.startswith("users") and not db_name.endswith("_data"):
+        db_name = f"{db_name}_data"
 
     if not database_pools.get().get(db_name) or database_pools.get()[db_name]._closed:
         database_pools.get()[db_name] = await create_pool(
@@ -34,7 +36,7 @@ async def data_db_conn(request: Request):
     db_name = request.path_params.get("organization_id")
     if db_name:
         # TODO Add _data to the end so we can have something to filter on for upgrades
-        pool = await get_pool(db_name)
+        pool = await get_pool(f"{db_name}_data")
         async with pool.acquire() as data_conn:
             try:
                 data_db.set(data_conn)

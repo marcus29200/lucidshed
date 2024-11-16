@@ -7,7 +7,6 @@ FILE_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS files (
     id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
-    organization_id VARCHAR({MAX_ID_LENGTH}),
     {BASE_MODEL_FIELDS},
     file_name VARCHAR(255) NOT NULL,
     path VARCHAR(255) NOT NULL
@@ -22,13 +21,12 @@ FILE_QUERIES[
 INSERT INTO files
 (
     id,
-    organization_id,
     file_name,
     path,
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 """
 
@@ -36,7 +34,7 @@ RETURNING *;
 FILE_QUERIES[
     "GET_FILE"
 ] = """
-SELECT * FROM files WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM files WHERE id = $1 AND deleted_at IS NULL;
 """
 
 
@@ -45,11 +43,10 @@ FILE_QUERIES[
 ] = """
 SELECT * FROM files
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 
@@ -59,7 +56,7 @@ FILE_QUERIES[
 UPDATE files
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 """

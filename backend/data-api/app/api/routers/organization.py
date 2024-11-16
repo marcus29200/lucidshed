@@ -52,7 +52,7 @@ async def add_organization(
         )
 
     pool = await get_pool()
-    await create_database(pool, body.id)
+    await create_database(pool, f"{body.id}_data")
 
     pool = await get_pool(body.id)
     data_db.set(pool)

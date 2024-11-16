@@ -17,7 +17,6 @@ class FileController:
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FILE"],
             file_id,
-            organization_id,
             file.file_name,
             join(settings.gcs_path or "", organization_id, file_id),
             current_user,
@@ -26,18 +25,17 @@ class FileController:
 
         return File(**record)
 
-    async def get(self, *, organization_id: str, id: str) -> File:
-        record = await data_db.get().fetchrow(QUERIES["GET_FILE"], organization_id, id)
+    async def get(self, *, id: str) -> File:
+        record = await data_db.get().fetchrow(QUERIES["GET_FILE"], id)
 
         if not record:
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         return File(**record)
 
     async def get_all(
         self,
         *,
-        organization_id: str,
         sort: Optional[str] = "id",
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -46,7 +44,7 @@ class FileController:
         if cursor:
             sort, offset, _ = parse_cursor(cursor)
 
-        records = await data_db.get().fetch(QUERIES["GET_ALL_FILES"], organization_id, sort, limit, offset)
+        records = await data_db.get().fetch(QUERIES["GET_ALL_FILES"], sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -54,8 +52,8 @@ class FileController:
 
         return [File(**record) for record in records], cursor
 
-    async def delete(self, *, organization_id: str, id: str, current_user: str) -> bool:
-        file = await self.get(organization_id=organization_id, id=id)
+    async def delete(self, *, id: str, current_user: str) -> bool:
+        file = await self.get(id=id)
 
         # Delete from gcs
         storage_client = storage.Client()
@@ -64,6 +62,6 @@ class FileController:
         blob.delete()
 
         # Delete db record
-        await data_db.get().execute(QUERIES["DELETE_FILE"], organization_id, id, current_user)
+        await data_db.get().execute(QUERIES["DELETE_FILE"], id, current_user)
 
         return True

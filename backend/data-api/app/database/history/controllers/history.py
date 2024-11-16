@@ -10,13 +10,12 @@ from app.exceptions.common import ObjectNotFoundException
 
 # Finish updating based on audit log models
 class HistoryController:
-    async def create(self, organization_id: str, history: BaseHistory, current_user: str) -> History:
+    async def create(self, history: BaseHistory, current_user: str) -> History:
         # Create db record
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_HISTORY"],
             uuid4().hex,
-            organization_id,
             str(history.item_id),
             history.item_type,
             history.message,
@@ -28,16 +27,16 @@ class HistoryController:
 
         return History(**record)
 
-    async def get(self, *, organization_id: str, id: int) -> History:
-        record = await data_db.get().fetchrow(QUERIES["GET_HISTORY"], organization_id, id)
+    async def get(self, *, id: int) -> History:
+        record = await data_db.get().fetchrow(QUERIES["GET_HISTORY"], id)
 
         if not record:
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         return History(**record)
 
-    async def get_all(self, *, organization_id: str, item_id: str, item_type: str) -> List[History]:
+    async def get_all(self, *, item_id: str, item_type: str) -> List[History]:
         # Get item record here
-        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], organization_id, str(item_id), item_type)
+        records = await data_db.get().fetch(QUERIES["GET_ALL_HISTORIES"], str(item_id), item_type)
 
         return [History(**record) for record in records]

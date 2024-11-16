@@ -29,6 +29,9 @@ async def delete_database(pool, db_name):
 
 
 async def create_database(pool, db_name):
+    if not db_name.startswith("users") and not db_name.endswith("_data") and db_name != "postgres":
+        db_name = f"{db_name}_data"
+
     await pool.execute(f"CREATE DATABASE {db_name}")
 
 

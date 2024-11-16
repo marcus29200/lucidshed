@@ -69,9 +69,7 @@ async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayloa
     # 4. Ask the AI model to return a list of item ids that are relevant along with a summary of the findings
     # 5. Load the relevant items using those ids
     # 6. Return the relevant items and the summary
-    summary, related_items = await perform_engineering_item_request(
-        request.app.engineering_controller, body.query, organization_id
-    )
+    summary, related_items = await perform_engineering_item_request(request.app.engineering_controller, body.query)
 
     return AskLucidResponse(summary=summary, related_items=related_items)
 
@@ -79,7 +77,7 @@ async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayloa
 @router.post("", status_code=201, response_model=EngineeringItem)
 async def add_engineering_item(request: Request, organization_id: str, body: BaseEngineeringItem) -> EngineeringItem:
     engineering_item = await request.app.engineering_controller.create(
-        organization_id=organization_id, new_item=body, current_user=request.state.user.id
+        new_item=body, current_user=request.state.user.id
     )
 
     document = {
@@ -106,7 +104,7 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
 
 @router.get("/{id}", status_code=200, response_model=EngineeringItem)
 async def get_engineering_item(request: Request, organization_id: str, id: int) -> EngineeringItem:
-    return await request.app.engineering_controller.get(organization_id=organization_id, id=id)
+    return await request.app.engineering_controller.get(id=id)
 
 
 @router.get("", status_code=200, response_model=EngineeringItemPagedResponse)
@@ -122,7 +120,6 @@ async def get_engineering_items(
     cursor: Optional[str] = None,
 ) -> EngineeringItemPagedResponse:
     items, cursor = await request.app.engineering_controller.get_all(
-        organization_id=organization_id,
         item_type=item_type,
         iteration_id=iteration_id,
         related_item_id=related_item_id,
@@ -139,7 +136,7 @@ async def update_engineering_item(
     request: Request, organization_id: str, id: int, body: BaseEngineeringItem
 ) -> EngineeringItem:
     engineering_item = await request.app.engineering_controller.update(
-        organization_id=organization_id, id=id, updated_item=body, current_user=request.state.user.id
+        id=id, updated_item=body, current_user=request.state.user.id
     )
 
     document = {"doc": body.model_dump(exclude_unset=True)}
@@ -154,7 +151,7 @@ async def update_engineering_item(
 @router.delete("/{id}", status_code=200)
 async def delete_engineering_item(request: Request, organization_id: str, id: int):
     deleted = await request.app.engineering_controller.delete(
-        organization_id=organization_id, id=id, current_user=request.state.user.id, scope="ENGINEERING"
+        id=id, current_user=request.state.user.id, scope="ENGINEERING"
     )
 
     if deleted:
@@ -165,9 +162,7 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
 
 @router.get("/{id}/history", status_code=200)
 async def get_engineering_item_history(request: Request, organization_id: str, id: int):
-    return await request.app.history_controller.get_all(
-        organization_id=organization_id, item_id=id, item_type="engineering"
-    )
+    return await request.app.history_controller.get_all(item_id=id, item_type="engineering")
 
 
 @router.post("/{work_item_id}/comments", status_code=201)
@@ -176,10 +171,7 @@ async def create_engineering_item_comment(
 ) -> WorkItemComment:
     # NOTE If engineering item doesn't exist what happens with the foreign constraint exception? Can we return a 404?
     return await request.app.engineering_controller.create_comment(
-        organization_id=organization_id,
-        work_item_id=work_item_id,
-        new_comment=body,
-        current_user=request.state.user.id,
+        work_item_id=work_item_id, new_comment=body, current_user=request.state.user.id
     )
 
 
@@ -187,9 +179,7 @@ async def create_engineering_item_comment(
 async def get_engineering_item_comment(
     request: Request, organization_id: str, work_item_id: int, id: str
 ) -> WorkItemComment:
-    return await request.app.engineering_controller.get_comment(
-        organization_id=organization_id, work_item_id=work_item_id, id=id
-    )
+    return await request.app.engineering_controller.get_comment(work_item_id=work_item_id, id=id)
 
 
 @router.get("/{work_item_id}/comments", status_code=200, response_model=WorkItemCommentPagedResponse)
@@ -202,7 +192,7 @@ async def get_engineering_item_comments(
     cursor: Optional[str] = None,
 ) -> WorkItemCommentPagedResponse:
     items, cursor = await request.app.engineering_controller.get_comments(
-        organization_id=organization_id, id=work_item_id  # TODO , sort=sort, limit=limit, cursor=cursor
+        id=work_item_id  # TODO , sort=sort, limit=limit, cursor=cursor
     )
     return WorkItemCommentPagedResponse(items=items, cursor=cursor)
 
@@ -212,21 +202,14 @@ async def update_engineering_item_comment(
     request: Request, organization_id: str, work_item_id: int, id: str, body: BaseWorkItemComment
 ) -> EngineeringItem:
     return await request.app.engineering_controller.update_comment(
-        organization_id=organization_id,
-        work_item_id=work_item_id,
-        id=id,
-        updated_item=body,
-        current_user=request.state.user.id,
+        work_item_id=work_item_id, id=id, updated_item=body, current_user=request.state.user.id
     )
 
 
 @router.delete("/{work_item_id}/comments/{id}", status_code=200)
 async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: int, id: str):
     return await request.app.engineering_controller.delete_comment(
-        organization_id=organization_id,
-        work_item_id=work_item_id,
-        id=id,
-        current_user=request.state.user.id,
+        work_item_id=work_item_id, id=id, current_user=request.state.user.id
     )
 
 
@@ -235,11 +218,7 @@ async def create_engineering_item_link(
     request: Request, organization_id: str, work_item_id: int, body: CreateEngineeringItemLinkPayload
 ) -> JSONResponse:
     result = await request.app.engineering_controller.link(
-        organization_id=organization_id,
-        item_1=work_item_id,
-        item_2=body.item_id,
-        link_type=body.link_type,
-        current_user=request.state.user.id,
+        item_1=work_item_id, item_2=body.item_id, link_type=body.link_type, current_user=request.state.user.id
     )
 
     if not result:
@@ -253,5 +232,5 @@ async def delete_engineering_item_link(
     request: Request, organization_id: str, work_item_id: int, body: BaseEngineeringItemLinkPayload
 ):
     return await request.app.engineering_controller.unlink(
-        organization_id=organization_id, item_1=work_item_id, item_2=body.item_id, current_user=request.state.user.id
+        item_1=work_item_id, item_2=body.item_id, current_user=request.state.user.id
     )

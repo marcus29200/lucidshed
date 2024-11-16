@@ -24,14 +24,12 @@ class PagedResponse(BaseModel):
 
 @router.post("", status_code=201, response_model=SupportItem)
 async def add_support_item(request: Request, organization_id: str, body: BaseSupportItem) -> SupportItem:
-    return await request.app.support_controller.create(
-        organization_id=organization_id, new_item=body, current_user=request.state.user.id
-    )
+    return await request.app.support_controller.create(new_item=body, current_user=request.state.user.id)
 
 
 @router.get("/{id}", status_code=200, response_model=SupportItem)
 async def get_support_item(request: Request, organization_id: str, id: int) -> SupportItem:
-    return await request.app.support_controller.get(organization_id=organization_id, id=id)
+    return await request.app.support_controller.get(id=id)
 
 
 @router.get("", status_code=200, response_model=PagedResponse)
@@ -42,28 +40,20 @@ async def get_support_items(
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> PagedResponse:
-    items, cursor = await request.app.support_controller.get_all(
-        organization_id=organization_id, sort=sort, limit=limit, cursor=cursor
-    )
+    items, cursor = await request.app.support_controller.get_all(sort=sort, limit=limit, cursor=cursor)
     return PagedResponse(items=items, cursor=cursor)
 
 
 @router.patch("/{id}", status_code=200, response_model=SupportItem)
 async def update_support_item(request: Request, organization_id: str, id: int, body: BaseSupportItem) -> SupportItem:
-    return await request.app.support_controller.update(
-        organization_id=organization_id, id=id, updated_item=body, current_user=request.state.user.id
-    )
+    return await request.app.support_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
 
 
 @router.delete("/{id}", status_code=200)
 async def delete_support_item(request: Request, organization_id: str, id: int):
-    return await request.app.support_controller.delete(
-        organization_id=organization_id, id=id, current_user=request.state.user.id, scope="SUPPORT"
-    )
+    return await request.app.support_controller.delete(id=id, current_user=request.state.user.id, scope="SUPPORT")
 
 
 @router.get("/{id}/history", status_code=200)
 async def get_engineering_item_history(request: Request, organization_id: str, id: int):
-    return await request.app.history_controller.get_all(
-        organization_id=organization_id, item_id=id, item_type="support"
-    )
+    return await request.app.history_controller.get_all(item_id=id, item_type="support")
