@@ -32,5 +32,4 @@ class BaseHistory(BaseModel):
 
 class History(Model, BaseHistory):
     id: str
-    organization_id: str = Field(max_length=MAX_ID_LENGTH)
     action: HistoryAction

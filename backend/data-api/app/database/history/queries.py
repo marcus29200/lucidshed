@@ -7,7 +7,6 @@ HISTORY_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS history (
     id VARCHAR({MAX_ID_LENGTH}) UNIQUE,
-    organization_id VARCHAR({MAX_ID_LENGTH}),
     {BASE_MODEL_FIELDS},
     item_id VARCHAR({MAX_ID_LENGTH}),
     item_type VARCHAR(32),
@@ -29,7 +28,6 @@ HISTORY_QUERIES[
 INSERT INTO history
 (
     id,
-    organization_id,
     item_id,
     item_type,
     message,
@@ -38,7 +36,7 @@ INSERT INTO history
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 """
 
@@ -46,7 +44,7 @@ RETURNING *;
 HISTORY_QUERIES[
     "GET_HISTORY"
 ] = """
-SELECT * FROM history WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM history WHERE id = $2 AND deleted_at IS NULL;
 """
 
 
@@ -55,8 +53,7 @@ HISTORY_QUERIES[
 ] = """
 SELECT * FROM history
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-    AND item_id = $2
-    AND item_type = $3;
+    deleted_at IS NULL
+    AND item_id = $1
+    AND item_type = $2;
 """

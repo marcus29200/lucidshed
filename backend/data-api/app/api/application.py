@@ -3,6 +3,7 @@ import logging
 from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from opensearchpy import OpenSearch
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
@@ -10,6 +11,7 @@ from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
+from app.api.routers.search import router as search_router
 from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
@@ -45,6 +47,7 @@ class DataApplication(FastAPI):
         self.include_router(router)
         self.include_router(user_router, prefix="/users")
         self.include_router(organization_router, prefix="")
+        self.include_router(search_router, prefix="/{organization_id}/search")
         self.include_router(engineering_item_router, prefix="/{organization_id}/engineering")
         self.include_router(support_item_router, prefix="/{organization_id}/support")
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
@@ -87,6 +90,12 @@ class DataApplication(FastAPI):
         self.team_controller = TeamController()
         self.history_controller = HistoryController()
         self.file_controller = FileController()
+
+        logger.info(f"Initializing opensearch client with {settings.opensearch_host}:{settings.opensearch_port}")
+        self.opensearch_client = OpenSearch(
+            hosts=[f"{settings.opensearch_host}:{settings.opensearch_port}"],
+            http_auth=(settings.opensearch_username, settings.opensearch_password),
+        )
 
     async def close(self) -> None:
         pass

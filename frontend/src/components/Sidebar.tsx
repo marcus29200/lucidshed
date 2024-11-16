@@ -7,7 +7,7 @@ import {
 	EpicIcon,
 	SprintIcon,
 } from '../icons/icons';
-import { NavigateBefore, NavigateNext, Settings } from '@mui/icons-material';
+import { NavigateBefore, NavigateNext, PeopleAlt } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
 
@@ -58,8 +58,8 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 ];
 
 const SETTINGS_ITEM: NavigationItem = {
-	icon: () => <Settings />,
-	label: 'Settings',
+	icon: () => <PeopleAlt />,
+	label: 'Users',
 };
 
 const Sidebar = () => {

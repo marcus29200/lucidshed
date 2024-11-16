@@ -10,12 +10,11 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class SupportController(WorkItemController):
-    async def create(self, *, organization_id: str, new_item: BaseSupportItem, current_user: str) -> SupportItem:
+    async def create(self, *, new_item: BaseSupportItem, current_user: str) -> SupportItem:
 
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_SUPPORT_ITEM"],
-            organization_id,
             new_item.title,
             new_item.description,
             new_item.status,
@@ -32,7 +31,6 @@ class SupportController(WorkItemController):
         )
 
         await self.history_controller.create(
-            organization_id,
             BaseHistory(
                 item_id=record["id"],
                 item_type="support",
@@ -44,15 +42,14 @@ class SupportController(WorkItemController):
 
         return SupportItem(**record)
 
-    async def get(self, *, organization_id: str, id: int) -> SupportItem:
-        record, user = await super()._get(organization_id=organization_id, id=id, scope="SUPPORT")
+    async def get(self, *, id: int) -> SupportItem:
+        record, user = await super()._get(id=id, scope="SUPPORT")
 
         return SupportItem(**record, assigned_to=user)
 
     async def get_all(
         self,
         *,
-        organization_id: str,
         item_type: Optional[str] = None,
         iteration_id: Optional[int] = None,
         sort: Optional[WorkItemSortableField] = None,
@@ -67,13 +64,7 @@ class SupportController(WorkItemController):
 
             item_type = extra.get("item_type") or item_type
 
-        records = await data_db.get().fetch(
-            QUERIES["GET_ALL_SUPPORT_ITEM"],
-            organization_id,
-            sort,
-            limit,
-            offset,
-        )
+        records = await data_db.get().fetch(QUERIES["GET_ALL_SUPPORT_ITEM"], sort, limit, offset)
 
         cursor = None
         if len(records) == limit:
@@ -84,12 +75,11 @@ class SupportController(WorkItemController):
     async def update(
         self,
         *,
-        organization_id: str,
         id: int,
         updated_item: SupportItem,
         current_user: str,
     ) -> SupportItem:
-        old_support_item = await self.get(organization_id=organization_id, id=id)
+        old_support_item = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
         old_item_json = old_support_item.model_dump()
@@ -98,7 +88,6 @@ class SupportController(WorkItemController):
 
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_SUPPORT_ITEM"],
-            organization_id,
             id,
             old_item_json["title"],
             old_item_json["description"],
@@ -122,12 +111,11 @@ class SupportController(WorkItemController):
         )
 
         await self.history_controller.create(
-            organization_id,
             BaseHistory(item_id=record["id"], item_type="support", action="update", metadata=new_item_json),
             current_user,
         )
 
         return SupportItem(**record)
 
-    async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
-        return await super().delete(organization_id=organization_id, id=id, current_user=current_user, scope=scope)
+    async def delete(self, *, id: int, current_user: str, scope: str) -> bool:
+        return await super().delete(id=id, current_user=current_user, scope=scope)

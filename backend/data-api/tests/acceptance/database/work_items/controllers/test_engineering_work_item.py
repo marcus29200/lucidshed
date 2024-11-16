@@ -19,7 +19,6 @@ pytestmark = pytest.mark.asyncio
 
 async def create_engineering_item(
     data_app,
-    org_id,
     item_type: Optional[EngineeringItemType] = EngineeringItemType.STORY.value,
     iteration_id: Optional[str] = None,
     team_id: Optional[str] = None,
@@ -30,7 +29,7 @@ async def create_engineering_item(
     )
 
     engineering_item = await data_app.engineering_controller.create(
-        organization_id=org_id, new_item=base_engineering_item, current_user="test@test.com"
+        new_item=base_engineering_item, current_user="test@test.com"
     )
 
     assert engineering_item.id
@@ -39,8 +38,8 @@ async def create_engineering_item(
 
 
 async def test_add_engineering_work_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     assert isinstance(engineering_item, EngineeringItem)
 
@@ -52,8 +51,8 @@ async def test_add_engineering_work_item(data_app):
 
 
 async def test_add_engineering_work_item_defaults_item_type_to_valid_value(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id, item_type=None)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app, item_type=None)
 
     assert isinstance(engineering_item, EngineeringItem)
 
@@ -66,14 +65,12 @@ async def test_add_engineering_work_item_defaults_item_type_to_valid_value(data_
 
 
 async def test_add_engineering_work_item_creates_history(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     assert engineering_item.id
 
-    history_items = await data_app.history_controller.get_all(
-        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
-    )
+    history_items = await data_app.history_controller.get_all(item_id=engineering_item.id, item_type="engineering")
 
     assert len(history_items) == 1
     assert history_items[0].item_id == str(engineering_item.id)
@@ -83,13 +80,11 @@ async def test_add_engineering_work_item_creates_history(data_app):
 
 
 async def test_add_engineering_work_item_gets_only_story_history(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
-    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
+    await create_engineering_item(data_app, item_type=EngineeringItemType.EPIC.value)
 
-    history_items = await data_app.history_controller.get_all(
-        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
-    )
+    history_items = await data_app.history_controller.get_all(item_id=engineering_item.id, item_type="engineering")
 
     assert len(history_items) == 1
     assert history_items[0].item_id == str(engineering_item.id)
@@ -99,29 +94,27 @@ async def test_add_engineering_work_item_gets_only_story_history(data_app):
 
 
 async def test_get_engineering_work_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
-    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(id=engineering_item.id)
 
     assert engineering_item.id
 
 
 async def test_get_engineering_work_item_raises_not_found_exception(data_app):
-    org = await create_organization(data_app)
+    await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.engineering_controller.get(organization_id=org.id, id=0)
+        await data_app.engineering_controller.get(id=0)
 
 
 async def test_get_all_engineering_work_item(data_app):
-    org = await create_organization(data_app)
-    await create_engineering_item(data_app, org.id)
-    await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    await create_engineering_item(data_app)
+    await create_engineering_item(data_app)
 
-    items = await page_results(
-        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
-    )
+    items = await page_results(data_app.engineering_controller, item_type=EngineeringItemType.STORY, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -129,14 +122,12 @@ async def test_get_all_engineering_work_item(data_app):
 
 
 async def test_get_all_engineering_work_item_filtered_by_stories(data_app):
-    org = await create_organization(data_app)
-    await create_engineering_item(data_app, org.id)
-    await create_engineering_item(data_app, org.id)
-    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
+    await create_organization(data_app)
+    await create_engineering_item(data_app)
+    await create_engineering_item(data_app)
+    await create_engineering_item(data_app, item_type=EngineeringItemType.EPIC.value)
 
-    items = await page_results(
-        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
-    )
+    items = await page_results(data_app.engineering_controller, item_type=EngineeringItemType.STORY, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -144,13 +135,11 @@ async def test_get_all_engineering_work_item_filtered_by_stories(data_app):
 
 
 async def test_get_all_engineering_work_item_paging(data_app):
-    org = await create_organization(data_app)
-    await create_engineering_item(data_app, org.id)
-    await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    await create_engineering_item(data_app)
+    await create_engineering_item(data_app)
 
-    items = await page_results(
-        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
-    )
+    items = await page_results(data_app.engineering_controller, item_type=EngineeringItemType.STORY, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], EngineeringItem)
@@ -159,16 +148,11 @@ async def test_get_all_engineering_work_item_paging(data_app):
 
 # NOTE This test is out of order right now because we don't have the sort param fully implemented
 async def _test_get_all_engineering_work_item_paging_sorting(data_app):
-    org = await create_organization(data_app)
-    await create_engineering_item(data_app, org.id, title="Test2")
-    await create_engineering_item(data_app, org.id, title="Test1")
+    await create_organization(data_app)
+    await create_engineering_item(data_app, title="Test2")
+    await create_engineering_item(data_app, title="Test1")
 
-    items = await page_results(
-        data_app.engineering_controller,
-        organization_id=org.id,
-        sort=WorkItemSortableField.TITLE,
-        page_size=1,
-    )
+    items = await page_results(data_app.engineering_controller, sort=WorkItemSortableField.TITLE, page_size=1)
 
     assert len(items) == 2
     assert items[0].title == "Test1"
@@ -176,15 +160,14 @@ async def _test_get_all_engineering_work_item_paging_sorting(data_app):
 
 
 async def test_update_engineering_work_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     assert engineering_item.modified_at
     old_modified_at = engineering_item.modified_at
 
     update = BaseEngineeringItem(title="Test Updated")
     engineering_item = await data_app.engineering_controller.update(
-        organization_id=org.id,
         id=engineering_item.id,
         updated_item=update,
         current_user="test@test.com",
@@ -197,20 +180,17 @@ async def test_update_engineering_work_item(data_app):
 
 
 async def test_update_engineering_work_item_creates_history(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     engineering_item.title = "Test Updated"
     engineering_item = await data_app.engineering_controller.update(
-        organization_id=org.id,
         id=engineering_item.id,
         updated_item=engineering_item,
         current_user="test@test.com",
     )
 
-    history_items = await data_app.history_controller.get_all(
-        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
-    )
+    history_items = await data_app.history_controller.get_all(item_id=engineering_item.id, item_type="engineering")
 
     assert len(history_items) == 2
     assert history_items[1].item_id == str(engineering_item.id)
@@ -220,44 +200,34 @@ async def test_update_engineering_work_item_creates_history(data_app):
 
 
 async def test_delete_engineering_work_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     result = await data_app.engineering_controller.delete(
-        organization_id=engineering_item.organization_id,
-        id=engineering_item.id,
-        current_user="test@test.com",
-        scope="ENGINEERING",
+        id=engineering_item.id, current_user="test@test.com", scope="ENGINEERING"
     )
 
     assert result is True
 
 
 async def test_delete_engineering_work_item_fails_when_doesnt_exist(data_app):
-    org = await create_organization(data_app)
+    await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.engineering_controller.delete(
-            organization_id=org.id, id=0, current_user="test@test.com", scope="ENGINEERING"
-        )
+        await data_app.engineering_controller.delete(id=0, current_user="test@test.com", scope="ENGINEERING")
 
 
 async def test_delete_engineering_item_creates_history(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     result = await data_app.engineering_controller.delete(
-        organization_id=engineering_item.organization_id,
-        id=engineering_item.id,
-        current_user="test@test.com",
-        scope="ENGINEERING",
+        id=engineering_item.id, current_user="test@test.com", scope="ENGINEERING"
     )
 
     assert result
 
-    history_items = await data_app.history_controller.get_all(
-        organization_id=org.id, item_id=engineering_item.id, item_type="engineering"
-    )
+    history_items = await data_app.history_controller.get_all(item_id=engineering_item.id, item_type="engineering")
 
     assert len(history_items) == 2
     assert history_items[1].item_id == str(engineering_item.id)
@@ -266,21 +236,20 @@ async def test_delete_engineering_item_creates_history(data_app):
 
 
 async def test_create_engineering_item_with_iteration(data_app):
-    org = await create_organization(data_app)
-    iteration = await create_iteration(data_app, org.id)
-    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+    await create_organization(data_app)
+    iteration = await create_iteration(data_app)
+    engineering_item = await create_engineering_item(data_app, iteration_id=iteration.id)
 
     assert engineering_item.iteration == iteration
 
 
 async def test_assign_iteration_to_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
-    iteration = await create_iteration(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
+    iteration = await create_iteration(data_app)
 
     engineering_item.iteration_id = iteration.id
     engineering_item = await data_app.engineering_controller.update(
-        organization_id=org.id,
         id=engineering_item.id,
         updated_item=engineering_item,
         current_user="test@test.com",
@@ -290,41 +259,39 @@ async def test_assign_iteration_to_engineering_item(data_app):
 
 
 async def test_get_engineering_item_with_iteration(data_app):
-    org = await create_organization(data_app)
-    iteration = await create_iteration(data_app, org.id)
-    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+    await create_organization(data_app)
+    iteration = await create_iteration(data_app)
+    engineering_item = await create_engineering_item(data_app, iteration_id=iteration.id)
 
-    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(id=engineering_item.id)
 
     assert engineering_item.iteration == iteration
 
 
-async def test_get_engineering_item_with_deleted_teration(data_app):
-    org = await create_organization(data_app)
-    iteration = await create_iteration(data_app, org.id)
-    engineering_item = await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
+async def test_get_engineering_item_with_deleted_iteration(data_app):
+    await create_organization(data_app)
+    iteration = await create_iteration(data_app)
+    engineering_item = await create_engineering_item(data_app, iteration_id=iteration.id)
 
-    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(id=engineering_item.id)
 
     assert engineering_item.iteration
 
     # Now delete the iteration
-    await data_app.iteration_controller.delete(organization_id=org.id, id=iteration.id, current_user="test@test.com")
+    await data_app.iteration_controller.delete(id=iteration.id, current_user="test@test.com")
 
-    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(id=engineering_item.id)
 
     assert engineering_item.iteration is None
 
 
 async def test_get_all_engineering_work_item_with_iteration(data_app):
-    org = await create_organization(data_app)
-    iteration = await create_iteration(data_app, org.id)
-    await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
-    await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    iteration = await create_iteration(data_app)
+    await create_engineering_item(data_app, iteration_id=iteration.id)
+    await create_engineering_item(data_app)
 
-    items = await page_results(
-        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
-    )
+    items = await page_results(data_app.engineering_controller, item_type=EngineeringItemType.STORY, limit=1)
 
     assert len(items) == 2
 
@@ -333,14 +300,13 @@ async def test_get_all_engineering_work_item_with_iteration(data_app):
 
 
 async def test_get_all_engineering_work_item_filtered_by_iteration(data_app):
-    org = await create_organization(data_app)
-    iteration = await create_iteration(data_app, org.id)
-    await create_engineering_item(data_app, org.id, iteration_id=iteration.id)
-    await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    iteration = await create_iteration(data_app)
+    await create_engineering_item(data_app, iteration_id=iteration.id)
+    await create_engineering_item(data_app)
 
     items = await page_results(
         data_app.engineering_controller,
-        organization_id=org.id,
         item_type=EngineeringItemType.STORY,
         iteration_id=iteration.id,
         limit=1,
@@ -352,21 +318,20 @@ async def test_get_all_engineering_work_item_filtered_by_iteration(data_app):
 
 
 async def test_create_engineering_item_with_team(data_app):
-    org = await create_organization(data_app)
-    team = await create_team(data_app, org.id)
-    engineering_item = await create_engineering_item(data_app, org.id, team_id=team.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
+    engineering_item = await create_engineering_item(data_app, team_id=team.id)
 
     assert engineering_item.team == team
 
 
 async def test_assign_team_to_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
-    team = await create_team(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
+    team = await create_team(data_app)
 
     engineering_item.team_id = team.id
     engineering_item = await data_app.engineering_controller.update(
-        organization_id=org.id,
         id=engineering_item.id,
         updated_item=engineering_item,
         current_user="test@test.com",
@@ -376,24 +341,22 @@ async def test_assign_team_to_engineering_item(data_app):
 
 
 async def test_get_engineering_item_with_team(data_app):
-    org = await create_organization(data_app)
-    team = await create_team(data_app, org.id)
-    engineering_item = await create_engineering_item(data_app, org.id, team_id=team.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
+    engineering_item = await create_engineering_item(data_app, team_id=team.id)
 
-    engineering_item = await data_app.engineering_controller.get(organization_id=org.id, id=engineering_item.id)
+    engineering_item = await data_app.engineering_controller.get(id=engineering_item.id)
 
     assert engineering_item.team == team
 
 
 async def test_get_all_engineering_work_item_with_team(data_app):
-    org = await create_organization(data_app)
-    team = await create_team(data_app, org.id)
-    await create_engineering_item(data_app, org.id, team_id=team.id)
-    await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
+    await create_engineering_item(data_app, team_id=team.id)
+    await create_engineering_item(data_app)
 
-    items = await page_results(
-        data_app.engineering_controller, organization_id=org.id, item_type=EngineeringItemType.STORY, limit=1
-    )
+    items = await page_results(data_app.engineering_controller, item_type=EngineeringItemType.STORY, limit=1)
 
     assert len(items) == 2
 
@@ -402,44 +365,41 @@ async def test_get_all_engineering_work_item_with_team(data_app):
 
 
 async def test_create_comment_on_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     new_comment = BaseWorkItemComment(description="Testing 123")
     comment = await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
 
     assert comment.id
 
 
 async def test_get_comment_on_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     new_comment = BaseWorkItemComment(description="Testing 123")
     comment = await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
 
-    comment = await data_app.engineering_controller.get_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, id=comment.id
-    )
+    comment = await data_app.engineering_controller.get_comment(work_item_id=engineering_item.id, id=comment.id)
     assert comment.id
 
 
 async def test_update_comment_on_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     new_comment = BaseWorkItemComment(description="Testing 123")
     comment = await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
 
     comment.description = "Test Updated 123"
     updated_comment = await data_app.engineering_controller.update_comment(
-        organization_id=org.id,
         work_item_id=engineering_item.id,
         id=comment.id,
         updated_comment=comment,
@@ -450,45 +410,44 @@ async def test_update_comment_on_engineering_item(data_app):
 
 
 async def test_delete_comment_on_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     new_comment = BaseWorkItemComment(description="Testing 123")
     comment = await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
 
     result = await data_app.engineering_controller.delete_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, id=comment.id, current_user="test@test.com"
+        work_item_id=engineering_item.id, id=comment.id, current_user="test@test.com"
     )
     assert result
 
 
 async def test_delete_comments_on_engineering_item(data_app):
-    org = await create_organization(data_app)
-    engineering_item = await create_engineering_item(data_app, org.id)
+    await create_organization(data_app)
+    engineering_item = await create_engineering_item(data_app)
 
     new_comment = BaseWorkItemComment(description="Testing 123")
     await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
     await data_app.engineering_controller.create_comment(
-        organization_id=org.id, work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
+        work_item_id=engineering_item.id, new_comment=new_comment, current_user="test@test.com"
     )
 
     result = await data_app.engineering_controller.delete_comments(
-        organization_id=org.id, work_item_id=engineering_item.id, current_user="test@test.com"
+        work_item_id=engineering_item.id, current_user="test@test.com"
     )
     assert result == "2"
 
 
 async def test_should_link_epic_to_story(data_app):
-    org = await create_organization(data_app)
-    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
-    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    await create_organization(data_app)
+    epic = await create_engineering_item(data_app, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
 
     result = await data_app.engineering_controller.link(
-        organization_id=org.id,
         item_1=epic.id,
         item_2=story.id,
         link_type=EngineeringLinkType.BLOCKED,
@@ -499,48 +458,43 @@ async def test_should_link_epic_to_story(data_app):
 
 
 async def test_should_get_all_unique_linked_items(data_app):
-    org = await create_organization(data_app)
-    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
-    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
-    story_2 = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
-    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    await create_organization(data_app)
+    epic = await create_engineering_item(data_app, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
+    story_2 = await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
+    await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
 
     await data_app.engineering_controller.link(
-        organization_id=org.id,
         item_1=epic.id,
         item_2=story.id,
         link_type=EngineeringLinkType.RELATED,
         current_user="test@test.com",
     )
     await data_app.engineering_controller.link(
-        organization_id=org.id,
         item_1=epic.id,
         item_2=story_2.id,
         link_type=EngineeringLinkType.RELATED,
         current_user="test@test.com",
     )
 
-    linked_items, _ = await data_app.engineering_controller.get_all(
-        organization_id=org.id, item_type=EngineeringItemType.EPIC
-    )
+    linked_items, _ = await data_app.engineering_controller.get_all(item_type=EngineeringItemType.EPIC)
 
     assert len(linked_items) == 1
 
 
 async def test_should_get_all_linked_items(data_app):
-    org = await create_organization(data_app)
-    epic = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.EPIC.value)
-    story = await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
-    await create_engineering_item(data_app, org.id, item_type=EngineeringItemType.STORY.value)
+    await create_organization(data_app)
+    epic = await create_engineering_item(data_app, item_type=EngineeringItemType.EPIC.value)
+    story = await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
+    await create_engineering_item(data_app, item_type=EngineeringItemType.STORY.value)
 
     await data_app.engineering_controller.link(
-        organization_id=org.id,
         item_1=epic.id,
         item_2=story.id,
         link_type=EngineeringLinkType.BLOCKED,
         current_user="test@test.com",
     )
 
-    linked_items, _ = await data_app.engineering_controller.get_all(organization_id=org.id, related_item_id=epic.id)
+    linked_items, _ = await data_app.engineering_controller.get_all(related_item_id=epic.id)
 
     assert len(linked_items) == 1

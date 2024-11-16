@@ -33,12 +33,7 @@ import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 
 export const CreateStory = () => {
 	const navigate = useNavigate();
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		control,
-	} = useForm<StoryFormProps>();
+	const { register, handleSubmit, control } = useForm<StoryFormProps>();
 	// we cannot use register('targetDate') in the mui datepicker
 	// due the type mismatch
 	const targetDateField = useController({ control, name: 'targetDate' });
@@ -139,19 +134,9 @@ export const CreateStory = () => {
 									fullWidth
 									label="Title"
 									id="title"
-									color={
-										errors.title && errors.title.type === 'maxLength'
-											? 'error'
-											: 'primary'
-									}
 									required
 									{...register('title')}
 								></TextField>
-								{errors.title && errors.title.type === 'maxLength' && (
-									<small role="alert" className="text-left pb-2 text-red-500">
-										Ticket title must be maximum 40 characters.
-									</small>
-								)}
 							</FormControl>
 							<DescriptionRichEditor
 								onChange={descriptionField.field.onChange}

@@ -1,4 +1,3 @@
-from app.database.common.models import MAX_ID_LENGTH
 from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 ITERATION_QUERIES = {}
@@ -7,7 +6,6 @@ ITERATION_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS iterations (
     id SERIAL PRIMARY KEY,
-    organization_id VARCHAR({MAX_ID_LENGTH}) REFERENCES organizations(id) ON DELETE CASCADE,
     {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     description TEXT,
@@ -24,7 +22,6 @@ ITERATION_QUERIES[
 ] = """
 INSERT INTO iterations
 (
-    organization_id,
     title,
     description,
     status,
@@ -33,7 +30,7 @@ INSERT INTO iterations
     created_by_id,
     modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 """
 
@@ -41,7 +38,7 @@ RETURNING *;
 ITERATION_QUERIES[
     "GET_ITERATION"
 ] = """
-SELECT * FROM iterations WHERE organization_id = $1 AND id = $2 AND deleted_at IS NULL;
+SELECT * FROM iterations WHERE id = $1 AND deleted_at IS NULL;
 """
 
 
@@ -50,11 +47,10 @@ ITERATION_QUERIES[
 ] = """
 SELECT * FROM iterations
 WHERE
-    organization_id = $1
-    AND deleted_at IS NULL
-ORDER BY $2
-LIMIT $3
-OFFSET $4;
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 
@@ -63,17 +59,17 @@ ITERATION_QUERIES[
 ] = """
 UPDATE iterations
 SET
-    title = $3,
-    description = $4,
-    status = $5,
-    start_date = $6,
-    end_date = $7,
+    title = $2,
+    description = $3,
+    status = $4,
+    start_date = $5,
+    end_date = $6,
     modified_at = NOW(),
-    modified_by_id = $8,
-    deleted_at = $9,
-    deleted_by_id = $10
+    modified_by_id = $7,
+    deleted_at = $8,
+    deleted_by_id = $9
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 RETURNING *;
 """
 
@@ -83,7 +79,7 @@ ITERATION_QUERIES[
 UPDATE iterations
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
+    deleted_by_id = $2
 WHERE
-    organization_id = $1 AND id = $2
+    id = $1
 """

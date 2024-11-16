@@ -16,14 +16,14 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class EngineeringController(WorkItemController):
-    async def create(
-        self, *, organization_id: str, new_item: BaseEngineeringItem, current_user: str
-    ) -> EngineeringItem:
+    async def create(self, *, new_item: BaseEngineeringItem, current_user: str) -> EngineeringItem:
+        if new_item.item_type is None:
+            new_item.item_type = EngineeringItemType.STORY
+
         # Create db record
         # How do we handle if completed is set right away?
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_ENGINEERING_ITEM"],
-            organization_id,
             new_item.title,
             new_item.description,
             new_item.status,
@@ -43,7 +43,6 @@ class EngineeringController(WorkItemController):
         )
 
         await self.history_controller.create(
-            organization_id,
             BaseHistory(
                 item_id=record["id"],
                 item_type="engineering",
@@ -59,15 +58,14 @@ class EngineeringController(WorkItemController):
 
         return EngineeringItem(**record, assigned_to=user)
 
-    async def get(self, *, organization_id: str, id: int) -> EngineeringItem:
-        record, user = await super()._get(organization_id=organization_id, id=id, scope="ENGINEERING")
+    async def get(self, *, id: int) -> EngineeringItem:
+        record, user = await super()._get(id=id, scope="ENGINEERING")
 
         return EngineeringItem(**record, assigned_to=user)
 
     async def get_all(
         self,
         *,
-        organization_id: str,
         item_type: Optional[EngineeringItemType] = None,
         iteration_id: Optional[int] = None,
         related_item_id: Optional[int] = None,
@@ -87,7 +85,10 @@ class EngineeringController(WorkItemController):
         )
 
         query: str = QUERIES["GET_ALL_ENGINEERING_ITEM"]
-        query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        if filter_conditions:
+            query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        else:
+            query = query.replace("$FILTER_CONDITIONS", "")
 
         offset = 0
         if cursor:
@@ -97,7 +98,6 @@ class EngineeringController(WorkItemController):
 
         records = await data_db.get().fetch(
             query,
-            organization_id,
             sort if sort else WorkItemSortableField.ID.value,
             limit,
             offset,
@@ -109,15 +109,24 @@ class EngineeringController(WorkItemController):
 
         return [EngineeringItem(**record) for record in records], cursor
 
+    async def get_ask_lucid_info(self) -> List[EngineeringItem]:
+        records = await data_db.get().fetch(QUERIES["GET_ASK_LUCID_ENGINEERING_ITEM"])
+
+        return [EngineeringItem(**record) for record in records]
+
+    async def get_batch_by_id(self, *, ids: List[int]) -> List[EngineeringItem]:
+        records = await data_db.get().fetch(QUERIES["GET_ENGINEERING_ITEMS_BY_IDS"], ids)
+
+        return [EngineeringItem(**record) for record in records]
+
     async def update(
         self,
         *,
-        organization_id: str,
         id: int,
         updated_item: EngineeringItem,
         current_user: str,
     ) -> EngineeringItem:
-        old_engineering_item = await self.get(organization_id=organization_id, id=id)
+        old_engineering_item = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
         old_item_json = old_engineering_item.model_dump()
@@ -126,7 +135,6 @@ class EngineeringController(WorkItemController):
 
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_ENGINEERING_ITEM"],
-            organization_id,
             id,
             old_item_json["title"],
             old_item_json["description"],
@@ -153,26 +161,19 @@ class EngineeringController(WorkItemController):
         )
 
         await self.history_controller.create(
-            organization_id,
             BaseHistory(item_id=record["id"], item_type="engineering", action="update", metadata=new_item_json),
             current_user,
         )
 
         return EngineeringItem(**record)
 
-    async def link(
-        self, *, organization_id: str, item_1: int, item_2: int, link_type: EngineeringLinkType, current_user: str
-    ) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["LINK_ENGINEERING_ITEMS"], organization_id, item_1, item_2, link_type, current_user
-        )
+    async def link(self, *, item_1: int, item_2: int, link_type: EngineeringLinkType, current_user: str) -> bool:
+        result = await data_db.get().execute(QUERIES["LINK_ENGINEERING_ITEMS"], item_1, item_2, link_type, current_user)
 
         return result == "INSERT 0 1"
 
-    async def unlink(self, *, organization_id: str, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["UNLINK_ENGINEERING_ITEMS"], organization_id, item_1, item_2, current_user
-        )
+    async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+        result = await data_db.get().execute(QUERIES["UNLINK_ENGINEERING_ITEMS"], item_1, item_2, current_user)
 
         return result == "DELETE 1"
 

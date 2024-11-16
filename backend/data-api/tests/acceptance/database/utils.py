@@ -7,7 +7,6 @@ from app.database.teams.models.team import BaseTeam, Team
 
 async def page_results(
     controller: Any,
-    organization_id: Optional[str] = None,
     item_type: Optional[str] = None,
     iteration_id: Optional[str] = None,
     sort: Optional[str] = None,
@@ -19,9 +18,8 @@ async def page_results(
     cursor = None
 
     while True:
-        if organization_id:
+        if item_type or iteration_id:
             page, cursor = await controller.get_all(
-                organization_id=organization_id,
                 sort=sort,
                 limit=limit,
                 cursor=cursor,
@@ -42,28 +40,26 @@ async def page_results(
     return items
 
 
-async def create_iteration(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}) -> Iteration:
+async def create_iteration(data_app, overrides: Optional[Dict[str, Any]] = {}) -> Iteration:
     data = {"title": "Test"}
     data.update(**overrides)
 
     iteration = BaseIteration(**data)
 
-    iteration = await data_app.iteration_controller.create(
-        organization_id=org_id, iteration=iteration, current_user="test@test.com"
-    )
+    iteration = await data_app.iteration_controller.create(iteration=iteration, current_user="test@test.com")
 
     assert iteration.id
 
     return iteration
 
 
-async def create_team(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}) -> Team:
+async def create_team(data_app, overrides: Optional[Dict[str, Any]] = {}) -> Team:
     data = {"title": "Test"}
     data.update(**overrides)
 
     team = BaseTeam(**data)
 
-    team = await data_app.team_controller.create(organization_id=org_id, team=team, current_user="test@test.com")
+    team = await data_app.team_controller.create(team=team, current_user="test@test.com")
 
     assert team.id
 

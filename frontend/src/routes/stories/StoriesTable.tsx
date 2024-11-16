@@ -1,5 +1,5 @@
 import { MenuItem, Typography } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { Story } from './Stories';
 import { MRT_Row, MRT_ColumnDef } from 'material-react-table';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -22,6 +22,7 @@ import { linkStoryToEpic } from '../../api/epics';
 import { toast, Zoom } from 'react-toastify';
 import { queryClient } from '../../router';
 import dayjs from 'dayjs';
+import { UsersContext } from '../../hooks/users';
 
 type StoryDataTableProps = {
 	checkedField: string[]; // Array of field names selected by the user
@@ -46,6 +47,12 @@ const StoriesTable = ({
 	group,
 	onStoryUpdated,
 }: StoryDataTableProps) => {
+	const users = useContext(UsersContext);
+	const addUserName = (story: Story): Story => ({
+		...story,
+		assignedToName:
+			users.find((user) => user.id === story.assignedToId)?.fullName || '-',
+	});
 	const sortStates = {
 		name: true, // Set to true to start with descending order
 		id: null,
@@ -77,6 +84,11 @@ const StoriesTable = ({
 	const [rowToDelete, setRowToDelete] = useState<MRT_Row<Story> | null>(null); // Track which row to delete
 	const [rowsToUpdate, setRowsToUpdate] = useState<string[] | null>(null); // Track which row to delete
 	const [rowsUpdated, setRowsUpdated] = useState<number>(0); // Track which row to delete
+
+	// State to hold the filtered stories (including searched stories)
+	const [filteredStories, setFilteredStories] = useState<Story[]>(
+		stories.map(addUserName)
+	);
 	const location = useLocation();
 
 	const { mutate: patchStory } = useMutation({
@@ -98,8 +110,8 @@ const StoriesTable = ({
 
 	useEffect(() => {
 		// When the component first mounts, set filteredStories to the full list of epics
-		setFilteredStories(stories);
-	}, [stories]);
+		setFilteredStories(stories.map(addUserName));
+	}, [stories, users]);
 
 	const { mutate: removeStory } = useMutation({
 		mutationFn: deleteStory,
@@ -112,6 +124,7 @@ const StoriesTable = ({
 			setOpenDialog(false); // Close the dialog after successful deletion
 		},
 	});
+
 	const handleDelete = () => {
 		if (rowToDelete) {
 			removeStory({ orgId: orgId, storyId: rowToDelete.original.id });
@@ -122,8 +135,7 @@ const StoriesTable = ({
 		setOpenDialog(false);
 		setRowToDelete(null); // Reset the selected row when closing
 	};
-	// State to hold the filtered stories (including searched stories)
-	const [filteredStories, setFilteredStories] = useState<Story[]>(stories);
+
 	// group stories by status
 	let groupedStories = {};
 	if (group) {
@@ -262,6 +274,22 @@ const StoriesTable = ({
 				Cell: ({ cell }) => {
 					return STORY_PRIORITY_MAPPER[cell.getValue<string>()] ?? 'Small';
 				},
+			},
+			{
+				accessorKey: 'assignedToName',
+				id: 'assignedToName',
+				header: 'Assigned To',
+				size: 200,
+				enableColumnActions: false,
+				Header: () => <span className="cursor-pointer">Assigned To</span>,
+			},
+			{
+				accessorKey: 'iterationTitle',
+				id: 'iterationTitle',
+				header: 'Iteration',
+				size: 200,
+				enableColumnActions: false,
+				Header: () => <span className="cursor-pointer">Sprint</span>,
 			},
 
 			{

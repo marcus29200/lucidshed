@@ -8,8 +8,8 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_add_team(data_app):
-    organization = await create_organization(data_app)
-    team = await create_team(data_app, organization.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
 
     assert isinstance(team, Team)
 
@@ -18,53 +18,49 @@ async def test_add_team(data_app):
 
 
 async def test_get_team(data_app):
-    organization = await create_organization(data_app)
-    team = await create_team(data_app, organization.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
 
-    team = await data_app.team_controller.get(organization_id=organization.id, id=team.id)
+    team = await data_app.team_controller.get(id=team.id)
 
     assert team.id
 
 
 async def test_get_all_team(data_app):
-    organization = await create_organization(data_app)
-    await create_team(data_app, organization.id)
-    await create_team(data_app, organization.id, overrides={"title": "Test 2"})
+    await create_organization(data_app)
+    await create_team(data_app)
+    await create_team(data_app, overrides={"title": "Test 2"})
 
-    teams = await data_app.team_controller.get_all(organization_id=organization.id)
+    teams = await data_app.team_controller.get_all()
 
     assert len(teams) == 2
 
 
 async def _test_get_all_teams_paging(data_app):
-    organization = await create_organization(data_app)
-    await create_team(data_app, organization.id)
-    await create_team(data_app, organization.id, overrides={"title": "Test 2"})
+    await create_organization(data_app)
+    await create_team(data_app)
+    await create_team(data_app, overrides={"title": "Test 2"})
 
-    items = await page_results(data_app.team_controller, organization_id=organization.id, limit=1)
+    items = await page_results(data_app.team_controller, limit=1)
 
     assert len(items) == 2
     assert items[0].id != items[1].id
 
 
 async def test_update_team(data_app):
-    organization = await create_organization(data_app)
-    team = await create_team(data_app, organization.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
 
     team.title = "Test Updated"
-    team = await data_app.team_controller.update(
-        organization_id=organization.id, id=team.id, updated_team=team, current_user="test@test.com"
-    )
+    team = await data_app.team_controller.update(id=team.id, updated_team=team, current_user="test@test.com")
 
     assert team.title == "Test Updated"
 
 
 async def test_delete_team(data_app):
-    organization = await create_organization(data_app)
-    team = await create_team(data_app, organization.id)
+    await create_organization(data_app)
+    team = await create_team(data_app)
 
-    result = await data_app.team_controller.delete(
-        organization_id=organization.id, id=team.id, current_user="test@test.com"
-    )
+    result = await data_app.team_controller.delete(id=team.id, current_user="test@test.com")
 
     assert result

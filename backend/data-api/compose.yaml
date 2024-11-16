@@ -14,3 +14,34 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  opensearch:
+    image: opensearchproject/opensearch:2.17.1
+    container_name: opensearch-node
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true        # Locks memory for better performance
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # Java heap size
+      - plugins.security.disabled=true    # Disables security plugin for development
+      - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=Luc1dshedTester!"  # Initial password for admin user
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - 9200:9200
+      - 9600:9600 # OpenSearch REST API and Performance Analyzer
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.5.0
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+    ports:
+      - 5601:5601
+
+volumes:
+  opensearch-data:
+    driver: local

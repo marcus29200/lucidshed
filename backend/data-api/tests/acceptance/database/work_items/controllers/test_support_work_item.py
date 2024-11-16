@@ -13,7 +13,6 @@ pytestmark = pytest.mark.asyncio
 
 async def create_support_item(
     data_app,
-    org_id,
     status: Optional[SupportItemStatus] = SupportItemStatus.NEW.value,
     title: Optional[str] = "Test",
 ) -> SupportItem:
@@ -23,9 +22,7 @@ async def create_support_item(
         status=status,
     )
 
-    support_item = await data_app.support_controller.create(
-        organization_id=org_id, new_item=base_support_item, current_user="test@test.com"
-    )
+    support_item = await data_app.support_controller.create(new_item=base_support_item, current_user="test@test.com")
 
     assert support_item.id
 
@@ -33,8 +30,8 @@ async def create_support_item(
 
 
 async def test_add_support_work_item(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app)
 
     assert isinstance(support_item, SupportItem)
 
@@ -46,8 +43,8 @@ async def test_add_support_work_item(data_app):
 
 
 async def test_add_support_work_item_defaults_status_to_valid_value(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id, status=None)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app, status=None)
 
     assert isinstance(support_item, SupportItem)
 
@@ -60,14 +57,12 @@ async def test_add_support_work_item_defaults_status_to_valid_value(data_app):
 
 
 async def test_add_history_item_to_support_work_item(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app)
 
     assert support_item.id
 
-    history_items = await data_app.history_controller.get_all(
-        organization_id=org.id, item_id=support_item.id, item_type="support"
-    )
+    history_items = await data_app.history_controller.get_all(item_id=support_item.id, item_type="support")
 
     assert len(history_items) == 1
     assert history_items[0].item_id == str(support_item.id)
@@ -77,28 +72,28 @@ async def test_add_history_item_to_support_work_item(data_app):
 
 
 async def test_get_support_work_item(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app)
 
-    support_item = await data_app.support_controller.get(organization_id=org.id, id=support_item.id)
+    support_item = await data_app.support_controller.get(id=support_item.id)
 
     assert support_item.id
 
 
 async def test_get_support_work_item_raises_not_found_exception(data_app):
-    org = await create_organization(data_app)
+    await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.get(organization_id=org.id, id=0)
+        await data_app.support_controller.get(id=0)
 
 
 # TODO Fix
 async def _test_get_all_support_work_item(data_app):
-    org = await create_organization(data_app)
-    await create_support_item(data_app, org.id)
-    await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    await create_support_item(data_app)
+    await create_support_item(data_app)
 
-    items = await page_results(data_app.support_controller, organization_id=org.id, limit=1)
+    items = await page_results(data_app.support_controller, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], SupportItem)
@@ -107,11 +102,11 @@ async def _test_get_all_support_work_item(data_app):
 
 # TODO Fix
 async def _test_get_all_support_work_item_paging(data_app):
-    org = await create_organization(data_app)
-    await create_support_item(data_app, org.id)
-    await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    await create_support_item(data_app)
+    await create_support_item(data_app)
 
-    items = await page_results(data_app.support_controller, organization_id=org.id, limit=1)
+    items = await page_results(data_app.support_controller, limit=1)
 
     assert len(items) == 2
     assert isinstance(items[0], SupportItem)
@@ -120,13 +115,11 @@ async def _test_get_all_support_work_item_paging(data_app):
 
 # NOTE This test is out of order right now because we don't have the sort param fully implemented
 async def _test_get_all_support_work_item_paging_sorting(data_app):
-    org = await create_organization(data_app)
-    await create_support_item(data_app, org.id, title="Test2")
-    await create_support_item(data_app, org.id, title="Test1")
+    await create_organization(data_app)
+    await create_support_item(data_app, title="Test2")
+    await create_support_item(data_app, title="Test1")
 
-    items = await page_results(
-        data_app.support_controller, organization_id=org.id, sort=WorkItemSortableField.TITLE, page_size=1
-    )
+    items = await page_results(data_app.support_controller, sort=WorkItemSortableField.TITLE, page_size=1)
 
     assert len(items) == 2
     assert items[0].title == "Test1"
@@ -134,18 +127,15 @@ async def _test_get_all_support_work_item_paging_sorting(data_app):
 
 
 async def test_update_support_work_item(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app)
 
     support_item.title = "Test Updated"
     assert support_item.modified_at
     old_modified_at = support_item.modified_at
 
     support_item = await data_app.support_controller.update(
-        organization_id=org.id,
-        id=support_item.id,
-        updated_item=support_item,
-        current_user="test@test.com",
+        id=support_item.id, updated_item=support_item, current_user="test@test.com"
     )
 
     assert support_item.title == "Test Updated"
@@ -154,20 +144,16 @@ async def test_update_support_work_item(data_app):
 
 
 async def test_delete_support_work_item(data_app):
-    org = await create_organization(data_app)
-    support_item = await create_support_item(data_app, org.id)
+    await create_organization(data_app)
+    support_item = await create_support_item(data_app)
 
-    result = await data_app.support_controller.delete(
-        organization_id=support_item.organization_id, id=support_item.id, current_user="test@test.com", scope="SUPPORT"
-    )
+    result = await data_app.support_controller.delete(id=support_item.id, current_user="test@test.com", scope="SUPPORT")
 
     assert result is True
 
 
 async def test_delete_support_work_item_fails_when_doesnt_exist(data_app):
-    org = await create_organization(data_app)
+    await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.delete(
-            organization_id=org.id, id=0, current_user="test@test.com", scope="SUPPORT"
-        )
+        await data_app.support_controller.delete(id=0, current_user="test@test.com", scope="SUPPORT")

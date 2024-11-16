@@ -30,6 +30,16 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+      opensearch:
+        image: opensearchproject/opensearch:2.17.1
+        options: --health-cmd="curl -s http://localhost:9200/_cluster/health | grep -vq '\"status\":\"red\"'" --health-retries=10 --health-interval=5s
+        env:
+          discovery.type: "single-node"
+          OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+          plugins.security.disabled: "true"
+          OPENSEARCH_INITIAL_ADMIN_PASSWORD: "Luc1dshedTester!"
+        ports:
+          - 9200:9200
 
     steps:
     - name: Check out the code

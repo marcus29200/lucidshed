@@ -56,6 +56,28 @@ async def add_organization_user(
     return response.json()
 
 
+async def add_engineering_item(
+    data_api: TestClient,
+    org_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
+    headers: Optional[Dict[str, Any]] = {},
+):
+    data = {
+        "title": "test",
+        "description": "test description",
+        "status": "done",
+        "priority": "high",
+    }
+    data.update(**overrides)
+
+    response = await data_api.post(f"{org_id}/engineering", json=data, headers=headers)
+
+    assert response.status_code == expected_status_code
+
+    return response.json()
+
+
 async def authenticate(data_api, user_email: Optional[str] = "test@test.com", create_org: bool = True):
     await add_user(data_api, {"email": user_email})
 

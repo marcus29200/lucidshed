@@ -24,6 +24,9 @@ export type Story = {
 	startDate: Date | null;
 	progress: number;
 	assignedToId?: string;
+	assignedToName?: string;
+	iterationId?: number;
+	iterationTitle?: string;
 	status: StoryStatus;
 	orgId: string;
 	createdDate: Date;
@@ -37,6 +40,8 @@ const editFieldsCheckedItems = [
 	'progress',
 	'id',
 	'priority',
+	'assignedToName',
+	'iterationTitle',
 	'startDate',
 	'targetDate',
 ];

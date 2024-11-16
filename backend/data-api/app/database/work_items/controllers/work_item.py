@@ -15,18 +15,18 @@ class WorkItemController:
     def __init__(self):
         self.history_controller = HistoryController()
 
-    async def create(self, *, organization_id: str, new_item: Any, current_user: str) -> Any:
+    async def create(self, *, new_item: Any, current_user: str) -> Any:
         raise NotImplementedError()
 
-    async def get(self, *, organization_id: str, id: int) -> Any:
+    async def get(self, *, id: int) -> Any:
         raise NotImplementedError()
 
-    async def _get(self, *, organization_id: str, id: int, scope: str) -> Tuple[Dict[str, Any], Optional[SlimUser]]:
+    async def _get(self, *, id: int, scope: str) -> Tuple[Dict[str, Any], Optional[SlimUser]]:
         # Get item record here
-        record = await data_db.get().fetchrow(QUERIES[f"GET_{scope}_ITEM"], organization_id, id)
+        record = await data_db.get().fetchrow(QUERIES[f"GET_{scope}_ITEM"], id)
 
         if not record:
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         user = None
         if record.get("assigned_to_id"):
@@ -37,7 +37,6 @@ class WorkItemController:
     async def get_all(
         self,
         *,
-        organization_id: str,
         sort: Optional[Any] = "id",
         item_type: Optional[Any] = None,
         limit: Optional[int] = 1000,
@@ -48,22 +47,20 @@ class WorkItemController:
     async def _get_all(self, **kwargs) -> Tuple[List[Dict[str, Any]], str | None]:
         raise NotImplementedError()
 
-    async def update(self, *, organization_id: str, id: int, updated_item: Any, current_user: str) -> Any:
+    async def update(self, *, id: int, updated_item: Any, current_user: str) -> Any:
         raise NotImplementedError()
 
-    async def delete(self, *, organization_id: str, id: int, current_user: str, scope: str) -> bool:
+    async def delete(self, *, id: int, current_user: str, scope: str) -> bool:
         result = await data_db.get().execute(
             QUERIES[f"DELETE_{scope}_ITEM"],
-            organization_id,
             id,
             current_user,
         )
 
         if result != "UPDATE 1":
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         await self.history_controller.create(
-            organization_id,
             BaseHistory(item_id=str(id), item_type=scope.lower(), action="delete"),
             current_user,
         )
@@ -73,7 +70,6 @@ class WorkItemController:
     async def create_comment(
         self,
         *,
-        organization_id: str,
         work_item_id: int,
         new_comment: BaseWorkItemComment,
         current_user: str,
@@ -81,7 +77,6 @@ class WorkItemController:
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_WORK_ITEM_COMMENT"],
             uuid4().hex,
-            organization_id,
             work_item_id,
             new_comment.description,
             current_user,
@@ -92,19 +87,19 @@ class WorkItemController:
 
         return WorkItemComment(**record)
 
-    async def get_comment(self, *, organization_id: str, work_item_id: int, id: str) -> WorkItemComment:
-        record = await data_db.get().fetchrow(QUERIES["GET_WORK_ITEM_COMMENT"], organization_id, work_item_id, id)
+    async def get_comment(self, *, work_item_id: int, id: str) -> WorkItemComment:
+        record = await data_db.get().fetchrow(QUERIES["GET_WORK_ITEM_COMMENT"], work_item_id, id)
 
         if not record:
             # TODO, will need to do better here, could be confusing
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         # TODO Create history entry
 
         return WorkItemComment(**record)
 
-    async def get_comments(self, *, organization_id: str, id: int) -> Tuple[List[WorkItemComment], Optional[str]]:
-        records = await data_db.get().fetch(QUERIES["GET_WORK_ITEM_COMMENTS"], organization_id, id)
+    async def get_comments(self, *, id: int) -> Tuple[List[WorkItemComment], Optional[str]]:
+        records = await data_db.get().fetch(QUERIES["GET_WORK_ITEM_COMMENTS"], id)
 
         # TODO Create history entry
 
@@ -113,13 +108,12 @@ class WorkItemController:
     async def update_comment(
         self,
         *,
-        organization_id: str,
         work_item_id: int,
         id: str,
         updated_comment: BaseWorkItemComment,
         current_user: str,
     ) -> WorkItemComment:
-        old_comment = await self.get_comment(organization_id=organization_id, work_item_id=work_item_id, id=id)
+        old_comment = await self.get_comment(work_item_id=work_item_id, id=id)
 
         new_item_json = updated_comment.model_dump(exclude_unset=True)
         old_item_json = old_comment.model_dump()
@@ -128,7 +122,6 @@ class WorkItemController:
 
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_WORK_ITEM_COMMENT"],
-            organization_id,
             work_item_id,
             id,
             old_item_json["description"],
@@ -139,32 +132,21 @@ class WorkItemController:
 
         if not record:
             # TODO, will need to do better here, could be confusing
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         # TODO Create history entry
 
         return WorkItemComment(**record)
 
-    async def delete_comment(self, *, organization_id: str, work_item_id: int, id: str, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["DELETE_WORK_ITEM_COMMENT"],
-            organization_id,
-            work_item_id,
-            id,
-            current_user,
-        )
+    async def delete_comment(self, *, work_item_id: int, id: str, current_user: str) -> bool:
+        result = await data_db.get().execute(QUERIES["DELETE_WORK_ITEM_COMMENT"], work_item_id, id, current_user)
 
         if result != "UPDATE 1":
-            raise ObjectNotFoundException(organization_id=organization_id, object_id=id)
+            raise ObjectNotFoundException(object_id=id)
 
         return True
 
-    async def delete_comments(self, *, organization_id: str, work_item_id: int, current_user: str) -> int:
-        result = await data_db.get().execute(
-            QUERIES["DELETE_WORK_ITEM_COMMENTS"],
-            organization_id,
-            work_item_id,
-            current_user,
-        )
+    async def delete_comments(self, *, work_item_id: int, current_user: str) -> int:
+        result = await data_db.get().execute(QUERIES["DELETE_WORK_ITEM_COMMENTS"], work_item_id, current_user)
 
         return result.split("UPDATE ")[-1]

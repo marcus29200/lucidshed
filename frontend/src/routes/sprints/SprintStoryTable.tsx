@@ -26,6 +26,7 @@ const editFieldsCheckedItems = [
 	'progress',
 	'id',
 	'priority',
+	'assignedToName',
 	'startDate',
 	'targetDate',
 ];

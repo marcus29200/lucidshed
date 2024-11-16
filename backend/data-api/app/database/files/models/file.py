@@ -28,7 +28,6 @@ class File(Model, BaseFile):
     id: str
     file_name: str
     path: str
-    organization_id: str = Field(max_length=MAX_ID_LENGTH)
     signed_url: Optional[str] = None
 
     def __init__(self, **data: Any):
