@@ -420,7 +420,7 @@ CREATE TABLE IF NOT EXISTS feature_requests (
     submitted_by_id VARCHAR({MAX_ID_LENGTH}),
     submitted_date timestamp with time zone DEFAULT NOW(),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
-    description TEXT,
+    description TEXT
 );
 """
     f"""
@@ -428,8 +428,7 @@ CREATE TABLE IF NOT EXISTS feature_request_comments (
     id SERIAL PRIMARY KEY,
     feature_request_id INT NOT NULL,
     {BASE_MODEL_FIELDS},
-    description TEXT,
-    PRIMARY KEY (feature_request_id, id)
+    description TEXT
 );
 """
 ]
@@ -446,7 +445,6 @@ INSERT INTO feature_requests
     description,
     created_by_id,
     modified_by_id
-
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 """
