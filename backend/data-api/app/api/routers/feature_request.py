@@ -12,7 +12,6 @@ class FeatureRequest(BaseModel):
     id: int
     title: str
     description: str
-    status: str
 
 
 class FeatureRequestCreate(BaseModel):
@@ -43,28 +42,28 @@ def get_feature_request_by_id(feature_request_id: int):
 
 
 # Create a new feature request
-@router.post("/", response_model=FeatureRequest)
+@router.post("/", response_model=FeatureRequest, status_code=201)
 def create_feature_request(feature_request: FeatureRequestCreate):
     new_id = len(feature_requests) + 1
-    new_feature_request = FeatureRequest(id=new_id, **feature_request.model_dump(), status="pending")
+    new_feature_request = FeatureRequest(id=new_id, **feature_request.model_dump())
     feature_requests.append(new_feature_request)
     return new_feature_request
 
 
 # Get all feature requests
-@router.get("/", response_model=List[FeatureRequest])
+@router.get("/", response_model=List[FeatureRequest], status_code=200)
 def get_feature_requests():
     return feature_requests
 
 
 # Get a specific feature request by ID
-@router.get("/{feature_request_id}", response_model=FeatureRequest)
+@router.get("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
 def get_feature_request(feature_request_id: int, feature_request: FeatureRequest = Depends(get_feature_request_by_id)):
     return feature_request
 
 
 # Update a feature request
-@router.put("/{feature_request_id}", response_model=FeatureRequest)
+@router.put("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
 def update_feature_request(
     feature_request_id: int,
     updated_feature_request: FeatureRequestCreate,
@@ -76,7 +75,7 @@ def update_feature_request(
 
 
 # Delete a feature request
-@router.delete("/{feature_request_id}", response_model=FeatureRequest)
+@router.delete("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
 def delete_feature_request(
     feature_request_id: int, feature_request: FeatureRequest = Depends(get_feature_request_by_id)
 ):

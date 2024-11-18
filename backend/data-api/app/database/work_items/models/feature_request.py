@@ -4,11 +4,12 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from app.database.common.models import MAX_ID_LENGTH
+from app.database.common.models import MAX_ID_LENGTH, Model
 from app.database.users.models.user import SlimUser
 
 
-class FeatureRequest(BaseModel):
+class FeatureRequest(Model, BaseModel):
+    id: int
     title: Optional[str] = Field("", max_length=256)
     company: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     company_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
@@ -19,6 +20,10 @@ class FeatureRequest(BaseModel):
     description: Optional[str] = ""
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
     comments: Optional[List[str]] = []
+    created_at: datetime
+    created_by_id: str = Field(max_length=MAX_ID_LENGTH)
+    modified_at: datetime
+    modified_by_id: str = Field(max_length=MAX_ID_LENGTH)
 
     def __init__(self, **data):
         if isinstance(data.get("company"), str):
