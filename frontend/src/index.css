@@ -149,4 +149,7 @@ button:focus-visible {
 	.outline-solid {
 		outline-style: solid;
 	}
+	.ai-chat-message {
+		@apply text-left rounded-xl px-3 py-1 w-fit relative;
+	}
 }

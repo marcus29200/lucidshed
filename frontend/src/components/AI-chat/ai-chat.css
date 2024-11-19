@@ -1,0 +1,7 @@
+.ai-lucid-message {
+	@apply bg-neutral-lighter rounded-bl-none;
+}
+
+.ai-user-message {
+	@apply bg-primary text-white ml-auto rounded-br-none;
+}

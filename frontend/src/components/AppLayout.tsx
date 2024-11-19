@@ -5,6 +5,7 @@ import AppHeader from './AppHeader';
 import { UsersContext } from '../hooks/users';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../api/users';
+import AIChatLayout from './AI-chat/ChatLayout';
 
 const AppLayout = () => {
 	const params = useParams();
@@ -24,10 +25,11 @@ const AppLayout = () => {
 						width: '100%',
 					}}
 				>
-					<AppHeader></AppHeader>
-					<Box sx={{ padding: '1rem', overflowY: 'auto' }}>
+					<AppHeader />
+					<Box sx={{ padding: '1rem', overflowY: 'auto', height: '100%' }}>
 						<UsersContext.Provider value={data ?? []}>
 							<Outlet />
+							<AIChatLayout />
 						</UsersContext.Provider>
 					</Box>
 				</Box>

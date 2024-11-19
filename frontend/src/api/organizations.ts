@@ -2,6 +2,7 @@ import { QueryClient, queryOptions } from '@tanstack/react-query';
 import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
 import { LoaderFunctionArgs } from 'react-router-dom';
+import { StoryAPI } from './stories';
 // TODO: replace environment BASE_URL with .env file
 
 export type CreateOrganizationParams = {
@@ -80,4 +81,29 @@ export const getOrganization = async (
 	}
 
 	return mapApiOrgToOrganization(await res.json());
+};
+
+export const askLucidAI = async (
+	organizationId: string,
+	query: string
+): Promise<{ summary?: string; related_items: StoryAPI[] }> => {
+	const res = await fetch(
+		`${BASE_URL}/${organizationId}/engineering/ask-lucid`,
+		{
+			headers: {
+				'Content-Type': 'application/json',
+				...getAuthHeaders(),
+			},
+			method: 'POST',
+			body: JSON.stringify({
+				query,
+			}),
+		}
+	);
+
+	if (!res.ok) {
+		throw res;
+	}
+
+	return await res.json();
 };
