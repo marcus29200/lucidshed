@@ -12,7 +12,7 @@ function Home() {
 					':before': {
 						content: '""',
 						backgroundImage: `url(${
-							import.meta.env.BASE_URL + '/background.png'
+							import.meta.env.BASE_URL + '/background.webp'
 						})`,
 						backgroundSize: 'contain',
 						backgroundPosition: 'center',
@@ -25,7 +25,7 @@ function Home() {
 					':after': {
 						content: '""',
 						backgroundImage: `url(${
-							import.meta.env.BASE_URL + '/background.png'
+							import.meta.env.BASE_URL + '/background-small.webp'
 						})`,
 						backgroundSize: 'contain',
 						backgroundPosition: 'center',
