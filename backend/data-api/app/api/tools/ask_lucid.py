@@ -1,4 +1,5 @@
 from typing import List, Tuple
+import logging
 
 from openai import Client, RateLimitError
 from openai.types.chat import ChatCompletion
@@ -14,6 +15,8 @@ You are an assistant that can answer questions based on engineering items (also 
 Provide two things, a text summary based on title and a comma separated list of relevant item ids to this user's
 question
 """
+
+logger = logging.getLogger(__name__)
 
 
 class AskLucidRawResponse(BaseModel):
@@ -38,12 +41,21 @@ async def perform_engineering_item_request(
             messages=[
                 {"role": "system", "content": ENGINEERING_ITEM_BASE_QUERY},
                 {"role": "system", "content": f"Context: {context_text}"},
+                {"role": "user", "content": query},
             ],
             response_format=AskLucidRawResponse,
         )
     except RateLimitError as rle:
+        logger.exception("Rate limit error")
+
         if rle.message.startswith("Request too large"):
             return "Sorry, that query is too large", []
+
+        return "Sorry, I'm having trouble answering that question. Please try again later", []
+    except Exception:
+        logger.exception("Failed to get completion from OpenAI")
+
+        return "Sorry, I'm having trouble answering that question. Please try again later", []
 
     message = completion.choices[0].message
     if message.refusal:

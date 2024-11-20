@@ -58,9 +58,13 @@ class BaseEngineeringItem(BaseWorkItem):
             data["team"] = json.loads(data["team"])
 
         super().__init__(**data)
+    
+    @property
+    def cleaned_description(self):
+        return re.sub(r"<img[^>]*>", "", self.description or "")
 
     def ai_format(self):
-        return f"id={self.id}, description={self.description}, status={self.status}"
+        return f"id={self.id}, description={self.cleaned_description}, status={self.status}"
 
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
@@ -71,7 +75,7 @@ class EngineeringItem(WorkItem, BaseEngineeringItem):
         indexible_doc = {field: getattr(self, field) for field in self.get_fields_to_index(updated_fields)}
 
         if indexible_doc.get("description"):
-            indexible_doc["description"] = re.sub(r"<img[^>]*>", "", indexible_doc["description"])
+            indexible_doc["description"] = self.cleaned_description
 
         return indexible_doc
 
