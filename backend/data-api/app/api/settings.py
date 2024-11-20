@@ -53,8 +53,7 @@ class Settings(BaseModel):
     openai_api_key: Optional[str] = getenv("OPENAI_API_KEY", None)
 
     # Opensearch settings
-    opensearch_host: Optional[str] = getenv("OPENSEARCH_HOST", "localhost:9200")
-    opensearch_port: Optional[int] = int(getenv("OPENSEARCH_PORT", 9200))
+    opensearch_host: Optional[str] = getenv("OPENSEARCH_HOST", "localhost")
     opensearch_username: Optional[str] = getenv("OPENSEARCH_USERNAME", "admin")
     opensearch_password: Optional[str] = getenv("OPENSEARCH_PASSWORD", "Luc1dshedTester!")
 

@@ -80,24 +80,9 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         new_item=body, current_user=request.state.user.id
     )
 
-    document = {
-        "id": engineering_item.id,
-        "title": engineering_item.title,
-        "description": engineering_item.description,
-        "status": engineering_item.status,
-        "priority": engineering_item.priority,
-        "creation_date": engineering_item.created_at,
-        "modified_date": engineering_item.modified_at,
-        "item_type": engineering_item.item_type,
-        "item_sub_type": engineering_item.item_sub_type,
-        "iteration_id": engineering_item.iteration_id,
-        "team_id": engineering_item.team_id,
-        "assigned_to_id": engineering_item.assigned_to_id,
-        "created_by_id": engineering_item.created_by_id,
-        "modified_by_id": engineering_item.modified_by_id,
-    }
-
-    request.app.opensearch_client.index(index=organization_id, id=document["id"], body=document)
+    request.app.opensearch_client.index(
+        index=organization_id, id=engineering_item.id, body=engineering_item.get_os_doc()
+    )
 
     return engineering_item
 
@@ -139,7 +124,8 @@ async def update_engineering_item(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = {"doc": body.model_dump(exclude_unset=True)}
+    document = {"doc": engineering_item.get_os_doc(body.model_fields_set)}
+
     document["doc"]["modified_date"] = engineering_item.modified_at
     document["doc"]["modified_by_id"] = engineering_item.modified_by_id
 

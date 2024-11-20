@@ -1,12 +1,21 @@
+import logging
 from argparse import ArgumentParser
 
 from asyncpg import connect
+
+from app.api.settings import settings
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(logging.INFO)
 
 
 class BaseOrganizationCommand:
     """
     Base class for running a command against all or specific organizations
     """
+
+    raw_db_name = False
 
     def __init__(self, *args, **kwargs):
         self.parser = ArgumentParser()
@@ -20,10 +29,10 @@ class BaseOrganizationCommand:
             org_ids = []
             # Connect to postgres
             conn = await connect(
-                host="localhost",
-                port="5432",
-                user="postgres",
-                password="password",
+                host=settings.database_host,
+                port=settings.database_port,
+                user=settings.database_user,
+                password=settings.database_password,
             )
             # List all databases
             databases = await conn.fetch("SELECT datname FROM pg_database")
@@ -35,7 +44,10 @@ class BaseOrganizationCommand:
                     "template1",
                     "template0",
                 ]:
-                    org_ids.append(database["datname"])
+                    if self.raw_db_name:
+                        org_ids.append(database["datname"])
+                    else:
+                        org_ids.append(database["datname"].strip("_data"))
         finally:
             await conn.close()
 

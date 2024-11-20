@@ -5,11 +5,13 @@ from app.commands.organizations.base import BaseOrganizationCommand
 
 
 class TestCleanupCommand(BaseOrganizationCommand):
+    raw_db_name = True
+
     async def perform(self, organization_id):
         try:
             pool = await get_pool()
             async with pool.acquire() as conn:
-                await conn.execute(f"DROP DATABASE IF EXISTS {organization_id}")
+                await conn.execute(f"DROP DATABASE IF EXISTS {organization_id}_data")
 
                 print(f"Deleted test database {organization_id}")
 
