@@ -84,26 +84,39 @@ class FeatureRequestController(WorkItemController):
     async def update(
         self, *, company_id: str, id: int, updated_item: FeatureRequest, current_user: str
     ) -> FeatureRequest:
+        old_feature_request_item = await self.get(id=id)
+
+        new_item_json = updated_item.model_dump(exclude_unset=True)
+        old_item_json = old_feature_request_item.model_dump()
+
+        old_item_json.update(**new_item_json)
+
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_FEATURE_REQUEST"],
-            company_id,
             id,
-            updated_item.title,
-            updated_item.description,
-            updated_item.submitted_by_id,
-            updated_item.submitted_date,
-            updated_item.feature_assigned,
-            updated_item.comments,
+            company_id,
+            old_item_json["title"],
+            old_item_json["company"],
+            old_item_json["company_id"],
+            old_item_json["submitted_by"],
+            old_item_json["submitted_by_id"],
+            old_item_json["submitted_date"],
+            old_item_json["feature_assigned"],
+            old_item_json["description"],
+            old_item_json["comments"],
+            old_item_json["created_by_id"],
             current_user,
+            old_item_json["deleted_at"],
+            old_item_json["deleted_by_id"],
         )
 
         await self.history_controller.create(
             company_id,
             BaseHistory(
-                item_id=id,
+                item_id=record["id"],
                 item_type="feature_request",
                 action="update",
-                metadata=updated_item.model_dump(exclude_unset=True),
+                metadata=new_item_json,
             ),
             current_user,
         )

@@ -1,12 +1,20 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from pydantic import BaseModel
 
+from app.api.dependencies.authorization import get_current_user
+from app.api.dependencies.database import data_db_conn
 from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
+from app.database.work_items.models.work_item import WorkItemSortableField
 
-router = APIRouter()
+feature_request_router = APIRouter
 
+router = APIRouter(
+    prefix="",
+    tags=["feature_requests"],
+    dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
+)
 
 class FeatureRequest(BaseModel):
     id: int
@@ -29,57 +37,40 @@ class FeatureRequestCommentPagedResponse(BaseModel):
     cursor: Optional[str] = None
 
 
-# In-memory storage for feature requests
-feature_requests = []
+@router.post("", status_code=201, response_model=FeatureRequest)
+async def add_feature_request(request: Request, organization_id: str, body: FeatureRequest) -> FeatureRequest:
+    return await request.app.feature_request_controller.create(new_item=body, current_user=request.state.user.id)
 
 
-# Dependency to get the current feature request by ID
-def get_feature_request_by_id(feature_request_id: int):
-    for feature_request in feature_requests:
-        if feature_request.id == feature_request_id:
-            return feature_request
-    raise HTTPException(status_code=404, detail="Feature request not found")
+@router.get("/{id}", status_code=200, response_model=FeatureRequest)
+async def get_feature_request(request: Request, organization_id: str, id: int) -> FeatureRequest:
+    return await request.app.feature_request_controller.get(id=id)
 
 
-# Create a new feature request
-@router.post("/", response_model=FeatureRequest, status_code=201)
-def create_feature_request(feature_request: FeatureRequestCreate):
-    new_id = len(feature_requests) + 1
-    new_feature_request = FeatureRequest(id=new_id, **feature_request.model_dump())
-    feature_requests.append(new_feature_request)
-    return new_feature_request
+@router.get("", status_code=200, response_model=FeatureRequestCommentPagedResponse)
+async def get_feature_requests(
+    request: Request,
+    organization_id: str,
+    sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
+    limit: Optional[int] = 1000,
+    cursor: Optional[str] = None,
+) -> FeatureRequestCommentPagedResponse:
+    items, cursor = await request.app.feature_request_controller.get_all(sort=sort, limit=limit, cursor=cursor)
+    return FeatureRequestCommentPagedResponse(items=items, cursor=cursor)
 
 
-# Get all feature requests
-@router.get("/", response_model=List[FeatureRequest], status_code=200)
-def get_feature_requests():
-    return feature_requests
-
-
-# Get a specific feature request by ID
-@router.get("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
-def get_feature_request(feature_request_id: int, feature_request: FeatureRequest = Depends(get_feature_request_by_id)):
-    return feature_request
-
-
-# Update a feature request
-@router.put("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
-def update_feature_request(
-    feature_request_id: int,
-    updated_feature_request: FeatureRequestCreate,
-    feature_request: FeatureRequest = Depends(get_feature_request_by_id),
-):
-    feature_request.title = updated_feature_request.title
-    feature_request.description = updated_feature_request.description
-    return feature_request
+@router.patch("/{id}", status_code=200, response_model=FeatureRequest)
+async def update_feature_request(request: Request, organization_id: str, id: int, body: FeatureRequest) -> FeatureRequest:
+    return await request.app.feature_request_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
 
 
 # Delete a feature request
-@router.delete("/{feature_request_id}", response_model=FeatureRequest, status_code=200)
-def delete_feature_request(
-    feature_request_id: int, feature_request: FeatureRequest = Depends(get_feature_request_by_id)
-):
-    feature_requests.remove(feature_request)
+@router.delete("/{id}", status_code=200, response_model=FeatureRequest)
+async def delete_feature_request(request: Request, organization_id: str, id: int) -> FeatureRequest:
+    feature_request = await request.app.feature_request_controller.get(id=id)
+    if not feature_request:
+        raise HTTPException(status_code=404, detail="Feature request not found")
+    await request.app.feature_request_controller.delete(id=id)
     return feature_request
 
 
@@ -89,7 +80,7 @@ async def get_feature_request_comments(
     request: Request,
     company_id: str,
     feature_request_id: int,
-    # sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,  # NOTE fix me
+    sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,  # NOTE fix me
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> FeatureRequestCommentPagedResponse:
