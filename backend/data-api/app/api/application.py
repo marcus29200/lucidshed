@@ -93,7 +93,7 @@ class DataApplication(FastAPI):
 
         logger.info(f"Initializing opensearch client with {settings.opensearch_host}:{settings.opensearch_port}")
         self.opensearch_client = OpenSearch(
-            hosts=[f"{settings.opensearch_host}:{settings.opensearch_port}"],
+            hosts=[f"{settings.opensearch_host}"],
             http_auth=(settings.opensearch_username, settings.opensearch_password),
         )
 
