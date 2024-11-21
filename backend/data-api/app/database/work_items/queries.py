@@ -413,14 +413,13 @@ FEATURE_REQUEST_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS feature_requests (
     id SERIAL PRIMARY KEY,
-    {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     company VARCHAR({MAX_ID_LENGTH}),
-    company_id VARCHAR({MAX_ID_LENGTH}),
     submitted_by_id VARCHAR({MAX_ID_LENGTH}),
     submitted_date timestamp with time zone DEFAULT NOW(),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
-    description TEXT
+    description TEXT,
+    {BASE_MODEL_FIELDS}
 );
 """
     f"""
@@ -440,13 +439,10 @@ INSERT INTO feature_requests
     title,
     company,
     submitted_by_id,
-    submitted_date,
     feature_assigned,
-    description,
-    created_by_id,
-    modified_by_id
+    description
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6)
 """
 
 FEATURE_REQUEST_QUERIES[

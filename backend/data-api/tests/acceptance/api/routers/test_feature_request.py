@@ -8,10 +8,11 @@ from tests.acceptance.api.utils import authenticate
 
 pytestmark = pytest.mark.asyncio
 
+
+
 async def add_feature_request(
     data_api: TestClient,
     org_id: str,
-    company_id: Optional[str] = "test_company_id",
     overrides: Optional[Dict[str, Any]] = {},
     expected_status_code: Optional[int] = 201,
     headers: Optional[Dict[str, Any]] = {},
@@ -19,9 +20,13 @@ async def add_feature_request(
     data = {
         "title": "test feature",
         "description": "test feature description",
-        "company_id": company_id,
+        "submitted_date": "2021-01-01",
+        "company": "company name",
+        "submitted_by_id" : "user_id",
+        "feature_assigned": ["user_id"],
     }
     data.update(**overrides)
+    breakpoint()
 
     response = await data_api.post(f"{org_id}/feature_requests", json=data, headers=headers)
 
@@ -32,8 +37,7 @@ async def add_feature_request(
 async def test_should_add_feature_request(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
-    company_id = "test_company_id"
-    feature_request = await add_feature_request(data_api, org["id"], company_id, headers=headers)
+    feature_request = await add_feature_request(data_api, org["id"], headers=headers)
 
     assert feature_request["id"] > 0
     assert feature_request["title"] == "test feature"

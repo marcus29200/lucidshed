@@ -10,21 +10,20 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class FeatureRequestController(WorkItemController):
-    async def create(self, *, company_id: str, new_item: FeatureRequest, current_user: str) -> FeatureRequest:
+    async def create(self, *, new_item: FeatureRequest, current_user: str) -> FeatureRequest:
 
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_REQUEST"],
-            company_id,
             new_item.title,
-            new_item.description,
+            new_item.company,
             new_item.submitted_by_id,
             new_item.submitted_date,
             new_item.feature_assigned,
-            new_item.comments,
+            new_item.description,
+            new_item.created_by_id or current_user,
             current_user,
         )
         await self.history_controller.create(
-            company_id,
             BaseHistory(
                 item_id=record["id"],
                 item_type="feature_request",
@@ -36,15 +35,14 @@ class FeatureRequestController(WorkItemController):
 
         return FeatureRequest(**record)
 
-    async def get(self, *, company_id: str, id: int) -> FeatureRequest:
-        record, user = await self._get(company_id=company_id, id=id, scope="FEATURE_REQUEST")
+    async def get(self, *, id: int) -> FeatureRequest:
+        record, user = await self._get(id=id, scope="FEATURE_REQUEST")
 
         return FeatureRequest(**record, submitted_by=user)
 
     async def get_all(
         self,
         *,
-        company_id: str,
         sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
@@ -68,7 +66,6 @@ class FeatureRequestController(WorkItemController):
 
         records = await data_db.get().fetch(
             query,
-            company_id,
             sort if sort else WorkItemSortableField.ID.value,
             limit,
             offset,
@@ -82,7 +79,7 @@ class FeatureRequestController(WorkItemController):
         return [FeatureRequest(**record) for record in records], cursor
 
     async def update(
-        self, *, company_id: str, id: int, updated_item: FeatureRequest, current_user: str
+        self, *, id: int, updated_item: FeatureRequest, current_user: str
     ) -> FeatureRequest:
         old_feature_request_item = await self.get(id=id)
 
@@ -94,10 +91,8 @@ class FeatureRequestController(WorkItemController):
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_FEATURE_REQUEST"],
             id,
-            company_id,
             old_item_json["title"],
             old_item_json["company"],
-            old_item_json["company_id"],
             old_item_json["submitted_by"],
             old_item_json["submitted_by_id"],
             old_item_json["submitted_date"],
@@ -111,7 +106,6 @@ class FeatureRequestController(WorkItemController):
         )
 
         await self.history_controller.create(
-            company_id,
             BaseHistory(
                 item_id=record["id"],
                 item_type="feature_request",
