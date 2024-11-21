@@ -30,16 +30,22 @@ const AIChatLayout = () => {
 			return;
 		}
 		setIsAsking(true);
-		setMessages([...messages, { type: 'ai-user-message', message }]);
-		askLucidAI(orgId, message).then((response) => {
-			console.log(response);
+		const newMessages = [...messages];
+		newMessages.push({ type: 'ai-user-message', message });
+		setMessages(newMessages);
+		askLucidAI(orgId, message)
+			.then((response) => {
+				console.log(response);
 
-			setMessages([
-				...messages,
-				{ type: 'ai-lucid-message', message: response.summary ?? 'testing' },
-			]);
-			setIsAsking(false);
-		});
+				newMessages.push({
+					type: 'ai-lucid-message',
+					message: response.summary ?? 'testing',
+				});
+				setIsAsking(false);
+			})
+			.finally(() => {
+				setMessages(newMessages);
+			});
 		setMessage('');
 
 		// set focus to input
