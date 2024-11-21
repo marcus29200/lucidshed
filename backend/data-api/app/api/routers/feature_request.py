@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
-from app.database.work_items.models.feature_request import FeatureRequest
 from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
+from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 feature_request_router = APIRouter
@@ -16,6 +16,7 @@ router = APIRouter(
     tags=["feature_requests"],
     dependencies=[Security(get_current_user, scopes=["member"]), Depends(data_db_conn)],
 )
+
 
 class FeatureRequestPagedResponse(BaseModel):
     items: List[FeatureRequest]
@@ -28,7 +29,7 @@ class FeatureRequestCommentPagedResponse(BaseModel):
 
 
 @router.post("", status_code=201, response_model=FeatureRequest)
-async def add_feature_request(request: Request, organization_id: str, body: FeatureRequest) -> FeatureRequest:
+async def add_feature_request(request: Request, organization_id: str, body: BaseFeatureRequest) -> FeatureRequest:
     return await request.app.feature_request_controller.create(new_item=body, current_user=request.state.user.id)
 
 
@@ -37,21 +38,25 @@ async def get_feature_request(request: Request, organization_id: str, id: int) -
     return await request.app.feature_request_controller.get(id=id)
 
 
-@router.get("", status_code=200, response_model=FeatureRequestCommentPagedResponse)
+@router.get("", status_code=200, response_model=FeatureRequestPagedResponse)
 async def get_feature_requests(
     request: Request,
     organization_id: str,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
-) -> FeatureRequestCommentPagedResponse:
+) -> FeatureRequestPagedResponse:
     items, cursor = await request.app.feature_request_controller.get_all(sort=sort, limit=limit, cursor=cursor)
-    return FeatureRequestCommentPagedResponse(items=items, cursor=cursor)
+    return FeatureRequestPagedResponse(items=items, cursor=cursor)
 
 
 @router.patch("/{id}", status_code=200, response_model=FeatureRequest)
-async def update_feature_request(request: Request, organization_id: str, id: int, body: FeatureRequest) -> FeatureRequest:
-    return await request.app.feature_request_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
+async def update_feature_request(
+    request: Request, organization_id: str, id: int, body: BaseFeatureRequest
+) -> FeatureRequest:
+    return await request.app.feature_request_controller.update(
+        id=id, updated_item=body, current_user=request.state.user.id
+    )
 
 
 # Delete a feature request
@@ -60,7 +65,9 @@ async def delete_feature_request(request: Request, organization_id: str, id: int
     feature_request = await request.app.feature_request_controller.get(id=id)
     if not feature_request:
         raise HTTPException(status_code=404, detail="Feature request not found")
-    await request.app.feature_request_controller.delete(id=id)
+    await request.app.feature_request_controller.delete(
+        id=id, current_user=request.state.user.id, scope="FEATURE_REQUEST"
+    )
     return feature_request
 
 
@@ -73,7 +80,7 @@ async def get_feature_request_comments(
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> FeatureRequestCommentPagedResponse:
-    items, cursor = await request.app.engineering_controller.get_comments(
+    items, cursor = await request.app.feature_request_controller.get_comments(
         id=feature_request_id  # TODO , sort=sort, limit=limit, cursor=cursor
     )
     return FeatureRequestCommentPagedResponse(items=items, cursor=cursor)
@@ -93,7 +100,7 @@ async def update_feature_request_comment(
 
 @router.delete("/{feature_request_id}/comments/{id}", status_code=200)
 async def delete_feature_request_comment(request: Request, feature_request_id: int, id: str):
-    return await request.app.engineering_controller.delete_comment(
+    return await request.app.feature_request_controller.delete_comment(
         feature_reqeust_id=feature_request_id,
         id=id,
         current_user=request.state.user.id,

@@ -412,14 +412,10 @@ FEATURE_REQUEST_QUERIES = {}
 FEATURE_REQUEST_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS feature_requests (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(256),
     company VARCHAR({MAX_ID_LENGTH}),
     submitted_by_id VARCHAR({MAX_ID_LENGTH}),
-    submitted_date timestamp with time zone DEFAULT NOW(),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
-    description TEXT,
-    {BASE_MODEL_FIELDS}
+    {BASE_WORK_ITEM_FIELDS}
 );
 """
     f"""
@@ -439,10 +435,13 @@ INSERT INTO feature_requests
     title,
     company,
     submitted_by_id,
-    feature_assigned,
-    description
+    assigned_to_id,
+    description,
+    created_by_id,
+    modified_by_id
 )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING *;
 """
 
 FEATURE_REQUEST_QUERIES[
@@ -453,25 +452,26 @@ SET
     title = $2,
     company = $3,
     submitted_by_id = $4,
-    submitted_date = $5,
-    feature_assigned = $6,
-    description = $7,
-    created_by_id = $8,
+    assigned_to_id = $5,
+    description = $6,
+    created_by_id = $7,
     modified_at = NOW(),
-    modified_by_id = $9,
+    modified_by_id = $8,
+    deleted_at = $9,
+    deleted_by_id = $10
 WHERE
     id = $1
 RETURNING *;
 """
 
 FEATURE_REQUEST_QUERIES[
-    "GET_FEATURE_REQUEST"
+    "GET_FEATURE_REQUEST_ITEM"
 ] = """
 SELECT * FROM feature_requests WHERE id = $1 AND deleted_at IS NULL;
 """
 
 FEATURE_REQUEST_QUERIES[
-    "GET_ALL_FEATURE_REQUEST"
+    "GET_ALL_FEATURE_REQUESTS"
 ] = """
 SELECT * FROM feature_requests
 WHERE
@@ -482,7 +482,7 @@ OFFSET $3;
 """
 
 FEATURE_REQUEST_QUERIES[
-    "DELETE_FEATURE_REQUEST"
+    "DELETE_FEATURE_REQUEST_ITEM"
 ] = """
 UPDATE feature_requests
 SET

@@ -55,7 +55,7 @@ class DataApplication(FastAPI):
         self.include_router(iteration_router, prefix="/{organization_id}/iterations")
         self.include_router(team_router, prefix="/{organization_id}/teams")
         self.include_router(file_router, prefix="/{organization_id}/files")
-        self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")   
+        self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)

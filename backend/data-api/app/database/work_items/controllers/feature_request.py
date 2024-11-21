@@ -5,20 +5,19 @@ from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.feature_request import FeatureRequest
+from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class FeatureRequestController(WorkItemController):
-    async def create(self, *, new_item: FeatureRequest, current_user: str) -> FeatureRequest:
+    async def create(self, *, new_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
 
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_REQUEST"],
             new_item.title,
             new_item.company,
             new_item.submitted_by_id,
-            new_item.submitted_date,
-            new_item.feature_assigned,
+            new_item.assigned_to_id,
             new_item.description,
             new_item.created_by_id or current_user,
             current_user,
@@ -56,7 +55,10 @@ class FeatureRequestController(WorkItemController):
         # filter_conditions = determine_get_all_filter_conditions(company_id=company_id)
         filter_conditions = None
         query: str = QUERIES["GET_ALL_FEATURE_REQUESTS"]
-        query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        if filter_conditions:
+            query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        else:
+            query = query.replace("$FILTER_CONDITIONS", "")
 
         offset = 0
         if cursor:
@@ -78,9 +80,7 @@ class FeatureRequestController(WorkItemController):
 
         return [FeatureRequest(**record) for record in records], cursor
 
-    async def update(
-        self, *, id: int, updated_item: FeatureRequest, current_user: str
-    ) -> FeatureRequest:
+    async def update(self, *, id: int, updated_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
         old_feature_request_item = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
@@ -93,12 +93,9 @@ class FeatureRequestController(WorkItemController):
             id,
             old_item_json["title"],
             old_item_json["company"],
-            old_item_json["submitted_by"],
             old_item_json["submitted_by_id"],
-            old_item_json["submitted_date"],
-            old_item_json["feature_assigned"],
+            old_item_json["assigned_to_id"],
             old_item_json["description"],
-            old_item_json["comments"],
             old_item_json["created_by_id"],
             current_user,
             old_item_json["deleted_at"],

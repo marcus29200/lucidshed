@@ -9,7 +9,6 @@ from tests.acceptance.api.utils import authenticate
 pytestmark = pytest.mark.asyncio
 
 
-
 async def add_feature_request(
     data_api: TestClient,
     org_id: str,
@@ -20,19 +19,17 @@ async def add_feature_request(
     data = {
         "title": "test feature",
         "description": "test feature description",
-        "submitted_date": "2021-01-01",
         "company": "company name",
-        "submitted_by_id" : "user_id",
-        "feature_assigned": ["user_id"],
+        "submitted_by_id": "user_id",
     }
     data.update(**overrides)
-    breakpoint()
 
     response = await data_api.post(f"{org_id}/feature_requests", json=data, headers=headers)
 
     assert response.status_code == expected_status_code
 
     return response.json()
+
 
 async def test_should_add_feature_request(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
@@ -43,21 +40,22 @@ async def test_should_add_feature_request(data_api: TestClient):
     assert feature_request["title"] == "test feature"
     assert feature_request["description"] == "test feature description"
 
-    # NOTE:  these are not in response model
-    # assert feature_request["created_at"]
-    # assert feature_request["created_by_id"]
-    # assert feature_request["modified_at"]
-    # assert feature_request["modified_by_id"]
+    assert feature_request["created_at"]
+    assert feature_request["created_by_id"]
+    assert feature_request["modified_at"]
+    assert feature_request["modified_by_id"]
+
 
 async def test_should_get_feature_requests(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
     await add_feature_request(data_api, org["id"], headers=headers)
 
-    response = await data_api.get(f"{org['id']}/feature_requests/", headers=headers)
+    response = await data_api.get(f"{org['id']}/feature_requests", headers=headers)
     assert response.status_code == 200
     feature_requests = response.json()
     assert len(feature_requests) > 0
+
 
 async def test_should_get_feature_request_by_id(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
@@ -69,17 +67,21 @@ async def test_should_get_feature_request_by_id(data_api: TestClient):
     fetched_feature_request = response.json()
     assert fetched_feature_request["id"] == feature_request["id"]
 
+
 async def test_should_update_feature_request(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     org = await add_organization(data_api, headers=headers)
     feature_request = await add_feature_request(data_api, org["id"], headers=headers)
 
     update_data = {"title": "updated title", "description": "updated description"}
-    response = await data_api.put(f"{org['id']}/feature_requests/{feature_request['id']}", json=update_data, headers=headers)
+    response = await data_api.patch(
+        f"{org['id']}/feature_requests/{feature_request['id']}", json=update_data, headers=headers
+    )
     assert response.status_code == 200
     updated_feature_request = response.json()
     assert updated_feature_request["title"] == "updated title"
     assert updated_feature_request["description"] == "updated description"
+
 
 async def test_should_delete_feature_request(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
