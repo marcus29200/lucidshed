@@ -33,7 +33,6 @@ export type Sprint = {
 	status: string;
 	startDate: string;
 	endDate: string;
-	organizationId: string;
 };
 
 export const mapPayloadToSprint = (
@@ -47,7 +46,6 @@ export const mapPayloadToSprint = (
 		status: rawSprint.status ?? '',
 		startDate: rawSprint.start_date.toString(),
 		endDate: rawSprint.end_date.toString(),
-		organizationId: rawSprint.organization_id,
 	};
 };
 export const createSprint = async ({ orgId, data }) => {

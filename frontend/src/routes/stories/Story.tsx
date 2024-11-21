@@ -1,4 +1,4 @@
-import { Form, useLoaderData, useNavigate } from 'react-router-dom';
+import { Form, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import FullHeightSection from '../../components/FullHeightSection';
 import {
 	Box,
@@ -46,6 +46,7 @@ let debounceTimeId;
 export const Story = () => {
 	const story = useLoaderData() as StoryAPI;
 	const navigate = useNavigate();
+	const orgId = useParams().orgId as string;
 	const [title, setTitle] = useState(story.title ?? '');
 	const [description, setDescription] = useState(story.description ?? '');
 	const [comments, setComments] = useState<UserComment[]>([]);
@@ -62,12 +63,10 @@ export const Story = () => {
 	const [originalEpic, setOriginalEpic] = useState<Epic | null>(null);
 
 	useEffect(() => {
-		getAllComments({ orgId: story.organization_id, workItemId: story.id }).then(
-			(comments) => {
-				setComments(comments);
-			}
-		);
-		getRelatedEpic(story.organization_id, story.id).then((relatedEpic) => {
+		getAllComments({ orgId, workItemId: story.id }).then((comments) => {
+			setComments(comments);
+		});
+		getRelatedEpic(orgId, story.id).then((relatedEpic) => {
 			setEpic(relatedEpic);
 			setOriginalEpic(relatedEpic);
 		});
@@ -85,7 +84,7 @@ export const Story = () => {
 
 	const handleAddComment = (newComment: CreateCommentPayload) => {
 		createComment({
-			orgId: story.organization_id,
+			orgId,
 			workItemId: story.id,
 			data: newComment,
 		}).then((comment) => {
@@ -126,7 +125,7 @@ export const Story = () => {
 				data.completed_at = new Date().toISOString();
 			}
 			patchStory({
-				orgId: story.organization_id,
+				orgId,
 				storyId: story.id,
 				data,
 			});
@@ -165,7 +164,7 @@ export const Story = () => {
 			setIsLoading(true);
 			// assign epic to story using the /links endpoint
 			await linkStoryToEpic({
-				orgId: story.organization_id,
+				orgId,
 				storyId: story.id,
 				epicId: value.id,
 			});
@@ -180,7 +179,7 @@ export const Story = () => {
 			// assign epic to story using the /links endpoint
 			try {
 				await removeLinkStoryToEpic({
-					orgId: story.organization_id,
+					orgId,
 					storyId: story.id,
 					epicId: originalEpic.id,
 				});

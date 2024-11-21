@@ -73,7 +73,6 @@ export const mapRawStory = (rawStory: StoryAPI): Story => {
 		iterationTitle: rawStory.iteration?.title,
 		status: rawStory.status,
 		statusLabel: STORY_STATUS[rawStory.status],
-		orgId: rawStory.organization_id,
 		priority: STORY_PRIORITY_VALUE[rawStory.priority ?? 'low'],
 		createdDate: rawStory.created_at,
 		modifiedDate: rawStory.modified_at,
