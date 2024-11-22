@@ -61,7 +61,11 @@ export const Sprints = () => {
 	let defaultSprint: string | Sprint | null =
 		localStorage.getItem(SELECTED_SPRINT_KEY);
 	// if no stored sprint, default to the first one
-	defaultSprint = defaultSprint ? JSON.parse(defaultSprint) : sprints[0];
+	defaultSprint =
+		!!defaultSprint &&
+		sprints.find((s) => s.id === (defaultSprint as Sprint).id)
+			? JSON.parse(defaultSprint)
+			: sprints[0];
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
 		defaultSprint as Sprint | null
 	);
@@ -278,8 +282,8 @@ export const Sprints = () => {
 			>
 				{selectedSprint && (
 					<>
-						<div className="grid grid-cols-12 gap-x-4 items-center">
-							<div className="col-span-8">
+						<div className="flex flex-col sm:grid sm:grid-cols-12 gap-x-4 sm:items-center relative">
+							<div className="col-span-3 pr-16 sm:p-0">
 								<TextField
 									variant="outlined"
 									size="small"
@@ -292,14 +296,65 @@ export const Sprints = () => {
 									value={selectedSprint.title}
 									onChange={(e) => handleEditTitle(e.target.value)}
 								></TextField>
-								<RotateRight
-									className="duration-500 text-neutral-regular transition-all animate-spin"
-									style={{
-										opacity: isLoading ? 1 : 0,
+							</div>
+							<DatePicker
+								className="col-span-2"
+								label="Sprint Start date"
+								name="startDate"
+								slotProps={{
+									textField: {
+										variant: 'outlined',
+										size: 'small',
+										margin: 'dense',
+										fullWidth: true,
+										sx: {
+											'& .MuiInputBase-root': {
+												background: 'white',
+											},
+										},
+									},
+								}}
+								value={new Date(selectedSprint.startDate)}
+							></DatePicker>
+							<DatePicker
+								className="col-span-2"
+								label="Sprint End date"
+								name="endDate"
+								slotProps={{
+									textField: {
+										variant: 'outlined',
+										size: 'small',
+										margin: 'dense',
+										fullWidth: true,
+										sx: {
+											'& .MuiInputBase-root': {
+												background: 'white',
+											},
+										},
+									},
+								}}
+								value={new Date(selectedSprint.endDate)}
+							></DatePicker>
+							{/* Progress Bar */}
+							<div className="col-span-5 pr-16 text-left">
+								<div className="py-2">
+									<div className="text-base font-semibold">
+										{sprintProgress.toFixed(2)}% to complete
+									</div>
+								</div>
+								<LinearProgress
+									sx={{
+										'&.MuiLinearProgress-root': {
+											background: '#d1d5db',
+											height: '12px',
+											borderRadius: '90px',
+										},
 									}}
+									variant="determinate"
+									value={sprintProgress}
 								/>
 							</div>
-							<div className="col-span-4 text-right pb-4">
+							<div className="text-right absolute right-0 top-0">
 								<Tooltip
 									title="Delete sprint"
 									PopperProps={{
@@ -320,7 +375,7 @@ export const Sprints = () => {
 							<Grid container spacing={2} sx={{ flexGrow: 1 }}>
 								<Grid item xs={8}>
 									<div
-										className="collapsible-header text-left"
+										className="collapsible-header text-left flex items-center gap-2"
 										aria-expanded={descriptionExpanded}
 									>
 										<Button
@@ -329,6 +384,12 @@ export const Sprints = () => {
 											Description
 											<ExpandMore />
 										</Button>
+										<RotateRight
+											className="duration-500 text-neutral-regular transition-all animate-spin"
+											style={{
+												opacity: isLoading ? 1 : 0,
+											}}
+										/>
 									</div>
 									<div className="collapsible-content">
 										<TextField
@@ -350,71 +411,10 @@ export const Sprints = () => {
 										></TextField>
 									</div>
 								</Grid>
-								<Grid item xs={4}>
-									<DatePicker
-										label="Sprint Start date"
-										name="startDate"
-										slotProps={{
-											textField: {
-												variant: 'outlined',
-												size: 'small',
-												margin: 'dense',
-												fullWidth: true,
-												sx: {
-													'& .MuiInputBase-root': {
-														background: 'white',
-													},
-												},
-											},
-										}}
-										value={new Date(selectedSprint.startDate)}
-									></DatePicker>
-									<DatePicker
-										label="Sprint End date"
-										name="endDate"
-										slotProps={{
-											textField: {
-												variant: 'outlined',
-												size: 'small',
-												margin: 'dense',
-												fullWidth: true,
-												sx: {
-													'& .MuiInputBase-root': {
-														background: 'white',
-													},
-												},
-											},
-										}}
-										value={new Date(selectedSprint.endDate)}
-									></DatePicker>
-								</Grid>
 							</Grid>
 						</div>
 					</>
 				)}
-
-				{/* Progress Bar */}
-				<div className="w-full text-left pb-8">
-					<div className="py-2">
-						<label className="text-xs text-neutral-regular block">
-							Sprint Status
-						</label>
-						<div className="text-base font-semibold">
-							{sprintProgress.toFixed(2)}% to complete
-						</div>
-					</div>
-					<LinearProgress
-						sx={{
-							'&.MuiLinearProgress-root': {
-								background: '#d1d5db',
-								height: '12px',
-								borderRadius: '90px',
-							},
-						}}
-						variant="determinate"
-						value={sprintProgress}
-					/>
-				</div>
 			</Box>
 			{/* stories table */}
 			{!!selectedSprint && (
