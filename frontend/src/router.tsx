@@ -26,6 +26,9 @@ import { storiesLoader, storyLoader } from './routes/stories/Story.hooks';
 import SprintsDashboard from './routes/sprints/SprintsDashboard';
 import BacklogList from './routes/backlog/BacklogList';
 import { backlogLoader } from './routes/backlog/backlog.loaders';
+import { featureRequestsLoader } from './routes/featureRequests/featureRequests.loader';
+import FeatureRequestList from './routes/featureRequests/FeatureRequestsList';
+import ProductRequestList from './routes/productRequests/ProductRequestsList';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -152,6 +155,25 @@ export const router = createHashRouter([
 								index: true,
 								loader: backlogLoader(queryClient),
 								element: <BacklogList />,
+							},
+						],
+					},
+					{
+						path: 'product-requests',
+						children: [
+							{
+								index: true,
+								element: <ProductRequestList />,
+							},
+						],
+					},
+					{
+						path: 'feature-requests',
+						children: [
+							{
+								index: true,
+								loader: featureRequestsLoader(queryClient),
+								element: <FeatureRequestList />,
 							},
 						],
 					},

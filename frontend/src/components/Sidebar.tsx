@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import {
 	BookIcon,
 	BoxIcon,
+	ChatPlusIcon,
 	DashboardIcon,
 	EpicIcon,
+	SendFilledIcon,
 	SprintIcon,
 } from '../icons/icons';
 import { NavigateBefore, NavigateNext, PeopleAlt } from '@mui/icons-material';
@@ -53,6 +55,18 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 		label: 'Backlog',
 		icon: () => <BoxIcon />,
 		canAdd: false,
+		paddingOffset: 32,
+	},
+	{
+		to: 'product-requests',
+		label: 'Product Requests',
+		icon: () => <SendFilledIcon />,
+	},
+	{
+		to: 'feature-requests',
+		label: 'Feature Requests',
+		icon: () => <ChatPlusIcon />,
+		canAdd: true,
 		paddingOffset: 32,
 	},
 ];

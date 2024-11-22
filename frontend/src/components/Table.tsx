@@ -41,7 +41,7 @@ type ShedTableProps<T extends MRT_RowData> = {
 	actionsEnabled?: boolean;
 	sortingStateEnabled?: boolean;
 	tableId: string;
-	columFiltersEnabled?: boolean;
+	columnFiltersEnabled?: boolean;
 	enableRowSelection?: boolean;
 	selectedRowActions?: SelectedMenuOption[];
 	setRowSelection?: React.Dispatch<
@@ -59,7 +59,7 @@ const ShedTable = <T extends MRT_RowData>({
 	handleRowClicked,
 	actionsEnabled = true,
 	tableId,
-	columFiltersEnabled = false,
+	columnFiltersEnabled = false,
 	enableRowSelection = false,
 	selectedRowActions,
 }: ShedTableProps<T>) => {
@@ -245,7 +245,7 @@ const ShedTable = <T extends MRT_RowData>({
 		},
 
 		initialState: {
-			showColumnFilters: columFiltersEnabled,
+			showColumnFilters: columnFiltersEnabled,
 			columnPinning: {
 				left: ['mrt-row-expand', 'mrt-row-select'],
 				right: ['mrt-row-actions'],
