@@ -36,8 +36,9 @@ ENGINEERING_ITEM_BASE_QUERY = """
 You are an assistant that can answer questions based on engineering items (also known as stories)
 
 Provide two things, a very short text summary of the different titles and a comma separated list of relevant item
-ids to this user's
-question
+ids to this question
+
+If nothing is related, it's acceptable to return an empty list and a summary of "No relevant items found"
 """
 
 logger = logging.getLogger(__name__)
