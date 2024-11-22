@@ -36,7 +36,9 @@ class ReindexCommand(BaseOrganizationCommand):
 
                     for item in items:
                         logger.warning(f"[org_id={organization_id}] Indexing item {item.id}")
-                        result = opensearch_client.index(index=organization_id, id=item.id, body=item.get_os_doc())
+                        result = opensearch_client.index(
+                            index=organization_id, id=item.id, body=item.get_indexable_doc()
+                        )
 
                         if result["result"] == "created":
                             logger.warning(f"[org_id={organization_id}] Indexed item {item.id}")

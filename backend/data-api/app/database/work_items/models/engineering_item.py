@@ -58,7 +58,7 @@ class BaseEngineeringItem(BaseWorkItem):
             data["team"] = json.loads(data["team"])
 
         super().__init__(**data)
-    
+
     @property
     def cleaned_description(self):
         return re.sub(r"<img[^>]*>", "", self.description or "")
@@ -71,7 +71,7 @@ class EngineeringItem(WorkItem, BaseEngineeringItem):
     def get_fields_to_index(self, updated_fields: Optional[Set[str]] = set()) -> list[str]:
         return list(set(INDEXED_FIELDS).intersection(updated_fields)) if updated_fields else INDEXED_FIELDS
 
-    def get_os_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
+    def get_indexable_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
         indexible_doc = {field: getattr(self, field) for field in self.get_fields_to_index(updated_fields)}
 
         if indexible_doc.get("description"):

@@ -139,7 +139,6 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
                 id=user.id, updated_user=user, current_user=request.state.user.id
             )
 
-        # TODO Should be updated to send a link when the FE is ready
         send_mail(
             user.email,
             "You've been invited to an organization",
