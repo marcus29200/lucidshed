@@ -2,16 +2,9 @@ import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useNavigate, useParams } from 'react-router-dom';
-import { queryOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Sprint, getSprints, getStoriesForSprint } from '../../api/sprints';
+import { useQuery } from '@tanstack/react-query';
+import { Sprint, getSprints } from '../../api/sprints';
 import { CircularProgress } from '@mui/material';
-import { getStoriesProgress } from '../../shared/stories.mapper';
-
-const getSprintRelatedStoriesQuery = (orgId: string, sprintId: string) =>
-	queryOptions({
-		queryKey: ['sprintRelatedStories-' + sprintId],
-		queryFn: async () => getStoriesForSprint({ orgId, sprintId }),
-	});
 
 export default function SprintSearchInput({
 	sprint,
@@ -19,8 +12,6 @@ export default function SprintSearchInput({
 	name,
 	id,
 	enableAddNew,
-	displayCompleteStatus,
-	selectedSprintCompleted,
 }: {
 	sprint: Sprint | null;
 	setSprint?: (sprint: Sprint) => void;
@@ -36,7 +27,6 @@ export default function SprintSearchInput({
 		queryKey: ['sprints'],
 		queryFn: async () => getSprints(params.orgId as string),
 	});
-	const queryClient = useQueryClient();
 	const items = data ?? [];
 	const options = enableAddNew
 		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
@@ -45,49 +35,6 @@ export default function SprintSearchInput({
 	React.useEffect(() => {
 		setValue(sprint);
 	}, [sprint]);
-
-	React.useEffect(() => {
-		if (sprint) {
-			setValue(() => ({
-				...sprint!,
-				title: !selectedSprintCompleted
-					? sprint.title
-					: sprint.title + ' (Completed)',
-			}));
-			for (let i = 0; i < items.length; i++) {
-				if (items[i].id === sprint.id) {
-					items[i].title = !selectedSprintCompleted
-						? sprint.title
-						: sprint.title + ' (Completed)';
-					break;
-				}
-			}
-		}
-	}, [selectedSprintCompleted, sprint]);
-
-	React.useEffect(() => {
-		if (displayCompleteStatus && items.length) {
-			for (let i = 0; i < items.length; i++) {
-				queryClient
-					.fetchQuery(
-						getSprintRelatedStoriesQuery(params.orgId as string, items[i].id)
-					)
-					.then((stories) => {
-						const progress = getStoriesProgress(stories).progress;
-						if (progress === 100) {
-							if (!items[i].title.includes('(Completed)')) {
-								items[i].title += ' (Completed)';
-							} else {
-								items[i].title = items[i].title.replace(' (Completed)', '');
-							}
-							if (value?.id === items[i].id) {
-								setValue((prev) => ({ ...prev!, title: items[i].title }));
-							}
-						}
-					});
-			}
-		}
-	}, [displayCompleteStatus, items]);
 
 	const navigate = useNavigate();
 
@@ -100,7 +47,11 @@ export default function SprintSearchInput({
 					return navigate(`/${params.orgId as string}/sprints/new`);
 				}
 				setValue(() => newValue);
-				setSprint && setSprint(newValue);
+				setSprint &&
+					setSprint({
+						...(newValue as Sprint),
+						title: (newValue as Sprint).title.replace(' (Completed)', ''),
+					});
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;

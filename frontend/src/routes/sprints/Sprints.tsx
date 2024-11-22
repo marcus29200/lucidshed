@@ -195,8 +195,6 @@ export const Sprints = () => {
 					<div className="w-fit">
 						<SprintSearchInput
 							enableAddNew={true}
-							displayCompleteStatus={true}
-							selectedSprintCompleted={sprintProgress === 100}
 							sprint={selectedSprint}
 							setSprint={(sprint) => setSelectedSprint(sprint)}
 						/>
