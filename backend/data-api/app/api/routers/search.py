@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, Request, Security
@@ -5,7 +6,6 @@ from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
-import logging
 
 logger = logging.getLogger(__name__)
 
