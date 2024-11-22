@@ -1,22 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getStoredSortState } from '../../shared/table.utils';
-import { useLoaderData } from 'react-router-dom';
+import { Link, useLoaderData, useParams } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import ShedTable from '../../components/Table';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Story } from '../stories/Stories';
+import CreateFeatureRequest from './CreateFeatureRequest';
 
 const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-table';
 
 const FeatureRequestList = () => {
 	const sortStates = {
-		name: true, // Set to true to start with descending order
-		id: null,
-		startDate: null,
-		progress: null,
-		targetDate: null,
-		priority: null,
-		status: null,
+		title: true, // Set to true to start with descending order
+		company: null,
+		submittedBy: null,
+		submittedDate: null,
+		assignedTo: null,
 	};
 	const initialSorting = getStoredSortState(FEATURE_REQUESTS_TABLE_ID);
 	if (Object.keys(initialSorting).length) {
@@ -33,8 +32,15 @@ const FeatureRequestList = () => {
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
 	}>(sortStates);
-	const featureRequests = (useLoaderData() as Story[]) ?? [];
-	console.log(featureRequests);
+	const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState(false);
+	const isNewFeatureRequest = !!useParams().isNew;
+	const featureRequests = useLoaderData() as Story[];
+
+	useEffect(() => {
+		setTimeout(() => {
+			setIsCreateSidebarOpen(isNewFeatureRequest);
+		});
+	}, [isNewFeatureRequest]);
 
 	const columns: MRT_ColumnDef<Story>[] = [
 		{
@@ -74,23 +80,25 @@ const FeatureRequestList = () => {
 		},
 	];
 	return (
-		<>
+		<div className="relative">
 			<Box
 				sx={{
 					paddingBottom: '12px',
 					textAlign: 'left',
 				}}
 			>
-				<Button
-					color="primary"
-					variant="contained"
-					sx={{
-						paddingY: '8px',
-						paddingX: '36px',
-					}}
-				>
-					New Request
-				</Button>
+				<Link to="new">
+					<Button
+						color="primary"
+						variant="contained"
+						sx={{
+							paddingY: '8px',
+							paddingX: '36px',
+						}}
+					>
+						New Request
+					</Button>
+				</Link>
 			</Box>
 			<ShedTable
 				tableId={FEATURE_REQUESTS_TABLE_ID}
@@ -100,7 +108,8 @@ const FeatureRequestList = () => {
 				sortingStates={sortingStates}
 				actionsEnabled={false}
 			/>
-		</>
+			<CreateFeatureRequest show={isCreateSidebarOpen} />
+		</div>
 	);
 };
 
