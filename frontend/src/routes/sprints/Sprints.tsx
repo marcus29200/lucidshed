@@ -190,9 +190,11 @@ export const Sprints = () => {
 					</button>
 				</Link>
 				<div className="ml-auto flex-1 flex gap-2 items-center">
-					<div className="flex-1">
+					<div className="w-fit">
 						<SprintSearchInput
 							enableAddNew={true}
+							displayCompleteStatus={true}
+							selectedSprintCompleted={sprintProgress === 100}
 							sprint={selectedSprint}
 							setSprint={(sprint) => setSelectedSprint(sprint)}
 						/>
