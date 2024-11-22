@@ -61,11 +61,13 @@ export const Sprints = () => {
 	let defaultSprint: string | Sprint | null =
 		localStorage.getItem(SELECTED_SPRINT_KEY);
 	// if no stored sprint, default to the first one
+	defaultSprint = defaultSprint ? JSON.parse(defaultSprint) : sprints[0];
 	defaultSprint =
 		!!defaultSprint &&
 		sprints.find((s) => s.id === (defaultSprint as Sprint).id)
-			? JSON.parse(defaultSprint)
+			? defaultSprint
 			: sprints[0];
+
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
 		defaultSprint as Sprint | null
 	);
