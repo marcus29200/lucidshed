@@ -73,7 +73,7 @@ const AIChatLayout = () => {
 				</IconButton>
 			)}
 			{isChatOpen && (
-				<section className="min-h-[min(420px,90vh)] max-h-[800px]  w-[min(560px,90vw)] bg-white shadow-md rounded-lg p-4 flex flex-col">
+				<section className="min-h-[min(420px,90svh)] max-h-[min(800px,93svh)]  w-[min(560px,90svw)] bg-white shadow-md rounded-lg p-4 flex flex-col">
 					<header className="flex justify-between">
 						<IconButton
 							className="!ml-auto"
