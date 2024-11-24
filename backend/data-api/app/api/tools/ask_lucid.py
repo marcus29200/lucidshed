@@ -7,7 +7,6 @@ from openai.types.chat import ChatCompletion
 from pydantic import BaseModel
 
 from app.api.settings import settings
-from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.models.engineering_item import EngineeringItem
 
 FILTERING_BASE_QUERY = """
@@ -28,6 +27,8 @@ iteration_id, team_id, due_date, acceptance_criteria, assigned_to_id, created_by
 
 The query should dynamically match the structure of the user's question while ensuring it is valid JSON syntax.
 
+Do not provide anything other than the query, no aggs for example
+
 User's question:
 """
 
@@ -35,22 +36,33 @@ User's question:
 ENGINEERING_ITEM_BASE_QUERY = """
 You are an assistant that can answer questions based on engineering items (also known as stories)
 
-Provide two things, a very short text summary of the different titles and a comma separated list of relevant item
-ids to this question
-
-If nothing is related, it's acceptable to return an empty list and a summary of "No relevant items found"
+Provide a short, but intelligent answer and or summary of the engineering items provided in the context below to the
+user's question.
 """
 
 logger = logging.getLogger(__name__)
 
 
+class OSEngineeringItem(EngineeringItem):
+    @property
+    def ai_text(self):
+        return f"id={self.id} title={self.title} description={self.description} status={self.status} assigned_to_id={self.assigned_to_id} iteration_id={self.iteration_id}"  # noqa
+
+
+class OSEngineeringItems(BaseModel):
+    hits: List[OSEngineeringItem] = []
+    total: int
+
+    def __init__(self, **data):
+        super().__init__(hits=[hit["_source"] for hit in data["hits"]["hits"]], total=data["hits"]["total"]["value"])
+
+
 class AskLucidRawResponse(BaseModel):
     summary: str
-    related_items: List[int]
 
 
 async def perform_engineering_item_request(
-    engineering_controller: EngineeringController, opensearch_client, organization_id: str, user_query: str
+    opensearch_client, organization_id: str, user_query: str
 ) -> Tuple[str, List[EngineeringItem]]:
     openai_client = Client(api_key=settings.openai_api_key)
 
@@ -66,15 +78,13 @@ async def perform_engineering_item_request(
         query = json.loads(completion.choices[0].message.content)
 
         # Run the query against Opensearch
-        result = opensearch_client.search(index=organization_id, body=query)
+        os_result = OSEngineeringItems(**opensearch_client.search(index=organization_id, body=query))
+
+        if len(os_result.hits) == 0:
+            return "Nothing related to your query was found", []
 
         # Generate the text for the context
-        context_text = "\n".join(
-            [
-                f"id={hit['_source']['id']} title={hit['_source']['title']} description={hit['_source']['description']}"
-                for hit in result["hits"]["hits"]
-            ]
-        )
+        context_text = "\n".join([item.ai_text for item in os_result.hits])
 
         # Now run the user query against the AI model again with the paired down context
         completion: ChatCompletion = openai_client.beta.chat.completions.parse(
@@ -102,10 +112,4 @@ async def perform_engineering_item_request(
     if message.refusal:
         return "Unable to generate a summary", []
 
-    # Convert the str to a list
-    parsed_message = message.parsed  # type: ignore
-    if len(parsed_message.related_items) > 0:
-        # Load the relevant items using those ids
-        related_items = await engineering_controller.get_batch_by_id(ids=parsed_message.related_items)
-
-    return parsed_message.summary, related_items
+    return message.parsed.summary, os_result.hits

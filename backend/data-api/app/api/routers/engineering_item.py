@@ -71,7 +71,7 @@ async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayloa
     # 5. Load the relevant items using those ids
     # 6. Return the relevant items and the summary
     summary, related_items = await perform_engineering_item_request(
-        request.app.engineering_controller, request.app.opensearch_client, organization_id, body.query
+        request.app.opensearch_client, organization_id, body.query
     )
 
     return AskLucidResponse(summary=summary, related_items=related_items)
