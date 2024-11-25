@@ -16,6 +16,8 @@ def setup():
     test_org_id = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
     settings.testing = True
     settings.sendgrid_api_key = None
+    settings.opensearch_enabled = False
+    settings.opensearch_async_indexing = False
 
     settings.user_db_name = f"users_{test_org_id}"
 
@@ -100,3 +102,10 @@ async def mock_gcs():
             "http://test.com/test"
         )
         yield mock_client
+
+
+@pytest_asyncio.fixture
+async def opensearch_enabled():
+    settings.opensearch_enabled = True
+
+    yield

@@ -18,6 +18,8 @@ export default function SprintSearchInput({
 	name?: string;
 	id?: string;
 	enableAddNew?: boolean;
+	displayCompleteStatus?: boolean;
+	selectedSprintCompleted?: boolean;
 }) {
 	const [value, setValue] = React.useState<Sprint | null>(sprint);
 	const params = useParams();
@@ -33,6 +35,7 @@ export default function SprintSearchInput({
 	React.useEffect(() => {
 		setValue(sprint);
 	}, [sprint]);
+
 	const navigate = useNavigate();
 
 	return (
@@ -44,7 +47,11 @@ export default function SprintSearchInput({
 					return navigate(`/${params.orgId as string}/sprints/new`);
 				}
 				setValue(() => newValue);
-				setSprint && setSprint(newValue);
+				setSprint &&
+					setSprint({
+						...(newValue as Sprint),
+						title: (newValue as Sprint).title.replace(' (Completed)', ''),
+					});
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;

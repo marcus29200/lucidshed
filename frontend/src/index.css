@@ -126,6 +126,9 @@ button:focus-visible {
 }
 
 /* collapsible */
+.collapsible-header svg {
+	transition: transform 0.2s ease-in-out;
+}
 .collapsible-header[aria-expanded='true'] svg {
 	transform: rotate(-180deg);
 }

@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.api.tools.ask_lucid import perform_engineering_item_request
+from app.api.tools.opensearch import index_object
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -69,7 +70,9 @@ async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayloa
     # 4. Ask the AI model to return a list of item ids that are relevant along with a summary of the findings
     # 5. Load the relevant items using those ids
     # 6. Return the relevant items and the summary
-    summary, related_items = await perform_engineering_item_request(request.app.engineering_controller, body.query)
+    summary, related_items = await perform_engineering_item_request(
+        request.app.opensearch_client, organization_id, body.query
+    )
 
     return AskLucidResponse(summary=summary, related_items=related_items)
 
@@ -80,8 +83,11 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         new_item=body, current_user=request.state.user.id
     )
 
-    request.app.opensearch_client.index(
-        index=organization_id, id=engineering_item.id, body=engineering_item.get_os_doc()
+    await index_object(
+        opensearch_client=request.app.opensearch_client,
+        index=organization_id,
+        item_id=engineering_item.id,
+        document=engineering_item.get_indexable_doc(),
     )
 
     return engineering_item
@@ -124,12 +130,18 @@ async def update_engineering_item(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = {"doc": engineering_item.get_os_doc(body.model_fields_set)}
+    document = {"doc": engineering_item.get_indexable_doc(body.model_fields_set)}
 
     document["doc"]["modified_date"] = engineering_item.modified_at
     document["doc"]["modified_by_id"] = engineering_item.modified_by_id
 
-    request.app.opensearch_client.update(index=organization_id, id=id, body=document)
+    await index_object(
+        opensearch_client=request.app.opensearch_client,
+        index=organization_id,
+        item_id=engineering_item.id,
+        document=document,
+        mode="update",
+    )
 
     return engineering_item
 
@@ -141,7 +153,13 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
     )
 
     if deleted:
-        request.app.opensearch_client.delete(index=organization_id, id=id)
+        await index_object(
+            opensearch_client=request.app.opensearch_client,
+            index=organization_id,
+            item_id=id,
+            document=None,
+            mode="delete",
+        )
 
     return deleted
 

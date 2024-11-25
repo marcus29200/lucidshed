@@ -312,6 +312,7 @@ const StoriesDashboard = () => {
 					<div className="ml-auto flex-1">
 						<SprintSearchInput
 							enableAddNew={false}
+							displayCompleteStatus={true}
 							sprint={selectedSprint}
 							setSprint={setSelectedSprint}
 						/>
