@@ -27,7 +27,7 @@ iteration_id, team_id, due_date, acceptance_criteria, assigned_to_id, created_by
 
 The query should dynamically match the structure of the user's question while ensuring it is valid JSON syntax.
 
-Do not provide anything other than the query, no aggs for example
+Do not provide anything other than the query, no aggs for example.
 
 User's question:
 """
@@ -37,20 +37,15 @@ ENGINEERING_ITEM_BASE_QUERY = """
 You are an assistant that can answer questions based on engineering items (also known as stories)
 
 Provide a short, but intelligent answer and or summary of the engineering items provided in the context below to the
-user's question.
+user's question. Also do not answer the question with information from outside sources, everything you need should be
+in the context given. 
 """
 
-logger = logging.getLogger(__name__)
-
-
-class OSEngineeringItem(EngineeringItem):
-    @property
-    def ai_text(self):
-        return f"id={self.id} title={self.title} description={self.description} status={self.status} assigned_to_id={self.assigned_to_id} iteration_id={self.iteration_id}"  # noqa
+logger = logging.getLogger(__name__)    
 
 
 class OSEngineeringItems(BaseModel):
-    hits: List[OSEngineeringItem] = []
+    hits: List[EngineeringItem] = []
     total: int
 
     def __init__(self, **data):
@@ -81,7 +76,7 @@ async def perform_engineering_item_request(
         os_result = OSEngineeringItems(**opensearch_client.search(index=organization_id, body=query))
 
         if len(os_result.hits) == 0:
-            return "Nothing related to your query was found", []
+            return "Unfortunately there was nothing related to your question", []
 
         # Generate the text for the context
         context_text = "\n".join([item.ai_text for item in os_result.hits])
