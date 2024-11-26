@@ -288,7 +288,7 @@ export const Sprints = () => {
 							<div className="col-span-3 pr-16 sm:p-0">
 								<TextField
 									variant="outlined"
-									size="small"
+									size="medium"
 									required
 									margin="dense"
 									fullWidth
@@ -306,7 +306,7 @@ export const Sprints = () => {
 								slotProps={{
 									textField: {
 										variant: 'outlined',
-										size: 'small',
+										size: 'medium',
 										margin: 'dense',
 										fullWidth: true,
 										sx: {
@@ -325,7 +325,7 @@ export const Sprints = () => {
 								slotProps={{
 									textField: {
 										variant: 'outlined',
-										size: 'small',
+										size: 'medium',
 										margin: 'dense',
 										fullWidth: true,
 										sx: {
@@ -356,7 +356,7 @@ export const Sprints = () => {
 									value={sprintProgress}
 								/>
 							</div>
-							<div className="text-right absolute right-0 top-0">
+							<div className="text-right absolute right-0 top-0 sm:top-8">
 								<Tooltip
 									title="Delete sprint"
 									PopperProps={{
@@ -375,7 +375,7 @@ export const Sprints = () => {
 							style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
 						>
 							<Grid container spacing={2} sx={{ flexGrow: 1 }}>
-								<Grid item xs={8}>
+								<Grid item xs={12}>
 									<div
 										className="collapsible-header text-left flex items-center gap-2"
 										aria-expanded={descriptionExpanded}
