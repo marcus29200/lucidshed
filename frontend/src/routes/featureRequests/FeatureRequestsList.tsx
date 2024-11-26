@@ -34,6 +34,7 @@ const FeatureRequestList = () => {
 	}>(sortStates);
 	const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState(false);
 	const isNewFeatureRequest = !!useParams().isNew;
+	const orgId = useParams().orgId as string;
 	const featureRequests = useLoaderData() as Story[];
 
 	useEffect(() => {
@@ -87,7 +88,7 @@ const FeatureRequestList = () => {
 					textAlign: 'left',
 				}}
 			>
-				<Link to="new">
+				<Link to={`/${orgId}/feature-requests/new`}>
 					<Button
 						color="primary"
 						variant="contained"
