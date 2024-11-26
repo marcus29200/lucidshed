@@ -63,8 +63,21 @@ class BaseEngineeringItem(BaseWorkItem):
     def cleaned_description(self):
         return re.sub(r"<img[^>]*>", "", self.description or "")
 
-    def ai_format(self):
-        return f"id={self.id}, description={self.cleaned_description}, status={self.status}"
+    @property
+    def ai_text(self):
+        included_fields = [
+            "title",
+            "description",
+            "status",
+            "assigned_to_id",
+            "iteration_id",
+            "created_at",
+            "modified_at",
+            "completed_at",
+            "deleted_at"
+        ]
+
+        return " ".join([f"{field}={getattr(self, field)}" for field in included_fields])
 
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
