@@ -21,6 +21,9 @@ export default function UserSearchInput({
 	const currentUser: User = useRouteLoaderData('user') as User;
 	const users = React.useContext(UsersContext);
 	const [value, setValue] = React.useState<User | null>(user);
+	React.useEffect(() => {
+		setValue(user);
+	}, [user]);
 	// first option is always current user
 	const options = users.filter((user) => user.id !== currentUser.id);
 	options.unshift(currentUser);

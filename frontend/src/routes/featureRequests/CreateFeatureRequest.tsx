@@ -6,6 +6,7 @@ import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 import UserSearchInput from '../sprints/UserSearchInput';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
+import { createFeatureRequest } from '../../api/featureRequests';
 
 type FeatureRequestFormProps = {
 	title: string;
@@ -18,10 +19,14 @@ type FeatureRequestFormProps = {
 const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 	const orgId = useParams().orgId as string;
 
-	const { register, handleSubmit, control } =
+	const { register, reset, handleSubmit, control } =
 		useForm<FeatureRequestFormProps>();
 
-	const descriptionField = useController({ control, name: 'description' });
+	const descriptionField = useController({
+		control,
+		name: 'description',
+		defaultValue: '',
+	});
 
 	const [requester, setRequester] = useState<User | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
@@ -32,7 +37,28 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 	const onSubmit: SubmitHandler<FeatureRequestFormProps> = async (
 		data: FeatureRequestFormProps
 	) => {
-		console.log(data);
+		const payload = {
+			title: data.title,
+			description: data.description || '',
+			submitted_by_id: requester?.id || null,
+			assigned_to_id: assignedTo?.id || null,
+			comments: [],
+		};
+		try {
+			await createFeatureRequest({ orgId, data: payload });
+		} catch (error) {
+			console.error('Error creating feature request:', error);
+		} finally {
+			cancelCreation();
+		}
+	};
+
+	const cancelCreation = () => {
+		reset();
+		descriptionField.field.value = '';
+		setRequester(() => null);
+		setAssignedTo(() => null);
+		navigate(`/${orgId}/feature-requests`);
 	};
 	return (
 		<div
@@ -144,7 +170,7 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 						sx={{ backgroundColor: 'neutral.lightest', color: 'black' }}
 						color="neutral"
 						onClick={() => {
-							navigate(`/${orgId}/feature-requests`);
+							cancelCreation();
 						}}
 					>
 						Cancel

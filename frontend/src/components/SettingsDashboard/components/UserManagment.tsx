@@ -11,12 +11,15 @@ import { SearchIcon } from '../../../icons/icons';
 import { Add } from '@mui/icons-material';
 import UserManagementTable from './UserManagmentTable';
 import CreateUserModal from '../pages/CreateUserModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const UserManagement: React.FC = () => {
 	const orgId = useParams().orgId as string;
 	const [users, setUsers] = useState<User[]>([]);
 	const [visibleRows, setVisibleRows] = useState<User[]>([]);
 	const [searchTerm, setSearchTerm] = useState('');
+
+	const queryClient = useQueryClient();
 
 	const [openCreateUser, setOpenCreateUser] = useState(false);
 
@@ -31,6 +34,7 @@ const UserManagement: React.FC = () => {
 		getUsers(orgId).then((users) => {
 			setUsers(() => users);
 		});
+		queryClient.invalidateQueries({ queryKey: ['users'] });
 	};
 
 	// trigger filter in search bar
