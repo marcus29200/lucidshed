@@ -4,7 +4,7 @@ import { getFeatureRequests } from '../../api/featureRequests';
 
 export const featureRequestsQuery = (orgId: string, search?: string) =>
 	queryOptions({
-		queryKey: ['featureRequests', orgId, search],
+		queryKey: ['featureRequests', orgId],
 		queryFn: async () => getFeatureRequests(orgId, search),
 	});
 

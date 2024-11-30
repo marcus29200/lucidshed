@@ -1,7 +1,18 @@
 import { BASE_URL } from '../environment';
 import { getAuthHeaders } from './utils';
-
+import dayjs from 'dayjs';
 const featureRequestsUrl = 'feature_requests';
+
+const mapFeatureRequestResponse = (response) => ({
+	id: response.id,
+	title: response.title,
+	description: response.description,
+	status: response.status,
+	requester: response.submitted_by_id,
+	submittedDate: dayjs(response.created_at).format('MMM DD, YYYY'),
+	assignedTo: response.assigned_to_id,
+	company: '-',
+});
 
 export const createFeatureRequest = async ({
 	orgId,
@@ -42,8 +53,9 @@ export const getFeatureRequests = async (
 		throw res;
 	}
 	const page = await res.json();
-	return page.items;
+	return page.items.map(mapFeatureRequestResponse);
 };
+
 export const getFeatureRequestDetail = async (
 	orgId: string,
 	requestId: string
@@ -65,7 +77,7 @@ export const getFeatureRequestDetail = async (
 
 export const deleteFeatureRequest = async (
 	orgId: string,
-	requestId: string
+	requestId: number
 ): Promise<unknown> => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}`,
@@ -82,15 +94,19 @@ export const deleteFeatureRequest = async (
 	return await res.json();
 };
 
-export const patchFeatureRequest = async (
-	orgId: string,
-	requestId: string,
-	data
-): Promise<unknown> => {
+export const updateFeatureRequest = async ({
+	orgId,
+	requestId,
+	data,
+}: {
+	orgId: string;
+	requestId: number;
+	data;
+}) => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}`,
 		{
-			method: 'DELETE',
+			method: 'PATCH',
 			headers: {
 				'Content-Type': 'application/json',
 				...getAuthHeaders(),

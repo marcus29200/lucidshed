@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { getStoredSortState } from '../../shared/table.utils';
-import { Link, useLoaderData, useParams } from 'react-router-dom';
+import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import ShedTable from '../../components/Table';
 import { MRT_ColumnDef } from 'material-react-table';
-import { Story } from '../stories/Stories';
 import CreateFeatureRequest from './CreateFeatureRequest';
+import FeatureRequest, { FeatureRequestFormProps } from './FeatureRequest';
+import { UsersContext } from '../../hooks/users';
 
 const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-table';
 
@@ -33,9 +34,33 @@ const FeatureRequestList = () => {
 		[key: string]: boolean | null;
 	}>(sortStates);
 	const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState(false);
-	const isNewFeatureRequest = !!useParams().isNew;
+	const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
+
+	const [selectedRow, setSelectedRow] =
+		useState<FeatureRequestFormProps | null>(null);
+
+	const featureRequestId = useParams().featureRequestId as string;
+
+	const isNewFeatureRequest = !!featureRequestId && featureRequestId === 'new';
+	const isEditFeatureRequest = !!featureRequestId && featureRequestId !== 'new';
 	const orgId = useParams().orgId as string;
-	const featureRequests = useLoaderData() as Story[];
+	const users = useContext(UsersContext);
+
+	const addUserName = (
+		story: FeatureRequestFormProps
+	): FeatureRequestFormProps => ({
+		...story,
+		submittedBy:
+			users.find((user) => user.id === story.requester)?.fullName || '-',
+		assignedToName:
+			users.find((user) => user.id === story.assignedTo)?.fullName || '-',
+	});
+
+	const featureRequests = (useLoaderData() as FeatureRequestFormProps[]).map(
+		addUserName
+	);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		setTimeout(() => {
@@ -43,7 +68,36 @@ const FeatureRequestList = () => {
 		});
 	}, [isNewFeatureRequest]);
 
-	const columns: MRT_ColumnDef<Story>[] = [
+	useEffect(() => {
+		if (isEditFeatureRequest && !selectedRow) {
+			const row = featureRequests.find(
+				(featureRequest) => featureRequest.id === +featureRequestId
+			);
+			if (row) {
+				setSelectedRow(row);
+				setTimeout(() => {
+					setIsEditSidebarOpen(true);
+				});
+			} else {
+				navigate(`/${orgId}/feature-requests`);
+			}
+		} else if (isEditFeatureRequest && selectedRow) {
+			setTimeout(() => {
+				setIsEditSidebarOpen(true);
+			});
+		} else {
+			setTimeout(() => {
+				setIsEditSidebarOpen(false);
+			});
+		}
+	}, [isEditFeatureRequest, selectedRow]);
+
+	const handleRowClick = (row) => {
+		setSelectedRow(null);
+		navigate(`/${orgId}/feature-requests/${row.id}`);
+	};
+
+	const columns: MRT_ColumnDef<FeatureRequestFormProps>[] = [
 		{
 			header: 'Title',
 			id: 'title',
@@ -74,8 +128,8 @@ const FeatureRequestList = () => {
 		},
 		{
 			header: 'Feature assigned',
-			id: 'assignedTo',
-			accessorKey: 'assignedTo',
+			id: 'assignedToName',
+			accessorKey: 'assignedToName',
 			enableColumnActions: false,
 			enableColumnFilter: false,
 		},
@@ -108,8 +162,10 @@ const FeatureRequestList = () => {
 				setSortingStates={setSortingStates}
 				sortingStates={sortingStates}
 				actionsEnabled={false}
+				handleRowClicked={handleRowClick}
 			/>
 			<CreateFeatureRequest show={isCreateSidebarOpen} />
+			<FeatureRequest show={isEditSidebarOpen} featureRequest={selectedRow} />
 		</div>
 	);
 };

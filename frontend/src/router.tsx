@@ -176,7 +176,7 @@ export const router = createHashRouter([
 								element: <FeatureRequestList />,
 							},
 							{
-								path: ':isNew',
+								path: ':featureRequestId',
 								loader: featureRequestsLoader(queryClient),
 								element: <FeatureRequestList />,
 							},
