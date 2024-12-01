@@ -56,6 +56,7 @@ const FeatureRequest = memo(
 				await queryClient.invalidateQueries({
 					queryKey: ['feature-requests', orgId],
 				});
+				cancelEdition();
 				setTimeout(() => {
 					setIsLoading(false);
 				}, 1000);
@@ -98,20 +99,8 @@ const FeatureRequest = memo(
 			if (debounceTimeId) {
 				clearTimeout(debounceTimeId);
 			}
+			setIsLoading(true);
 			debounceTimeId = setTimeout(() => {
-				const fieldToUpdate = Object.keys(data)[0];
-				if (data[fieldToUpdate] === undefined) {
-					// change undefined by null
-					// null clears the value in the database
-					data[fieldToUpdate] = null;
-				}
-				if (data.status === 'in-progress') {
-					data.start_date = new Date().toISOString();
-					data.completed_at = null;
-				}
-				if (data.status === 'done') {
-					data.completed_at = new Date().toISOString();
-				}
 				patchFeatureRequest({
 					orgId,
 					requestId: (featureRequest as FeatureRequestFormProps).id,
@@ -124,7 +113,7 @@ const FeatureRequest = memo(
 		const handleEditTitle = (value: string) => {
 			setTitle(value);
 			if (value) {
-				handlePatchFeatureRequest({ title: value });
+				// handlePatchFeatureRequest({ title: value });
 			} else if (debounceTimeId) {
 				clearTimeout(debounceTimeId);
 			}
@@ -132,7 +121,7 @@ const FeatureRequest = memo(
 
 		const handleEditDescription = (value: string) => {
 			setDescription(value);
-			handlePatchFeatureRequest({ description: value });
+			// handlePatchFeatureRequest({ description: value });
 		};
 
 		const handleEditTags = (value: string) => {
@@ -141,11 +130,27 @@ const FeatureRequest = memo(
 
 		const handleEditRequester = (user: User | null) => {
 			setRequester(user);
-			handlePatchFeatureRequest({ submitted_by_id: user?.id || null });
+			// handlePatchFeatureRequest({ submitted_by_id: user?.id || null });
 		};
 		const handleEditAssignedTo = (user: User | null) => {
 			setAssignedTo(user);
-			handlePatchFeatureRequest({ assigned_to_id: user?.id || null });
+			// handlePatchFeatureRequest({ assigned_to_id: user?.id || null });
+		};
+
+		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
+			const payload = {
+				description,
+				tags,
+				submitted_by_id: requester?.id || null,
+				assigned_to_id: assignedTo?.id || null,
+				title: featureRequest?.title,
+			};
+			if (title && title !== featureRequest?.title) {
+				payload.title = title;
+			}
+
+			handlePatchFeatureRequest(payload);
 		};
 
 		return (
@@ -155,7 +160,7 @@ const FeatureRequest = memo(
 				}`}
 			>
 				<form
-					onSubmit={(e) => e.preventDefault()}
+					onSubmit={(e) => handleSubmit(e)}
 					className="h-full flex flex-col"
 				>
 					<Grid container spacing={2}>
@@ -167,6 +172,7 @@ const FeatureRequest = memo(
 										display: 'flex',
 										gap: '4px',
 										alignItems: 'center',
+										flexDirection: 'row',
 									}}
 								>
 									<TextField
@@ -278,6 +284,9 @@ const FeatureRequest = memo(
 							}}
 						>
 							Close
+						</Button>
+						<Button variant="contained" type="submit" disabled={isLoading}>
+							Save changes
 						</Button>
 					</Box>
 				</form>

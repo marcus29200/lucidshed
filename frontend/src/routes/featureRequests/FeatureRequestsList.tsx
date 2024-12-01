@@ -74,7 +74,7 @@ const FeatureRequestList = () => {
 				(featureRequest) => featureRequest.id === +featureRequestId
 			);
 			if (row) {
-				setSelectedRow(row);
+				setSelectedRow(() => row);
 				setTimeout(() => {
 					setIsEditSidebarOpen(true);
 				});
@@ -93,7 +93,7 @@ const FeatureRequestList = () => {
 	}, [isEditFeatureRequest, selectedRow]);
 
 	const handleRowClick = (row) => {
-		setSelectedRow(null);
+		setSelectedRow(() => row);
 		navigate(`/${orgId}/feature-requests/${row.id}`);
 	};
 
