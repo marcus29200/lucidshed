@@ -19,7 +19,7 @@ async def add_feature_request(
     data = {
         "title": "test feature",
         "description": "test feature description",
-        "company": "company name",
+        "company": {"name": "company name", "created_by_id": "user_id", "modified_by_id": "user_id"},
         "submitted_by_id": "user_id",
     }
     data.update(**overrides)
@@ -39,6 +39,7 @@ async def test_should_add_feature_request(data_api: TestClient):
     assert feature_request["id"] > 0
     assert feature_request["title"] == "test feature"
     assert feature_request["description"] == "test feature description"
+    assert feature_request["company"]["name"] == "company name"
 
     assert feature_request["created_at"]
     assert feature_request["created_by_id"]
@@ -66,6 +67,7 @@ async def test_should_get_feature_request_by_id(data_api: TestClient):
     assert response.status_code == 200
     fetched_feature_request = response.json()
     assert fetched_feature_request["id"] == feature_request["id"]
+    assert fetched_feature_request["company_id"] == 1
 
 
 async def test_should_update_feature_request(data_api: TestClient):
@@ -81,6 +83,7 @@ async def test_should_update_feature_request(data_api: TestClient):
     updated_feature_request = response.json()
     assert updated_feature_request["title"] == "updated title"
     assert updated_feature_request["description"] == "updated description"
+    assert updated_feature_request["company_id"] == 1
 
 
 async def test_should_delete_feature_request(data_api: TestClient):

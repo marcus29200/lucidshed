@@ -7,6 +7,7 @@ from opensearchpy import OpenSearch
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
+from app.api.routers.company import router as company_router
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.feature_request import router as feature_request_router
 from app.api.routers.files import router as file_router
@@ -18,6 +19,7 @@ from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
 from app.database.common.queries import USER_INIT_STATEMENTS
+from app.database.companies.controllers.company import CompanyController
 from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
@@ -56,6 +58,7 @@ class DataApplication(FastAPI):
         self.include_router(team_router, prefix="/{organization_id}/teams")
         self.include_router(file_router, prefix="/{organization_id}/files")
         self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")
+        self.include_router(company_router, prefix="/{organization_id}/companies")
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
@@ -94,6 +97,7 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
         self.file_controller = FileController()
         self.feature_request_controller = FeatureRequestController()
+        self.company_controller = CompanyController()
 
         logger.info(f"Initializing opensearch client with {settings.opensearch_host}")
         self.opensearch_client = OpenSearch(

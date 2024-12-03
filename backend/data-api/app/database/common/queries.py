@@ -1,3 +1,4 @@
+from app.database.companies.queries import COMPANY_INIT_STATEMENTS, COMPANY_QUERIES
 from app.database.files.queries import FILE_INIT_STATEMENTS, FILE_QUERIES
 from app.database.history.queries import HISTORY_INIT_STATEMENTS, HISTORY_QUERIES
 from app.database.iterations.queries import ITERATION_INIT_STATEMENTS, ITERATION_QUERIES
@@ -20,6 +21,7 @@ INIT_STATEMENTS = (
     + WORK_ITEM_INIT_STATEMENTS
     + HISTORY_INIT_STATEMENTS
     + FEATURE_REQUEST_INIT_STATEMENTS
+    + COMPANY_INIT_STATEMENTS
 )
 
 QUERIES = {
@@ -31,4 +33,5 @@ QUERIES = {
     **HISTORY_QUERIES,
     **FILE_QUERIES,
     **FEATURE_REQUEST_QUERIES,
+    **COMPANY_QUERIES,
 }

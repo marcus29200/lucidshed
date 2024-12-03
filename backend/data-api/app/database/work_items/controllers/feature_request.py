@@ -3,6 +3,8 @@ from typing import List, Optional, Tuple
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
+from app.database.companies.controllers.company import CompanyController
+from app.database.companies.models.company import BaseCompany
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
@@ -10,12 +12,27 @@ from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class FeatureRequestController(WorkItemController):
+    def __init__(self):
+        super().__init__()
+        self.company_controller = CompanyController()
+
     async def create(self, *, new_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
+        company = await self.company_controller.get_by_name(name=new_item.company.name)
+        if not company:
+            company = await self.company_controller.create(
+                new_item=BaseCompany(
+                    name=new_item.company.name,
+                    description=new_item.company.description,
+                    created_by_id=current_user,
+                    modified_by_id=current_user,
+                ),
+                current_user=current_user,
+            )
 
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_REQUEST"],
             new_item.title,
-            new_item.company,
+            company.id,
             new_item.submitted_by_id,
             new_item.assigned_to_id,
             new_item.description,
@@ -32,7 +49,7 @@ class FeatureRequestController(WorkItemController):
             current_user,
         )
 
-        return FeatureRequest(**record)
+        return FeatureRequest(**record, company=company)
 
     async def get(self, *, id: int) -> FeatureRequest:
         record, user = await self._get(id=id, scope="FEATURE_REQUEST")
@@ -92,7 +109,7 @@ class FeatureRequestController(WorkItemController):
             QUERIES["UPDATE_FEATURE_REQUEST"],
             id,
             old_item_json["title"],
-            old_item_json["company"],
+            old_item_json["company_id"],
             old_item_json["submitted_by_id"],
             old_item_json["assigned_to_id"],
             old_item_json["description"],
