@@ -8,10 +8,12 @@ from app.exceptions.common import ObjectNotFoundException
 
 class CompanyController:
     async def create(self, *, new_item: BaseCompany, current_user: str) -> Company:
-        record = await data_db.get().fetchrow(
-            QUERIES["CREATE_COMPANY"], new_item.name, new_item.description, current_user, current_user
-        )
-        return Company(**record)
+        company = await self.get_by_name(name=new_item.name)
+        if not company:
+            record = await data_db.get().fetchrow(
+                QUERIES["CREATE_COMPANY"], new_item.name, new_item.description, current_user, current_user
+            )
+            return Company(**record)
 
     async def get(self, *, id: int) -> Optional[Company]:
         record = await data_db.get().fetchrow(
@@ -27,11 +29,12 @@ class CompanyController:
     async def get_by_name(self, *, name: str) -> Optional[Company]:
         record = await data_db.get().fetchrow(
             QUERIES["GET_COMPANY_BY_NAME"],
-            name,
+            name.strip(),
         )
-        if record:
-            return Company(**record)
-        return None
+        if not record:
+            return None
+
+        return Company(**record)
 
     async def get_all(self) -> list[Company]:
         query: str = QUERIES["GET_ALL_COMPANIES"]

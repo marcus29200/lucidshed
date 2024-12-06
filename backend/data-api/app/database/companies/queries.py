@@ -48,12 +48,13 @@ COMPANY_QUERIES[
 ] = """
 SELECT * FROM companies WHERE id = $1 AND deleted_at IS NULL;
 """
+
 COMPANY_QUERIES[
     "GET_COMPANY_BY_NAME"
 ] = """
-SELECT id, name
+SELECT *
 FROM companies
-WHERE name = $1;
+WHERE LOWER(name) = LOWER($1) AND deleted_at IS NULL;
 """
 
 COMPANY_QUERIES[

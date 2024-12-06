@@ -7,6 +7,8 @@ from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.companies.models.company import BaseCompany, Company
 
+from app.database.work_items.models.work_item import WorkItemSortableField
+
 team_item_router = APIRouter
 
 router = APIRouter(
@@ -31,18 +33,23 @@ async def get_company(request: Request, organization_id: str, id: int) -> Compan
     return await request.app.company_controller.get(id=id)
 
 
-# @router.get("", status_code=200, response_model=PagedResponse)
-# async def get_teams(
-#     request: Request,
-#     organization_id: str,
-#     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
-#     limit: Optional[int] = 1000,
-#     cursor: Optional[str] = None,
-# ) -> PagedResponse:
-#     items, cursor = await request.app.team_controller.get_all(
-#         sort=sort, limit=limit, cursor=cursor
-#     )
-#     return PagedResponse(items=items, cursor=cursor)
+@router.get("/name/{name}", status_code=200, response_model=Company)
+async def get_company_by_name(request: Request, organization_id: str, name: str) -> Company:
+    return await request.app.company_controller.get_by_name(name=name)
+
+
+@router.get("", status_code=200, response_model=PagedResponse)
+async def get_companies(
+    request: Request,
+    organization_id: str,
+    sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
+    limit: Optional[int] = 1000,
+    cursor: Optional[str] = None,
+) -> PagedResponse:
+    items, cursor = await request.app.company_controller.get_all(
+        sort=sort, limit=limit, cursor=cursor
+    )
+    return PagedResponse(items=items, cursor=cursor)
 
 
 @router.patch("/{id}", status_code=200, response_model=Company)

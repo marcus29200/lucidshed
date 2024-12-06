@@ -32,16 +32,16 @@ async def test_should_get_company_by_id(data_api: TestClient):
     assert fetched_company["name"] == "company name"
 
 
-# async def test_should_get_company_by_name(data_api: TestClient):
-#     _, _, headers = await authenticate(data_api, create_org=False)
-#     organization = await add_organization(data_api, headers=headers)
-#     company = await add_company(data_api, organization["id"], headers=headers)
+async def test_should_get_company_by_name(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    company = await add_company(data_api, organization["id"], headers=headers)
 
-#     response = await data_api.get(f"/{organization['id']}/companies/name/{company['name']}", headers=headers)
-#     assert response.status_code == 200
+    response = await data_api.get(f"/{organization['id']}/companies/name/{company['name']}", headers=headers)
+    assert response.status_code == 200
 
-#     fetched_company = response.json()
-#     assert fetched_company["name"] == "company name"
+    fetched_company = response.json()
+    assert fetched_company["name"] == "company name"
 
 
 async def test_should_update_company(data_api: TestClient):
