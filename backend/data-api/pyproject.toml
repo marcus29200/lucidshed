@@ -20,6 +20,7 @@ uvicorn = "^0.30.6"
 google-cloud-storage = "^2.18.2"
 openai = "^1.54.4"
 opensearch-py = "^2.7.1"
+google-auth = "2.35.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
