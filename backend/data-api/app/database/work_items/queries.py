@@ -412,7 +412,7 @@ FEATURE_REQUEST_QUERIES = {}
 FEATURE_REQUEST_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS feature_requests (
-    company_id INT NOT NULL,
+    company_id INT REFERENCES companies(id) NOT NULL ,
     submitted_by_id VARCHAR({MAX_ID_LENGTH}),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
     {BASE_WORK_ITEM_FIELDS}
