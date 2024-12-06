@@ -425,7 +425,7 @@ const StoriesTable = ({
 							<ShedTable
 								tableId={tableId}
 								columns={columns}
-								columFiltersEnabled={true}
+								columnFiltersEnabled={true}
 								filteredItems={stories}
 								setSortingStates={setSortingStates}
 								actions={parentActions ?? actions}

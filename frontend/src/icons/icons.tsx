@@ -623,3 +623,63 @@ export const StatusListIcon = (props: React.SVGProps<SVGSVGElement>) => (
 		</svg>
 	</SvgIcon>
 );
+
+export const ChatPlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<SvgIcon>
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path
+				d="M12 4V4C8.22876 4 6.34315 4 5.17157 5.17157C4 6.34315 4 8.22876 4 12V18C4 18.9428 4 19.4142 4.29289 19.7071C4.58579 20 5.05719 20 6 20H12C15.7712 20 17.6569 20 18.8284 18.8284C20 17.6569 20 15.7712 20 12V12"
+				stroke="currentColor"
+				strokeWidth="2"
+			/>
+			<path
+				d="M9 10L15 10"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M9 14H12"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M19 8L19 2M16 5H22"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	</SvgIcon>
+);
+
+export const SendFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<SvgIcon>
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M12.6892 15.8963L8.19193 14.3972C5.83872 13.6128 4.66211 13.2206 4.66211 12.4999C4.66211 11.7791 5.83872 11.3869 8.19193 10.6025L21.2051 6.26476C22.8609 5.71283 23.6888 5.43687 24.1258 5.87388C24.5628 6.3109 24.2869 7.1388 23.7349 8.79459L19.3972 21.8078L19.3972 21.8078C18.6128 24.161 18.2206 25.3376 17.4998 25.3376C16.7791 25.3376 16.3869 24.161 15.6025 21.8078L14.1034 17.3105L19.4569 11.957C19.8475 11.5664 19.8475 10.9333 19.4569 10.5427C19.0664 10.1522 18.4332 10.1522 18.0427 10.5427L12.6892 15.8963Z"
+				fill="currentColor"
+			/>
+		</svg>
+	</SvgIcon>
+);

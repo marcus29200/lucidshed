@@ -6,6 +6,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 
 import CopyFileEventHandler from './TiptapCopyImage';
+import { useEffect } from 'react';
 // editor height must be the same as all the fields in the form
 const DescriptionRichEditor = ({ onChange, value }) => {
 	const handleChange = (newContent: string) => {
@@ -30,6 +31,10 @@ const DescriptionRichEditor = ({ onChange, value }) => {
 		},
 		content: value,
 	});
+
+	useEffect(() => {
+		editor?.commands.setContent(value ?? '', false);
+	}, [value]);
 
 	return (
 		<div className="w-full group/editor">
