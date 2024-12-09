@@ -412,7 +412,7 @@ FEATURE_REQUEST_QUERIES = {}
 FEATURE_REQUEST_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS feature_requests (
-    company VARCHAR({MAX_ID_LENGTH}),
+    company_id INT REFERENCES companies(id) NOT NULL ,
     submitted_by_id VARCHAR({MAX_ID_LENGTH}),
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
     {BASE_WORK_ITEM_FIELDS}
@@ -433,7 +433,7 @@ FEATURE_REQUEST_QUERIES[
 INSERT INTO feature_requests
 (
     title,
-    company,
+    company_id,
     submitted_by_id,
     assigned_to_id,
     description,
@@ -450,7 +450,7 @@ FEATURE_REQUEST_QUERIES[
 UPDATE feature_requests
 SET
     title = $2,
-    company = $3,
+    company_id = $3,
     submitted_by_id = $4,
     assigned_to_id = $5,
     description = $6,
@@ -556,7 +556,7 @@ SET
     deleted_by_id = $3
 WHERE
     feature_request_id = $1
-    AND id = $2
+    AND id = $2;
 """
 
 
@@ -568,5 +568,5 @@ SET
     deleted_at = NOW(),
     deleted_by_id = $2
 WHERE
-    feature_request_id = $1
+    feature_request_id = $1;
 """

@@ -226,3 +226,19 @@ async def add_team(
         raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
 
     return response.json()
+
+
+async def add_company(
+    data_api: TestClient,
+    organization_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    headers: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
+):
+    data = {"name": "company name", "created_by_id": "user_id", "modified_by_id": "user_id"}
+    data.update(**overrides)
+    response = await data_api.post(f"/{organization_id}/companies", json=data, headers=headers)
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
+
+    return response.json()
