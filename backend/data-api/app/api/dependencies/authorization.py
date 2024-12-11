@@ -68,8 +68,6 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         if session.expired:
             raise credentials_exception
     except Exception:
-        logger.exception("Unable to verify access token")
-
         raise credentials_exception
 
     try:

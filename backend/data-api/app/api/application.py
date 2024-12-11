@@ -5,6 +5,7 @@ from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from opensearchpy import OpenSearch
 from starlette.responses import JSONResponse
+from starlette.exceptions import HTTPException
 
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.company import router as company_router
@@ -62,6 +63,7 @@ class DataApplication(FastAPI):
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
+        self.add_exception_handler(HTTPException, self.http_exception_handler)
         self.add_exception_handler(Exception, self.generic_handler)
 
         self.add_middleware(
@@ -113,6 +115,9 @@ class DataApplication(FastAPI):
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
+
+    async def http_exception_handler(self, request: Request, exc: HTTPException):
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
     async def generic_handler(self, request: Request, exc: Exception):
         logger.exception(exc)
