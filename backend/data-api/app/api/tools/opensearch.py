@@ -15,10 +15,7 @@ async def index_object(
     document: Optional[Dict[str, Any]] = None,
     mode: Optional[str] = "create",
 ) -> bool:
-    logger.error(f"Opensearch enabled: {settings.opensearch_enabled}")
     if settings.opensearch_enabled:
-        logger.info(f"Indexing object {item_id} in index {index}")
-
         if settings.opensearch_async_indexing:
             asyncio.create_task(_index_object(opensearch_client, index, item_id, document, mode))
 
