@@ -1,10 +1,12 @@
 import asyncio
+import logging
 from typing import Any, Dict, Optional
 
 from opensearchpy import OpenSearch
 
 from app.api.settings import settings
 
+logger = logging.getLogger(__name__)
 
 async def index_object(
     opensearch_client: OpenSearch,
@@ -14,6 +16,8 @@ async def index_object(
     mode: Optional[str] = "create",
 ) -> bool:
     if not settings.opensearch_enabled:
+        logger.warning(f"OpenSearch is not enabled, {item_id} not indexed")
+
         return False
 
     if settings.opensearch_async_indexing:
