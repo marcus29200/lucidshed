@@ -1,11 +1,10 @@
 import logging
 from contextvars import ContextVar
 from os import getenv
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from asyncpg import Pool
 from pydantic import BaseModel
-from app.api.utils import load_bool_env_var
 
 database_pools: ContextVar[Dict[str, Pool]] = ContextVar("database_pools", default={})
 
@@ -13,6 +12,10 @@ data_db: ContextVar = ContextVar("data_db")
 user_db: ContextVar = ContextVar("user_db")
 
 logger = logging.getLogger(__name__)
+
+
+def load_bool_env_var(env_var: str, default: Any = None) -> bool:
+    return True if (getenv(env_var) or default).lower() == "true" else False
 
 
 class Settings(BaseModel):

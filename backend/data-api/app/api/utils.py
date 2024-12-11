@@ -62,7 +62,3 @@ def send_mail(to_email: str, subject: str, content: str):
             logger.error(f"Sendgrid response content {e.body}")
 
         raise SendgridException()
-
-
-def load_bool_env_var(env_var: str, default: Any = None) -> bool:
-    return True if (getenv(env_var) or default).lower() == "true" else False
