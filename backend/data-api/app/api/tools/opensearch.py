@@ -8,6 +8,7 @@ from app.api.settings import settings
 
 logger = logging.getLogger(__name__)
 
+
 async def index_object(
     opensearch_client: OpenSearch,
     index: str,

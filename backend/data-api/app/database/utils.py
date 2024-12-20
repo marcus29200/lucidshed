@@ -39,6 +39,6 @@ async def init_database_tables(pool, init_statements):
     async with pool.acquire() as conn:
         async with conn.transaction():
             for init_statement in init_statements:
-                logger.info(f"Executing query: {init_statement}")
+                logger.debug(f"Executing query: {init_statement}")
 
                 await conn.execute(init_statement)

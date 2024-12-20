@@ -2,7 +2,6 @@ import base64
 import json
 import logging
 from typing import Any, Dict, Optional, Tuple
-from os import getenv
 
 from python_http_client.exceptions import BadRequestsError
 from sendgrid import From, Mail, SendGridAPIClient

@@ -25,6 +25,8 @@ class Settings(BaseModel):
     testing: bool = load_bool_env_var("TESTING", "false")
     frontend_url: str = getenv("FRONTEND_URL", "http://localhost:3000")
 
+    log_level: str = getenv("LOG_LEVEL", "INFO")
+
     # Database settings
     database_connection_name: Optional[str] = getenv("DATABASE_CONNECTION_NAME", None)
     database_host: str = getenv("DATABASE_HOST", "localhost")

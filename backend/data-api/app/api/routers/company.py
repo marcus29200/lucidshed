@@ -6,7 +6,6 @@ from pydantic import BaseModel
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.companies.models.company import BaseCompany, Company
-
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 team_item_router = APIRouter
@@ -46,9 +45,7 @@ async def get_companies(
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
 ) -> PagedResponse:
-    items, cursor = await request.app.company_controller.get_all(
-        sort=sort, limit=limit, cursor=cursor
-    )
+    items, cursor = await request.app.company_controller.get_all(sort=sort, limit=limit, cursor=cursor)
     return PagedResponse(items=items, cursor=cursor)
 
 
