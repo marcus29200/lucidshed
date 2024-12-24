@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import StrEnum
-from typing import Optional
+from typing import Optional, Set
 
 from pydantic import BaseModel, Field
 
@@ -29,3 +29,7 @@ class BaseIteration(BaseModel):
 
 class Iteration(Model, BaseIteration):
     id: int  # type: ignore
+
+    @property
+    def indexed_fields(self) -> Set[str]:
+        return {"id", "title", "description", "status", "start_date", "end_date", "created_at", "modified_at"}
