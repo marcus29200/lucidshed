@@ -570,3 +570,147 @@ SET
 WHERE
     feature_request_id = $1;
 """
+
+
+FEATURE_LIST_QUERIES = {}
+
+FEATURE_LIST_INIT_STATEMENTS = [
+    f"""
+CREATE TABLE IF NOT EXISTS feature_list (
+    {BASE_WORK_ITEM_FIELDS},
+    requests INT,
+    reach INT,
+    impact INT,
+    confidence INT,
+    effort INT,
+    growth INT
+);
+    """
+    """
+CREATE TABLE IF NOT EXISTS feature_list_feature_request (
+    feature_list_id INT REFERENCES feature_list(id) ON DELETE CASCADE,
+    feature_request_id INT REFERENCES feature_requests(id) ON DELETE CASCADE,
+    PRIMARY KEY (feature_list_id, feature_request_id)
+);
+    """,
+]
+
+FEATURE_LIST_QUERIES[
+    "CREATE_FEATURE_LIST"
+] = """
+INSERT INTO feature_list
+(
+    requests,
+    reach,
+    impact,
+    confidence,
+    effort,
+    growth,
+    created_by_id,
+    modified_by_id
+)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    RETURNING id, requests, reach, impact, confidence, effort,
+    growth, created_by_id, modified_by_id, created_at, modified_at;
+"""
+
+FEATURE_LIST_QUERIES[
+    "UPDATE_FEATURE_LIST"
+] = """
+UPDATE feature_list
+SET
+    requests = $2,
+    reach = $3,
+    impact = $4,
+    confidence = $5,
+    effort = $6,
+    growth = $7,
+    created_by_id = $8,
+    modified_at = NOW(),
+    modified_by_id = $9,
+    deleted_at = $10,
+    deleted_by_id = $11
+WHERE
+    id = $1
+"""
+
+FEATURE_LIST_QUERIES[
+    "GET_FEATURE_LIST"
+] = """
+SELECT
+    id, requests, reach, impact, confidence, effort,
+    growth, created_by_id, modified_by_id, created_at, modified_at
+    FROM feature_list
+    WHERE deleted_at IS NULL
+    LIMIT 1;
+"""
+
+FEATURE_LIST_QUERIES[
+    "GET_FEATURE_LIST_BY_ID"
+] = """
+SELECT
+    id, requests, reach, impact, confidence, effort,
+    growth, created_by_id, modified_by_id, created_at, modified_at
+    FROM feature_list
+    WHERE id = $1;
+"""
+
+FEATURE_LIST_QUERIES[
+    "GET_ALL_FEATURE_LISTS"
+] = """
+SELECT
+id, requests, reach, impact, confidence, effort,
+growth, created_by_id, modified_by_id, created_at, modified_at
+FROM feature_list;
+    """
+
+FEATURE_LIST_QUERIES[
+    "UPDATE_FEATURE_LIST"
+] = """
+UPDATE feature_list
+SET
+    requests = $2,
+    reach = $3,
+    impact = $4,
+    confidence = $5,
+    effort = $6,
+    growth = $7,
+    modified_by_id = $8,
+    modified_at = NOW()
+WHERE id = $1
+RETURNING id, requests, reach, impact, confidence, effort,
+growth, created_by_id, modified_by_id, created_at, modified_at;
+    """
+
+FEATURE_LIST_QUERIES[
+    "ASSOCIATE_FEATURE_LIST_WITH_FEATURE_REQUEST"
+] = """
+    INSERT INTO feature_list_feature_request (feature_list_id, feature_request_id)
+    VALUES ($1, $2);
+    """
+
+FEATURE_LIST_QUERIES[
+    "DELETE_FEATURE_LIST_ASSOCIATIONS"
+] = """
+    DELETE FROM feature_list_feature_request
+    WHERE feature_list_id = $1;
+    """
+
+FEATURE_LIST_QUERIES[
+    "GET_FEATURE_REQUESTS_FOR_FEATURE_LIST"
+] = """
+    SELECT feature_request_id
+    FROM feature_list_feature_request
+    WHERE feature_list_id = $1;
+    """
+
+FEATURE_LIST_QUERIES[
+    "DELETE_FEATURE_LIST_ITEM"
+] = """
+UPDATE feature_list
+SET
+    deleted_at = NOW(),
+    deleted_by_id = $2
+WHERE
+    id = $1
+"""

@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.api.dependencies.database import get_pool
 from app.api.settings import data_db
+from app.database.work_items.models.feature_list import FeatureScore
 
 expired_headers = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoidGVzdEB0ZXN0LmNvbSIsInNjb3BlcyI6W10sImV4cCI6MTcxOTU4ODc5Mi4zNjUxN30.15fa1fwuhx-FQLHPzbxOmZ35afvyxzJYFs6c-cIt_o4"  # noqa
@@ -238,6 +239,31 @@ async def add_company(
     data = {"name": "company name", "created_by_id": "user_id", "modified_by_id": "user_id"}
     data.update(**overrides)
     response = await data_api.post(f"/{organization_id}/companies", json=data, headers=headers)
+    if response.status_code != expected_status_code:
+        raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
+
+    return response.json()
+
+
+async def add_feature_list(
+    data_api: TestClient,
+    organization_id: str,
+    overrides: Optional[Dict[str, Any]] = {},
+    headers: Optional[Dict[str, Any]] = {},
+    expected_status_code: Optional[int] = 201,
+):
+    data = {
+        "requests": 1,
+        "reach": FeatureScore.XLARGE.value,
+        "impact": FeatureScore.LARGE.value,
+        "confidence": FeatureScore.MEDIUM.value,
+        "effort": FeatureScore.SMALL.value,
+        "growth": FeatureScore.XLARGE.value,
+        "feature_requests": [1],
+    }
+    data.update(**overrides)
+
+    response = await data_api.post(f"{organization_id}/feature_lists", json=data, headers=headers)
     if response.status_code != expected_status_code:
         raise AssertionError(f"{response.status_code} != {expected_status_code}", response.text)
 

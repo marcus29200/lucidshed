@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.company import router as company_router
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.feature_list import router as feature_list_router
 from app.api.routers.feature_request import router as feature_request_router
 from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
@@ -30,6 +31,7 @@ from app.database.users.controllers.user_permission import UserPermissionControl
 from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.database.work_items.controllers.feature_list import FeatureListController
 from app.database.work_items.controllers.feature_request import FeatureRequestController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
@@ -59,6 +61,7 @@ class DataApplication(FastAPI):
         self.include_router(file_router, prefix="/{organization_id}/files")
         self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")
         self.include_router(company_router, prefix="/{organization_id}/companies")
+        self.include_router(feature_list_router, prefix="/{organization_id}/feature_lists")
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
@@ -97,6 +100,7 @@ class DataApplication(FastAPI):
         self.history_controller = HistoryController()
         self.file_controller = FileController()
         self.feature_request_controller = FeatureRequestController()
+        self.feature_list_controller = FeatureListController()
         self.company_controller = CompanyController()
 
         logger.info(f"Initializing opensearch client with {settings.opensearch_host}")

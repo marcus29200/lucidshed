@@ -3,6 +3,7 @@ __pycache__
 .vscode
 **.
 .env
+.DS_Store
 **/.DS_Store
 **/.mypy_cache
 **/.pytest_cache

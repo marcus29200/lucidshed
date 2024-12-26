@@ -74,7 +74,7 @@ class BaseEngineeringItem(BaseWorkItem):
             "created_at",
             "modified_at",
             "completed_at",
-            "deleted_at"
+            "deleted_at",
         ]
 
         return " ".join([f"{field}={getattr(self, field)}" for field in included_fields])
