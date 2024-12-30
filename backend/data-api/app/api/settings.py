@@ -1,7 +1,7 @@
 import logging
 from contextvars import ContextVar
 from os import getenv
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from asyncpg import Pool
 from pydantic import BaseModel
@@ -14,12 +14,18 @@ user_db: ContextVar = ContextVar("user_db")
 logger = logging.getLogger(__name__)
 
 
+def load_bool_env_var(env_var: str, default: Any = None) -> bool:
+    return True if (getenv(env_var) or default).lower() == "true" else False
+
+
 class Settings(BaseModel):
     # Application settings
     host: str = getenv("APP_HOST", "0.0.0.0")
     port: int = int(getenv("APP_PORT", 8080))
-    testing: bool = bool(getenv("TESTING", False))
+    testing: bool = load_bool_env_var("TESTING", "false")
     frontend_url: str = getenv("FRONTEND_URL", "http://localhost:3000")
+
+    log_level: str = getenv("LOG_LEVEL", "INFO")
 
     # Database settings
     database_connection_name: Optional[str] = getenv("DATABASE_CONNECTION_NAME", None)
@@ -56,8 +62,8 @@ class Settings(BaseModel):
     opensearch_host: Optional[str] = getenv("OPENSEARCH_HOST", "localhost")
     opensearch_username: Optional[str] = getenv("OPENSEARCH_USERNAME", "admin")
     opensearch_password: Optional[str] = getenv("OPENSEARCH_PASSWORD", "Luc1dshedTester!")
-    opensearch_async_indexing: bool = bool(getenv("OPENSEARCH_ASYNC_INDEXING", True))
-    opensearch_enabled: bool = bool(getenv("OPENSEARCH_ENABLED", True))
+    opensearch_async_indexing: bool = load_bool_env_var("OPENSEARCH_ASYNC_INDEXING", "true")
+    opensearch_enabled: bool = load_bool_env_var("OPENSEARCH_ENABLED", "true")
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}"

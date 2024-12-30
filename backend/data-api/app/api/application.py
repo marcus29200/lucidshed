@@ -4,6 +4,7 @@ from asyncpg.exceptions import UniqueViolationError
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from opensearchpy import OpenSearch
+from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from app.api.dependencies.database import close_pool, get_pool
@@ -19,7 +20,7 @@ from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
-from app.database.common.queries import USER_INIT_STATEMENTS
+from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
 from app.database.companies.controllers.company import CompanyController
 from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
@@ -65,6 +66,7 @@ class DataApplication(FastAPI):
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
+        self.add_exception_handler(HTTPException, self.http_exception_handler)
         self.add_exception_handler(Exception, self.generic_handler)
 
         self.add_middleware(
@@ -109,6 +111,47 @@ class DataApplication(FastAPI):
             http_auth=(settings.opensearch_username, settings.opensearch_password),
         )
 
+    async def migrate_existing_databases(self) -> None:
+        databases = []
+
+        try:
+            pool = await get_pool()
+            async with pool.acquire() as conn:
+                databases = await conn.fetch("SELECT datname FROM pg_database WHERE datname LIKE '%_data'")
+        except Exception:
+            logger.exception("Failed to get existing databases")
+
+            raise
+        finally:
+            await pool.close()
+
+        logger.info("Migrating user database")
+        try:
+            pool = await get_pool(settings.user_db_name)
+            await init_database_tables(pool, USER_INIT_STATEMENTS)
+        except Exception:
+            logger.exception("Failed to migrate user database")
+
+            raise
+        finally:
+            await pool.close()
+
+        logger.info(f"Migrating {len(databases)} databases")
+        migrated_databases = []
+        for database in databases:
+            try:
+                await init_database_tables(await get_pool(database["datname"]), INIT_STATEMENTS)
+
+                migrated_databases.append(database["datname"])
+            except Exception:
+                logger.exception(f"Failed while migrating database {database['datname']}")
+
+                break
+            finally:
+                await pool.close()
+
+        logger.info(f"Migrated databases: {migrated_databases}")
+
     async def close(self) -> None:
         pass
 
@@ -117,6 +160,9 @@ class DataApplication(FastAPI):
 
     async def not_found_handler(self, request: Request, exc: ObjectNotFoundException):
         return JSONResponse(status_code=404, content={"detail": f"Object {exc.object_id} not found"})
+
+    async def http_exception_handler(self, request: Request, exc: HTTPException):
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
     async def generic_handler(self, request: Request, exc: Exception):
         logger.exception(exc)

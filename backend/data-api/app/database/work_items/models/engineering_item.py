@@ -81,11 +81,27 @@ class BaseEngineeringItem(BaseWorkItem):
 
 
 class EngineeringItem(WorkItem, BaseEngineeringItem):
-    def get_fields_to_index(self, updated_fields: Optional[Set[str]] = set()) -> list[str]:
-        return list(set(INDEXED_FIELDS).intersection(updated_fields)) if updated_fields else INDEXED_FIELDS
+    @property
+    def indexed_fields(self) -> Set[str]:
+        return {
+            "id",
+            "title",
+            "description",
+            "status",
+            "priority",
+            "created_at",
+            "modified_at",
+            "item_type",
+            "item_sub_type",
+            "iteration_id",
+            "team_id",
+            "assigned_to_id",
+            "created_by_id",
+            "modified_by_id",
+        }
 
-    def get_indexable_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
-        indexible_doc = {field: getattr(self, field) for field in self.get_fields_to_index(updated_fields)}
+    def get_searchable_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
+        indexible_doc = super().get_searchable_doc(updated_fields)
 
         if indexible_doc.get("description"):
             indexible_doc["description"] = self.cleaned_description

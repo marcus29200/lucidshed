@@ -87,7 +87,7 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         opensearch_client=request.app.opensearch_client,
         index=organization_id,
         item_id=engineering_item.id,
-        document=engineering_item.get_indexable_doc(),
+        document=engineering_item.get_searchable_doc(),
     )
 
     return engineering_item
@@ -130,7 +130,7 @@ async def update_engineering_item(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = {"doc": engineering_item.get_indexable_doc(body.model_fields_set)}
+    document = {"doc": engineering_item.get_searchable_doc(body.model_fields_set)}
 
     document["doc"]["modified_date"] = engineering_item.modified_at
     document["doc"]["modified_by_id"] = engineering_item.modified_by_id

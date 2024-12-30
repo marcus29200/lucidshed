@@ -11,7 +11,7 @@ class TestCleanupCommand(BaseOrganizationCommand):
         try:
             pool = await get_pool()
             async with pool.acquire() as conn:
-                await conn.execute(f"DROP DATABASE IF EXISTS {organization_id}_data")
+                await conn.execute(f"DROP DATABASE IF EXISTS {organization_id}")
 
                 print(f"Deleted test database {organization_id}")
 
