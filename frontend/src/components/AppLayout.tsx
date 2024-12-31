@@ -29,7 +29,6 @@ const AppLayout = () => {
 					<Box sx={{ padding: '1rem', overflowY: 'auto', height: '100%' }}>
 						<UsersContext.Provider value={data ?? []}>
 							<Outlet />
-							<AIChatLayout />
 						</UsersContext.Provider>
 					</Box>
 				</Box>
