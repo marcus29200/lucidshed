@@ -24,6 +24,7 @@ async def index_object(
         else:
             result = await _index_object(opensearch_client, index, item_id, document, mode)
 
+            # Both iterations and items can have an id of 1, so this causes a conflict in OS.
             if result["result"] in ["created", "updated", "deleted"]:
                 return True
     else:
@@ -51,3 +52,5 @@ async def _index_object(
                 raise ValueError(f"Unable to index using {mode}")
     except Exception:
         logger.exception("Unable to index object")
+
+        raise ValueError(f"Unable to index using {mode}")
