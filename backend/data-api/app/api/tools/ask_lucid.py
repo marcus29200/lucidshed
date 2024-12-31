@@ -41,7 +41,7 @@ user's question. Also do not answer the question with information from outside s
 in the context given. 
 """
 
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
 
 
 class OSEngineeringItems(BaseModel):

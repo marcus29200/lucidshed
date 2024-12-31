@@ -6,15 +6,19 @@ from app.database.common.queries import QUERIES
 from app.database.companies.controllers.company import CompanyController
 from app.database.companies.models.company import BaseCompany
 from app.database.history.models.history import BaseHistory
+from app.database.work_items.controllers.feature_list import FeatureListController
 from app.database.work_items.controllers.work_item import WorkItemController
+from app.database.work_items.models.feature_list import FeatureList
 from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.exceptions.common import ObjectNotFoundException
 
 
 class FeatureRequestController(WorkItemController):
     def __init__(self):
         super().__init__()
         self.company_controller = CompanyController()
+        self.feature_list_controller = FeatureListController()
 
     async def create(self, *, new_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
         company = await self.company_controller.get_by_name(name=new_item.company.name)
@@ -49,7 +53,37 @@ class FeatureRequestController(WorkItemController):
             current_user,
         )
 
-        return FeatureRequest(**record, company=company)
+        feature_request = FeatureRequest(**record, company=company)
+
+        # Associate feature request with feature lists
+        try:
+            feature_list_id = await self.get_feature_list_id()
+        except ObjectNotFoundException:
+            feature_list_id = None
+
+        if feature_list_id:
+            await self.feature_list_controller.update(
+                id=feature_list_id,
+                updated_item=FeatureList(
+                    id=feature_list_id,
+                    feature_requests=[feature_request.id],
+                    requests=0,
+                    reach=0,
+                    impact=0,
+                    confidence=0,
+                    effort=0,
+                    growth=0,
+                    created_by_id=current_user,
+                    modified_by_id=current_user,
+                ),
+                current_user=current_user,
+            )
+
+        return feature_request
+
+    async def get_feature_list_id(self) -> Optional[int]:
+        feature_list = await self.feature_list_controller.get_one()
+        return feature_list.id if feature_list else None
 
     async def get(self, *, id: int) -> FeatureRequest:
         record, user = await self._get(id=id, scope="FEATURE_REQUEST")
