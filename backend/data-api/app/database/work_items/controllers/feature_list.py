@@ -1,20 +1,14 @@
 from app.api.settings import data_db
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.feature_list import BaseFeatureList, FeatureList, FeatureScore
+from app.database.work_items.models.feature_list import BaseFeatureList, FeatureList
 from app.database.work_items.queries import FEATURE_LIST_QUERIES as QUERIES
+from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
 
 
 class FeatureListController(WorkItemController):
+    @serialize_enum_values
     async def create(self, *, new_item: BaseFeatureList, current_user: str) -> FeatureList:
-        new_item.reach = new_item.reach.value if isinstance(new_item.reach, FeatureScore) else new_item.reach
-        new_item.impact = new_item.impact.value if isinstance(new_item.impact, FeatureScore) else new_item.impact
-        new_item.confidence = (
-            new_item.confidence.value if isinstance(new_item.confidence, FeatureScore) else new_item.confidence
-        )
-        new_item.effort = new_item.effort.value if isinstance(new_item.effort, FeatureScore) else new_item.effort
-        new_item.growth = new_item.growth.value if isinstance(new_item.growth, FeatureScore) else new_item.growth
-
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_LIST"],
             new_item.requests,
@@ -86,25 +80,8 @@ class FeatureListController(WorkItemController):
 
         return feature_lists
 
+    @serialize_enum_values
     async def update(self, *, id: int, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
-        updated_item.reach = (
-            updated_item.reach.value if isinstance(updated_item.reach, FeatureScore) else updated_item.reach
-        )
-        updated_item.impact = (
-            updated_item.impact.value if isinstance(updated_item.impact, FeatureScore) else updated_item.impact
-        )
-        updated_item.confidence = (
-            updated_item.confidence.value
-            if isinstance(updated_item.confidence, FeatureScore)
-            else updated_item.confidence
-        )
-        updated_item.effort = (
-            updated_item.effort.value if isinstance(updated_item.effort, FeatureScore) else updated_item.effort
-        )
-        updated_item.growth = (
-            updated_item.growth.value if isinstance(updated_item.growth, FeatureScore) else updated_item.growth
-        )
-
         old_feature_list = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
