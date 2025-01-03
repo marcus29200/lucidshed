@@ -1,20 +1,18 @@
+from typing import List, Optional, Tuple
+
 from app.api.settings import data_db
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.work_items.models.feature_list import BaseFeatureList, FeatureList, FeatureScore
+from app.database.work_items.models.feature_list import BaseFeatureList, FeatureList
+from app.database.work_items.models.work_item import WorkItemSortableField
 from app.database.work_items.queries import FEATURE_LIST_QUERIES as QUERIES
+from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
 
 
 class FeatureListController(WorkItemController):
+    @serialize_enum_values
     async def create(self, *, new_item: BaseFeatureList, current_user: str) -> FeatureList:
-        new_item.reach = new_item.reach.value if isinstance(new_item.reach, FeatureScore) else new_item.reach
-        new_item.impact = new_item.impact.value if isinstance(new_item.impact, FeatureScore) else new_item.impact
-        new_item.confidence = (
-            new_item.confidence.value if isinstance(new_item.confidence, FeatureScore) else new_item.confidence
-        )
-        new_item.effort = new_item.effort.value if isinstance(new_item.effort, FeatureScore) else new_item.effort
-        new_item.growth = new_item.growth.value if isinstance(new_item.growth, FeatureScore) else new_item.growth
-
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_LIST"],
             new_item.requests,
@@ -73,9 +71,39 @@ class FeatureListController(WorkItemController):
 
     async def get_all(
         self,
-    ) -> list[FeatureList]:
+        *,
+        sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
+        company_id: Optional[int] = None,
+    ) -> Tuple[List[FeatureList], Optional[str]]:
+        if sort and sort not in WorkItemSortableField:
+            raise Exception(f"Invalid sort field: {sort}")
+
+        # TODO: implement determine_get_all_filter_conditions for FeatureRequest
+        # filter_conditions = determine_get_all_filter_conditions(company_id=company_id)
+        filter_conditions = None
         query: str = QUERIES["GET_ALL_FEATURE_LISTS"]
-        records = await data_db.get().fetch(query)
+        if filter_conditions:
+            query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        else:
+            query = query.replace("$FILTER_CONDITIONS", "")
+
+        offset = 0
+        if cursor:
+            sort, offset, extra = parse_cursor(cursor)
+
+        records = await data_db.get().fetch(
+            query,
+            sort.value if sort else WorkItemSortableField.ID.value,
+            limit,
+            offset,
+        )
+
+        cursor = None
+        if len(records) == limit:
+            cursor = generate_cursor(sort, offset + limit)
+
         feature_lists = [FeatureList(**record) for record in records]
 
         for feature_list in feature_lists:
@@ -84,27 +112,10 @@ class FeatureListController(WorkItemController):
             )
             feature_list.feature_requests = [fr["feature_request_id"] for fr in feature_requests]
 
-        return feature_lists
+        return feature_lists, cursor
 
+    @serialize_enum_values
     async def update(self, *, id: int, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
-        updated_item.reach = (
-            updated_item.reach.value if isinstance(updated_item.reach, FeatureScore) else updated_item.reach
-        )
-        updated_item.impact = (
-            updated_item.impact.value if isinstance(updated_item.impact, FeatureScore) else updated_item.impact
-        )
-        updated_item.confidence = (
-            updated_item.confidence.value
-            if isinstance(updated_item.confidence, FeatureScore)
-            else updated_item.confidence
-        )
-        updated_item.effort = (
-            updated_item.effort.value if isinstance(updated_item.effort, FeatureScore) else updated_item.effort
-        )
-        updated_item.growth = (
-            updated_item.growth.value if isinstance(updated_item.growth, FeatureScore) else updated_item.growth
-        )
-
         old_feature_list = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)

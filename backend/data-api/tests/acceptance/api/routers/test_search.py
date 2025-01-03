@@ -11,8 +11,12 @@ pytestmark = pytest.mark.asyncio
 async def test_search_for_engineering_items(data_api, opensearch_enabled):
     org, user, headers = await authenticate(data_api)
 
-    one = await add_engineering_item(data_api, org["id"], {"title": "Story", "assigned_to_id": user["id"]}, headers=headers)
-    two = await add_engineering_item(data_api, org["id"], {"title": "Testing", "assigned_to_id": user["id"]}, headers=headers)
+    one = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "assigned_to_id": user["id"]}, headers=headers
+    )
+    two = await add_engineering_item(
+        data_api, org["id"], {"title": "Testing", "assigned_to_id": user["id"]}, headers=headers
+    )
     # iteration = await add_iteration(data_api, org["id"], headers=headers)
     # three = await add_engineering_item(
     #     data_api, org["id"], {"title": "Story with iteration", "iteration_id": iteration["id"]}, headers=headers
