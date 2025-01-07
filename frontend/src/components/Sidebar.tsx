@@ -21,6 +21,7 @@ export type NavigationItem = {
 	children?: NavigationItem[];
 	dropDown?: () => JSX.Element; // TODO: Implement drop down menu
 	paddingOffset?: number; // px
+	iconClassName?: string; // for custom styling of icons
 };
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
@@ -61,6 +62,7 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 		to: 'product-requests',
 		label: 'Product Requests',
 		icon: () => <SendFilledIcon />,
+		iconClassName: 'pr-1.5 pb-1',
 	},
 	{
 		to: 'feature-requests',
@@ -77,13 +79,22 @@ const SETTINGS_ITEM: NavigationItem = {
 };
 
 const Sidebar = () => {
-	const [expanded, setExpanded] = useState(true);
-	const [width, setWidth] = useState('240px');
+	let _expanded: string | null | boolean = localStorage.getItem(
+		'_user_sidebar_expanded'
+	);
+	_expanded = _expanded === null || _expanded === 'true';
+	const [expanded, setExpanded] = useState(_expanded as boolean);
+	const [width, setWidth] = useState(_expanded ? '240px' : '88px');
 	const [openSettings, setOpenSettings] = useState(false);
 
 	useEffect(() => {
 		setWidth(() => (expanded ? '240px' : '88px'));
 	}, [expanded]);
+
+	const handleExpanded = (expanded: boolean) => {
+		setExpanded(expanded);
+		localStorage.setItem('_user_sidebar_expanded', expanded.toString());
+	};
 
 	return (
 		<Drawer
@@ -121,7 +132,7 @@ const Sidebar = () => {
 						</div>
 						<NavigateBefore
 							className="cursor-pointer rounded-full !h-8 !w-8"
-							onClick={() => setExpanded(false)}
+							onClick={() => handleExpanded(false)}
 						/>
 					</>
 				) : (
@@ -132,7 +143,7 @@ const Sidebar = () => {
 						/>
 						<NavigateNext
 							className="cursor-pointer rounded-full !h-8 !w-8"
-							onClick={() => setExpanded(true)}
+							onClick={() => handleExpanded(true)}
 						/>
 					</>
 				)}
@@ -141,7 +152,9 @@ const Sidebar = () => {
 			<Divider />
 			<List className="sidebar-list">
 				{NAVIGATION_ITEMS.map((item) => (
-					<SidebarItem item={item} key={item.label} expanded={expanded} />
+					<li key={item.label}>
+						<SidebarItem item={item} expanded={expanded} />
+					</li>
 				))}
 			</List>
 			{/* <Divider variant="middle" /> */}

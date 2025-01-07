@@ -4,6 +4,8 @@ import {
 	ListItemIcon,
 	ListItemText,
 	IconButton,
+	Tooltip,
+	tooltipClasses,
 } from '@mui/material';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { NavigationItem } from './Sidebar';
@@ -56,7 +58,7 @@ const SidebarItem = ({
 							? '#f0f0f0'
 							: undefined,
 					position: 'relative',
-					paddingLeft: expanded ? '22px' : '14px !important',
+					paddingLeft: expanded ? '22px' : '16px !important',
 					alignItems: 'center',
 					justifyContent: 'center',
 					'&.Mui-selected': {
@@ -71,15 +73,21 @@ const SidebarItem = ({
 							content: '""',
 							position: 'absolute',
 							left: 0,
-							top: 'calc(50% - 20px)',
+							top: 'calc(50% - 23px)',
 							width: '5px',
-							height: '40px',
+							height: '42px',
 							backgroundColor: '#20A224',
 							borderTopRightRadius: '16px',
 							borderBottomRightRadius: '16px',
 						},
 						'& .MuiListItemText-root, & .MuiListItemIcon-root': {
 							color: '#20A224 !important',
+							'& span, & svg': {
+								fontWeight: '600 !important',
+							},
+						},
+						'& > div': {
+							backgroundColor: '#20a2241c',
 						},
 					},
 					'& .MuiListItemIcon-root': {
@@ -88,6 +96,7 @@ const SidebarItem = ({
 						flexDirection: 'column',
 						alignItems: 'center',
 						justifyContent: 'center',
+						textAlign: 'center',
 					},
 					'& .MuiListItemText-root, & .MuiListItemIcon-root': {
 						transition: 'color 0.3s ease',
@@ -105,14 +114,27 @@ const SidebarItem = ({
 						!item.dropDown ? ' w-full' : ''
 					}`}
 					style={{
+						padding: '8px',
 						paddingLeft:
-							expanded && item.paddingOffset ? `${item.paddingOffset}px` : '0',
+							expanded && item.paddingOffset
+								? `${item.paddingOffset}px`
+								: '8px',
+						borderRadius: '8px',
 					}}
 				>
-					<ListItemIcon>
-						{item.icon()}{' '}
-						{!expanded && <span className="text-[10px]">{item.label}</span>}
-					</ListItemIcon>
+					<Tooltip
+						title={item.label}
+						placement="right"
+						PopperProps={{
+							sx: {
+								[`& .${tooltipClasses.tooltip}`]: { background: '#000' },
+							},
+						}}
+					>
+						<ListItemIcon>
+							<div className={item.iconClassName ?? ''}>{item.icon()}</div>
+						</ListItemIcon>
+					</Tooltip>
 					{expanded && (
 						<>
 							<ListItemText
@@ -126,7 +148,7 @@ const SidebarItem = ({
 							{item.canAdd && (
 								<IconButton
 									className="rounded-full !text-neutral-regular !bg-white shadow-md"
-									sx={{ zIndex: 10 }}
+									sx={{ zIndex: 10, padding: '4px' }}
 									onClick={(e) => addItem(e, item.to as string)}
 								>
 									<Add />
