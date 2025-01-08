@@ -683,3 +683,39 @@ export const SendFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
 		</svg>
 	</SvgIcon>
 );
+
+export const DeskAltIcon = (props: React.SVGProps<SVGSVGElement>) => (
+	<SvgIcon>
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			{...props}
+		>
+			<path
+				d="M15.5 5.01172C16.9045 5.01172 17.6067 5.01172 18.1111 5.34958C18.3295 5.49584 18.517 5.68379 18.6629 5.90269C19 6.40834 19 7.11224 19 8.52004V18.0426C19 19.9327 19 20.8778 18.4142 21.465C17.8284 22.0521 16.8856 22.0521 15 22.0521H9C7.11438 22.0521 6.17157 22.0521 5.58579 21.465C5 20.8778 5 19.9327 5 18.0426V8.52004C5 7.11224 5 6.40834 5.33706 5.90269C5.48298 5.68379 5.67048 5.49584 5.88886 5.34958C6.39331 5.01172 7.09554 5.01172 8.5 5.01172"
+				stroke="currentColor"
+				strokeWidth="2"
+			/>
+			<path
+				d="M9 5.01208C9 3.90488 9.89543 3.00732 11 3.00732H13C14.1046 3.00732 15 3.90488 15 5.01208C15 6.11927 14.1046 7.01683 13 7.01683H11C9.89543 7.01683 9 6.11927 9 5.01208Z"
+				stroke="currentColor"
+				strokeWidth="2"
+			/>
+			<path
+				d="M9 12.0283L15 12.0283"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeWidth="2"
+			/>
+			<path
+				d="M9 16.0381L13 16.0381"
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeWidth="2"
+			/>
+		</svg>
+	</SvgIcon>
+);
