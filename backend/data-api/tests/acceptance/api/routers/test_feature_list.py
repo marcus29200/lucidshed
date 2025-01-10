@@ -13,6 +13,8 @@ async def test_should_create_or_update_feature_list(data_api: TestClient):
     _ = await add_feature_request(data_api, organization["id"], headers=headers)
     feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
 
+    assert feature_list["title"] == "Feature List"
+    assert feature_list["description"] == "Feature List Description"
     assert feature_list["requests"] == 1
     assert feature_list["reach"] == 4
     assert feature_list["impact"] == 3
