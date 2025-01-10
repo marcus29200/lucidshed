@@ -15,6 +15,8 @@ class FeatureListController(WorkItemController):
     async def create(self, *, new_item: BaseFeatureList, current_user: str) -> FeatureList:
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_LIST"],
+            new_item.title,
+            new_item.description,
             new_item.requests,
             new_item.reach,
             new_item.impact,
@@ -126,6 +128,8 @@ class FeatureListController(WorkItemController):
         record = await data_db.get().fetchrow(
             QUERIES["UPDATE_FEATURE_LIST"],
             id,
+            updated_item.title,
+            updated_item.description,
             updated_item.requests,
             updated_item.reach,
             updated_item.impact,
