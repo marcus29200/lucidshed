@@ -9,6 +9,7 @@ import { createFeatureList } from '../../api/featureLists';
 type FeatureListFormProps = {
 	title: string;
 	description?: string;
+	requests: number;
 };
 
 const CreateFeatureList = memo(({ show }: { show: boolean }) => {
@@ -31,6 +32,7 @@ const CreateFeatureList = memo(({ show }: { show: boolean }) => {
 		const payload = {
 			title: data.title,
 			description: data.description || '',
+			requests: 0,
 		};
 		try {
 			await createFeatureList({ orgId, data: payload });

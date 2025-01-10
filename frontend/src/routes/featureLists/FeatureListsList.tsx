@@ -78,7 +78,7 @@ const FeatureListsList = () => {
 
 	const handleRowClick = (row) => {
 		setSelectedRow(() => row);
-		navigate(`/${orgId}/feature-lists/${row.id}`);
+		navigate(`/${orgId}/feature-list/${row.id}`);
 	};
 
 	const columns: MRT_ColumnDef<FeatureListFormProps>[] = [
