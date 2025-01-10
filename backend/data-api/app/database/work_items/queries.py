@@ -661,7 +661,12 @@ FEATURE_LIST_QUERIES[
 SELECT
 id, requests, reach, impact, confidence, effort,
 growth, created_by_id, modified_by_id, created_at, modified_at
-FROM feature_list;
+FROM feature_list
+WHERE
+    deleted_at IS NULL
+ORDER BY $1
+LIMIT $2
+OFFSET $3;
     """
 
 FEATURE_LIST_QUERIES[
