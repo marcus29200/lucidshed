@@ -600,6 +600,8 @@ FEATURE_LIST_QUERIES[
 ] = """
 INSERT INTO feature_list
 (
+    title,
+    description,
     requests,
     reach,
     impact,
@@ -609,36 +611,16 @@ INSERT INTO feature_list
     created_by_id,
     modified_by_id
 )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    RETURNING id, requests, reach, impact, confidence, effort,
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    RETURNING id, title, description, requests, reach, impact, confidence, effort,
     growth, created_by_id, modified_by_id, created_at, modified_at;
-"""
-
-FEATURE_LIST_QUERIES[
-    "UPDATE_FEATURE_LIST"
-] = """
-UPDATE feature_list
-SET
-    requests = $2,
-    reach = $3,
-    impact = $4,
-    confidence = $5,
-    effort = $6,
-    growth = $7,
-    created_by_id = $8,
-    modified_at = NOW(),
-    modified_by_id = $9,
-    deleted_at = $10,
-    deleted_by_id = $11
-WHERE
-    id = $1
 """
 
 FEATURE_LIST_QUERIES[
     "GET_FEATURE_LIST"
 ] = """
 SELECT
-    id, requests, reach, impact, confidence, effort,
+    id, title, description, requests, reach, impact, confidence, effort,
     growth, created_by_id, modified_by_id, created_at, modified_at
     FROM feature_list
     WHERE deleted_at IS NULL
@@ -649,7 +631,7 @@ FEATURE_LIST_QUERIES[
     "GET_FEATURE_LIST_BY_ID"
 ] = """
 SELECT
-    id, requests, reach, impact, confidence, effort,
+    id, title, description, requests, reach, impact, confidence, effort,
     growth, created_by_id, modified_by_id, created_at, modified_at
     FROM feature_list
     WHERE id = $1;
@@ -659,7 +641,7 @@ FEATURE_LIST_QUERIES[
     "GET_ALL_FEATURE_LISTS"
 ] = """
 SELECT
-id, requests, reach, impact, confidence, effort,
+id, title, description, requests, reach, impact, confidence, effort,
 growth, created_by_id, modified_by_id, created_at, modified_at
 FROM feature_list
 WHERE
@@ -674,16 +656,18 @@ FEATURE_LIST_QUERIES[
 ] = """
 UPDATE feature_list
 SET
-    requests = $2,
-    reach = $3,
-    impact = $4,
-    confidence = $5,
-    effort = $6,
-    growth = $7,
-    modified_by_id = $8,
+    title = $2,
+    description = $3,
+    requests = $4,
+    reach = $5,
+    impact = $6,
+    confidence = $7,
+    effort = $8,
+    growth = $9,
+    modified_by_id = $10,
     modified_at = NOW()
 WHERE id = $1
-RETURNING id, requests, reach, impact, confidence, effort,
+RETURNING id, title, description, requests, reach, impact, confidence, effort,
 growth, created_by_id, modified_by_id, created_at, modified_at;
     """
 
