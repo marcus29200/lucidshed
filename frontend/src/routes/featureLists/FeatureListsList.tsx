@@ -97,14 +97,6 @@ const FeatureListsList = () => {
 			enableColumnFilter: false,
 		},
 		{
-			header: 'Prioritization',
-			id: 'priority',
-			accessorKey: 'priority',
-			enableColumnActions: false,
-			enableColumnFilter: false,
-			enableSorting: false,
-		},
-		{
 			header: 'Reach',
 			id: 'reach',
 			accessorKey: 'reach',

@@ -100,6 +100,7 @@ const FeatureList = memo(
 			const payload = {
 				description,
 				title: featureList?.title,
+				requests: featureList?.requests,
 			};
 			if (title && title !== featureList?.title) {
 				payload.title = title;
