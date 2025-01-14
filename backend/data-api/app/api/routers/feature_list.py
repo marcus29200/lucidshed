@@ -8,6 +8,8 @@ from app.api.dependencies.database import data_db_conn
 from app.database.work_items.models.feature_list import BaseFeatureList, FeatureList
 from app.database.work_items.models.work_item import WorkItemSortableField
 
+feature_list_router = APIRouter
+
 router = APIRouter(
     prefix="",
     tags=["feature_lists"],
