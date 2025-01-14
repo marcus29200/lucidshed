@@ -155,7 +155,7 @@ const FeatureRequest = memo(
 
 		return (
 			<div
-				className={`absolute max-w-2xl h-[calc(100vh_-_90px)] z-50 -top-3 -right-3 bg-white px-4 py-2 rounded-md shadow-md transition-all duration-300 ${
+				className={`absolute max-w-2xl h-[calc(100vh_-_170px)] z-50 -top-3 right-0 bg-white px-4 py-2 rounded-md shadow-md transition-all duration-300 ${
 					show ? 'translate-x-0' : 'translate-x-[800px]'
 				}`}
 			>

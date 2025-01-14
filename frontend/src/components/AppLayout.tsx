@@ -5,6 +5,8 @@ import AppHeader from './AppHeader';
 import { UsersContext } from '../hooks/users';
 import { useQuery } from '@tanstack/react-query';
 import { getUsers } from '../api/users';
+import TopBarNavigation from './TopBarNavigation';
+import { EnabledRoutesProvider } from '../hooks/enabledRoutesProvider';
 
 const AppLayout = () => {
 	const params = useParams();
@@ -14,24 +16,27 @@ const AppLayout = () => {
 	});
 	return (
 		<Box sx={{ display: 'flex', height: '100vh' }}>
-			<Sidebar />
-			<Box sx={{ flexGrow: 1, backgroundColor: '#E9EAEC' }}>
-				<Box
-					sx={{
-						display: 'flex',
-						flexDirection: 'column',
-						height: '100%',
-						width: '100%',
-					}}
-				>
-					<AppHeader />
-					<Box sx={{ padding: '1rem', overflowY: 'auto', height: '100%' }}>
-						<UsersContext.Provider value={data ?? []}>
-							<Outlet />
-						</UsersContext.Provider>
+			<EnabledRoutesProvider>
+				<Sidebar />
+				<Box sx={{ flexGrow: 1, backgroundColor: '#E9EAEC' }}>
+					<Box
+						sx={{
+							display: 'flex',
+							flexDirection: 'column',
+							height: '100%',
+							width: '100%',
+						}}
+					>
+						<AppHeader />
+						<Box sx={{ padding: '1rem', overflowY: 'auto', height: '100%' }}>
+							<UsersContext.Provider value={data ?? []}>
+								<TopBarNavigation />
+								<Outlet />
+							</UsersContext.Provider>
+						</Box>
 					</Box>
 				</Box>
-			</Box>
+			</EnabledRoutesProvider>
 		</Box>
 	);
 };

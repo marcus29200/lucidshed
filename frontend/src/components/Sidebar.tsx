@@ -1,15 +1,6 @@
 import { Box, Divider, Drawer, List } from '@mui/material';
 import { useEffect, useState } from 'react';
-import {
-	BookIcon,
-	BoxIcon,
-	ChatPlusIcon,
-	DashboardIcon,
-	DeskAltIcon,
-	EpicIcon,
-	SendFilledIcon,
-	SprintIcon,
-} from '../icons/icons';
+import { BookIcon, DashboardIcon, DeskAltIcon } from '../icons/icons';
 import { NavigateBefore, NavigateNext, PeopleAlt } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
@@ -20,9 +11,9 @@ export type NavigationItem = {
 	icon: () => JSX.Element;
 	canAdd?: boolean;
 	children?: NavigationItem[];
-	dropDown?: () => JSX.Element; // TODO: Implement drop down menu
 	paddingOffset?: number; // px
 	iconClassName?: string; // for custom styling of icons
+	activePaths: string[];
 };
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
@@ -30,61 +21,30 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 		to: '',
 		label: 'Dashboard',
 		icon: () => <DashboardIcon />,
-	},
-	{
-		to: 'epics',
-		label: 'Epics',
-		icon: () => <EpicIcon />,
-		canAdd: true,
-		paddingOffset: 32,
+		activePaths: ['dashboard'],
 	},
 	{
 		to: 'stories',
-		label: 'Stories',
+		label: 'Sprint management',
 		icon: () => <BookIcon />,
-		canAdd: true,
-		paddingOffset: 32,
-	},
-	{
-		to: 'sprints',
-		label: 'Sprints',
-		icon: () => <SprintIcon />,
-		canAdd: true,
-		paddingOffset: 32,
-	},
-	{
-		to: 'backlog',
-		label: 'Backlog',
-		icon: () => <BoxIcon />,
-		canAdd: false,
-		paddingOffset: 32,
-	},
-	{
-		to: 'product-requests',
-		label: 'Product Requests',
-		icon: () => <SendFilledIcon />,
-		iconClassName: 'pr-1.5 pb-1',
+		activePaths: ['stories', 'epics', 'sprints', 'backlog'],
 	},
 	{
 		to: 'feature-requests',
-		label: 'Feature Requests',
-		icon: () => <ChatPlusIcon />,
-		canAdd: true,
-		paddingOffset: 32,
-	},
-	{
-		to: 'feature-list',
-		label: 'Feature List',
+		label: 'Feature management',
 		icon: () => <DeskAltIcon />,
-		canAdd: true,
-		paddingOffset: 32,
+		activePaths: ['feature-requests', 'feature-list'],
 	},
 ];
 
 const SETTINGS_ITEM: NavigationItem = {
 	icon: () => <PeopleAlt />,
 	label: 'Users',
+	activePaths: [],
 };
+
+const SIDEBAR_WIDTH = '260px';
+const SIDEBAR_COLLAPSED_WIDTH = '88px';
 
 const Sidebar = () => {
 	let _expanded: string | null | boolean = localStorage.getItem(
@@ -92,11 +52,13 @@ const Sidebar = () => {
 	);
 	_expanded = _expanded === null || _expanded === 'true';
 	const [expanded, setExpanded] = useState(_expanded as boolean);
-	const [width, setWidth] = useState(_expanded ? '240px' : '88px');
+	const [width, setWidth] = useState(
+		_expanded ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH
+	);
 	const [openSettings, setOpenSettings] = useState(false);
 
 	useEffect(() => {
-		setWidth(() => (expanded ? '240px' : '88px'));
+		setWidth(() => (expanded ? SIDEBAR_WIDTH : SIDEBAR_COLLAPSED_WIDTH));
 	}, [expanded]);
 
 	const handleExpanded = (expanded: boolean) => {
@@ -158,7 +120,7 @@ const Sidebar = () => {
 			</Box>
 
 			<Divider />
-			<List className="sidebar-list">
+			<List className="sidebar-list h-full">
 				{NAVIGATION_ITEMS.map((item) => (
 					<li key={item.label}>
 						<SidebarItem item={item} expanded={expanded} />
@@ -166,17 +128,12 @@ const Sidebar = () => {
 				))}
 			</List>
 			{/* <Divider variant="middle" /> */}
-			<List
-				sx={{
-					marginTop: 'auto',
-				}}
-			>
-				<SidebarItem
-					item={SETTINGS_ITEM}
-					expanded={expanded}
-					onClick={() => setOpenSettings(true)}
-				/>
-			</List>
+			<SidebarItem
+				className="!mt-auto"
+				item={SETTINGS_ITEM}
+				expanded={expanded}
+				onClick={() => setOpenSettings(true)}
+			/>
 
 			<SettingsModal setOpen={setOpenSettings} open={openSettings} />
 		</Drawer>

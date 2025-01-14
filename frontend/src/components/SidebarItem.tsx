@@ -1,4 +1,4 @@
-import { Add, ExpandMore } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
 import {
 	ListItemButton,
 	ListItemIcon,
@@ -9,6 +9,8 @@ import {
 } from '@mui/material';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { NavigationItem } from './Sidebar';
+import { useEnabledRoutes } from '../hooks/enabledRoutes';
+import { useEffect } from 'react';
 
 const SidebarItem = ({
 	item,
@@ -31,16 +33,32 @@ const SidebarItem = ({
 		e.preventDefault();
 		navigate(`/${orgId}/${to}/new`);
 	};
+
+	const { updatePaths } = useEnabledRoutes();
+
+	const isPathActive = (activePaths: string[]) => {
+		if (
+			(location.pathname.endsWith(`/${orgId}/`) ||
+				location.pathname.endsWith(`/${orgId}`)) &&
+			activePaths.includes('dashboard')
+		) {
+			return true;
+		}
+		return activePaths.some((path) => location.pathname.includes(path));
+	};
+
+	const isSelected = isPathActive(item.activePaths);
+
+	useEffect(() => {
+		if (isSelected) {
+			updatePaths(item.activePaths);
+		}
+	});
 	return (
 		<>
 			<ListItemButton
 				key={item.label}
-				selected={
-					(!!item.to && location.pathname.includes(item.to)) ||
-					(item.to === '' &&
-						(location.pathname.endsWith(`/${orgId}/`) ||
-							location.pathname.endsWith(`/${orgId}`)))
-				}
+				selected={isSelected}
 				color="primary"
 				component={Link}
 				onClick={(e) => {
@@ -110,9 +128,7 @@ const SidebarItem = ({
 				}}
 			>
 				<div
-					className={`flex items-center justify-center gap-4${
-						!item.dropDown ? ' w-full' : ''
-					}`}
+					className={`flex items-center justify-center gap-4 w-full`}
 					style={{
 						padding: '8px',
 						paddingLeft:
@@ -152,14 +168,6 @@ const SidebarItem = ({
 									onClick={(e) => addItem(e, item.to as string)}
 								>
 									<Add />
-								</IconButton>
-							)}
-							{item.dropDown && (
-								<IconButton
-									sx={{ zIndex: 10, alignSelf: 'flex-start' }}
-									onClick={(e) => e.preventDefault()}
-								>
-									<ExpandMore />
 								</IconButton>
 							)}
 						</>

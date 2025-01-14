@@ -50,6 +50,9 @@ export const getFeatureLists = async (
 			...getAuthHeaders(),
 		},
 	});
+	if (res.status === 404) {
+		return [];
+	}
 	if (!res.ok) {
 		throw res;
 	}
