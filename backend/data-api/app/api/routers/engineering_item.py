@@ -130,10 +130,10 @@ async def update_engineering_item(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = {"doc": engineering_item.get_searchable_doc(body.model_fields_set)}
+    document = engineering_item.get_searchable_doc(body.model_fields_set)
 
-    document["doc"]["modified_date"] = engineering_item.modified_at
-    document["doc"]["modified_by_id"] = engineering_item.modified_by_id
+    document["modified_date"] = engineering_item.modified_at
+    document["modified_by_id"] = engineering_item.modified_by_id
 
     await index_object(
         opensearch_client=request.app.opensearch_client,

@@ -17,7 +17,7 @@ async def index_object(
     mode: Optional[str] = "create",
 ) -> bool:
     # Without this, we can have conflicts on item ids because some are sequential
-    item_id = f"{document["type"]}:{str(item_id)}"
+    item_id = f"{document['type']}:{str(item_id)}"
 
     if settings.opensearch_enabled:
         if settings.opensearch_async_indexing:
@@ -48,7 +48,7 @@ async def _index_object(
             case "create":
                 return opensearch_client.index(index=index, id=item_id, body=document)
             case "update":
-                return opensearch_client.update(index=index, id=item_id, body=document)
+                return opensearch_client.update(index=index, id=item_id, body={"doc": document})
             case "delete":
                 return opensearch_client.delete(index=index, id=item_id)
             case _:

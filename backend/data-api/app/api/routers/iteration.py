@@ -59,10 +59,10 @@ async def update_iteration(request: Request, organization_id: str, id: int, body
         id=id, updated_iteration=body, current_user=request.state.user.id
     )
 
-    document = {"doc": iteration.get_searchable_doc(body.model_fields_set)}
+    document = iteration.get_searchable_doc(body.model_fields_set)
 
-    document["doc"]["modified_date"] = iteration.modified_at
-    document["doc"]["modified_by_id"] = iteration.modified_by_id
+    document["modified_date"] = iteration.modified_at
+    document["modified_by_id"] = iteration.modified_by_id
 
     await index_object(
         opensearch_client=request.app.opensearch_client,
