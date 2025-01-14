@@ -28,7 +28,14 @@ const AppLayout = () => {
 						}}
 					>
 						<AppHeader />
-						<Box sx={{ padding: '1rem', overflowY: 'auto', height: '100%' }}>
+						<Box
+							sx={{
+								padding: '1rem',
+								overflowY: 'auto',
+								overflowX: 'hidden',
+								height: '100%',
+							}}
+						>
 							<UsersContext.Provider value={data ?? []}>
 								<TopBarNavigation />
 								<Outlet />
