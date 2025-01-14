@@ -16,6 +16,9 @@ async def index_object(
     document: Optional[Dict[str, Any]] = None,
     mode: Optional[str] = "create",
 ) -> bool:
+    # Without this, we can have conflicts on item ids because some are sequential
+    item_id = f"{document["type"]}:{str(item_id)}"
+
     if settings.opensearch_enabled:
         if settings.opensearch_async_indexing:
             asyncio.create_task(_index_object(opensearch_client, index, item_id, document, mode))
