@@ -108,7 +108,7 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
     if not user.verified:
         raise HTTPException(status_code=401, detail="User is not verified")
     elif user.disabled:
-        raise HTTPException(status_code=401, detail="User is not disabled")
+        raise HTTPException(status_code=401, detail="User is disabled")
 
     access_token = create_access_token(data={"subject": user.email})
 

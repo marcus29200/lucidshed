@@ -2,11 +2,10 @@
 name = "app"
 version = "0.1.0"
 description = ""
-authors = ["Marcus Scaffidi", "Zach Durham"]
+authors = ["Marcus Scaffidi", "Zach Durham", "Ricardo Jimenez", "Andy Leeb"]
 
 [tool.poetry.dependencies]
 aiohttp = "^3.11.11"
-asyncio = "^3.4.3"
 asyncpg = "^0.30.0"
 backoff = "^2.2.1"
 bcrypt = "^4.2.0"
@@ -26,7 +25,7 @@ google-auth = "2.35.0"
 black = "^24.8.0"
 flake8 = "^7.1.1"
 isort = "^5.13.2"
-mypy = "^1.13.0"
+mypy = "^1.14.1"
 pytest = "^8.2.2"
 pytest-asyncio = "^0.23.8"
 pytest-xdist = "^3.6.1"
