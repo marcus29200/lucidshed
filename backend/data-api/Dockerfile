@@ -23,7 +23,7 @@ RUN useradd -m lucid
 USER lucid
 
 # Install dependencies with --no-dev if you don't need development dependencies
-RUN poetry install --no-dev
+RUN poetry install --without dev
 
 # Expose the port the app runs on (if sapplicable)
 EXPOSE 8080
