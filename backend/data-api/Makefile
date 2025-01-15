@@ -4,7 +4,7 @@ install-dev:
 	$(POETRY) install --no-cache
 
 install:
-	$(POETRY) install --no-dev --no-cache
+	$(POETRY) install --without dev --no-cache
 
 format:
 	$(POETRY) run isort .
