@@ -157,7 +157,7 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
             opensearch_client=request.app.opensearch_client,
             index=organization_id,
             item_id=id,
-            document=None,
+            document={"type": EngineeringItem.__name__},
             mode="delete",
         )
 

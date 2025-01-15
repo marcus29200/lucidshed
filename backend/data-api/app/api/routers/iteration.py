@@ -84,6 +84,7 @@ async def delete_iteration(request: Request, organization_id: str, id: int):
             opensearch_client=request.app.opensearch_client,
             index=organization_id,
             item_id=id,
+            document={"type": Iteration.__name__},
             mode="delete",
         )
 

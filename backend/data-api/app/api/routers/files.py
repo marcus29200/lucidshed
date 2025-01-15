@@ -7,7 +7,7 @@ from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.database.files.models.file import BaseFile, File, FileSortableField
 
-iteration_item_router = APIRouter
+file_router = APIRouter
 
 router = APIRouter(
     prefix="",

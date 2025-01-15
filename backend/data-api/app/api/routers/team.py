@@ -7,7 +7,7 @@ from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.teams.models.team import BaseTeam, Team
 
-team_item_router = APIRouter
+team_router = APIRouter
 
 router = APIRouter(
     prefix="",
@@ -19,6 +19,9 @@ router = APIRouter(
 class PagedResponse(BaseModel):
     items: List[Team]
     cursor: Optional[str] = None
+
+
+# TODO Needs to be indexed
 
 
 @router.post("", status_code=201, response_model=Team)
