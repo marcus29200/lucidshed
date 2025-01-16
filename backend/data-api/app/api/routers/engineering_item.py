@@ -17,8 +17,6 @@ from app.database.work_items.models.engineering_item import (
 )
 from app.database.work_items.models.work_item import WorkItemSortableField
 
-engineering_item_router = APIRouter
-
 router = APIRouter(
     prefix="",
     tags=["engineering"],
