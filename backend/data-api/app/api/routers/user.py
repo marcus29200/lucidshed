@@ -15,7 +15,6 @@ from app.database.users.models.user import BaseUser, User
 from app.database.users.models.user_session import BaseUserSession, UserSession
 from app.exceptions.common import ObjectNotFoundException
 
-user_router = APIRouter
 
 logger = logging.getLogger(__name__)
 

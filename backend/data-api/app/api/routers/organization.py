@@ -20,7 +20,6 @@ from app.exceptions.common import ObjectNotFoundException
 
 logger = logging.getLogger(__name__)
 
-engineering_item_router = APIRouter
 
 router = APIRouter(prefix="", tags=["organization"], dependencies=[Depends(user_db_conn)])
 

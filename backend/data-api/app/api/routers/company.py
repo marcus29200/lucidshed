@@ -8,7 +8,6 @@ from app.api.dependencies.database import data_db_conn
 from app.database.companies.models.company import BaseCompany, Company
 from app.database.work_items.models.work_item import WorkItemSortableField
 
-team_item_router = APIRouter
 
 router = APIRouter(
     prefix="",

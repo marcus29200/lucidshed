@@ -8,7 +8,6 @@ from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.api.tools.opensearch import index_object
 from app.database.iterations.models.iteration import BaseIteration, Iteration, IterationSortableField
 
-iteration_item_router = APIRouter
 
 router = APIRouter(
     prefix="",

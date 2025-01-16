@@ -7,7 +7,6 @@ from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.teams.models.team import BaseTeam, Team
 
-team_router = APIRouter
 
 router = APIRouter(
     prefix="",
