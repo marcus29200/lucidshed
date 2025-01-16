@@ -33,7 +33,9 @@ const DescriptionRichEditor = ({ onChange, value }) => {
 	});
 
 	useEffect(() => {
-		editor?.commands.setContent(value ?? '', false);
+		if (editor?.getHTML() !== value) {
+			editor?.commands.setContent(value ?? '', false);
+		}
 	}, [value]);
 
 	return (

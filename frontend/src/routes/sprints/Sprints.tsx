@@ -1,10 +1,5 @@
 import { QueryClient, queryOptions, useMutation } from '@tanstack/react-query';
-import {
-	Link,
-	LoaderFunctionArgs,
-	useLoaderData,
-	useParams,
-} from 'react-router-dom';
+import { LoaderFunctionArgs, useLoaderData, useParams } from 'react-router-dom';
 import {
 	CreateSprintPayload,
 	deleteSprint,
@@ -29,8 +24,8 @@ import {
 import SprintStoryTable from './SprintStoryTable';
 import { useEffect, useState } from 'react';
 import { DatePicker } from '@mui/x-date-pickers';
-import { Delete, ExpandMore, RotateRight, Settings } from '@mui/icons-material';
-import { HomeIcon } from '../../icons/icons';
+import { Delete, ExpandMore, RotateRight } from '@mui/icons-material';
+
 import SprintSearchInput from './SprintSearchInput';
 import { queryClient } from '../../router';
 import { ConfirmationDialog } from '../../components/ConfirmationDialog';
@@ -162,7 +157,7 @@ export const Sprints = () => {
 	if (!sprints.length) {
 		return (
 			<>
-				<div className="flex justify-end">
+				<div className="flex">
 					<SprintSearchInput enableAddNew={true} sprint={null} />
 				</div>
 				<div className="rounded-xl flex items-center justify-center mt-8 bg-white h-80">
@@ -178,19 +173,6 @@ export const Sprints = () => {
 	return (
 		<>
 			<div className="flex gap-x-4 pb-4 w-full">
-				<Link to={`/${orgId}/sprints`}>
-					<button className="flex gap-x-1 justify-center items-center px-24 py-3 transition bg-green-500 border-none text-white rounded-md font-bold hover:border-none hover:bg-green-600/80 relative">
-						<HomeIcon className="text-white -ml-3" />
-						<span className="mt-1">Stories</span>
-						<div className="absolute -bottom-1 rounded h-0.5 w-full bg-green-500"></div>
-					</button>
-				</Link>
-				<Link to={`/${orgId}/sprints/dashboard`}>
-					<button className="flex gap-x-1 justify-center items-center px-24 py-3 bg-gray-50 text-gray-300 rounded-md font-bold border-none hover:border-none shadow-neutral">
-						<Settings className="text-gray-300 -ml-3" />
-						Reporting
-					</button>
-				</Link>
 				<div className="ml-auto flex-1 flex gap-2 items-center">
 					<div className="w-fit">
 						<SprintSearchInput
