@@ -1,5 +1,5 @@
 import { Grid, FormControl, TextField, Box, Button } from '@mui/material';
-import { memo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useForm, useController, SubmitHandler } from 'react-hook-form';
 import { User } from '../../api/users';
 import DescriptionRichEditor from '../../components/DescriptionRichEditor';
@@ -7,6 +7,11 @@ import UserSearchInput from '../sprints/UserSearchInput';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createFeatureRequest } from '../../api/featureRequests';
+import FreeSoloAutocomplete, {
+	AutocompleteOption,
+} from '../../components/FreeSoloAutocomplete';
+import { createCompany, getCompanies } from '../../api/companies';
+import { useQuery } from '@tanstack/react-query';
 
 type FeatureRequestFormProps = {
 	title: string;
@@ -30,9 +35,18 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 
 	const [requester, setRequester] = useState<User | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
+	const [company, setCompany] = useState<AutocompleteOption | null>(null);
 
 	const today = dayjs().format('MMM D, YYYY');
 	const navigate = useNavigate();
+	const { data } = useQuery({
+		queryKey: ['sprints'],
+		queryFn: async () => getCompanies(orgId),
+	});
+	const companies = useMemo<AutocompleteOption[]>(
+		() => data?.map((c) => ({ label: c.name, value: c.id.toString() })) ?? [],
+		[data]
+	);
 
 	const onSubmit: SubmitHandler<FeatureRequestFormProps> = async (
 		data: FeatureRequestFormProps
@@ -43,8 +57,24 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 			submitted_by_id: requester?.id || null,
 			assigned_to_id: assignedTo?.id || null,
 			comments: [],
+			company_id: 1,
 		};
 		try {
+			// first check if the company exists, if not create it
+			const companyExists =
+				!!company &&
+				companies.find(
+					(c) => c.label.toLowerCase() === company.label.toLowerCase().trim()
+				);
+			if (!!company && !companyExists) {
+				const newCompany = await createCompany({
+					data: { name: company.label },
+					orgId,
+				});
+				payload.company_id = newCompany.id;
+			} else if (companyExists) {
+				payload.company_id = +companyExists.value;
+			}
 			await createFeatureRequest({ orgId, data: payload });
 		} catch (error) {
 			console.error('Error creating feature request:', error);
@@ -107,7 +137,17 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 							/>
 						</>
 					</Grid>
-					<Grid item xs={6}></Grid>
+					<Grid item xs={6}>
+						<>
+							<FreeSoloAutocomplete
+								setValue={setCompany}
+								value={company}
+								options={companies}
+								id="company-selector"
+								label="Company"
+							/>
+						</>
+					</Grid>
 
 					<Grid
 						item

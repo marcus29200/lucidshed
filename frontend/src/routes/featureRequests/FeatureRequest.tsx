@@ -145,6 +145,7 @@ const FeatureRequest = memo(
 				submitted_by_id: requester?.id || null,
 				assigned_to_id: assignedTo?.id || null,
 				title: featureRequest?.title,
+				company_id: 1,
 			};
 			if (title && title !== featureRequest?.title) {
 				payload.title = title;
