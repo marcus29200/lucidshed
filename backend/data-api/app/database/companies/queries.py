@@ -64,6 +64,8 @@ SELECT * FROM companies
 WHERE
     deleted_at IS NULL
 ORDER BY $1
+LIMIT $2
+OFFSET $3;
 """
 
 COMPANY_QUERIES[

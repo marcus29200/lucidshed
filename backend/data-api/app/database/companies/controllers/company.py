@@ -1,9 +1,11 @@
-from typing import Optional
+from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
+from app.api.utils import generate_cursor, parse_cursor
 from app.database.companies.models.company import BaseCompany, Company
 from app.database.companies.queries import COMPANY_QUERIES as QUERIES
 from app.exceptions.common import ObjectNotFoundException
+from app.database.work_items.models.work_item import WorkItemSortableField
 
 
 class CompanyController:
@@ -36,10 +38,46 @@ class CompanyController:
 
         return Company(**record)
 
-    async def get_all(self) -> list[Company]:
+    async def get_all(
+        self,
+        *,
+        sort: Optional[WorkItemSortableField] = WorkItemSortableField.ID,
+        limit: Optional[int] = 1000,
+        cursor: Optional[str] = None,
+    ) -> Tuple[List[Company], str | None]:
+        if (
+            sort and sort not in WorkItemSortableField
+        ):  # TODO: add fields to WorkItemSortableField or make a new one for FeatureRequest
+            raise Exception(f"Invalid sort field: {sort}")
+
+        # TODO: implement determine_get_all_filter_conditions for FeatureRequest
+        # filter_conditions = determine_get_all_filter_conditions(company_id=company_id)
+        filter_conditions = None
         query: str = QUERIES["GET_ALL_COMPANIES"]
-        records = await data_db.get().fetch(query)
-        return [Company(**record) for record in records]
+        if filter_conditions:
+            query = query.replace("$FILTER_CONDITIONS", " AND " + " AND ".join(filter_conditions))
+        else:
+            query = query.replace("$FILTER_CONDITIONS", "")
+
+        offset = 0
+        if cursor:
+            sort, offset, extra = parse_cursor(cursor)
+
+            # item_type = extra.get("item_type") or item_type
+
+        records = await data_db.get().fetch(
+            query,
+            sort if sort else WorkItemSortableField.ID.value,
+            limit,
+            offset,
+        )
+
+        cursor = None
+        if len(records) == limit:
+            # cursor = generate_cursor(sort, offset + limit, {"item_type": item_type})
+            cursor = generate_cursor(sort, offset + limit)
+
+        return [Company(**record) for record in records], cursor
 
     async def update(self, *, id: int, updated_item: BaseCompany, current_user: str) -> Company:
         old_item = await self.get(id=id)
