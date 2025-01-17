@@ -11,6 +11,9 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@dnd-kit/core": "^6.3.1",
+		"@dnd-kit/sortable": "^10.0.0",
+		"@dnd-kit/utilities": "^3.2.2",
 		"@emotion/react": "^11.11.4",
 		"@emotion/styled": "^11.11.5",
 		"@fontsource/poppins": "^5.0.14",
@@ -27,6 +30,7 @@
 		"@tiptap/react": "^2.9.1",
 		"@tiptap/starter-kit": "^2.9.1",
 		"AdapterDateFnsV3": "link:@mui/x-date-pickers/AdapterDateFnsV3",
+		"clsx": "^2.1.1",
 		"date-fns": "^3.6.0",
 		"dayjs": "^1.11.13",
 		"jwt-decode": "^4.0.0",

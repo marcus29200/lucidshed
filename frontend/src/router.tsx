@@ -31,6 +31,7 @@ import FeatureRequestList from './routes/featureRequests/FeatureRequestsList';
 import ProductRequestList from './routes/productRequests/ProductRequestsList';
 import FeatureListsList from './routes/featureLists/FeatureListsList';
 import { featureListsLoader } from './routes/featureLists/featureLists.loader';
+import DashboardV2 from './routes/dashboard/DashboardV2';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -92,6 +93,11 @@ export const router = createHashRouter([
 					{
 						index: true,
 						element: <Dashboard />,
+					},
+					{
+						index: true,
+						element: <DashboardV2 />,
+						path: 'dashboard-v2',
 					},
 					{
 						path: 'epics',

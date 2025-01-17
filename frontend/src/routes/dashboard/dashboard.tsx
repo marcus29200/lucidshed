@@ -24,6 +24,7 @@ import {
 	MoreVert,
 	Save,
 } from '@mui/icons-material';
+
 const TEMPLATES_KEY = 'dashboardTemplates';
 const TEMPLATES_STATE_KEY = 'dashboardTemplateStates';
 const SELECTED_TEMPLATE_KEY = 'dashboardSelectedTemplate';

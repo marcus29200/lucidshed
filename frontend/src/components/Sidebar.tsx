@@ -18,7 +18,7 @@ export type NavigationItem = {
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
 	{
-		to: '',
+		to: 'dashboard-v2',
 		label: 'Dashboard',
 		icon: () => <DashboardIcon />,
 		activePaths: ['dashboard'],
