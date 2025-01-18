@@ -32,6 +32,26 @@ async def test_should_get_company_by_id(data_api: TestClient):
     assert fetched_company["name"] == "company name"
 
 
+async def test_should_get_company_by_id_not_found(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+
+    response = await data_api.get(f"/{organization['id']}/companies/999999", headers=headers)
+    assert response.status_code == 404
+
+
+async def test_should_get_all_companies(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    await add_company(data_api, organization["id"], headers=headers)
+
+    response = await data_api.get(f"/{organization['id']}/companies", headers=headers)
+    assert response.status_code == 200
+
+    companies = response.json()
+    assert len(companies) >= 1
+
+
 async def test_should_get_company_by_name(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
