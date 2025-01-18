@@ -49,7 +49,7 @@ class FeatureListController(WorkItemController):
         feature_list = FeatureList(**record)
 
         # Get associated feature requests
-        feature_requests = await data_db.get().fetch(QUERIES["GET_FEATURE_REQUESTS_FOR_FEATURE_LIST"], id)
+        feature_requests = await data_db.get().fetch(QUERIES["GET_FEATURE_REQUESTS_FOR_FEATURE_LIST"], feature_list.id)
         feature_list.feature_requests = [fr["feature_request_id"] for fr in feature_requests]
 
         return feature_list
