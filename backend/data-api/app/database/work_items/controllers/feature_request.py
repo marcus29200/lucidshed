@@ -82,8 +82,12 @@ class FeatureRequestController(WorkItemController):
         return feature_request
 
     async def get_feature_list_id(self) -> Optional[int]:
-        feature_list = await self.feature_list_controller.get_one()
-        return feature_list.id if feature_list else None
+        try:
+            feature_list = await self.feature_list_controller.get_one()
+        except ObjectNotFoundException:
+            raise
+        else:
+            return feature_list.id if feature_list else None
 
     async def get(self, *, id: int) -> FeatureRequest:
         record, user = await self._get(id=id, scope="FEATURE_REQUEST")
