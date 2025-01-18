@@ -11,6 +11,7 @@ const mapFeatureRequestResponse = (response) => ({
 	requester: response.submitted_by_id,
 	submittedDate: dayjs(response.created_at).format('MMM DD, YYYY'),
 	assignedTo: response.assigned_to_id,
+	companyId: response.company_id,
 	company: '-',
 });
 

@@ -37,8 +37,8 @@ export default function UserSearchInput({
 			}}
 			filterOptions={(options, params) => {
 				const { inputValue } = params;
-				const filtered = options.filter((opt) =>
-					opt.firstName.toLowerCase().includes(inputValue.toLowerCase())
+				const filtered = options?.filter((opt) =>
+					opt?.firstName.toLowerCase().includes(inputValue.toLowerCase())
 				);
 				return filtered;
 			}}

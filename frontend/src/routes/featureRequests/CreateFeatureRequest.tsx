@@ -7,11 +7,9 @@ import UserSearchInput from '../sprints/UserSearchInput';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createFeatureRequest } from '../../api/featureRequests';
-import FreeSoloAutocomplete, {
-	AutocompleteOption,
-} from '../../components/FreeSoloAutocomplete';
-import { createCompany, getCompanies } from '../../api/companies';
-import { useQuery } from '@tanstack/react-query';
+import FreeSoloAutocomplete from '../../components/FreeSoloAutocomplete';
+import { getCompanies } from '../../api/companies';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 type FeatureRequestFormProps = {
 	title: string;
@@ -35,16 +33,18 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 
 	const [requester, setRequester] = useState<User | null>(null);
 	const [assignedTo, setAssignedTo] = useState<User | null>(null);
-	const [company, setCompany] = useState<AutocompleteOption | null>(null);
+	const [company, setCompany] = useState<string>('');
 
 	const today = dayjs().format('MMM D, YYYY');
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const { data } = useQuery({
-		queryKey: ['sprints'],
+		queryKey: ['companies'],
 		queryFn: async () => getCompanies(orgId),
 	});
-	const companies = useMemo<AutocompleteOption[]>(
-		() => data?.map((c) => ({ label: c.name, value: c.id.toString() })) ?? [],
+
+	const companies = useMemo<string[]>(
+		() => data?.map((c) => c.name) ?? [],
 		[data]
 	);
 
@@ -57,25 +57,13 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 			submitted_by_id: requester?.id || null,
 			assigned_to_id: assignedTo?.id || null,
 			comments: [],
-			company_id: 1,
+			company: {
+				name: company,
+			},
 		};
 		try {
-			// first check if the company exists, if not create it
-			const companyExists =
-				!!company &&
-				companies.find(
-					(c) => c.label.toLowerCase() === company.label.toLowerCase().trim()
-				);
-			if (!!company && !companyExists) {
-				const newCompany = await createCompany({
-					data: { name: company.label },
-					orgId,
-				});
-				payload.company_id = newCompany.id;
-			} else if (companyExists) {
-				payload.company_id = +companyExists.value;
-			}
 			await createFeatureRequest({ orgId, data: payload });
+			queryClient.invalidateQueries({ queryKey: ['companies'] });
 		} catch (error) {
 			console.error('Error creating feature request:', error);
 		} finally {
@@ -88,6 +76,7 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 		descriptionField.field.value = '';
 		setRequester(() => null);
 		setAssignedTo(() => null);
+		setCompany(() => '');
 		navigate(`/${orgId}/feature-requests`);
 	};
 	return (

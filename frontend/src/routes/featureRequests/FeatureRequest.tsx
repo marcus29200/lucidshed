@@ -1,4 +1,13 @@
-import { Grid, FormControl, TextField, Box, Button } from '@mui/material';
+import {
+	Grid,
+	FormControl,
+	TextField,
+	Box,
+	Button,
+	InputLabel,
+	Select,
+	MenuItem,
+} from '@mui/material';
 import { memo, useContext, useEffect, useState } from 'react';
 
 import { User } from '../../api/users';
@@ -8,8 +17,9 @@ import UserSearchInput from '../sprints/UserSearchInput';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UsersContext } from '../../hooks/users';
 import { updateFeatureRequest } from '../../api/featureRequests';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RotateRight } from '@mui/icons-material';
+import { getCompanies } from '../../api/companies';
 
 export type FeatureRequestFormProps = {
 	title: string;
@@ -21,6 +31,8 @@ export type FeatureRequestFormProps = {
 	tags: string | null;
 	submittedBy: string | null;
 	assignedToName: string | null;
+	companyId: number | null;
+	company: string | null;
 };
 let debounceTimeId;
 const FeatureRequest = memo(
@@ -43,8 +55,16 @@ const FeatureRequest = memo(
 		const [isLoading, setIsLoading] = useState(false);
 		const [submitDate, setSubmitDate] = useState<string>('');
 
+		const [company, setCompany] = useState<number | null>(null);
+
 		const navigate = useNavigate();
 		const queryClient = useQueryClient();
+		const { data } = useQuery({
+			queryKey: ['companies'],
+			queryFn: async () => getCompanies(orgId),
+		});
+
+		const companies = data ?? [];
 
 		const { mutate: patchFeatureRequest } = useMutation({
 			mutationFn: updateFeatureRequest,
@@ -56,6 +76,7 @@ const FeatureRequest = memo(
 				await queryClient.invalidateQueries({
 					queryKey: ['feature-requests', orgId],
 				});
+				queryClient.invalidateQueries({ queryKey: ['companies'] });
 				cancelEdition();
 				setTimeout(() => {
 					setIsLoading(false);
@@ -69,6 +90,14 @@ const FeatureRequest = memo(
 				setDescription(() => featureRequest.description ?? '');
 				setTags(() => featureRequest.tags ?? '');
 				setSubmitDate(() => featureRequest.submittedDate);
+
+				if (featureRequest.company === '-') {
+					featureRequest.company =
+						companies.find((c) => c.id === featureRequest.companyId)?.name ??
+						'';
+				}
+
+				setCompany(() => featureRequest.companyId!);
 				setRequester(
 					() =>
 						users.find((user) => user.id === featureRequest.requester) || null
@@ -93,6 +122,7 @@ const FeatureRequest = memo(
 			setTags(() => '');
 			setRequester(() => null);
 			setAssignedTo(() => null);
+			setCompany(() => null);
 		};
 
 		const handlePatchFeatureRequest = (data) => {
@@ -145,7 +175,7 @@ const FeatureRequest = memo(
 				submitted_by_id: requester?.id || null,
 				assigned_to_id: assignedTo?.id || null,
 				title: featureRequest?.title,
-				company_id: 1,
+				company_id: company,
 			};
 			if (title && title !== featureRequest?.title) {
 				payload.title = title;
@@ -217,7 +247,41 @@ const FeatureRequest = memo(
 								/>
 							</>
 						</Grid>
-						<Grid item xs={6}></Grid>
+						<Grid item xs={6}>
+							<FormControl fullWidth sx={{ marginTop: '8px' }}>
+								<InputLabel size="small" id="company-label">
+									Company
+								</InputLabel>
+								<Select
+									variant="outlined"
+									size="small"
+									fullWidth
+									labelId="company-label"
+									label="Company"
+									value={company}
+									onChange={(evt) => {
+										setCompany(() =>
+											evt.target.value ? +evt.target.value : null
+										);
+									}}
+									id="company"
+									name="company"
+								>
+									{companies.map((company) => (
+										<MenuItem value={company.id} key={company.id}>
+											{company.name}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+							{/* <FreeSoloAutocomplete
+								setValue={setCompany}
+								value={company}
+								options={companies.map((c) => c.name)}
+								id="company-selector"
+								label="Company"
+							/> */}
+						</Grid>
 
 						<Grid
 							item

@@ -7,6 +7,8 @@ import { MRT_ColumnDef } from 'material-react-table';
 import CreateFeatureRequest from './CreateFeatureRequest';
 import FeatureRequest, { FeatureRequestFormProps } from './FeatureRequest';
 import { UsersContext } from '../../hooks/users';
+import { useQuery } from '@tanstack/react-query';
+import { getCompanies } from '../../api/companies';
 
 const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-table';
 
@@ -45,19 +47,26 @@ const FeatureRequestList = () => {
 	const isEditFeatureRequest = !!featureRequestId && featureRequestId !== 'new';
 	const orgId = useParams().orgId as string;
 	const users = useContext(UsersContext);
+	const { data } = useQuery({
+		queryKey: ['companies'],
+		queryFn: async () => getCompanies(orgId),
+	});
 
-	const addUserName = (
-		story: FeatureRequestFormProps
+	const companies = data ?? [];
+
+	const addUserNameAndCompany = (
+		feature: FeatureRequestFormProps
 	): FeatureRequestFormProps => ({
-		...story,
+		...feature,
 		submittedBy:
-			users.find((user) => user.id === story.requester)?.fullName || '-',
+			users.find((user) => user.id === feature.requester)?.fullName || '-',
 		assignedToName:
-			users.find((user) => user.id === story.assignedTo)?.fullName || '-',
+			users.find((user) => user.id === feature.assignedTo)?.fullName || '-',
+		company: companies.find((c) => c.id === feature.companyId)?.name || '-',
 	});
 
 	const featureRequests = (useLoaderData() as FeatureRequestFormProps[]).map(
-		addUserName
+		addUserNameAndCompany
 	);
 
 	const navigate = useNavigate();
