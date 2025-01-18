@@ -41,7 +41,6 @@ class FeatureListController(WorkItemController):
         return feature_list
 
     async def get_one(self) -> FeatureList:
-        breakpoint()
         record = await data_db.get().fetchrow(QUERIES["GET_FEATURE_LIST"])
 
         if not record:
