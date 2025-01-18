@@ -44,7 +44,7 @@ class FeatureListController(WorkItemController):
         record = await data_db.get().fetchrow(QUERIES["GET_FEATURE_LIST"])
 
         if not record:
-            raise ObjectNotFoundException(object_id=id)
+            raise ObjectNotFoundException()
 
         feature_list = FeatureList(**record)
 
