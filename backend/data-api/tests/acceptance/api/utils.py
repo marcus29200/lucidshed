@@ -253,7 +253,7 @@ async def add_feature_list(
     expected_status_code: Optional[int] = 201,
 ):
     data = {
-        "title": "Feature List",
+        "title": f"{organization_id}-Feature-List",
         "description": "Feature List Description",
         "requests": 1,
         "reach": FeatureScore.XLARGE.value,

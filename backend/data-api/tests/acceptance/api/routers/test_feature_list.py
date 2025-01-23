@@ -13,7 +13,7 @@ async def test_should_create_or_update_feature_list(data_api: TestClient):
     _ = await add_feature_request(data_api, organization["id"], headers=headers)
     feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
 
-    assert feature_list["title"] == "Feature List"
+    assert feature_list["title"] == f"{organization["id"]}-Feature-List"
     assert feature_list["description"] == "Feature List Description"
     assert feature_list["requests"] == 1
     assert feature_list["reach"] == 4
@@ -72,3 +72,24 @@ async def test_should_get_all_feature_lists(data_api: TestClient):
 
     feature_list_ids = [fl["id"] for fl in fetched_feature_lists["items"]]
     assert feature_list_1["id"] in feature_list_ids
+
+
+async def test_should_get_one_feature_list_by_title(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    _ = await add_feature_request(data_api, organization["id"], headers=headers)
+    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+
+    response = await data_api.get(f"{organization['id']}/feature_lists?title={feature_list['title']}", headers=headers)
+    assert response.status_code == 200
+
+    fetched_feature_list = response.json()
+    for item in fetched_feature_list["items"]:
+        assert item["title"] == f"{organization['id']}-Feature-List"
+        assert item["requests"] == 1
+        assert item["reach"] == 4
+        assert item["impact"] == 3
+        assert item["confidence"] == 2
+        assert item["effort"] == 1
+        assert item["growth"] == 4
+        assert item["feature_requests"] == feature_list["feature_requests"]

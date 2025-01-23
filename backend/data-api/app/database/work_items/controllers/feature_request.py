@@ -57,7 +57,7 @@ class FeatureRequestController(WorkItemController):
 
         # Associate feature request with feature lists
         try:
-            feature_list_id = await self.get_feature_list_id()
+            feature_list_id = await self.get_feature_list_id(name=company.name)
         except ObjectNotFoundException:
             feature_list_id = None
 
@@ -81,9 +81,9 @@ class FeatureRequestController(WorkItemController):
 
         return feature_request
 
-    async def get_feature_list_id(self) -> Optional[int]:
+    async def get_feature_list_id(self, name: str) -> Optional[int]:
         try:
-            feature_list = await self.feature_list_controller.get_one()
+            feature_list = await self.feature_list_controller.get_by_name(name=name)
         except ObjectNotFoundException:
             raise
         else:

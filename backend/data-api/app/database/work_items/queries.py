@@ -637,6 +637,18 @@ SELECT
     WHERE id = $1;
 """
 
+
+FEATURE_LIST_QUERIES[
+    "GET_FEATURE_LIST_BY_TITLE"
+] = """
+SELECT
+    id, title, description, requests, reach, impact, confidence, effort,
+    growth, created_by_id, modified_by_id, created_at, modified_at
+    FROM feature_list
+    WHERE title = $1;
+"""
+
+
 FEATURE_LIST_QUERIES[
     "GET_ALL_FEATURE_LISTS"
 ] = """
