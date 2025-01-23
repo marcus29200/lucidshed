@@ -26,5 +26,6 @@ module.exports = {
 				ignoreRestSiblings: true,
 			},
 		],
+		'no-mixed-spaces-and-tabs': ['error', 'smart-tabs'],
 	},
 };

@@ -26,19 +26,13 @@ const RoadmapView: React.FC = () => {
 	const epics = data ?? [];
 
 	return (
-		<div className="p-6 bg-white rounded-lg shadow-md border-1 border-gray-200 font-poppins h-full">
-			<div className="flex flex-col gap-y-1.5">
+		<div className="p-6 bg-white w-full font-poppins h-full">
+			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins text-left">
-						Roadmap Overview
-					</h2>
+					<h2 className="text-lg font-bold font-poppins text-left">Epics</h2>
 					{isLoading && <CircularProgress color="inherit" size={20} />}
 				</div>
-
-				<p className="text-sm text-left text-gray-400 font-semibold mb-4 font-poppins">
-					Track the Progress of Your Project
-				</p>
 			</div>
 
 			{/* Container for the cards with horizontal scroll */}

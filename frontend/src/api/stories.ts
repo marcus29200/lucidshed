@@ -196,9 +196,14 @@ export const getStoriesAssignedToMe = async (
 	if (!res.ok) {
 		throw await res.json();
 	}
+	if (res.status === 404) {
+		return [];
+	}
 
 	const results = await res.json();
-	return results?.items.map(mapRawStory);
+	const items = results?.items.map(mapRawStory);
+
+	return items.concat(items);
 };
 
 export const getRelatedEpic = async (

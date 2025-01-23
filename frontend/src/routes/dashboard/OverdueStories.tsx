@@ -1,9 +1,9 @@
 import { CalendarMonth } from '@mui/icons-material';
 import { DashboardItemIcon } from '../../icons/icons';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
-import { getStoriesAssignedToMe } from '../../api/stories';
-import { User } from '../../api/users';
+import { Link, useParams } from 'react-router-dom';
+import { getStories, mapRawStory } from '../../api/stories';
+
 import dayjs from 'dayjs';
 import { StoryStatus } from '../stories/stories.model';
 
@@ -20,40 +20,36 @@ const statusColors = {
 	done: '#20A224',
 	'not-started': '#717584',
 };
-const TodoList: React.FC = () => {
+const OverdueStories: React.FC = () => {
 	const params = useParams();
-	const { id: userId } = useRouteLoaderData('user') as User;
 	const { data } = useQuery({
-		queryKey: ['storiesAssignedToMe'],
-		queryFn: async () => getStoriesAssignedToMe(params.orgId as string, userId),
+		queryKey: ['stories'],
+		queryFn: async () =>
+			(await getStories(params.orgId as string)).map(mapRawStory),
 	});
 
 	const items = data ?? [];
 	// put the ticket with the oldest target date at the top
-	// items.sort((a, b) =>
-	// 	a.targetDate && b.targetDate
-	// 		? dayjs(a.targetDate).isAfter(dayjs(b.targetDate))
-	// 			? 1
-	// 			: -1
-	// 		: a.targetDate && !b.targetDate
-	// 		? -1
-	// 		: 1
-	// );
+	items.sort((a, b) =>
+		a.targetDate && b.targetDate
+			? dayjs(a.targetDate).isAfter(dayjs(b.targetDate))
+				? 1
+				: -1
+			: a.targetDate && !b.targetDate
+			? -1
+			: 1
+	);
 	return (
 		<div className="p-6 bg-white font-poppins h-full w-full">
-			<div className="flex flex-col gap-y-1.5">
+			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">Todo List</h2>
+					<h2 className="text-lg font-bold font-poppins">Overdue Stories</h2>
 				</div>
-
-				<p className="text-sm text-gray-400 font-semibold mb-4 font-poppins text-left">
-					Tickets assigned to me
-				</p>
 			</div>
 
 			{/* Container for tasks with vertical scroll */}
-			<div className="space-y-4  pr-3 truncate">
+			<div className="space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
 					<Task
 						key={'story-' + story.id}
@@ -100,4 +96,4 @@ const Task: React.FC<TaskProps> = ({ title, ticket, due, orgId, status }) => (
 	</div>
 );
 
-export default TodoList;
+export default OverdueStories;
