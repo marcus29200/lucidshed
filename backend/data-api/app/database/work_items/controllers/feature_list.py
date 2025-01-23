@@ -40,8 +40,8 @@ class FeatureListController(WorkItemController):
 
         return feature_list
 
-    async def get_one(self) -> FeatureList:
-        record = await data_db.get().fetchrow(QUERIES["GET_FEATURE_LIST"])
+    async def get_by_name(self, *, name: str) -> FeatureList:
+        record = await data_db.get().fetchrow(QUERIES["GET_FEATURE_LIST_BY_TITLE"], name)
 
         if not record:
             raise ObjectNotFoundException()
