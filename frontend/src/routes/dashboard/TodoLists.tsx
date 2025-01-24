@@ -42,18 +42,16 @@ const TodoList: React.FC = () => {
 	return (
 		<div className="p-6 bg-white font-poppins h-full w-full">
 			<div className="flex flex-col gap-y-1.5">
-				<div className="flex flex-row gap-x-2 ">
+				<div className="flex flex-row gap-x-2 pb-2">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">Todo List</h2>
+					<h2 className="text-lg font-bold font-poppins">
+						Tickets assigned to me
+					</h2>
 				</div>
-
-				<p className="text-sm text-gray-400 font-semibold mb-4 font-poppins text-left">
-					Tickets assigned to me
-				</p>
 			</div>
 
 			{/* Container for tasks with vertical scroll */}
-			<div className="space-y-4  pr-3 truncate">
+			<div className="max-h-[340px] !overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
 					<Task
 						key={'story-' + story.id}

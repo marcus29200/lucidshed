@@ -7,8 +7,7 @@
 	appearance: none;
 	outline: none;
 	min-width: 350px;
-	margin: 10px;
-	border-radius: 5px;
+	border-radius: 4px;
 	min-height: 200px;
 	transition: background-color 350ms ease;
 	background-color: rgba(246, 246, 246, 1);

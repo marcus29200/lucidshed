@@ -203,7 +203,7 @@ export const getStoriesAssignedToMe = async (
 	const results = await res.json();
 	const items = results?.items.map(mapRawStory);
 
-	return items.concat(items);
+	return items;
 };
 
 export const getRelatedEpic = async (

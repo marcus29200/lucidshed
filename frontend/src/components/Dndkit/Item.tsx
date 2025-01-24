@@ -40,6 +40,7 @@ export interface Props {
 		title?: string;
 	}): React.ReactElement;
 	title?: string;
+	actionsEnabled?: boolean;
 }
 
 export const Item = React.memo(
@@ -65,6 +66,7 @@ export const Item = React.memo(
 				value,
 				wrapperStyle,
 				title,
+				actionsEnabled,
 				...props
 			},
 			ref
@@ -141,18 +143,20 @@ export const Item = React.memo(
 						{...props}
 						tabIndex={!handle ? 0 : undefined}
 					>
-						<div className={styles.Actions} style={{ position: 'sticky' }}>
-							{onRemove ? (
-								<IconButton onClick={onRemove}>
-									<Close />
-								</IconButton>
-							) : null}
-							{handle ? (
-								<IconButton {...handleProps} {...listeners}>
-									<DragIndicator />
-								</IconButton>
-							) : null}
-						</div>
+						{actionsEnabled && (
+							<div className={styles.Actions} style={{ position: 'sticky' }}>
+								{onRemove ? (
+									<IconButton onClick={onRemove}>
+										<Close />
+									</IconButton>
+								) : null}
+								{handle ? (
+									<IconButton {...handleProps} {...listeners}>
+										<DragIndicator />
+									</IconButton>
+								) : null}
+							</div>
+						)}
 						<div style={style} className="w-full h-full">
 							{value}
 						</div>

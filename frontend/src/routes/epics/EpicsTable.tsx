@@ -75,7 +75,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 	const [filteredEpics, setFilteredEpics] = useState<Epic[]>(epics);
 
 	const handleRowClicked = (epic: Epic) => {
-		navigate(`./${epic.id}`, { relative: 'path' });
+		navigate(`/${orgId}/epics/${epic.id}`, { relative: 'path' });
 	};
 
 	// Filter columns based on the checkedField array

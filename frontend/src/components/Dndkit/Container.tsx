@@ -78,9 +78,11 @@ export const Container = forwardRef<HTMLDivElement, ContainerProps>(
 									<Close />
 								</IconButton>
 							) : undefined}
-							<IconButton {...handleProps} {...listeners}>
-								<DragIndicator />
-							</IconButton>
+							{handleProps && listeners && (
+								<IconButton {...handleProps} {...listeners}>
+									<DragIndicator />
+								</IconButton>
+							)}
 						</div>
 					</div>
 				) : null}
