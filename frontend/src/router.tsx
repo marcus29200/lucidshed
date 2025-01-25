@@ -2,7 +2,6 @@ import { createHashRouter } from 'react-router-dom';
 import Home from './routes/home/home';
 import Login from './routes/Login';
 import Register from './routes/register/register';
-import Dashboard from './routes/dashboard/dashboard';
 import AppLayout from './components/AppLayout';
 import { Epics, epicsLoader } from './routes/epics/Epics';
 import { EpicDetails, epicLoader } from './routes/epics/Epic';
@@ -92,12 +91,7 @@ export const router = createHashRouter([
 				children: [
 					{
 						index: true,
-						element: <Dashboard />,
-					},
-					{
-						index: true,
 						element: <DashboardV2 />,
-						path: 'dashboard-v2',
 					},
 					{
 						path: 'epics',

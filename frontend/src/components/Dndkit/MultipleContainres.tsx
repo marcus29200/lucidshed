@@ -180,8 +180,6 @@ export function MultipleContainers({
 	>(null);
 
 	useEffect(() => {
-		console.log(initialItems);
-
 		if (initialItems) {
 			setItems(() => initialItems);
 		}
@@ -542,7 +540,7 @@ export function MultipleContainers({
 						padding: 20,
 						gridAutoFlow: vertical ? 'row' : 'column',
 						gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
-						gap: 24,
+						gap: 16,
 					}}
 				>
 					<SortableContext

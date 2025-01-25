@@ -8,6 +8,11 @@ import { MultipleContainers } from '../../components/Dndkit/MultipleContainres';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { SortableItem } from '../../components/Dndkit/item.model';
 import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
 	IconButton,
 	Menu,
 	MenuItem,
@@ -15,6 +20,7 @@ import {
 	tooltipClasses,
 } from '@mui/material';
 import { Close, Edit, ExpandMore, Save } from '@mui/icons-material';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { toast } from 'react-toastify';
 
 const DASHBOARD_MODULES = {
@@ -106,16 +112,16 @@ const ALL_MODULES = [
 		content: <TodoList />,
 	},
 ];
-
+const MAX_MODULES_ITEMS = ALL_MODULES.length;
 const TEMPLATES_KEY = 'dashboardTemplates';
 const TEMPLATES_STATE_KEY = 'dashboardTemplateStates';
 const SELECTED_TEMPLATE_KEY = 'dashboardSelectedTemplate';
-type Modules = Record<string, SortableItem[]>;
-const getTemplateComponentsToStore = (
-	modules: Modules
-): Record<string, UniqueIdentifier[]> => {
-	console.log(modules);
 
+type Modules = Record<string, SortableItem[]>;
+type TemplateComponents = Record<string, UniqueIdentifier[]>;
+let updatedTemplateStates: TemplateComponents | null = null;
+
+const getTemplateComponentsToStore = (modules: Modules): TemplateComponents => {
 	return Object.keys(modules).reduce((acc, key) => {
 		if (modules[key] && modules[key].length) {
 			acc[key] = modules[key]
@@ -123,11 +129,11 @@ const getTemplateComponentsToStore = (
 				.map((module) => module.id);
 		}
 		return acc;
-	}, {} as Record<string, UniqueIdentifier[]>);
+	}, {} as TemplateComponents);
 };
 
 const getTemplateComponentsToDisplay = (
-	templates: Record<string, UniqueIdentifier[]>
+	templates: TemplateComponents
 ): Modules => {
 	return Object.keys(templates).reduce((acc, key) => {
 		acc[key] = templates[key].map((item) => ({
@@ -140,6 +146,33 @@ const getTemplateComponentsToDisplay = (
 	}, {} as Modules);
 };
 
+const getComponentsIdsInTemplate = (
+	template: TemplateComponents
+): Set<UniqueIdentifier> => {
+	return Object.keys(template).reduce((acc, key) => {
+		// save only the item ID not the container id due it can be different from the original array.
+		acc = acc.union(
+			new Set(template[key].map((item) => item.toString().slice(1)))
+		);
+		return acc;
+	}, new Set<UniqueIdentifier>());
+};
+
+const getComponentsAvailable = (
+	templateComponents: Set<UniqueIdentifier>
+): SortableItem[] => {
+	const available: SortableItem[] = [];
+	for (let i = 0; i < ALL_MODULES.length; i++) {
+		const item = ALL_MODULES[i];
+		if (templateComponents.has(item.id.toString().slice(1))) {
+			continue;
+		}
+		available.push(item);
+	}
+	return available;
+};
+let componentsToAdd: SortableItem[] = [];
+
 const DashboardV2 = () => {
 	const [dashboardComponents, setDashboardComponents] =
 		useState<Modules>(DASHBOARD_MODULES);
@@ -148,7 +181,7 @@ const DashboardV2 = () => {
 		return savedTemplates ? JSON.parse(savedTemplates) : ['My Template'];
 	});
 	const [templateStates, setTemplateStates] = useState<
-		Record<string, Record<string, UniqueIdentifier[]>>
+		Record<string, TemplateComponents>
 	>(() => {
 		const savedTemplateStates = localStorage.getItem(TEMPLATES_STATE_KEY);
 		if (savedTemplateStates) {
@@ -176,12 +209,7 @@ const DashboardV2 = () => {
 		}
 	);
 
-	let updatedTemplateStates: Record<string, UniqueIdentifier[]> | null = null;
-
 	const [displayedItemsCount, setDisplayedItemsCount] = useState<number>(8);
-
-	// Manage save dialog
-	const [saveDialogOpen, setSaveDialogOpen] = useState(false);
 
 	const [isEditing, setIsEditing] = useState(false); // To track edit/save state
 
@@ -189,6 +217,7 @@ const DashboardV2 = () => {
 	const toggleDashboardEditMode = () => {
 		setIsEditing((isEditing) => !isEditing); // Toggle the state
 	};
+
 	const [oldTemplateName, setOldTemplateName] = useState<string | null>(null);
 	const [newTemplate, setNewTemplate] = useState('');
 	const [editingTemplate, setEditingTemplate] = useState<number | null>(null);
@@ -198,6 +227,8 @@ const DashboardV2 = () => {
 	const [templateAnchorEl, setTemplateAnchorEl] = useState<null | HTMLElement>(
 		null
 	);
+
+	const [addComponentDialogOpen, setAddComponentDialogOpen] = useState(false);
 
 	// Open the template menu when the button is clicked
 	const handleTemplateMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -213,22 +244,25 @@ const DashboardV2 = () => {
 		setIsAdding(false);
 		setNewTemplate('');
 	};
-
-	const handleSaveTemplate = () => {
-		if (selectedTemplate) {
-			// Save the current dashboard state to the selected template
-			setTemplateStates({
-				...templateStates,
-				[selectedTemplate]: getTemplateComponentsToStore(DASHBOARD_MODULES), // Save current dashboard state
-			});
-
-			// Close the save dialog
-			setSelectedTemplate(selectedTemplate);
-			// handleCloseSaveDialog();
-
-			// Exit edit mode and change button text back to "Edit Dashboard"
-			setIsEditing(false);
+	// Close the add component modal
+	const handleCloseAddComponentDialog = () => {
+		setAddComponentDialogOpen(false);
+	};
+	// Add a component to the dashboard
+	const handleAddComponent = (component: SortableItem) => {
+		if (updatedTemplateStates) {
+			const firstContainerKey = Object.keys(updatedTemplateStates)[0];
+			const targetContainerId = `${firstContainerKey}${component.id
+				.toString()
+				.slice(1)}`;
+			updatedTemplateStates[firstContainerKey] = [
+				targetContainerId,
+				...updatedTemplateStates[firstContainerKey],
+			];
+			handleSaveChanges();
 		}
+
+		handleCloseAddComponentDialog();
 	};
 
 	const removeTemplate = (templateToRemove: string) => {
@@ -333,6 +367,10 @@ const DashboardV2 = () => {
 	const handleOrderChange = (updatedItems: Modules) => {
 		updateItemsCount(updatedItems);
 		updatedTemplateStates = getTemplateComponentsToStore(updatedItems);
+
+		componentsToAdd = getComponentsAvailable(
+			getComponentsIdsInTemplate(updatedTemplateStates)
+		);
 	};
 
 	// Save templates, templateStates, selectedTemplate, and dashboardComponents to localStorage when they change
@@ -352,13 +390,9 @@ const DashboardV2 = () => {
 
 	useEffect(() => {
 		if (selectedTemplate) {
-			console.log(selectedTemplate);
-			console.log(templateStates);
-
 			const selectedTemplateComponents =
 				templateStates[selectedTemplate] ||
 				getTemplateComponentsToStore(DASHBOARD_MODULES);
-			console.log(selectedTemplateComponents);
 
 			setDashboardComponents(() =>
 				getTemplateComponentsToDisplay(selectedTemplateComponents)
@@ -374,6 +408,18 @@ const DashboardV2 = () => {
 					template for later use.
 				</p>
 				<div className="flex items-center gap-x-2">
+					{/* Add new component */}
+					{isEditing && (
+						<Button
+							disabled={displayedItemsCount === MAX_MODULES_ITEMS}
+							size="medium"
+							variant="contained"
+							onClick={() => setAddComponentDialogOpen(true)}
+						>
+							Add component
+						</Button>
+					)}
+
 					{/* Template Dropdown Button */}
 					<IconButton
 						onClick={handleTemplateMenuOpen}
@@ -576,10 +622,59 @@ const DashboardV2 = () => {
 				itemActionsEnabled={isEditing && displayedItemsCount > 1}
 				minimal
 				handle
+				modifiers={[snapCenterToCursor]}
 				confirmDeletion
 				items={dashboardComponents}
 				onOrderChange={handleOrderChange}
 			/>
+
+			{/* Add Component Dialog */}
+			<Dialog
+				open={addComponentDialogOpen}
+				onClose={() => setAddComponentDialogOpen(false)}
+				sx={{ fontFamily: 'Poppins, sans-serif' }}
+			>
+				<DialogTitle sx={{ fontFamily: 'Poppins, sans-serif' }}>
+					Select the Component Which You Wanna Add
+				</DialogTitle>
+				<DialogContent sx={{ fontFamily: 'Poppins, sans-serif' }}>
+					{componentsToAdd.map((component, index) => (
+						<MenuItem
+							key={component.id}
+							onClick={() => handleAddComponent(component)}
+							sx={{
+								fontFamily: 'Poppins, sans-serif',
+								padding: '10px',
+								borderRadius: '5px',
+								marginBottom: '10px',
+								'&:hover': {
+									backgroundColor: 'lightgray',
+									cursor: 'pointer',
+								},
+							}}
+						>
+							{index + 1}-{component.title}
+						</MenuItem>
+					))}
+				</DialogContent>
+				<DialogActions
+					sx={{
+						width: '100%',
+						display: 'flex ',
+						justifyContent: 'end',
+						alignItems: 'end',
+						padding: '16px 36px',
+					}}
+				>
+					<Button
+						onClick={() => setAddComponentDialogOpen(false)}
+						color="primary"
+						variant="contained"
+					>
+						Close
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</>
 	);
 };
