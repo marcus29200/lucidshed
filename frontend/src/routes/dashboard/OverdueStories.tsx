@@ -28,7 +28,7 @@ const OverdueStories: React.FC = () => {
 			(await getStories(params.orgId as string)).map(mapRawStory),
 	});
 
-	const items = data ?? [];
+	const items = (data ?? []).filter((item) => item.status !== 'done');
 	// put the ticket with the oldest target date at the top
 	items.sort((a, b) =>
 		a.targetDate && b.targetDate
