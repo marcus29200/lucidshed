@@ -22,6 +22,7 @@ import {
 import { Close, Edit, ExpandMore, Save } from '@mui/icons-material';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { toast } from 'react-toastify';
+import CriticalStories from './CriticalStories';
 
 const DASHBOARD_MODULES = {
 	A: [
@@ -38,12 +39,22 @@ const DASHBOARD_MODULES = {
 		{
 			id: 'A3',
 			title: 'Recently created feature requests',
-			content: <TodoList />,
+			content: (
+				<div>
+					<h5>Recently created feature requests</h5>
+					Coming soon!
+				</div>
+			),
 		},
 		{
 			id: 'A4',
 			title: 'Feature requests that do not have a feature assigned',
-			content: <TodoList />,
+			content: (
+				<div>
+					<h5>Feature requests that do not have a feature assigned</h5>
+					Coming soon!
+				</div>
+			),
 		},
 	],
 	B: [
@@ -55,63 +66,35 @@ const DASHBOARD_MODULES = {
 		{
 			id: 'B6',
 			title: 'Current sprint status',
-			content: <TodoList />,
+			content: (
+				<div>
+					<h5>Current sprint status</h5>
+					Coming soon!
+				</div>
+			),
 		},
 		{
 			id: 'B7',
 			title: 'Critical tickets',
-			content: <TodoList />,
+			content: <CriticalStories />,
 		},
 		{
 			id: 'B8',
 			title: 'Feature by Requestor',
-			content: <TodoList />,
+			content: (
+				<div>
+					<h5>Feature by Requestor</h5>
+					Coming soon!
+				</div>
+			),
 		},
 	],
 };
 
-const ALL_MODULES = [
-	{
-		id: 'A1',
-		title: 'Epics',
-		content: <RoadmapView />,
-	},
-	{
-		id: 'A5',
-		title: 'Overdue Stories',
-		content: <OverdueStories />,
-	},
-	{
-		id: 'A3',
-		title: 'Recently created feature requests',
-		content: <TodoList />,
-	},
-	{
-		id: 'A4',
-		title: 'Feature requests that do not have a feature assigned',
-		content: <TodoList />,
-	},
-	{
-		id: 'B2',
-		title: 'Tickets Assigned to me',
-		content: <TodoList />,
-	},
-	{
-		id: 'B6',
-		title: 'Current sprint status',
-		content: <TodoList />,
-	},
-	{
-		id: 'B7',
-		title: 'Critical tickets',
-		content: <TodoList />,
-	},
-	{
-		id: 'B8',
-		title: 'Feature by Requestor',
-		content: <TodoList />,
-	},
-];
+const ALL_MODULES: SortableItem[] = Object.keys(DASHBOARD_MODULES).flatMap(
+	(key) => DASHBOARD_MODULES[key]
+);
+
 const MAX_MODULES_ITEMS = ALL_MODULES.length;
 const TEMPLATES_KEY = 'dashboardTemplates';
 const TEMPLATES_STATE_KEY = 'dashboardTemplateStates';
@@ -138,7 +121,7 @@ const getTemplateComponentsToDisplay = (
 	return Object.keys(templates).reduce((acc, key) => {
 		acc[key] = templates[key].map((item) => ({
 			...ALL_MODULES.find(
-				(module) => item.toString().slice(1) === module.id.slice(1)
+				(module) => item.toString().slice(1) === module.id.toString().slice(1)
 			)!,
 			id: item,
 		}));
@@ -146,25 +129,21 @@ const getTemplateComponentsToDisplay = (
 	}, {} as Modules);
 };
 
-const getComponentsIdsInTemplate = (
-	template: TemplateComponents
-): Set<UniqueIdentifier> => {
+const getComponentsIdsInTemplate = (template: TemplateComponents): string[] => {
 	return Object.keys(template).reduce((acc, key) => {
 		// save only the item ID not the container id due it can be different from the original array.
-		acc = acc.union(
-			new Set(template[key].map((item) => item.toString().slice(1)))
-		);
+		acc = [...acc, ...template[key].map((item) => item.toString().slice(1))];
 		return acc;
-	}, new Set<UniqueIdentifier>());
+	}, [] as string[]);
 };
 
 const getComponentsAvailable = (
-	templateComponents: Set<UniqueIdentifier>
+	templateComponents: string[]
 ): SortableItem[] => {
 	const available: SortableItem[] = [];
 	for (let i = 0; i < ALL_MODULES.length; i++) {
 		const item = ALL_MODULES[i];
-		if (templateComponents.has(item.id.toString().slice(1))) {
+		if (templateComponents.includes(item.id.toString().slice(1))) {
 			continue;
 		}
 		available.push(item);
