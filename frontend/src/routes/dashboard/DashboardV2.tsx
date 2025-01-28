@@ -24,6 +24,7 @@ import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { toast } from 'react-toastify';
 import CriticalStories from './CriticalStories';
 import HighPriorityStories from './HighPriorityStories';
+import StoriesByAssignedTo from './StoriesByAssigneedTo';
 
 const DASHBOARD_MODULES = {
 	A: [
@@ -60,12 +61,7 @@ const DASHBOARD_MODULES = {
 		{
 			id: 'A9',
 			title: 'Tickets assigned by team member',
-			content: (
-				<div>
-					<h5>Tickets assigned by team member</h5>
-					Coming soon!
-				</div>
-			),
+			content: <StoriesByAssignedTo />,
 		},
 		{
 			id: 'A1',
