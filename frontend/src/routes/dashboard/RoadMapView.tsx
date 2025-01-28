@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
 import { CircularProgress } from '@mui/material';
-import EpicsTable from '../epics/EpicsTable';
+import { EpicItem } from './components/EpicItem';
 
 const RoadmapView: React.FC = () => {
 	const orgId = useParams().orgId as string;
@@ -25,9 +25,11 @@ const RoadmapView: React.FC = () => {
 					{isLoading && <CircularProgress color="inherit" size={20} />}
 				</div>
 			</div>
-
-			{/* Container for the cards with horizontal scroll */}
-			<EpicsTable epics={epics} checkedField={['id', 'name']} />
+			<div className="flex flex-col gap-y-1.5">
+				{epics.map((epic) => (
+					<EpicItem epic={epic} orgId={orgId} key={'epic-' + epic.id} />
+				))}
+			</div>
 		</div>
 	);
 };

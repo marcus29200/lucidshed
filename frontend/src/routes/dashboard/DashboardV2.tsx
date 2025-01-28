@@ -23,38 +23,54 @@ import { Close, Edit, ExpandMore, Save } from '@mui/icons-material';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { toast } from 'react-toastify';
 import CriticalStories from './CriticalStories';
+import HighPriorityStories from './HighPriorityStories';
 
 const DASHBOARD_MODULES = {
 	A: [
 		{
-			id: 'A1',
-			title: 'Epics',
-			content: <RoadmapView />,
-		},
-		{
-			id: 'A5',
-			title: 'Overdue Stories',
-			content: <OverdueStories />,
+			id: 'A6',
+			title: 'Current Sprint',
+			content: (
+				<div>
+					<h5>Current Sprint</h5>
+					Coming soon!
+				</div>
+			),
 		},
 		{
 			id: 'A3',
-			title: 'Recently created feature requests',
+			title: 'New Feature Requests',
 			content: (
 				<div>
-					<h5>Recently created feature requests</h5>
+					<h5>New Feature Requests</h5>
 					Coming soon!
 				</div>
 			),
 		},
 		{
 			id: 'A4',
-			title: 'Feature requests that do not have a feature assigned',
+			title: 'Unassigned Features',
 			content: (
 				<div>
-					<h5>Feature requests that do not have a feature assigned</h5>
+					<h5>Unassigned Features</h5>
 					Coming soon!
 				</div>
 			),
+		},
+		{
+			id: 'A9',
+			title: 'Tickets assigned by team member',
+			content: (
+				<div>
+					<h5>Tickets assigned by team member</h5>
+					Coming soon!
+				</div>
+			),
+		},
+		{
+			id: 'A1',
+			title: 'Epics',
+			content: <RoadmapView />,
 		},
 	],
 	B: [
@@ -64,14 +80,9 @@ const DASHBOARD_MODULES = {
 			content: <TodoList />,
 		},
 		{
-			id: 'B6',
-			title: 'Current sprint status',
-			content: (
-				<div>
-					<h5>Current sprint status</h5>
-					Coming soon!
-				</div>
-			),
+			id: 'B5',
+			title: 'Overdue Stories',
+			content: <OverdueStories />,
 		},
 		{
 			id: 'B7',
@@ -80,13 +91,8 @@ const DASHBOARD_MODULES = {
 		},
 		{
 			id: 'B8',
-			title: 'Feature by Requestor',
-			content: (
-				<div>
-					<h5>Feature by Requestor</h5>
-					Coming soon!
-				</div>
-			),
+			title: 'High Priority Tickets',
+			content: <HighPriorityStories />,
 		},
 	],
 };

@@ -1,25 +1,10 @@
-import { CalendarMonth } from '@mui/icons-material';
 import { DashboardItemIcon } from '../../icons/icons';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams, useRouteLoaderData } from 'react-router-dom';
+import { useParams, useRouteLoaderData } from 'react-router-dom';
 import { getStoriesAssignedToMe } from '../../api/stories';
 import { User } from '../../api/users';
-import dayjs from 'dayjs';
-import { StoryStatus } from '../stories/stories.model';
+import { StoryItem } from './components/StoryItem';
 
-interface TaskProps {
-	title: string;
-	ticket: string;
-	due: string;
-	orgId: string;
-	completed?: boolean; // This is optional because not all tasks are completed
-	status: StoryStatus;
-}
-const statusColors = {
-	'in-progress': '#E5B710',
-	done: '#20A224',
-	'not-started': '#717584',
-};
 const TodoList: React.FC = () => {
 	const params = useParams();
 	const { id: userId } = useRouteLoaderData('user') as User;
@@ -29,16 +14,7 @@ const TodoList: React.FC = () => {
 	});
 
 	const items = data ?? [];
-	// put the ticket with the oldest target date at the top
-	// items.sort((a, b) =>
-	// 	a.targetDate && b.targetDate
-	// 		? dayjs(a.targetDate).isAfter(dayjs(b.targetDate))
-	// 			? 1
-	// 			: -1
-	// 		: a.targetDate && !b.targetDate
-	// 		? -1
-	// 		: 1
-	// );
+
 	return (
 		<div className="p-6 bg-white font-poppins h-full w-full">
 			<div className="flex flex-col gap-y-1.5">
@@ -53,17 +29,9 @@ const TodoList: React.FC = () => {
 			{/* Container for tasks with vertical scroll */}
 			<div className="max-h-[340px] !overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
-					<Task
+					<StoryItem
 						key={'story-' + story.id}
-						title={story.name}
-						ticket={story.id.toString()}
-						due={
-							story.targetDate
-								? dayjs(story.targetDate).format('MMM DD, YYYY')
-								: '-'
-						}
-						status={story.status}
-						completed={story.status === 'done'}
+						story={story}
 						orgId={params.orgId as string}
 					/>
 				))}
@@ -71,31 +39,5 @@ const TodoList: React.FC = () => {
 		</div>
 	);
 };
-
-// Define the Task component that accepts TaskProps as props
-const Task: React.FC<TaskProps> = ({ title, ticket, due, orgId, status }) => (
-	<div
-		className="shadow-sm p-5 border rounded-lg relative"
-		style={{
-			borderColor: statusColors[status] ?? '#717584',
-		}}
-	>
-		<Link
-			to={`/${orgId}/stories/${ticket}`}
-			className="text-neutral-dark hover:text-neutral-regular "
-		>
-			<h6 className="text-left font-semibold truncate">{title}</h6>
-		</Link>
-		<div className="flex flex-row justify-between w-full flex-wrap items-center">
-			<p className="text-xs">
-				<span className="text-neutral-regular">Ticket#:</span> {ticket}
-			</p>
-			<div className="flex items-center flex-row gap-x-1">
-				<CalendarMonth className=" text-neutral-regular" />
-				<p className="text-xs text-neutral-regular">Due: {due}</p>
-			</div>
-		</div>
-	</div>
-);
 
 export default TodoList;
