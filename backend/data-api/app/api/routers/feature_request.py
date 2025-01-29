@@ -9,7 +9,6 @@ from app.database.work_items.models.comment import BaseFeatureRequestComment, Fe
 from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.work_items.models.work_item import WorkItemSortableField
 
-
 router = APIRouter(
     prefix="",
     tags=["feature_requests"],

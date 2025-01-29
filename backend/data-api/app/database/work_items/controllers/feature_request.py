@@ -135,7 +135,9 @@ class FeatureRequestController(WorkItemController):
 
         return [FeatureRequest(**record) for record in records], cursor
 
-    async def update(self, *, id: int, updated_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
+    async def update(
+        self, *, id: int, updated_item: BaseFeatureRequest, current_user: str, feature_list_id: Optional[int] = None
+    ) -> FeatureRequest:
         old_feature_request_item = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
@@ -166,6 +168,14 @@ class FeatureRequestController(WorkItemController):
             ),
             current_user,
         )
+
+        # Link feature request to feature list
+        if feature_list_id:
+            await data_db.get().execute(
+                QUERIES["ASSOCIATE_FEATURE_LIST_WITH_FEATURE_REQUEST"],
+                feature_list_id,
+                id
+            )
 
         return FeatureRequest(**record)
 
