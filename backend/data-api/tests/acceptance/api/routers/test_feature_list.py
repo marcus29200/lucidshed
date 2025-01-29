@@ -93,3 +93,25 @@ async def test_should_get_one_feature_list_by_title(data_api: TestClient):
         assert item["effort"] == 1
         assert item["growth"] == 4
         assert item["feature_requests"] == feature_list["feature_requests"]
+
+
+async def test_should_associate_existing_feature_request_with_feature_list(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    organization = await add_organization(data_api, headers=headers)
+    feature_request = await add_feature_request(data_api, organization["id"], headers=headers)
+    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+
+    # Associate the existing feature request with the feature list
+    response = await data_api.patch(
+        f"{organization['id']}/feature_requests/{feature_request['id']}",
+        json={"feature_list_id": feature_list["id"]},
+        headers=headers
+    )
+    assert response.status_code == 200
+
+    # Verify the association
+    response = await data_api.get(f"{organization['id']}/feature_lists/{feature_list['id']}", headers=headers)
+    assert response.status_code == 200
+
+    fetched_feature_list = response.json()
+    assert feature_request["id"] in fetched_feature_list["feature_requests"]
