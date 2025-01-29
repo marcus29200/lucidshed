@@ -29,7 +29,7 @@ const StoryCard: React.FC<TaskProps> = ({
 	// TODO: dates comparison might need the UTC module
 	const today = dayjs();
 	const dueDate = dayjs(due);
-	const isOverdue = !completed && dueDate.isBefore(today, 'day');
+	const isOverdue = !completed && dueDate.diff(today, 'day') <= 0;
 	const isDueSoon = !completed && dueDate.diff(today, 'day') <= MAX_DAYS_OFFSET;
 	const isNotDueSoon =
 		!completed && dueDate.diff(today, 'day') > MAX_DAYS_OFFSET;

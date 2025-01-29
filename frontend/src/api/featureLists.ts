@@ -1,4 +1,5 @@
 import { BASE_URL } from '../environment';
+import { FeatureListFormProps } from '../routes/featureLists/FeatureList';
 import { getAuthHeaders } from './utils';
 const featureListsUrl = 'feature_lists';
 
@@ -39,7 +40,7 @@ export const createFeatureList = async ({
 export const getFeatureLists = async (
 	orgId: string,
 	search?: string
-): Promise<unknown> => {
+): Promise<FeatureListFormProps[]> => {
 	let url = `${BASE_URL}/${orgId}/${featureListsUrl}`;
 	if (search) {
 		url += `&search=${search}`;

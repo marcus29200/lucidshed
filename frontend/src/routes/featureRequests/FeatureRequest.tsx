@@ -20,6 +20,8 @@ import { updateFeatureRequest } from '../../api/featureRequests';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RotateRight } from '@mui/icons-material';
 import { getCompanies } from '../../api/companies';
+import { getFeatureLists } from '../../api/featureLists';
+import { FeatureListFormProps } from '../featureLists/FeatureList';
 
 export type FeatureRequestFormProps = {
 	title: string;
@@ -55,7 +57,8 @@ const FeatureRequest = memo(
 		const [isLoading, setIsLoading] = useState(false);
 		const [submitDate, setSubmitDate] = useState<string>('');
 
-		const [company, setCompany] = useState<number | null>(null);
+		const [company, setCompany] = useState<string>('');
+		const [featureId, setFeatureId] = useState<string>('');
 
 		const navigate = useNavigate();
 		const queryClient = useQueryClient();
@@ -63,8 +66,12 @@ const FeatureRequest = memo(
 			queryKey: ['companies'],
 			queryFn: async () => getCompanies(orgId),
 		});
-
+		const { data: features } = useQuery({
+			queryKey: ['featureLists'],
+			queryFn: async () => getFeatureLists(orgId),
+		});
 		const companies = data ?? [];
+		const featuresList: FeatureListFormProps[] = features ?? [];
 
 		const { mutate: patchFeatureRequest } = useMutation({
 			mutationFn: updateFeatureRequest,
@@ -97,7 +104,7 @@ const FeatureRequest = memo(
 						'';
 				}
 
-				setCompany(() => featureRequest.companyId!);
+				setCompany(() => featureRequest.companyId! + '');
 				setRequester(
 					() =>
 						users.find((user) => user.id === featureRequest.requester) || null
@@ -122,7 +129,8 @@ const FeatureRequest = memo(
 			setTags(() => '');
 			setRequester(() => null);
 			setAssignedTo(() => null);
-			setCompany(() => null);
+			setCompany(() => '');
+			setFeatureId(() => '');
 		};
 
 		const handlePatchFeatureRequest = (data) => {
@@ -154,10 +162,6 @@ const FeatureRequest = memo(
 			// handlePatchFeatureRequest({ description: value });
 		};
 
-		const handleEditTags = (value: string) => {
-			setTags(value);
-		};
-
 		const handleEditRequester = (user: User | null) => {
 			setRequester(user);
 			// handlePatchFeatureRequest({ submitted_by_id: user?.id || null });
@@ -176,6 +180,7 @@ const FeatureRequest = memo(
 				assigned_to_id: assignedTo?.id || null,
 				title: featureRequest?.title,
 				company_id: company,
+				feature_list_id: featureId,
 			};
 			if (title && title !== featureRequest?.title) {
 				payload.title = title;
@@ -260,9 +265,7 @@ const FeatureRequest = memo(
 									label="Company"
 									value={company}
 									onChange={(evt) => {
-										setCompany(() =>
-											evt.target.value ? +evt.target.value : null
-										);
+										setCompany(() => evt.target.value);
 									}}
 									id="company"
 									name="company"
@@ -274,13 +277,6 @@ const FeatureRequest = memo(
 									))}
 								</Select>
 							</FormControl>
-							{/* <FreeSoloAutocomplete
-								setValue={setCompany}
-								value={company}
-								options={companies.map((c) => c.name)}
-								id="company-selector"
-								label="Company"
-							/> */}
 						</Grid>
 
 						<Grid
@@ -292,16 +288,30 @@ const FeatureRequest = memo(
 								gap: '8px',
 							}}
 						>
-							<TextField
-								variant="outlined"
-								size="small"
-								margin="dense"
-								fullWidth
-								label="Tags"
-								id="tags"
-								value={tags}
-								onChange={(v) => handleEditTags(v.currentTarget.value)}
-							></TextField>
+							<FormControl fullWidth sx={{ marginTop: '8px' }}>
+								<InputLabel size="small" id="assigned-feature-label">
+									Assigned Feature
+								</InputLabel>
+								<Select
+									variant="outlined"
+									size="small"
+									fullWidth
+									labelId="assigned-feature-label"
+									label="Assigned Feature"
+									value={featureId}
+									onChange={(evt) => {
+										setFeatureId(() => evt.target.value);
+									}}
+									id="assigned-feature"
+									name="assigned-feature"
+								>
+									{featuresList.map((feature) => (
+										<MenuItem value={feature.id} key={feature.id}>
+											{feature.title}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 						</Grid>
 						<Grid
 							item

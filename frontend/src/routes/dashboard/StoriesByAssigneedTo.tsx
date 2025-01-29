@@ -37,10 +37,6 @@ const StoriesByAssignedTo: React.FC = () => {
 		return users.find((user) => user.id === id)?.fullName ?? '--';
 	};
 
-	if (!items.length) {
-		return <div className="pt-2 italic">No items found</div>;
-	}
-
 	const groupedItems: Partial<Record<string, Story[]>> = Object.groupBy(
 		items,
 		(item) => item.assignedToId!
@@ -59,29 +55,31 @@ const StoriesByAssignedTo: React.FC = () => {
 					</h2>
 				</div>
 			</div>
-
-			{/* Container for tasks with vertical scroll */}
-			<div className="space-y-4 scrollbar-hide pr-3 truncate">
-				{Object.entries(groupedItems).map(([userId, stories], index) => (
-					<div key={'group-' + userId} className="flex flex-col gap-y-4">
-						<h3
-							className={clsx(
-								'text-base font-semibold text-left pt-2',
-								index !== 0 ? 'border-t' : ''
-							)}
-						>
-							{getUserName(userId)}
-						</h3>
-						{stories!.slice(0, MAX_STORIES_BY_USER).map((story) => (
-							<StoryItem
-								key={'story-' + story.id}
-								story={story}
-								orgId={params.orgId as string}
-							/>
-						))}
-					</div>
-				))}
-			</div>
+			{!items.length ? (
+				<div className="pt-2 italic">No items found</div>
+			) : (
+				<div className="space-y-4 scrollbar-hide pr-3 truncate">
+					{Object.entries(groupedItems).map(([userId, stories], index) => (
+						<div key={'group-' + userId} className="flex flex-col gap-y-4">
+							<h3
+								className={clsx(
+									'text-base font-semibold text-left pt-2',
+									index !== 0 ? 'border-t' : ''
+								)}
+							>
+								{getUserName(userId)}
+							</h3>
+							{stories!.slice(0, MAX_STORIES_BY_USER).map((story) => (
+								<StoryItem
+									key={'story-' + story.id}
+									story={story}
+									orgId={params.orgId as string}
+								/>
+							))}
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	);
 };
