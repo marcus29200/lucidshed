@@ -1,4 +1,5 @@
 import { BASE_URL } from '../environment';
+import { FeatureRequestFormProps } from '../routes/featureRequests/FeatureRequest';
 import { getAuthHeaders } from './utils';
 import dayjs from 'dayjs';
 const featureRequestsUrl = 'feature_requests';
@@ -39,10 +40,10 @@ export const createFeatureRequest = async ({
 export const getFeatureRequests = async (
 	orgId: string,
 	search?: string
-): Promise<unknown> => {
-	let url = `${BASE_URL}/${orgId}/${featureRequestsUrl}`;
+): Promise<FeatureRequestFormProps[]> => {
+	let url = `${BASE_URL}/${orgId}/${featureRequestsUrl}?sort=id`;
 	if (search) {
-		url += `&search=${search}`;
+		url += `?search=${search}`;
 	}
 	const res = await fetch(url, {
 		method: 'GET',
@@ -54,7 +55,8 @@ export const getFeatureRequests = async (
 		throw res;
 	}
 	const page = await res.json();
-	return page.items.map(mapFeatureRequestResponse);
+
+	return page.items.sort((a, b) => b.id - a.id).map(mapFeatureRequestResponse);
 };
 
 export const getFeatureRequestDetail = async (

@@ -25,6 +25,7 @@ import { toast } from 'react-toastify';
 import CriticalStories from './CriticalStories';
 import HighPriorityStories from './HighPriorityStories';
 import StoriesByAssignedTo from './StoriesByAssigneedTo';
+import { NewFeatureRequests } from './NewFeatureRequests';
 
 const DASHBOARD_MODULES = {
 	A: [
@@ -41,12 +42,7 @@ const DASHBOARD_MODULES = {
 		{
 			id: 'A3',
 			title: 'New Feature Requests',
-			content: (
-				<div>
-					<h5>New Feature Requests</h5>
-					Coming soon!
-				</div>
-			),
+			content: <NewFeatureRequests />,
 		},
 		{
 			id: 'A4',
