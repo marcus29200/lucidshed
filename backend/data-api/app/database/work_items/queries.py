@@ -417,7 +417,7 @@ CREATE TABLE IF NOT EXISTS feature_requests (
     feature_assigned VARCHAR({MAX_ID_LENGTH}),
     {BASE_WORK_ITEM_FIELDS}
 );
-"""
+    """,
     f"""
 CREATE TABLE IF NOT EXISTS feature_request_comments (
     id SERIAL PRIMARY KEY,
@@ -425,7 +425,7 @@ CREATE TABLE IF NOT EXISTS feature_request_comments (
     {BASE_MODEL_FIELDS},
     description TEXT
 );
-"""
+    """
 ]
 FEATURE_REQUEST_QUERIES[
     "CREATE_FEATURE_REQUEST"
@@ -585,7 +585,7 @@ CREATE TABLE IF NOT EXISTS feature_list (
     effort INT,
     growth INT
 );
-    """
+    """,
     """
 CREATE TABLE IF NOT EXISTS feature_list_feature_request (
     feature_list_id INT REFERENCES feature_list(id) ON DELETE CASCADE,

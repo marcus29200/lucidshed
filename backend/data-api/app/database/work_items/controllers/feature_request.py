@@ -13,6 +13,10 @@ from app.database.work_items.models.feature_request import BaseFeatureRequest, F
 from app.database.work_items.models.work_item import WorkItemSortableField
 from app.exceptions.common import ObjectNotFoundException
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 
 class FeatureRequestController(WorkItemController):
     def __init__(self):
@@ -59,6 +63,7 @@ class FeatureRequestController(WorkItemController):
         try:
             feature_list_id = await self.get_feature_list_id(name=company.name)
         except ObjectNotFoundException:
+            logger.warning(f"Feature list not found for company: {company.name}")
             feature_list_id = None
 
         if feature_list_id:
@@ -85,6 +90,7 @@ class FeatureRequestController(WorkItemController):
         try:
             feature_list = await self.feature_list_controller.get_by_name(name=name)
         except ObjectNotFoundException:
+            logger.warning(f"Feature list not found for company: {name}")
             raise
         else:
             return feature_list.id if feature_list else None

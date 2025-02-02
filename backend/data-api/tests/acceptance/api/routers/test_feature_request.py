@@ -3,8 +3,7 @@ from typing import Any, Dict, Optional
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.routers.test_organization import add_organization
-from tests.acceptance.api.utils import authenticate
+from tests.acceptance.api.utils import add_feature_list, add_organization, authenticate
 
 pytestmark = pytest.mark.asyncio
 
@@ -96,3 +95,15 @@ async def test_should_delete_feature_request(data_api: TestClient):
 
     response = await data_api.get(f"{org['id']}/feature_requests/{feature_request['id']}", headers=headers)
     assert response.status_code == 404
+
+
+async def test_should_add_feature_request_to_existing_feature_list(data_api: TestClient):
+    _, _, headers = await authenticate(data_api, create_org=False)
+    org = await add_organization(data_api, headers=headers)
+    feature_request = await add_feature_request(data_api, org["id"], headers=headers)
+    feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+
+    response = await data_api.get(f"{org['id']}/feature_lists/{feature_list['id']}", headers=headers)
+    assert response.status_code == 200
+    updated_feature_list = response.json()
+    assert feature_request["id"] in updated_feature_list["feature_requests"]
