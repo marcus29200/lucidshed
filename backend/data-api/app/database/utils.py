@@ -42,3 +42,12 @@ async def init_database_tables(pool, init_statements):
                 logger.debug(f"Executing query: {init_statement}")
 
                 await conn.execute(init_statement)
+
+
+async def update_database_tables(pool, update_statements):
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            for update_statement in update_statements:
+                logger.debug(f"Executing query: {update_statement}")
+
+                await conn.execute(update_statement)
