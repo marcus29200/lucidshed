@@ -43,10 +43,14 @@ export default function SprintSearchInput({
 			value={value}
 			defaultValue={null}
 			onChange={(_event, newValue) => {
-				if (enableAddNew && newValue?.inputValue === 'add-new') {
+				if (
+					enableAddNew &&
+					newValue?.['inputValue'] &&
+					newValue['inputValue'] === 'add-new'
+				) {
 					return navigate(`/${params.orgId as string}/sprints/new`);
 				}
-				setValue(() => newValue);
+				setValue(() => newValue as Sprint);
 				setSprint &&
 					setSprint({
 						...(newValue as Sprint),
@@ -75,12 +79,16 @@ export default function SprintSearchInput({
 			loading={isLoading}
 			id={id}
 			options={options}
-			isOptionEqualToValue={(option, value) =>
-				option.title === value || option.id === value.id
-			}
+			isOptionEqualToValue={(option, value) => {
+				if (option['inputValue']) {
+					return option['inputValue'] === value;
+				}
+				// Regular option
+				return option.title === value.title;
+			}}
 			getOptionLabel={(option) => {
-				if (option.inputValue) {
-					return option.inputValue;
+				if (option['inputValue']) {
+					return option['inputValue'];
 				}
 				// Regular option
 				return option?.title ?? '';
