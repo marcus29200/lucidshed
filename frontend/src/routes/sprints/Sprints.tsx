@@ -1,5 +1,10 @@
 import { QueryClient, queryOptions, useMutation } from '@tanstack/react-query';
-import { LoaderFunctionArgs, useLoaderData, useParams } from 'react-router-dom';
+import {
+	LoaderFunctionArgs,
+	useLoaderData,
+	useParams,
+	useSearchParams,
+} from 'react-router-dom';
 import {
 	CreateSprintPayload,
 	deleteSprint,
@@ -53,15 +58,24 @@ let debounceTimeId;
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
 	const orgId = useParams().orgId as string;
+	const [queryParams, setSearchParams] = useSearchParams();
+
 	let defaultSprint: string | Sprint | null =
 		localStorage.getItem(SELECTED_SPRINT_KEY);
-	// if no stored sprint, default to the first one
-	defaultSprint = defaultSprint ? JSON.parse(defaultSprint) : sprints[0];
+	// first validate if the query params have a sprint id
+	// if it does, use that as the default sprint
+	// if not, check local storage for a stored sprint id
+	// if that exists, use it as the default sprint
+	// if neither exist, default to the first sprint in the list
+
+	defaultSprint = queryParams.get('sprintId')
+		? { id: +queryParams.get('sprintId')! }
+		: defaultSprint
+		? JSON.parse(defaultSprint)
+		: sprints[0];
 	defaultSprint =
-		!!defaultSprint &&
-		sprints.find((s) => s.id === (defaultSprint as Sprint).id)
-			? defaultSprint
-			: sprints[0];
+		defaultSprint &&
+		sprints.find((s) => s.id === (defaultSprint as Sprint).id)!;
 
 	const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(
 		defaultSprint as Sprint | null
@@ -107,6 +121,9 @@ export const Sprints = () => {
 	useEffect(() => {
 		if (selectedSprint) {
 			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
+			setSearchParams(
+				new URLSearchParams({ sprintId: selectedSprint.id.toString() })
+			);
 		}
 	}, [selectedSprint]);
 

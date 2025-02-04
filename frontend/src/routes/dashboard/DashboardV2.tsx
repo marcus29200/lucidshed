@@ -26,18 +26,14 @@ import CriticalStories from './CriticalStories';
 import HighPriorityStories from './HighPriorityStories';
 import StoriesByAssignedTo from './StoriesByAssigneedTo';
 import { NewFeatureRequests } from './NewFeatureRequests';
+import { ActiveSprint } from './ActiveSprint';
 
 const DASHBOARD_MODULES = {
 	A: [
 		{
 			id: 'A6',
 			title: 'Current Sprint',
-			content: (
-				<div>
-					<h5>Current Sprint</h5>
-					Coming soon!
-				</div>
-			),
+			content: <ActiveSprint />,
 		},
 		{
 			id: 'A3',

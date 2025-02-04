@@ -433,7 +433,7 @@ const StoriesTable = ({
 								handleRowClicked={handleRowClicked}
 								actionsEnabled={actionsEnabled}
 								selectedRowActions={selectedRowsActions}
-								enableRowSelection={true}
+								enableRowSelection={actionsEnabled}
 							/>
 						</div>
 					);
@@ -464,7 +464,7 @@ const StoriesTable = ({
 				handleRowClicked={handleRowClicked}
 				actionsEnabled={actionsEnabled}
 				selectedRowActions={selectedRowsActions}
-				enableRowSelection={true}
+				enableRowSelection={actionsEnabled}
 			/>
 			<MassEditStoriesDialog
 				open={openStoryFormDialog}

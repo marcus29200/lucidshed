@@ -64,7 +64,7 @@ export const createSprint = async ({ orgId, data }) => {
 	return mapPayloadToSprint(iter);
 };
 
-export const getSprints = async (orgId: string) => {
+export const getSprints = async (orgId: string): Promise<Sprint[]> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/iterations`, {
 		headers: {
 			'Content-Type': 'application/json',
@@ -73,6 +73,9 @@ export const getSprints = async (orgId: string) => {
 	});
 	if (!res.ok) {
 		throw res;
+	}
+	if (res.status === 404) {
+		return [];
 	}
 	const payload = await res.json();
 	return payload.items.map((iter: RawSprint) => mapPayloadToSprint(iter));
