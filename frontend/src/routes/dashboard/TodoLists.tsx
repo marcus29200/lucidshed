@@ -2,12 +2,18 @@ import { DashboardItemIcon } from '../../icons/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useRouteLoaderData } from 'react-router-dom';
 import { getStoriesAssignedToMe } from '../../api/stories';
-import { User } from '../../api/users';
+import { mapUser, User } from '../../api/users';
 import { StoryItem } from './components/StoryItem';
+import { useAuth, AuthContextValue } from '../../hooks/auth';
 
 const TodoList: React.FC = () => {
 	const params = useParams();
-	const { id: userId } = useRouteLoaderData('user') as User;
+	const { user: localApiUser } = useAuth() as AuthContextValue;
+	const localUser = mapUser(localApiUser);
+	let currentUser: User = useRouteLoaderData('user') as User;
+	currentUser =
+		currentUser?.id === localUser?.id ? localUser || currentUser : currentUser; // if no current user, use the local user
+	const { id: userId } = currentUser;
 	const { data } = useQuery({
 		queryKey: ['storiesAssignedToMe'],
 		queryFn: async () => getStoriesAssignedToMe(params.orgId as string, userId),

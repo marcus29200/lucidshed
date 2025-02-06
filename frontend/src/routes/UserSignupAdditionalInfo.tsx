@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { User, patchUser } from '../api/users';
 import { AuthContextValue, useAuth } from '../hooks/auth';
+import { queryClient } from '../router';
 
 const UserSignupAdditionalInfo = () => {
 	const navigate = useNavigate();
@@ -11,9 +12,10 @@ const UserSignupAdditionalInfo = () => {
 	const { updateUser } = useAuth() as AuthContextValue;
 	const { mutate } = useMutation({
 		mutationFn: patchUser,
-		onSuccess: (data) => {
+		onSuccess: async (data) => {
 			updateUser(data);
 			const orgId = localStorage.getItem('orgId') as string;
+			await queryClient.invalidateQueries({ queryKey: ['users'] });
 			navigate(`/${orgId}`);
 		},
 		onError: (error) => {

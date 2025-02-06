@@ -15,11 +15,10 @@ export const ActiveSprint = () => {
 		queryKey: ['sprints'],
 		queryFn: async () => await getSprints(orgId),
 	});
-	const today = dayjs();
+	const today = new Date().toISOString();
+
 	const activeSprint = (data ?? []).find(
-		(sprint) =>
-			dayjs(sprint.startDate).isBefore(today) &&
-			dayjs(sprint.endDate).isAfter(today)
+		(sprint) => today >= sprint.startDate && today <= sprint.endDate
 	);
 	if (activeSprint) {
 		getStoriesForSprint({ orgId, sprintId: activeSprint.id }).then(

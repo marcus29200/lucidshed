@@ -1,9 +1,10 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { User } from '../../api/users';
+import { mapUser, User } from '../../api/users';
 import { UsersContext } from '../../hooks/users';
 import { useRouteLoaderData } from 'react-router-dom';
+import { useAuth, AuthContextValue } from '../../hooks/auth';
 
 export default function UserSearchInput({
 	user,
@@ -18,15 +19,24 @@ export default function UserSearchInput({
 	id?: string;
 	label?: string;
 }) {
-	const currentUser: User = useRouteLoaderData('user') as User;
+	const { user: localApiUser } = useAuth() as AuthContextValue;
+	const localUser = mapUser(localApiUser);
+	let currentUser: User = useRouteLoaderData('user') as User;
+	currentUser =
+		currentUser?.id === localUser?.id ? localUser || currentUser : currentUser; // if no current user, use the local user
+
 	const users = React.useContext(UsersContext);
 	const [value, setValue] = React.useState<User | null>(user);
 	React.useEffect(() => {
 		setValue(user);
 	}, [user]);
+
 	// first option is always current user
-	const options = users.filter((user) => user.id !== currentUser.id);
-	options.unshift(currentUser);
+	const items = [
+		currentUser,
+		...users.filter((user) => user.id !== currentUser.id),
+	];
+
 	return (
 		<Autocomplete
 			value={value}
@@ -47,7 +57,7 @@ export default function UserSearchInput({
 			sx={{ minWidth: '200px' }}
 			handleHomeEndKeys
 			id={id}
-			options={options}
+			options={items}
 			isOptionEqualToValue={(option, value) => option.id === value.id}
 			getOptionLabel={(option) => {
 				// Regular option

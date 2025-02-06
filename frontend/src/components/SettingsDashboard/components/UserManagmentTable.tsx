@@ -4,6 +4,7 @@ import { IconButton, Menu, MenuItem } from '@mui/material';
 import { useParams, useRouteLoaderData } from 'react-router-dom';
 import {
 	deleteUserInOrg,
+	mapUser,
 	updateUserRole,
 	User,
 	UserRole,
@@ -14,6 +15,7 @@ import { ConfirmationDialog } from '../../ConfirmationDialog';
 import ShedTable, { TableActions } from '../../Table';
 import { ExpandMore } from '@mui/icons-material';
 import { getStoredSortState } from '../../../shared/table.utils';
+import { useAuth, AuthContextValue } from '../../../hooks/auth';
 
 type UsersDataTableProps = {
 	users: User[];
@@ -46,7 +48,11 @@ const UserManagementTable = ({ users, loadUsers }: UsersDataTableProps) => {
 	const [sortingStates, setSortingStates] = useState<{
 		[key: string]: boolean | null;
 	}>(sortStates);
-	const currentUser: User = useRouteLoaderData('user') as User;
+	const { user: localApiUser } = useAuth() as AuthContextValue;
+	const localUser = mapUser(localApiUser);
+	let currentUser: User = useRouteLoaderData('user') as User;
+	currentUser =
+		currentUser?.id === localUser?.id ? localUser || currentUser : currentUser; // if no current user, use the local user
 	const [openDialog, setOpenDialog] = useState(false);
 
 	const [rowToDelete, setRowToDelete] = useState<MRT_Row<User> | null>(null); // Track which row to delete

@@ -1,11 +1,16 @@
 import { useContext } from 'react';
-import { User } from '../api/users';
+import { mapUser, User } from '../api/users';
 import { Avatar, Box, Typography } from '@mui/material';
 import { useRouteLoaderData } from 'react-router-dom';
 import { UsersContext } from '../hooks/users';
+import { useAuth, AuthContextValue } from '../hooks/auth';
 
 const UserWithAvatar = ({ userId }: { userId: string }) => {
-	const currentUser: User = useRouteLoaderData('user') as User;
+	const { user: localApiUser } = useAuth() as AuthContextValue;
+	const localUser = mapUser(localApiUser);
+	let currentUser: User = useRouteLoaderData('user') as User;
+	currentUser =
+		currentUser?.id === localUser?.id ? localUser || currentUser : currentUser; // if no current user, use the local user
 	const users = useContext(UsersContext);
 	const user = users.find((u) => u.id === userId);
 	const initials = `${user?.firstName?.charAt(0)}${user?.lastName?.charAt(0)}`;
