@@ -143,7 +143,7 @@ export const TRASH_ID = 'void';
 const PLACEHOLDER_ID = 'placeholder';
 const empty: SortableItem[] = [];
 
-export function MultipleContainers({
+export function DashboardMultipleContainers({
 	adjustScale = false,
 	cancelDrop,
 	columns,

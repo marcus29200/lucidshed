@@ -100,7 +100,9 @@ export const DashboardIcon = () => (
 	</SvgIcon>
 );
 
-export const FilterIcon = ({ className = '' }: { className?: string }) => (
+export const FilterIcon = ({
+	className = '',
+}: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="14"
@@ -119,7 +121,9 @@ export const FilterIcon = ({ className = '' }: { className?: string }) => (
 	</SvgIcon>
 );
 
-export const ArrowUpIcon = ({ className = '' }: { className?: string }) => (
+export const ArrowUpIcon = ({
+	className = '',
+}: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="14"
@@ -161,7 +165,9 @@ export const SearchIcon = () => (
 	</SvgIcon>
 );
 
-export const TableViewIcon = ({ className = '' }: { className?: string }) => (
+export const TableViewIcon = ({
+	className = '',
+}: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="22"
@@ -223,7 +229,9 @@ export const TableViewIcon = ({ className = '' }: { className?: string }) => (
 	</SvgIcon>
 );
 
-export const KanbanViewIcon = ({ className = '' }: { className?: string }) => (
+export const KanbanViewIcon = ({
+	className = '',
+}: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="25"
@@ -283,7 +291,7 @@ export const KanbanViewIcon = ({ className = '' }: { className?: string }) => (
 	</SvgIcon>
 );
 
-export const HomeIcon = ({ className = '' }: { className?: string }) => (
+export const HomeIcon = ({ className = '' }: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="21"
@@ -363,7 +371,9 @@ export const LockRaidStorageIcon = ({
 	</SvgIcon>
 );
 
-export const DesktopChatIcon = ({ className = '' }: { className?: string }) => (
+export const DesktopChatIcon = ({
+	className = '',
+}: React.SVGProps<SVGSVGElement>) => (
 	<SvgIcon className={`${className}`}>
 		<svg
 			width="88"

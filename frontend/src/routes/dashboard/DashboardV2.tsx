@@ -4,7 +4,7 @@ import RoadmapView from './RoadMapView';
 import TodoList from './TodoLists';
 
 import OverdueStories from './OverdueStories';
-import { MultipleContainers } from '../../components/Dndkit/MultipleContainres';
+import { DashboardMultipleContainers } from '../../components/Dndkit/DashboardMultipleContainers';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { SortableItem } from '../../components/Dndkit/item.model';
 import {
@@ -589,7 +589,7 @@ const DashboardV2 = () => {
 					</div>
 				</div>
 			</div>
-			<MultipleContainers
+			<DashboardMultipleContainers
 				columns={1}
 				strategy={rectSortingStrategy}
 				itemActionsEnabled={isEditing && displayedItemsCount > 1}

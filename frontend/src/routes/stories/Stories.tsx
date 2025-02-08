@@ -1,9 +1,14 @@
 import { Box, Button, Typography } from '@mui/material';
 import FullHeightSection from '../../components/FullHeightSection';
-import { Link, useLoaderData } from 'react-router-dom';
+import {
+	Link,
+	useLoaderData,
+	useLocation,
+	useNavigate,
+} from 'react-router-dom';
 import { mapRawStory, StoryAPI } from '../../api/stories';
 import StoriesTable from './StoriesTable';
-import { SearchIcon } from '../../icons/icons';
+import { KanbanViewIcon, SearchIcon, TableViewIcon } from '../../icons/icons';
 import { useEffect, useState } from 'react';
 import {
 	GROUP_STORIES_OPTIONS,
@@ -16,6 +21,8 @@ import {
 	setStoredGroupByOption,
 } from '../../shared/table.utils';
 import GroupByButton from '../../components/GroupByButton';
+import { motion } from 'framer-motion';
+import { StoriesKanbanView } from './StoriesKanbanView';
 
 export type Story = {
 	id: number;
@@ -45,18 +52,55 @@ const editFieldsCheckedItems = [
 	'targetDate',
 ];
 const BASE_STORIES_TABLE_ID = 'base-stories-table';
+const STORIES_SELECTED_VIEW_ID = 'stories-selected-view';
+
+type StoriesView = 'table' | 'kanban';
+
+const viewVariants = {
+	initial: { opacity: 0, x: 0 },
+	table: { opacity: 1, x: 0 },
+	kanban: { opacity: 1, x: 0 },
+};
+
 export const Stories = () => {
 	const stories: Story[] = (useLoaderData() as StoryAPI[]).map(mapRawStory);
 
 	const [searchTerm, setSearchTerm] = useState('');
-
-	const visibleRows: Story[] = [...stories].filter((story) =>
-		story.name.toLowerCase().includes(searchTerm.toLowerCase())
+	const userPreferredView =
+		localStorage.getItem(STORIES_SELECTED_VIEW_ID) || 'table';
+	const [selectedView, setSelectedView] = useState<StoriesView>(
+		userPreferredView as StoriesView
 	);
+	const location = useLocation();
+	const navigate = useNavigate();
 
 	const initialSorting = getStoredSortState(BASE_STORIES_TABLE_ID);
 	const initialGroupBy = getStoredGroupByOption(BASE_STORIES_TABLE_ID);
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
+
+	useEffect(() => {
+		const queryParams = new URLSearchParams(location.search);
+		const viewFromQuery = queryParams.get('view') as StoriesView | null;
+		if (viewFromQuery && ['table', 'kanban'].includes(viewFromQuery)) {
+			setSelectedView(viewFromQuery);
+		} else {
+			// If the query param is not valid or missing, use the stored preference
+			const userPreferredView =
+				localStorage.getItem(STORIES_SELECTED_VIEW_ID) || 'table';
+			setSelectedView(userPreferredView as StoriesView);
+		}
+	}, [location.search]);
+
+	useEffect(() => {
+		const queryParams = new URLSearchParams();
+		queryParams.set('view', selectedView);
+		navigate({ search: queryParams.toString() }, { replace: true });
+		localStorage.setItem(STORIES_SELECTED_VIEW_ID, selectedView);
+	}, [selectedView, navigate]);
+
+	const visibleRows: Story[] = [...stories].filter((story) =>
+		story.name.toLowerCase().includes(searchTerm.toLowerCase())
+	);
 
 	useEffect(() => {
 		setStoredGroupByOption(BASE_STORIES_TABLE_ID, groupBy);
@@ -68,6 +112,9 @@ export const Stories = () => {
 				stories[index] = updatedStory;
 			}
 		});
+	};
+	const handleSelectView = (view: StoriesView) => {
+		setSelectedView(view);
 	};
 
 	return (
@@ -102,13 +149,33 @@ export const Stories = () => {
 							}}
 						/>
 					</div>
+					<div className="flex items-center gap-4">
+						<Button
+							variant={selectedView === 'table' ? 'contained' : 'text'}
+							color="primary"
+							startIcon={<TableViewIcon />}
+							onClick={() => handleSelectView('table')}
+						>
+							Table View
+						</Button>
+						<Button
+							variant={selectedView === 'kanban' ? 'contained' : 'text'}
+							color="primary"
+							startIcon={<KanbanViewIcon />}
+							onClick={() => handleSelectView('kanban')}
+						>
+							Kanban view
+						</Button>
+					</div>
 
 					<div className="flex gap-2">
-						<GroupByButton
-							options={GROUP_STORIES_OPTIONS}
-							selectItem={groupBy}
-							setSelectedItem={setGroupBy}
-						/>
+						{selectedView === 'table' && (
+							<GroupByButton
+								options={GROUP_STORIES_OPTIONS}
+								selectItem={groupBy}
+								setSelectedItem={setGroupBy}
+							/>
+						)}
 						{/* Navigation to new story flow */}
 						<Link to="new">
 							<Button
@@ -127,15 +194,31 @@ export const Stories = () => {
 					</div>
 				</Box>
 			</Box>
-
-			<StoriesTable
-				group={groupBy as GroupStoriesOption}
-				tableId={BASE_STORIES_TABLE_ID}
-				initialSorting={initialSorting}
-				stories={visibleRows}
-				checkedField={editFieldsCheckedItems}
-				onStoryUpdated={handleStoryUpdated}
-			/>
+			<motion.div
+				key={selectedView}
+				variants={viewVariants}
+				initial="initial"
+				animate={selectedView}
+				transition={{ duration: 0.5, type: 'tween' }}
+			>
+				{/* table view */}
+				{selectedView === 'table' && (
+					<StoriesTable
+						group={groupBy as GroupStoriesOption}
+						tableId={BASE_STORIES_TABLE_ID}
+						initialSorting={initialSorting}
+						stories={visibleRows}
+						checkedField={editFieldsCheckedItems}
+						onStoryUpdated={handleStoryUpdated}
+					/>
+				)}
+				{selectedView === 'kanban' && (
+					<div>
+						{/* kanban view */}
+						<StoriesKanbanView stories={visibleRows} />
+					</div>
+				)}
+			</motion.div>
 		</FullHeightSection>
 	);
 };

@@ -76,10 +76,11 @@
 	padding-right: 8px;
 	align-items: center;
 	justify-content: space-between;
-	background-color: #fff;
-	border-top-left-radius: 5px;
-	border-top-right-radius: 5px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+	background-color: #f9fafc;
+	border-bottom: 1px solid #e9eaec;
+	height: 40px;
 
 	&:hover {
 		.Actions > * {
