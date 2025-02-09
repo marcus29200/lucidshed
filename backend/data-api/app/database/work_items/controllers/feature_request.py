@@ -57,7 +57,9 @@ class FeatureRequestController(WorkItemController):
             current_user,
         )
 
-        feature_request = FeatureRequest(**record, company=company)
+        record = dict(record)
+        record["company"] = company
+        feature_request = FeatureRequest(**record)
 
         # Associate feature request with feature lists
         try:
