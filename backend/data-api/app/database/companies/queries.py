@@ -54,7 +54,9 @@ COMPANY_QUERIES[
 ] = """
 SELECT *
 FROM companies
-WHERE LOWER(name) = LOWER($1) AND deleted_at IS NULL;
+WHERE LOWER(name) = LOWER($1) AND deleted_at IS NULL
+ORDER BY modified_at DESC
+LIMIT 1;
 """
 
 COMPANY_QUERIES[
