@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { getStories, mapRawStory } from '../../../api/stories';
-import { StoryItem } from './StoryItem';
+import StoryCard from './StoryCard';
 
 type Props = {
 	priority: number;
@@ -30,7 +30,7 @@ export const StoriesByPriority = ({ orgId, priority }: Props) => {
 	return (
 		<>
 			{items.map((story) => (
-				<StoryItem key={'story-' + story.id} story={story} orgId={orgId} />
+				<StoryCard key={'story-' + story.id} story={story} orgId={orgId} />
 			))}
 		</>
 	);

@@ -4,11 +4,11 @@ import { useParams } from 'react-router-dom';
 import { getStories, mapRawStory } from '../../api/stories';
 
 import dayjs from 'dayjs';
-import { StoryItem } from './components/StoryItem';
 import { Story } from '../stories/Stories';
 import React from 'react';
 import { UsersContext } from '../../hooks/users';
 import clsx from 'clsx';
+import StoryCard from './components/StoryCard';
 
 const MAX_STORIES_BY_USER = 5;
 
@@ -47,7 +47,7 @@ const StoriesByAssignedTo: React.FC = () => {
 			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">
+					<h2 className="text-lg font-bold font-poppins truncate">
 						Tickets assigned by team member{' '}
 						<span className="text-base text-neutral-regular">
 							(top {MAX_STORIES_BY_USER} overdue)
@@ -70,7 +70,7 @@ const StoriesByAssignedTo: React.FC = () => {
 								{getUserName(userId)}
 							</h3>
 							{stories!.slice(0, MAX_STORIES_BY_USER).map((story) => (
-								<StoryItem
+								<StoryCard
 									key={'story-' + story.id}
 									story={story}
 									orgId={params.orgId as string}

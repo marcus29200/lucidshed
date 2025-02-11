@@ -60,7 +60,9 @@ const RecentlyMentioned: React.FC = () => {
 			<div className="flex flex-col gap-y-1.5">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">Recent Mentions</h2>
+					<h2 className="text-lg font-bold font-poppins truncate">
+						Recent Mentions
+					</h2>
 				</div>
 
 				<p className="text-sm ml-10 text-gray-400 font-semibold mb-4 font-poppins">

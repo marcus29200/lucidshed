@@ -185,12 +185,6 @@ export function DashboardMultipleContainers({
 		}
 	}, [initialItems]);
 
-	useEffect(() => {
-		if (onOrderChange) {
-			onOrderChange(items);
-		}
-	}, [items, onOrderChange]);
-
 	/**
 	 * Custom collision detection strategy optimized for multiple containers
 	 *
@@ -354,6 +348,80 @@ export function DashboardMultipleContainers({
 		});
 	}, [items]);
 
+	const handleDragEnd = useCallback(
+		({ active, over }) => {
+			if (active.id in items && over?.id) {
+				setContainers((containers) => {
+					const activeIndex = containers.indexOf(active.id);
+					const overIndex = containers.indexOf(over.id);
+
+					return arrayMove(containers, activeIndex, overIndex);
+				});
+			}
+
+			const activeContainer = findContainer(active.id);
+
+			if (!activeContainer) {
+				setActiveId(null);
+				return;
+			}
+
+			const overId = over?.id;
+
+			if (overId == null) {
+				setActiveId(null);
+				return;
+			}
+
+			const overContainer = findContainer(overId);
+
+			if (overContainer) {
+				const activeIndex = items[activeContainer].findIndex(
+					(childItem) => childItem && childItem.id === active.id
+				);
+				const overIndex = items[overContainer].findIndex(
+					(childItem) => childItem && childItem.id === overId
+				);
+				let newItems: Items = {};
+				if (activeIndex !== overIndex) {
+					setItems((items) => {
+						const item = items[overContainer].find(
+							(item) => item && item.id === active.id
+						);
+						if (item) {
+							item.id = `${overContainer}${item.id.toString().slice(1)}`;
+						}
+						newItems = {
+							...items,
+							[overContainer]: arrayMove(
+								items[overContainer],
+								activeIndex,
+								overIndex !== -1 ? overIndex : 0
+							),
+						};
+						return newItems;
+					});
+				} else {
+					setItems((items) => {
+						const item = items[overContainer].find(
+							(item) => item.id === active.id
+						);
+						if (item) {
+							item.id = `${overContainer}${item.id.toString().slice(1)}`;
+						}
+						newItems = {
+							...items,
+						};
+						return newItems;
+					});
+				}
+				onOrderChange?.(newItems);
+			}
+			setActiveId(null);
+		},
+		[onOrderChange]
+	);
+
 	return (
 		<>
 			<DndContext
@@ -429,113 +497,14 @@ export function DashboardMultipleContainers({
 						});
 					}
 				}}
-				onDragEnd={({ active, over }) => {
-					if (active.id in items && over?.id) {
-						setContainers((containers) => {
-							const activeIndex = containers.indexOf(active.id);
-							const overIndex = containers.indexOf(over.id);
-
-							return arrayMove(containers, activeIndex, overIndex);
-						});
-					}
-
-					const activeContainer = findContainer(active.id);
-
-					if (!activeContainer) {
-						setActiveId(null);
-						return;
-					}
-
-					const overId = over?.id;
-
-					if (overId == null) {
-						setActiveId(null);
-						return;
-					}
-
-					if (overId === TRASH_ID) {
-						setItems((items) => ({
-							...items,
-							[activeContainer]: items[activeContainer].filter(
-								(childItem) => childItem && childItem.id !== activeId
-							),
-						}));
-						setActiveId(null);
-						return;
-					}
-
-					if (overId === PLACEHOLDER_ID) {
-						const newContainerId = getNextContainerId();
-
-						unstable_batchedUpdates(() => {
-							setContainers((containers) => [...containers, newContainerId]);
-							setItems((items) => ({
-								...items,
-								[activeContainer]: items[activeContainer].filter(
-									(childItem) => childItem && childItem.id !== activeId
-								),
-								[newContainerId]: [
-									items[activeContainer].find(
-										(childItem) => childItem && childItem.id === active.id
-									) as SortableItem,
-								],
-							}));
-							setActiveId(null);
-						});
-						return;
-					}
-
-					const overContainer = findContainer(overId);
-
-					if (overContainer) {
-						const activeIndex = items[activeContainer].findIndex(
-							(childItem) => childItem && childItem.id === active.id
-						);
-						const overIndex = items[overContainer].findIndex(
-							(childItem) => childItem && childItem.id === overId
-						);
-
-						if (activeIndex !== overIndex) {
-							setItems((items) => {
-								const item = items[overContainer].find(
-									(item) => item && item.id === active.id
-								);
-								if (item) {
-									item.id = `${overContainer}${item.id.toString().slice(1)}`;
-								}
-								return {
-									...items,
-									[overContainer]: arrayMove(
-										items[overContainer],
-										activeIndex,
-										overIndex !== -1 ? overIndex : 0
-									),
-								};
-							});
-						} else {
-							setItems((items) => {
-								const item = items[overContainer].find(
-									(item) => item.id === active.id
-								);
-								if (item) {
-									item.id = `${overContainer}${item.id.toString().slice(1)}`;
-								}
-								return {
-									...items,
-								};
-							});
-						}
-					}
-
-					setActiveId(null);
-				}}
+				onDragEnd={handleDragEnd}
 				cancelDrop={cancelDrop}
 				onDragCancel={onDragCancel}
 				modifiers={modifiers}
 			>
 				<div
+					className="flex flex-col md:grid"
 					style={{
-						display: 'grid',
 						boxSizing: 'border-box',
 						padding: 20,
 						gridAutoFlow: vertical ? 'row' : 'column',

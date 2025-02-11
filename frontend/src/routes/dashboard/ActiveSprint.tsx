@@ -34,7 +34,9 @@ export const ActiveSprint = () => {
 			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">Current Sprint</h2>
+					<h2 className="text-lg font-bold font-poppins truncate">
+						Current Sprint
+					</h2>
 				</div>
 			</div>
 			{activeSprint ? (
@@ -49,8 +51,8 @@ export const ActiveSprint = () => {
 							<OpenInNew />
 						</Link>
 					</h2>
-					<div className="grid grid-cols-12">
-						<div className="flex flex-col gap-1 col-span-12 sm:col-span-3">
+					<div className="flex flex-col gap-4">
+						<div className="flex flex-col gap-1  ">
 							<p className="font-semibold text-base flex items-center gap-2">
 								<CalendarMonth />
 								Start Date:
@@ -66,7 +68,7 @@ export const ActiveSprint = () => {
 								</span>
 							</p>
 						</div>
-						<div className="flex flex-col gap-2.5 col-span-12 sm:col-span-9 text-left">
+						<div className="flex flex-col gap-2.5   text-left">
 							<div className="text-base font-semibold">
 								{sprintProgress.toFixed(2)}% to complete
 							</div>

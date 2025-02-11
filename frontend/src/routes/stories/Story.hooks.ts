@@ -19,7 +19,7 @@ export const storyLoader = (queryClient: QueryClient) => {
 };
 export const storiesQuery = (orgId: string, search?: string) =>
 	queryOptions({
-		queryKey: ['stories', orgId, search],
+		queryKey: ['stories', orgId],
 		queryFn: async () => getStories(orgId, search),
 	});
 

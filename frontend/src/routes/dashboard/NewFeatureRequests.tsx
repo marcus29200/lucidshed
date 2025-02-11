@@ -107,7 +107,7 @@ export const NewFeatureRequests = () => {
 			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">
+					<h2 className="text-lg font-bold font-poppins truncate">
 						New Feature Requests
 					</h2>
 				</div>

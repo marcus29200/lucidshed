@@ -2,6 +2,7 @@ import { QueryClient, queryOptions, useMutation } from '@tanstack/react-query';
 import {
 	LoaderFunctionArgs,
 	useLoaderData,
+	useLocation,
 	useParams,
 	useSearchParams,
 } from 'react-router-dom';
@@ -54,6 +55,7 @@ export const sprintsLoader = (_queryClient: QueryClient) => {
 
 const SELECTED_SPRINT_KEY = 'last-sprint-viewed'; // key to store selected sprint in local storage
 const DESCRIPTION_EXPANDED_KEY = 'sprint-description-expanded';
+
 let debounceTimeId;
 export const Sprints = () => {
 	const sprints = useLoaderData() as Sprint[];
@@ -90,6 +92,7 @@ export const Sprints = () => {
 		!localStorage.getItem(DESCRIPTION_EXPANDED_KEY) ||
 			localStorage.getItem(DESCRIPTION_EXPANDED_KEY) === '1'
 	);
+	const location = useLocation();
 
 	const { mutate: updateSprint } = useMutation({
 		mutationFn: patchSprint,
@@ -121,9 +124,10 @@ export const Sprints = () => {
 	useEffect(() => {
 		if (selectedSprint) {
 			localStorage.setItem(SELECTED_SPRINT_KEY, JSON.stringify(selectedSprint));
-			setSearchParams(
-				new URLSearchParams({ sprintId: selectedSprint.id.toString() })
-			);
+			const searchParams = new URLSearchParams(location.search);
+			searchParams.set('sprintId', selectedSprint.id.toString());
+
+			setSearchParams(searchParams);
 		}
 	}, [selectedSprint]);
 

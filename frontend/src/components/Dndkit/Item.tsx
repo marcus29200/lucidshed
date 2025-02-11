@@ -41,6 +41,7 @@ export interface Props {
 	}): React.ReactElement;
 	title?: string;
 	actionsEnabled?: boolean;
+	wrapperItemClassName?: string;
 }
 
 export const Item = React.memo(
@@ -67,6 +68,7 @@ export const Item = React.memo(
 				wrapperStyle,
 				title,
 				actionsEnabled,
+				wrapperItemClassName,
 				...props
 			},
 			ref
@@ -137,7 +139,8 @@ export const Item = React.memo(
 							handle && styles.withHandle,
 							dragOverlay && styles.dragOverlay,
 							disabled && styles.disabled,
-							color && styles.color
+							color && styles.color,
+							wrapperItemClassName
 						)}
 						{...(!handle ? listeners : undefined)}
 						{...props}

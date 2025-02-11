@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { getStories, mapRawStory } from '../../api/stories';
 
 import dayjs from 'dayjs';
-import { StoryItem } from './components/StoryItem';
+import StoryCard from './components/StoryCard';
 
 const OverdueStories: React.FC = () => {
 	const params = useParams();
@@ -30,14 +30,16 @@ const OverdueStories: React.FC = () => {
 			<div className="flex flex-col gap-y-1.5 pb-2">
 				<div className="flex flex-row gap-x-2 ">
 					<DashboardItemIcon />
-					<h2 className="text-lg font-bold font-poppins">Overdue Stories</h2>
+					<h2 className="text-lg font-bold font-poppins truncate">
+						Overdue Stories
+					</h2>
 				</div>
 			</div>
 
 			{/* Container for tasks with vertical scroll */}
 			<div className="max-h-[340px] !overflow-y-auto space-y-4 scrollbar-hide pr-3 truncate">
 				{items.map((story) => (
-					<StoryItem
+					<StoryCard
 						key={'story-' + story.id}
 						story={story}
 						orgId={params.orgId as string}

@@ -5,6 +5,7 @@ import {
 	useLoaderData,
 	useLocation,
 	useNavigate,
+	useParams,
 } from 'react-router-dom';
 import { mapRawStory, StoryAPI } from '../../api/stories';
 import StoriesTable from './StoriesTable';
@@ -13,7 +14,9 @@ import { useEffect, useState } from 'react';
 import {
 	GROUP_STORIES_OPTIONS,
 	GroupStoriesOption,
+	StoriesView,
 	StoryStatus,
+	storyViewVariants,
 } from './stories.model';
 import {
 	getStoredGroupByOption,
@@ -54,14 +57,6 @@ const editFieldsCheckedItems = [
 const BASE_STORIES_TABLE_ID = 'base-stories-table';
 const STORIES_SELECTED_VIEW_ID = 'stories-selected-view';
 
-type StoriesView = 'table' | 'kanban';
-
-const viewVariants = {
-	initial: { opacity: 0, x: 0 },
-	table: { opacity: 1, x: 0 },
-	kanban: { opacity: 1, x: 0 },
-};
-
 export const Stories = () => {
 	const stories: Story[] = (useLoaderData() as StoryAPI[]).map(mapRawStory);
 
@@ -73,6 +68,8 @@ export const Stories = () => {
 	);
 	const location = useLocation();
 	const navigate = useNavigate();
+
+	const orgId = useParams().orgId as string;
 
 	const initialSorting = getStoredSortState(BASE_STORIES_TABLE_ID);
 	const initialGroupBy = getStoredGroupByOption(BASE_STORIES_TABLE_ID);
@@ -196,7 +193,7 @@ export const Stories = () => {
 			</Box>
 			<motion.div
 				key={selectedView}
-				variants={viewVariants}
+				variants={storyViewVariants}
 				initial="initial"
 				animate={selectedView}
 				transition={{ duration: 0.5, type: 'tween' }}
@@ -215,7 +212,7 @@ export const Stories = () => {
 				{selectedView === 'kanban' && (
 					<div>
 						{/* kanban view */}
-						<StoriesKanbanView stories={visibleRows} />
+						<StoriesKanbanView stories={visibleRows} orgId={orgId} />
 					</div>
 				)}
 			</motion.div>

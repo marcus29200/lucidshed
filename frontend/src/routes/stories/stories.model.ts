@@ -5,7 +5,12 @@ export const STORY_STATUS = {
 	'in-progress': 'In Progress',
 	done: 'Done',
 } as const;
-export type StoryStatus = keyof typeof STORY_STATUS; // "not-started" | "in-progress" | "done
+export enum StoryStatus {
+	NOT_STARTED = 'not-started',
+	IN_PROGRESS = 'in-progress',
+	DONE = 'done',
+}
+
 export const statuses = [
 	{
 		label: 'Not started',
@@ -127,4 +132,11 @@ export type StoryFormProps = {
 	subType?: TicketType;
 	assignedTo?: string;
 	epic?: number;
+};
+
+export type StoriesView = 'table' | 'kanban';
+export const storyViewVariants = {
+	initial: { opacity: 0, x: 0 },
+	table: { opacity: 1, x: 0 },
+	kanban: { opacity: 1, x: 0 },
 };

@@ -4,4 +4,5 @@ export type SortableItem = {
 	id: UniqueIdentifier;
 	content: React.ReactNode;
 	title?: string;
+	containerId?: UniqueIdentifier;
 };
