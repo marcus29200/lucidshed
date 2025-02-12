@@ -21,7 +21,13 @@ import GroupByButton from '../../components/GroupByButton';
 import {
 	GROUP_STORIES_OPTIONS,
 	GroupStoriesOption,
+	StoriesView,
+	storyViewVariants,
 } from '../stories/stories.model';
+import { StoriesViewSwitcher } from '../stories/components/StoriesViewSwitcher';
+import { StoriesKanbanView } from '../stories/StoriesKanbanView';
+import { motion } from 'framer-motion';
+import { queryClient } from '../../router';
 const editFieldsCheckedItems = [
 	'name',
 	'progress',
@@ -33,6 +39,7 @@ const editFieldsCheckedItems = [
 	'targetDate',
 ];
 const EPIC_STORIES_TABLE_ID = 'epic-stories-table';
+const STORIES_SELECTED_VIEW_ID = 'epic-stories-selected-view';
 const EpicStories = ({
 	epic,
 	setProgress,
@@ -66,7 +73,7 @@ const EpicStories = ({
 	}>(sortStates);
 	const orgId = useParams().orgId as string;
 	const [searchTerm, setSearchTerm] = useState('');
-
+	const [selectedView, setSelectedView] = useState<StoriesView>('table');
 	const { data } = useQuery({
 		// add epicId to query key to avoid caching issues when epic
 		// see details with different epics
@@ -98,6 +105,18 @@ const EpicStories = ({
 			}
 		});
 	};
+	const handleKanbanChange = async (updatedStories: Story[]) => {
+		setProgress(getStoriesProgress(updatedStories));
+		stories.forEach((story, index) => {
+			const updatedStory = updatedStories.find((s) => s.id === story.id);
+			if (story.id === updatedStory?.id) {
+				stories[index] = updatedStory;
+			}
+		});
+		await queryClient.invalidateQueries({
+			queryKey: ['epicRelatedStories-' + epic.id],
+		});
+	};
 
 	return (
 		<>
@@ -124,13 +143,20 @@ const EpicStories = ({
 							}}
 						/>
 					</div>
-
+					<StoriesViewSwitcher
+						id={STORIES_SELECTED_VIEW_ID}
+						onChange={setSelectedView}
+					/>
 					<div className="flex gap-2">
-						<GroupByButton
-							options={GROUP_STORIES_OPTIONS}
-							selectItem={groupBy}
-							setSelectedItem={setGroupBy}
-						/>
+						<div className="w-[109px]">
+							{selectedView === 'table' && (
+								<GroupByButton
+									options={GROUP_STORIES_OPTIONS}
+									selectItem={groupBy}
+									setSelectedItem={setGroupBy}
+								/>
+							)}
+						</div>
 						{/* Navigation to new story flow */}
 						<Link to={`/${orgId}/stories/new`}>
 							<Button
@@ -148,15 +174,36 @@ const EpicStories = ({
 						</Link>
 					</div>
 				</Box>
-				<StoriesTable
-					group={groupBy as GroupStoriesOption}
-					tableId={EPIC_STORIES_TABLE_ID}
-					initialSorting={sortingStates}
-					stories={filteredItems}
-					actionsEnabled={false}
-					checkedField={editFieldsCheckedItems}
-					onStoryUpdated={handleStoryUpdated}
-				/>
+				<motion.div
+					key={selectedView}
+					variants={storyViewVariants}
+					initial="initial"
+					animate={selectedView}
+					transition={{ duration: 0.5, type: 'tween' }}
+				>
+					{/* table view */}
+					{selectedView === 'table' && (
+						<StoriesTable
+							group={groupBy as GroupStoriesOption}
+							tableId={EPIC_STORIES_TABLE_ID}
+							initialSorting={sortingStates}
+							stories={filteredItems}
+							actionsEnabled={false}
+							checkedField={editFieldsCheckedItems}
+							onStoryUpdated={handleStoryUpdated}
+						/>
+					)}
+					{selectedView === 'kanban' && (
+						<div>
+							{/* kanban view */}
+							<StoriesKanbanView
+								stories={filteredItems}
+								orgId={orgId}
+								onChange={handleKanbanChange}
+							/>
+						</div>
+					)}
+				</motion.div>
 			</div>
 		</>
 	);

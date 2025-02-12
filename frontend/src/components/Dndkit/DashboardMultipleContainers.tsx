@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal, unstable_batchedUpdates } from 'react-dom';
+import { createPortal } from 'react-dom';
 import {
 	CancelDrop,
 	closestCenter,
@@ -14,7 +14,6 @@ import {
 	MouseSensor,
 	TouchSensor,
 	Modifiers,
-	useDroppable,
 	UniqueIdentifier,
 	useSensors,
 	useSensor,
@@ -141,7 +140,6 @@ interface Props {
 
 export const TRASH_ID = 'void';
 const PLACEHOLDER_ID = 'placeholder';
-const empty: SortableItem[] = [];
 
 export function DashboardMultipleContainers({
 	adjustScale = false,
@@ -156,7 +154,6 @@ export function DashboardMultipleContainers({
 	modifiers,
 	renderItem,
 	strategy = verticalListSortingStrategy,
-	trashable = false,
 	vertical = false,
 	scrollable,
 	onOrderChange,
@@ -561,17 +558,6 @@ export function DashboardMultipleContainers({
 								</SortableContext>
 							</DroppableContainer>
 						))}
-						{minimal ? undefined : (
-							<DroppableContainer
-								id={PLACEHOLDER_ID}
-								disabled={isSortingContainer}
-								items={empty}
-								onClick={handleAddColumn}
-								placeholder
-							>
-								+ Add column
-							</DroppableContainer>
-						)}
 					</SortableContext>
 				</div>
 				{createPortal(
@@ -586,9 +572,6 @@ export function DashboardMultipleContainers({
 					</DragOverlay>,
 					document.body
 				)}
-				{trashable && activeId && !containers.includes(activeId) ? (
-					<Trash id={TRASH_ID} />
-				) : null}
 			</DndContext>
 
 			<ConfirmationDialog
@@ -665,53 +648,6 @@ export function DashboardMultipleContainers({
 		setItemToRemove(item);
 		confirmDeletion ? setConfirmationOpen(true) : confirmRemove();
 	}
-
-	function handleAddColumn() {
-		const newContainerId = getNextContainerId();
-
-		unstable_batchedUpdates(() => {
-			setContainers((containers) => [...containers, newContainerId]);
-			setItems((items) => ({
-				...items,
-				[newContainerId]: [],
-			}));
-		});
-	}
-
-	function getNextContainerId() {
-		const containerIds = Object.keys(items);
-		const lastContainerId = containerIds[containerIds.length - 1];
-
-		return String.fromCharCode(lastContainerId.charCodeAt(0) + 1);
-	}
-}
-
-function Trash({ id }: { id: UniqueIdentifier }) {
-	const { setNodeRef, isOver } = useDroppable({
-		id,
-	});
-
-	return (
-		<div
-			ref={setNodeRef}
-			style={{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				position: 'fixed',
-				left: '50%',
-				marginLeft: -150,
-				bottom: 20,
-				width: 300,
-				height: 60,
-				borderRadius: 5,
-				border: '1px solid',
-				borderColor: isOver ? 'red' : '#DDD',
-			}}
-		>
-			Drop here to delete
-		</div>
-	);
 }
 
 interface SortableItemProps {

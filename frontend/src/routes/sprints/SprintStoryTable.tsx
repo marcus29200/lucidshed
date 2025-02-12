@@ -1,7 +1,7 @@
 import { Box, Button, MenuItem } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { KanbanViewIcon, SearchIcon, TableViewIcon } from '../../icons/icons';
+import { Link, useParams } from 'react-router-dom';
+import { SearchIcon } from '../../icons/icons';
 import { Story } from '../stories/Stories';
 import StoriesTable from '../stories/StoriesTable';
 import {
@@ -25,6 +25,7 @@ import { StoryAPI, updateStory } from '../../api/stories';
 import { StoriesKanbanView } from '../stories/StoriesKanbanView';
 import { motion } from 'framer-motion';
 import { queryClient } from '../../router';
+import { StoriesViewSwitcher } from '../stories/components/StoriesViewSwitcher';
 
 const editFieldsCheckedItems = [
 	'name',
@@ -78,8 +79,6 @@ const SprintStoryTable = ({
 	const [openDialog, setOpenDialog] = useState(false);
 	const orgId = useParams().orgId as string;
 
-	const location = useLocation();
-	const navigate = useNavigate();
 	const { data } = useQuery({
 		// add sprintId to query key to avoid caching issues when sprint
 		// see details with different sprints
@@ -96,11 +95,7 @@ const SprintStoryTable = ({
 	const initialGroupBy = getStoredGroupByOption(SPRINT_STORIES_TABLE_ID);
 	const [groupBy, setGroupBy] = useState<string | undefined>(initialGroupBy);
 
-	const userPreferredView =
-		localStorage.getItem(STORIES_SELECTED_VIEW_ID) || 'table';
-	const [selectedView, setSelectedView] = useState<StoriesView>(
-		userPreferredView as StoriesView
-	);
+	const [selectedView, setSelectedView] = useState<StoriesView>('table');
 
 	const { mutate: patchStory } = useMutation({
 		mutationFn: updateStory,
@@ -132,25 +127,7 @@ const SprintStoryTable = ({
 			setTargetSprint(0);
 		}
 	}, [targetSprint]);
-	useEffect(() => {
-		const queryParams = new URLSearchParams(location.search);
-		const viewFromQuery = queryParams.get('view') as StoriesView | null;
-		if (viewFromQuery && ['table', 'kanban'].includes(viewFromQuery)) {
-			setSelectedView(viewFromQuery);
-		} else {
-			// If the query param is not valid or missing, use the stored preference
-			const userPreferredView =
-				localStorage.getItem(STORIES_SELECTED_VIEW_ID) || 'table';
-			setSelectedView(userPreferredView as StoriesView);
-		}
-	}, [location.search]);
 
-	useEffect(() => {
-		const queryParams = new URLSearchParams(location.search);
-		queryParams.set('view', selectedView);
-		navigate({ search: queryParams.toString() }, { replace: true });
-		localStorage.setItem(STORIES_SELECTED_VIEW_ID, selectedView);
-	}, [selectedView, navigate]);
 	const handleStoryUpdated = (updatedStory: Story) => {
 		stories.forEach((story, index) => {
 			if (story.id === updatedStory.id) {
@@ -166,9 +143,6 @@ const SprintStoryTable = ({
 			stories.splice(removed, 1);
 			setSprintProgress(getStoriesProgress(stories).progress);
 		}
-	};
-	const handleSelectView = (view: StoriesView) => {
-		setSelectedView(view);
 	};
 
 	const handleKanbanChange = async (updatedStories: Story[]) => {
@@ -241,32 +215,21 @@ const SprintStoryTable = ({
 						}}
 					/>
 				</div>
-				<div className="flex items-center gap-4">
-					<Button
-						variant={selectedView === 'table' ? 'contained' : 'text'}
-						color="primary"
-						startIcon={<TableViewIcon />}
-						onClick={() => handleSelectView('table')}
-					>
-						Table View
-					</Button>
-					<Button
-						variant={selectedView === 'kanban' ? 'contained' : 'text'}
-						color="primary"
-						startIcon={<KanbanViewIcon />}
-						onClick={() => handleSelectView('kanban')}
-					>
-						Kanban view
-					</Button>
-				</div>
+				<StoriesViewSwitcher
+					id={STORIES_SELECTED_VIEW_ID}
+					onChange={setSelectedView}
+				/>
+
 				<div className="flex gap-2">
-					{selectedView === 'table' && (
-						<GroupByButton
-							options={GROUP_STORIES_OPTIONS}
-							selectItem={groupBy}
-							setSelectedItem={setGroupBy}
-						/>
-					)}
+					<div className="w-[109px]">
+						{selectedView === 'table' && (
+							<GroupByButton
+								options={GROUP_STORIES_OPTIONS}
+								selectItem={groupBy}
+								setSelectedItem={setGroupBy}
+							/>
+						)}
+					</div>
 					{/* Navigation to new story flow */}
 					<Link to={`/${orgId}/stories/new`}>
 						<Button
