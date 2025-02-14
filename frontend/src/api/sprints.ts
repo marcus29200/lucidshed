@@ -78,7 +78,9 @@ export const getSprints = async (orgId: string): Promise<Sprint[]> => {
 		return [];
 	}
 	const payload = await res.json();
-	return payload.items.map((iter: RawSprint) => mapPayloadToSprint(iter));
+	return payload.items
+		.map((iter: RawSprint) => mapPayloadToSprint(iter))
+		.sort((a, b) => a.title.localeCompare(b.title));
 };
 
 export const getSprint = async (orgId: string, iterId: string) => {

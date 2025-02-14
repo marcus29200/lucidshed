@@ -87,7 +87,9 @@ button:focus-visible {
 .MuiPaper-root.MuiPaper-elevation.MuiPaper-rounded:has(.table-filter) {
 	border-radius: 12px;
 }
-
+.MuiTable-stickyHeader .MuiTableBody-root {
+	max-height: calc(100vh - 385px);
+}
 /* custom editor */
 .tiptap {
 	text-align: left;

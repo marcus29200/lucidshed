@@ -31,12 +31,27 @@ export default function SprintSearchInput({
 	const options = enableAddNew
 		? [{ title: 'Add new sprint', inputValue: 'add-new' }, ...items]
 		: [...items];
-
+	const today = new Date().toISOString();
 	React.useEffect(() => {
 		setValue(sprint);
 	}, [sprint]);
 
 	const navigate = useNavigate();
+
+	const isOptionActiveSprint = (
+		option:
+			| Sprint
+			| {
+					title: string;
+					inputValue: string;
+			  }
+	) => {
+		if (!option['startDate']) {
+			return false;
+		}
+		const sprint = option as Sprint;
+		return today >= sprint.startDate && today <= sprint.endDate;
+	};
 
 	return (
 		<Autocomplete
@@ -99,6 +114,13 @@ export default function SprintSearchInput({
 				return (
 					<li key={key} {...optionProps} value={optionProps.id}>
 						{option.title}
+						{isOptionActiveSprint(option) ? (
+							<span className="text-xs text-neutral-regular ml-2">
+								(active)
+							</span>
+						) : (
+							''
+						)}
 					</li>
 				);
 			}}

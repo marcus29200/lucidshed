@@ -92,8 +92,10 @@ export const Sprints = () => {
 		!localStorage.getItem(DESCRIPTION_EXPANDED_KEY) ||
 			localStorage.getItem(DESCRIPTION_EXPANDED_KEY) === '1'
 	);
-	const location = useLocation();
 
+	const [isSprintActive, setIsSprintActive] = useState(false);
+	const location = useLocation();
+	const today = new Date().toISOString();
 	const { mutate: updateSprint } = useMutation({
 		mutationFn: patchSprint,
 		onError: () => {
@@ -128,6 +130,10 @@ export const Sprints = () => {
 			searchParams.set('sprintId', selectedSprint.id.toString());
 
 			setSearchParams(searchParams);
+			setIsSprintActive(
+				() =>
+					today >= selectedSprint.startDate && today <= selectedSprint.endDate
+			);
 		}
 	}, [selectedSprint]);
 
@@ -283,6 +289,19 @@ export const Sprints = () => {
 					background: 'white',
 					padding: '16px',
 					borderRadius: '12px',
+					outline: isSprintActive ? '2px solid #20A224' : '',
+					position: 'relative',
+					'&::before': {
+						content: isSprintActive ? '"Active Sprint"' : '""',
+						position: 'absolute',
+						right: 0,
+						top: 0,
+						background: '#20A224',
+						color: 'white',
+						borderTopRightRadius: '12px',
+						padding: isSprintActive ? '6px 12px' : 0,
+						borderBottomLeftRadius: 4,
+					},
 				}}
 			>
 				{selectedSprint && (
