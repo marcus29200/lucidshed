@@ -148,7 +148,7 @@ const EpicStories = ({
 						onChange={setSelectedView}
 					/>
 					<div className="flex gap-2">
-						<div className="w-[109px]">
+						<div className="w-[180px]">
 							{selectedView === 'table' && (
 								<GroupByButton
 									options={GROUP_STORIES_OPTIONS}
