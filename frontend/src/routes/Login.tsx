@@ -10,6 +10,7 @@ import { AuthContextValue, useAuth } from '../hooks/auth';
 const Login = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [invalidCredentials, setInvalidCredentials] = useState(false);
 	const navigate = useNavigate();
 	const { storeToken } = useAuth() as AuthContextValue;
 	// convert to a form action
@@ -28,6 +29,9 @@ const Login = () => {
 		},
 		onError: (error) => {
 			console.error(error);
+			if (error['detail']) {
+				setInvalidCredentials(true);
+			}
 		},
 	});
 
@@ -68,6 +72,7 @@ const Login = () => {
 						<TextField
 							variant="outlined"
 							margin="normal"
+							color={invalidCredentials ? 'error' : 'primary'}
 							required
 							fullWidth
 							size="small"
@@ -81,9 +86,10 @@ const Login = () => {
 						<TextField
 							variant="outlined"
 							margin="normal"
-							sx={{ marginTop: '0px', marginBottom: '32px' }}
+							sx={{ marginTop: '0px', marginBottom: '16px' }}
 							required
 							fullWidth
+							color={invalidCredentials ? 'error' : 'primary'}
 							size="small"
 							name="password"
 							label="Password"
@@ -97,6 +103,11 @@ const Login = () => {
 							autoComplete="current-password"
 							onChange={(e) => setPassword(e.target.value)}
 						/>
+						{invalidCredentials && (
+							<div className="text-error font-semibold mb-6">
+								Incorrect username or password.
+							</div>
+						)}
 						<Button type="submit" fullWidth variant="contained" color="primary">
 							Sign in
 						</Button>

@@ -3,6 +3,9 @@ import { snakeCaseToTitleCase } from '../../../shared/utils';
 import { Story } from '../Stories';
 import dayjs from 'dayjs';
 import { StoryDueDate } from '../../dashboard/components/StoryDueDate';
+import { IconButton } from '@mui/material';
+import { Visibility } from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const statusColors = {
 	'in-progress': 'bg-secondary',
@@ -14,6 +17,14 @@ type Props = {
 	story: Story;
 };
 export const StoryKanbanCard = ({ story }: Props) => {
+	const navigate = useNavigate();
+	const orgId = useParams().orgId as string;
+	const handleViewStory = (
+		event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+	) => {
+		event.stopPropagation();
+		navigate(`/${orgId}/stories/${story.id}`);
+	};
 	return (
 		<div className="bg-white rounded shadow-sm space-y-3 p-4 mb-1.5">
 			<div className="flex flex-col gap-4">
@@ -29,6 +40,11 @@ export const StoryKanbanCard = ({ story }: Props) => {
 					<p className="text-sm line-clamp-2">
 						<span className="text-neutral-regular">Ticket#:</span> {story.id}
 					</p>
+					<div className="ml-auto">
+						<IconButton onClick={handleViewStory}>
+							<Visibility />
+						</IconButton>
+					</div>
 				</div>
 				<p className="text-left line-clamp-2">{story.name}</p>
 
