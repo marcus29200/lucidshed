@@ -139,7 +139,7 @@ export const StoriesKanbanView = ({ stories, orgId, onChange }: Props) => {
 				{boards.map((column) => (
 					<div
 						key={column}
-						className="flex-1 mx-2 bg-neutral-50 rounded-md max-w-[360px] shadow-sm"
+						className="flex-1 mx-2 bg-neutral-50 rounded-md  shadow-sm"
 					>
 						<StoriesKanbanColumnHeader
 							columnTitle={column}
