@@ -85,7 +85,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				accessorKey: 'name',
 				id: 'name',
 				header: 'Epic Name',
-				size: 100,
+				size: 200,
 				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">Epic Name</span>,
 			},
@@ -93,7 +93,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				accessorKey: 'progress',
 				id: 'progress',
 				header: 'Progress',
-				size: 200,
+				size: 100,
 				enableColumnActions: false,
 				Cell: ({ cell }) => {
 					const progress = parseFloat(cell.getValue<string>()); // Assuming the progress is a numeric value in percentage
@@ -106,7 +106,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				accessorKey: 'id',
 				id: 'id',
 				header: 'Epic Id',
-				size: 200,
+				size: 60,
 				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">EpicId</span>,
 			},
@@ -115,7 +115,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				accessorKey: 'startDate',
 				id: 'startDate',
 				header: 'Start Date',
-				size: 150,
+				size: 80,
 				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">Start Date</span>,
 				Cell: ({ cell }) => {
@@ -130,7 +130,7 @@ const EpicsTable = ({ epics, checkedField }: EpicDataTableProps) => {
 				accessorKey: 'endDate',
 				id: 'endDate',
 				header: 'Target Date',
-				size: 150,
+				size: 80,
 				enableColumnActions: false,
 				Header: () => <span className="cursor-pointer">Target Date</span>,
 				Cell: ({ cell }) => {

@@ -1,6 +1,6 @@
 import { Box, Divider, Drawer, List } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { BookIcon, DashboardIcon, DeskAltIcon } from '../icons/icons';
+import { BookIcon, DeskAltIcon } from '../icons/icons';
 import { NavigateBefore, NavigateNext, PeopleAlt } from '@mui/icons-material';
 import SettingsModal from './SettingsDashboard/pages/SettingPage';
 import SidebarItem from './SidebarItem';
@@ -17,12 +17,6 @@ export type NavigationItem = {
 };
 
 const NAVIGATION_ITEMS: NavigationItem[] = [
-	{
-		to: '',
-		label: 'Dashboard',
-		icon: () => <DashboardIcon />,
-		activePaths: ['dashboard'],
-	},
 	{
 		to: 'stories',
 		label: 'Sprint management',

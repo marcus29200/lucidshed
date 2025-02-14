@@ -22,7 +22,7 @@ const Login = () => {
 				navigate('/setup/org');
 			} else {
 				if (user?.organizationId) {
-					navigate(`/${user?.organizationId}`);
+					navigate(`/${user?.organizationId}/stories`);
 				}
 			}
 		},

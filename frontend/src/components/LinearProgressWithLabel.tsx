@@ -22,6 +22,7 @@ export function LinearProgressWithLabel({
 			style={{
 				display: 'flex',
 				flexDirection: 'column',
+				width: '100%',
 			}}
 		>
 			<div

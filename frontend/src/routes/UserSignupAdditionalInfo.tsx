@@ -16,7 +16,7 @@ const UserSignupAdditionalInfo = () => {
 			updateUser(data);
 			const orgId = localStorage.getItem('orgId') as string;
 			await queryClient.invalidateQueries({ queryKey: ['users'] });
-			navigate(`/${orgId}`);
+			navigate(`/${orgId}/stories`);
 		},
 		onError: (error) => {
 			console.error(error);

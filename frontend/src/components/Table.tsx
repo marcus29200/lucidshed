@@ -164,7 +164,7 @@ const ShedTable = <T extends MRT_RowData>({
 		displayColumnDefOptions: {
 			'mrt-row-actions': {
 				header: '', //change header text
-				size: 40, //make actions column smaller
+				size: 80, //make actions column smaller
 				grow: false,
 				Header: ({ table: tab }) => {
 					const visibleCols = tab
@@ -279,6 +279,7 @@ const ShedTable = <T extends MRT_RowData>({
 			className: 'table-filter',
 		},
 		icons: customIcons,
+		enableRowVirtualization: true,
 	});
 
 	useEffect(() => {
