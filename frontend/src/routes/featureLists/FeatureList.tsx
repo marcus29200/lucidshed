@@ -51,6 +51,8 @@ const FeatureList = memo(
 		});
 
 		useEffect(() => {
+			console.log(featureList);
+
 			if (featureList) {
 				setTitle(() => featureList.title);
 				setDescription(() => featureList.description ?? '');
@@ -98,6 +100,7 @@ const FeatureList = memo(
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			const payload = {
+				...featureList,
 				description,
 				title: featureList?.title,
 				requests: featureList?.requests,
