@@ -4,13 +4,12 @@ import {
 	ListItemIcon,
 	ListItemText,
 	IconButton,
-	Tooltip,
-	tooltipClasses,
 } from '@mui/material';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { NavigationItem } from './Sidebar';
 import { useEnabledRoutes } from '../hooks/enabledRoutes';
 import { useEffect } from 'react';
+import clsx from 'clsx';
 
 const SidebarItem = ({
 	item,
@@ -77,6 +76,7 @@ const SidebarItem = ({
 							: undefined,
 					position: 'relative',
 					paddingLeft: expanded ? '22px' : '16px !important',
+					paddingY: '4px',
 					alignItems: 'center',
 					justifyContent: 'center',
 					'&.Mui-selected': {
@@ -104,7 +104,7 @@ const SidebarItem = ({
 								fontWeight: '600 !important',
 							},
 						},
-						'& > div': {
+						[expanded ? '& > div' : '&']: {
 							backgroundColor: '#20a2241c',
 						},
 					},
@@ -138,19 +138,16 @@ const SidebarItem = ({
 						borderRadius: '8px',
 					}}
 				>
-					<Tooltip
-						title={item.label}
-						placement="right"
-						PopperProps={{
-							sx: {
-								[`& .${tooltipClasses.tooltip}`]: { background: '#000' },
-							},
-						}}
+					<ListItemIcon
+						className={clsx(!expanded && 'flex flex-col items-center w-full')}
 					>
-						<ListItemIcon>
-							<div className={item.iconClassName ?? ''}>{item.icon()}</div>
-						</ListItemIcon>
-					</Tooltip>
+						<div className={item.iconClassName ?? ''}>{item.icon()}</div>
+						{!expanded && (
+							<div className="text-[10px] whitespace-pre-line">
+								{item.label}
+							</div>
+						)}
+					</ListItemIcon>
 					{expanded && (
 						<>
 							<ListItemText

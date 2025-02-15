@@ -83,7 +83,6 @@ const UserSignupAdditionalInfo = () => {
 									size="small"
 									label="Last name"
 									name="lastName"
-									autoFocus
 								/>
 							</Grid>
 						</Grid>
@@ -95,7 +94,6 @@ const UserSignupAdditionalInfo = () => {
 							size="small"
 							label="Title"
 							name="title"
-							autoFocus
 						/>
 						<TextField
 							variant="outlined"
@@ -107,7 +105,6 @@ const UserSignupAdditionalInfo = () => {
 							multiline
 							maxRows={3}
 							minRows={3}
-							autoFocus
 							sx={{ marginBottom: '32px' }}
 						/>
 						<Button type="submit" fullWidth variant="contained" color="primary">
