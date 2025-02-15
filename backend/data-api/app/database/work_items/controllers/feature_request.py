@@ -27,6 +27,7 @@ class FeatureRequestController(WorkItemController):
     async def create(self, *, new_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
         company = await self.company_controller.get_by_name(name=new_item.company.name)
         if not company:
+            logger.info(f"Company not found, creating new company: {new_item.company.name}")
             company = await self.company_controller.create(
                 new_item=BaseCompany(
                     name=new_item.company.name,
@@ -64,6 +65,7 @@ class FeatureRequestController(WorkItemController):
         # Associate feature request with feature lists
         try:
             feature_list_id = await self.get_feature_list_id(name=company.name)
+            logger.info(f"Feature list found for company: {company.name}, ID: {feature_list_id}")
         except ObjectNotFoundException:
             logger.warning(f"Feature list not found for company: {company.name}")
             feature_list_id = None
@@ -91,6 +93,7 @@ class FeatureRequestController(WorkItemController):
     async def get_feature_list_id(self, name: str) -> Optional[int]:
         try:
             feature_list = await self.feature_list_controller.get_by_name(name=name)
+            logger.info(f"Feature list found for company: {name}, ID: {feature_list.id} title: {feature_list.title}")
         except ObjectNotFoundException:
             logger.warning(f"Feature list not found for company: {name}")
             raise
