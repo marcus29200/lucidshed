@@ -51,11 +51,16 @@ async def test_should_associate_feature_request_with_feature_list(data_api: Test
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
     feature_request = await add_feature_request(data_api, organization["id"], headers=headers)
+    feature_request_2 = await add_feature_request(data_api, organization["id"], headers=headers)
     feature_list = await add_feature_list(
-        data_api, organization["id"], headers=headers, overrides={"feature_requests": [feature_request["id"]]}
+        data_api,
+        organization["id"],
+        headers=headers,
+        overrides={"feature_requests": [feature_request["id"], feature_request_2["id"]]}
     )
 
     assert feature_request["id"] in feature_list["feature_requests"]
+    assert feature_request_2["id"] in feature_list["feature_requests"]
 
 
 async def test_should_get_all_feature_lists(data_api: TestClient):
