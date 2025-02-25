@@ -7,9 +7,9 @@ from app.database.common.models import Model
 
 
 class UserRoleType(StrEnum):
-    ADMIN: str = "admin"
-    MEMBER: str = "member"
-    GUEST: str = "guest"
+    ADMIN = "admin"
+    MEMBER = "member"
+    GUEST = "guest"
 
 
 class BaseUserPermission(BaseModel):

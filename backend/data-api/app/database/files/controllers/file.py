@@ -7,31 +7,20 @@ from google.cloud import storage
 from app.api.settings import data_db, settings
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
-from app.database.files.models.file import BaseFile, File
-from app.exceptions.common import ObjectNotFoundException
+from app.database.files.models.file import File, BaseFile
+from app.database.common.controllers import BaseController
 
 
-class FileController:
-    async def create(self, organization_id: str, file: BaseFile, current_user: str) -> File:
-        file_id = uuid4().hex
-        record = await data_db.get().fetchrow(
-            QUERIES["CREATE_FILE"],
-            file_id,
-            file.file_name,
-            join(settings.gcs_path or "", organization_id, file_id),
-            current_user,
-            current_user,
-        )
+class FileController(BaseController):
+    _type = "FILE"
+    _create_history = False
+    RETURN_MODEL = File
 
-        return File(**record)
-
-    async def get(self, *, id: str) -> File:
-        record = await data_db.get().fetchrow(QUERIES["GET_FILE"], id)
-
-        if not record:
-            raise ObjectNotFoundException(object_id=id)
-
-        return File(**record)
+    async def create(self, organization_id: str, new_item: BaseFile, current_user: str) -> File:
+        new_item.id = uuid4().hex
+        new_item.path = join(settings.gcs_path or "", organization_id, new_item.id)
+        
+        return await super().create(new_item=new_item, current_user=current_user)
 
     async def get_all(
         self,
@@ -61,7 +50,4 @@ class FileController:
         blob = bucket.blob(file.path)
         blob.delete()
 
-        # Delete db record
-        await data_db.get().execute(QUERIES["DELETE_FILE"], id, current_user)
-
-        return True
+        return await super().delete(id=id, current_user=current_user)

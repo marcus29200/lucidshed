@@ -155,7 +155,7 @@ class UserController:
 
         return User(**record)
 
-    async def delete(self, *, id: int, current_user: str, organization_id: Optional[str] = None) -> bool:
+    async def delete(self, *, id: str, current_user: str, organization_id: Optional[str] = None) -> bool:
         if organization_id:
             # TODO Need to delete user permissions, maybe delete full user if no permissions are left? Later problem
             pass

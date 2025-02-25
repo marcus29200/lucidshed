@@ -20,13 +20,9 @@ FILE_QUERIES[
 ] = """
 INSERT INTO files
 (
-    id,
-    file_name,
-    path,
-    created_by_id,
-    modified_by_id
+    {}
 )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ({})
 RETURNING *;
 """
 

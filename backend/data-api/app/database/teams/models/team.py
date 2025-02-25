@@ -1,8 +1,8 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from app.database.common.models import MAX_ID_LENGTH, Model
+from app.database.common.models import MAX_ID_LENGTH, Model, BaseModel
 
 
 class BaseTeam(BaseModel):
@@ -13,4 +13,4 @@ class BaseTeam(BaseModel):
 
 
 class Team(Model, BaseTeam):
-    id: int  # type: ignore
+    pass

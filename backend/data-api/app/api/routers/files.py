@@ -44,7 +44,7 @@ async def get_files(
 
 
 # @router.patch("/{id}", status_code=200, response_model=Iteration)
-# async def update_iteration(request: Request, organization_id: str, id: int, body: BaseIteration) -> Iteration:
+# async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
 #     return await request.app.iteration_controller.update(
 #         id=id, updated_iteration=body, current_user=request.state.user.id
 #     )

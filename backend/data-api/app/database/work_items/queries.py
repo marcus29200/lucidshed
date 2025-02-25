@@ -4,7 +4,7 @@ from app.database.common.shared_queries import BASE_MODEL_FIELDS
 WORK_ITEM_QUERIES = {}
 
 BASE_WORK_ITEM_FIELDS = f"""
-    id SERIAL PRIMARY KEY,
+    id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     description TEXT,
@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS engineering_items (
     item_type VARCHAR(30),
     item_sub_type VARCHAR(30),
     estimate INT,
-    iteration_id INT REFERENCES iterations(id) ON DELETE SET NULL,
-    team_id INT REFERENCES teams(id) ON DELETE SET NULL,
+    iteration_id VARCHAR({MAX_ID_LENGTH}) REFERENCES iterations(id) ON DELETE SET NULL,
+    team_id VARCHAR({MAX_ID_LENGTH}) REFERENCES teams(id) ON DELETE SET NULL,
     due_date timestamp with time zone DEFAULT NULL,
     acceptance_criteria TEXT[]
 );
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS support_items (
     f"""
 CREATE TABLE IF NOT EXISTS work_item_comments (
     id VARCHAR({MAX_ID_LENGTH}),
-    work_item_id INT NOT NULL,
+    work_item_id VARCHAR({MAX_ID_LENGTH}) NOT NULL,
     {BASE_MODEL_FIELDS},
     description TEXT,
     PRIMARY KEY (id, work_item_id)
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS work_item_comments (
     """,
     f"""
 CREATE TABLE IF NOT EXISTS work_item_relationships (
-    item_1 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
-    item_2 INT REFERENCES engineering_items(id) ON DELETE CASCADE,
+    item_1 VARCHAR({MAX_ID_LENGTH}) REFERENCES engineering_items(id) ON DELETE CASCADE,
+    item_2 VARCHAR({MAX_ID_LENGTH}) REFERENCES engineering_items(id) ON DELETE CASCADE,
     link_type VARCHAR(30) NOT NULL,
     created_at timestamp with time zone DEFAULT NOW(),
     created_by_id VARCHAR({MAX_ID_LENGTH}),
@@ -93,24 +93,9 @@ WORK_ITEM_QUERIES[
 ] = f"""
 INSERT INTO engineering_items
 (
-    title,
-    description,
-    status,
-    priority,
-    estimated_completion_date,
-    starred,
-    item_type,
-    item_sub_type,
-    estimate,
-    iteration_id,
-    team_id,
-    due_date,
-    acceptance_criteria,
-    assigned_to_id,
-    created_by_id,
-    modified_by_id
+    {{}}
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+VALUES ({{}})
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
 """
 
@@ -181,29 +166,7 @@ WORK_ITEM_QUERIES[
 ] = f"""
 UPDATE engineering_items
 SET
-    title = $2,
-    description = $3,
-    status = $4,
-    priority = $5,
-    estimated_completion_date = $6,
-    starred = $7,
-    item_type = $8,
-    item_sub_type = $9,
-    estimate = $10,
-    iteration_id = $11,
-    team_id = $12,
-    due_date = $13,
-    acceptance_criteria = $14,
-    created_by_id = $15,
-    modified_at = NOW(),
-    modified_by_id = $16,
-    archived_at = $17,
-    archived_by_id = $18,
-    deleted_at = $19,
-    deleted_by_id = $20,
-    completed_at = $21,
-    completed_by_id = $22,
-    assigned_to_id = $23
+    {{fields}}
 WHERE
     id = $1
 RETURNING *, {LOAD_ITERATION}, {LOAD_TEAM};
@@ -226,21 +189,9 @@ WORK_ITEM_QUERIES[
 ] = """
 INSERT INTO support_items
 (
-    title,
-    description,
-    status,
-    priority,
-    estimated_completion_date,
-    starred,
-    owner,
-    customer,
-    primary_contact,
-    secondary_contact,
-    next_response_due,
-    created_by_id,
-    modified_by_id
+    {}
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+VALUES ({})
 RETURNING *;
 """
 
@@ -249,26 +200,7 @@ WORK_ITEM_QUERIES[
 ] = """
 UPDATE support_items
 SET
-    title = $2,
-    description = $3,
-    status = $4,
-    priority = $5,
-    estimated_completion_date = $6,
-    starred = $7,
-    owner = $8,
-    customer = $9,
-    primary_contact = $10,
-    secondary_contact = $11,
-    next_response_due = $12,
-    created_by_id = $13,
-    modified_at = NOW(),
-    modified_by_id = $14,
-    archived_at = $15,
-    archived_by_id = $16,
-    deleted_at = $17,
-    deleted_by_id = $18,
-    completed_at = $19,
-    completed_by_id = $20
+    {fields}
 WHERE
     id = $1
 RETURNING *;

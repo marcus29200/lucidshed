@@ -28,7 +28,7 @@ async def add_team(request: Request, organization_id: str, body: BaseTeam) -> Te
 
 
 @router.get("/{id}", status_code=200, response_model=Team)
-async def get_team(request: Request, organization_id: str, id: int) -> Team:
+async def get_team(request: Request, organization_id: str, id: str) -> Team:
     return await request.app.team_controller.get(id=id)
 
 
@@ -47,10 +47,10 @@ async def get_team(request: Request, organization_id: str, id: int) -> Team:
 
 
 @router.patch("/{id}", status_code=200, response_model=Team)
-async def update_team(request: Request, organization_id: str, id: int, body: BaseTeam) -> Team:
+async def update_team(request: Request, organization_id: str, id: str, body: BaseTeam) -> Team:
     return await request.app.team_controller.update(id=id, updated_team=body, current_user=request.state.user.id)
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_team(request: Request, organization_id: str, id: int):
+async def delete_team(request: Request, organization_id: str, id: str):
     return await request.app.team_controller.delete(id=id, current_user=request.state.user.id)

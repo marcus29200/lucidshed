@@ -9,11 +9,11 @@ from app.database.users.models.user_permission import BaseUserPermission, UserPe
 
 
 class UserSortableField(StrEnum):
-    ID: str = "id"
-    CREATED_AT: str = "created_at"
-    EMAIL: str = "email"
-    FIRST_NAME: str = "first_name"
-    LAST_NAME: str = "last_name"
+    ID = "id"
+    CREATED_AT = "created_at"
+    EMAIL = "email"
+    FIRST_NAME = "first_name"
+    LAST_NAME = "last_name"
 
 
 class BaseUser(BaseModel):
@@ -56,11 +56,13 @@ class User(Model, BaseUser):
         super().__init__(**data)
 
     @property
-    def verified(self):
+    def verified(self) -> bool:
         # Other things might be able to determine if a user is verified or not
         return self.password_set
 
     @property
+    def password_set(self) -> bool:
+        return self.password is not None and len(self.password) > 3
     def password_set(self):
         return self.password and len(self.password) > 3
 

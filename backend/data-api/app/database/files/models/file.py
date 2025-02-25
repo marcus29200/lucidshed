@@ -3,23 +3,24 @@ from typing import Any, Optional
 
 from google.auth import default, impersonated_credentials
 from google.cloud import storage
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from app.api.settings import settings
-from app.database.common.models import MAX_ID_LENGTH, Model
+from app.database.common.models import MAX_ID_LENGTH, Model, BaseModel
 
 SIGNED_URL_EXPIRATION_MINUTES = 60 * 15
 
 
 class FileSortableField(StrEnum):
-    ID: str = "id"
-    FILE_NAME: str = "file_name"
-    CREATED_AT: str = "created_at"
-    MODIFIED_AT: str = "modified_at"
+    ID = "id"
+    FILE_NAME = "file_name"
+    CREATED_AT = "created_at"
+    MODIFIED_AT = "modified_at"
 
 
 class BaseFile(BaseModel):
     file_name: Optional[str] = None
+    path: Optional[str] = None
     created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
 

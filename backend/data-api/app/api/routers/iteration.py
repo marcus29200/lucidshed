@@ -35,7 +35,7 @@ async def add_iteration(request: Request, organization_id: str, body: BaseIterat
 
 
 @router.get("/{id}", status_code=200, response_model=Iteration)
-async def get_iteration(request: Request, organization_id: str, id: int) -> Iteration:
+async def get_iteration(request: Request, organization_id: str, id: str) -> Iteration:
     return await request.app.iteration_controller.get(id=id)
 
 
@@ -52,7 +52,7 @@ async def get_iterations(
 
 
 @router.patch("/{id}", status_code=200, response_model=Iteration)
-async def update_iteration(request: Request, organization_id: str, id: int, body: BaseIteration) -> Iteration:
+async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
     iteration = await request.app.iteration_controller.update(
         id=id, updated_iteration=body, current_user=request.state.user.id
     )
@@ -74,7 +74,7 @@ async def update_iteration(request: Request, organization_id: str, id: int, body
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_iteration(request: Request, organization_id: str, id: int):
+async def delete_iteration(request: Request, organization_id: str, id: str):
     deleted = await request.app.iteration_controller.delete(id=id, current_user=request.state.user.id)
 
     if deleted:

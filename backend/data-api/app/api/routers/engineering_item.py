@@ -92,7 +92,7 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
 
 
 @router.get("/{id}", status_code=200, response_model=EngineeringItem)
-async def get_engineering_item(request: Request, organization_id: str, id: int) -> EngineeringItem:
+async def get_engineering_item(request: Request, organization_id: str, id: str) -> EngineeringItem:
     return await request.app.engineering_controller.get(id=id)
 
 
@@ -101,8 +101,8 @@ async def get_engineering_items(
     request: Request,
     organization_id: str,
     item_type: Optional[EngineeringItemType] = None,
-    iteration_id: Optional[int] = None,
-    related_item_id: Optional[int] = None,
+    iteration_id: Optional[str] = None,
+    related_item_id: Optional[str] = None,
     assigned_to_id: Optional[str] = None,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
     limit: Optional[int] = 1000,
@@ -122,7 +122,7 @@ async def get_engineering_items(
 
 @router.patch("/{id}", status_code=200, response_model=EngineeringItem)
 async def update_engineering_item(
-    request: Request, organization_id: str, id: int, body: BaseEngineeringItem
+    request: Request, organization_id: str, id: str, body: BaseEngineeringItem
 ) -> EngineeringItem:
     engineering_item = await request.app.engineering_controller.update(
         id=id, updated_item=body, current_user=request.state.user.id
@@ -145,9 +145,9 @@ async def update_engineering_item(
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_engineering_item(request: Request, organization_id: str, id: int):
+async def delete_engineering_item(request: Request, organization_id: str, id: str):
     deleted = await request.app.engineering_controller.delete(
-        id=id, current_user=request.state.user.id, scope="ENGINEERING"
+        id=id, current_user=request.state.user.id
     )
 
     if deleted:
@@ -163,13 +163,13 @@ async def delete_engineering_item(request: Request, organization_id: str, id: in
 
 
 @router.get("/{id}/history", status_code=200)
-async def get_engineering_item_history(request: Request, organization_id: str, id: int):
-    return await request.app.history_controller.get_all(item_id=id, item_type="engineering")
+async def get_engineering_item_history(request: Request, organization_id: str, id: str):
+    return await request.app.history_controller.get_all(item_id=id, item_type="engineering_item")
 
 
 @router.post("/{work_item_id}/comments", status_code=201)
 async def create_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, body: BaseWorkItemComment
+    request: Request, organization_id: str, work_item_id: str, body: BaseWorkItemComment
 ) -> WorkItemComment:
     # NOTE If engineering item doesn't exist what happens with the foreign constraint exception? Can we return a 404?
     return await request.app.engineering_controller.create_comment(
@@ -179,7 +179,7 @@ async def create_engineering_item_comment(
 
 @router.get("/{work_item_id}/comments/{id}", status_code=200)
 async def get_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, id: str
+    request: Request, organization_id: str, work_item_id: str, id: str
 ) -> WorkItemComment:
     return await request.app.engineering_controller.get_comment(work_item_id=work_item_id, id=id)
 
@@ -188,7 +188,7 @@ async def get_engineering_item_comment(
 async def get_engineering_item_comments(
     request: Request,
     organization_id: str,
-    work_item_id: int,
+    work_item_id: str,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,  # NOTE Change
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
@@ -201,7 +201,7 @@ async def get_engineering_item_comments(
 
 @router.patch("/{work_item_id}/comments/{id}", status_code=200, response_model=EngineeringItem)
 async def update_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, id: str, body: BaseWorkItemComment
+    request: Request, organization_id: str, work_item_id: str, id: str, body: BaseWorkItemComment
 ) -> EngineeringItem:
     return await request.app.engineering_controller.update_comment(
         work_item_id=work_item_id, id=id, updated_item=body, current_user=request.state.user.id
@@ -209,7 +209,7 @@ async def update_engineering_item_comment(
 
 
 @router.delete("/{work_item_id}/comments/{id}", status_code=200)
-async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: int, id: str):
+async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: str, id: str):
     return await request.app.engineering_controller.delete_comment(
         work_item_id=work_item_id, id=id, current_user=request.state.user.id
     )
@@ -217,7 +217,7 @@ async def delete_engineering_item_comment(request: Request, organization_id: str
 
 @router.post("/{work_item_id}/links", status_code=201)
 async def create_engineering_item_link(
-    request: Request, organization_id: str, work_item_id: int, body: CreateEngineeringItemLinkPayload
+    request: Request, organization_id: str, work_item_id: str, body: CreateEngineeringItemLinkPayload
 ) -> JSONResponse:
     result = await request.app.engineering_controller.link(
         item_1=work_item_id, item_2=body.item_id, link_type=body.link_type, current_user=request.state.user.id
@@ -231,7 +231,7 @@ async def create_engineering_item_link(
 
 @router.delete("/{work_item_id}/links", status_code=200)
 async def delete_engineering_item_link(
-    request: Request, organization_id: str, work_item_id: int, body: BaseEngineeringItemLinkPayload
+    request: Request, organization_id: str, work_item_id: str, body: BaseEngineeringItemLinkPayload
 ):
     return await request.app.engineering_controller.unlink(
         item_1=work_item_id, item_2=body.item_id, current_user=request.state.user.id

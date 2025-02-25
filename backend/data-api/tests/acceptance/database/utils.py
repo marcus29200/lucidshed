@@ -46,7 +46,7 @@ async def create_iteration(data_app, overrides: Optional[Dict[str, Any]] = {}) -
 
     iteration = BaseIteration(**data)
 
-    iteration = await data_app.iteration_controller.create(iteration=iteration, current_user="test@test.com")
+    iteration = await data_app.iteration_controller.create(new_item=iteration, current_user="test@test.com")
 
     assert iteration.id
 
@@ -59,7 +59,7 @@ async def create_team(data_app, overrides: Optional[Dict[str, Any]] = {}) -> Tea
 
     team = BaseTeam(**data)
 
-    team = await data_app.team_controller.create(team=team, current_user="test@test.com")
+    team = await data_app.team_controller.create(new_item=team, current_user="test@test.com")
 
     assert team.id
 
@@ -72,7 +72,7 @@ async def create_file(data_app, org_id, overrides: Optional[Dict[str, Any]] = {}
 
     file = BaseFile(**data)
 
-    file = await data_app.file_controller.create(organization_id=org_id, file=file, current_user="test@test.com")
+    file = await data_app.file_controller.create(organization_id=org_id, new_item=file, current_user="test@test.com")
 
     assert file.id
 
