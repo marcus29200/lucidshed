@@ -5,9 +5,13 @@ from app.database.work_items.queries import BASE_WORK_ITEM_FIELDS
 FEATURE_REQUEST_QUERIES = {}
 
 FEATURE_REQUEST_UPGRADE_STATEMENTS = [
-    # TODO: drop feature_request, feature_list if they exist
+    # This shoujld only be run once before the first migration
     """
-ALTER TABLE feature_requests ADD COLUMN IF NOT EXISTS company_id INT REFERENCES companies(id) ON DELETE SET NULL;
+DROP TABLE IF EXISTS feature_requests;
+DROP TABLE IF EXISTS feature_request_comments;
+DROP TABLE IF EXISTS features;
+DROP TABLE IF EXISTS feature_list;
+DROP TABLE IF EXISTS feature_list_feature_request;
     """,
 ]
 
