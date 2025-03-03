@@ -142,7 +142,7 @@ class FeatureListController(WorkItemController):
 
     async def get_unassigned_features(self, feature_list_id: int) -> List[dict]:
         records = await data_db.get().fetch(
-            QUERIES["GET_UNASSIGNED_FEATURES"], feature_list_id
+            QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id
         )
 
         return [dict(record) for record in records]

@@ -131,3 +131,29 @@ async def test_should_get_all_features_associated_to_feature_list(data_api: Test
     feature_list = response.json()
     assert feature_list["features"][0] == feature_1["id"]
     assert feature_list["features"][1] == feature_2["id"]
+
+
+async def test_should_get_unassigned_features(data_api: TestClient):
+    from tests.acceptance.api.routers.test_features import add_feature
+
+    org, _, headers = await authenticate(data_api)
+
+    feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+    feature_1 = await add_feature(data_api, org["id"], headers=headers)
+    feature_2 = await add_feature(data_api, org["id"], headers=headers)
+
+    response = await data_api.post(
+        f"{org['id']}/feature_lists/{feature_list['id']}/links",
+        json={"feature_id": feature_1["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.get(
+        f"/{org['id']}/feature_lists/{feature_list['id']}/unassigned_features",
+        headers=headers,
+    )
+    assert response.status_code == 200
+    unassigned_features = response.json()
+    assert len(unassigned_features) == 1
+    assert unassigned_features[0]["id"] == feature_2["id"]

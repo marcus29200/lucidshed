@@ -3,6 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
@@ -94,3 +95,15 @@ async def unlink_feature_from_feature_list(
         item_2=body.feature_id,
         current_user=request.state.user.id
     )
+
+
+@router.get("/{feature_list_id}/unassigned_features", status_code=200)
+async def get_unlinked_features(
+    request: Request,
+    organization_id: str,
+    feature_list_id: int
+) -> JSONResponse:
+    items = await request.app.feature_list_controller.get_unassigned_features(feature_list_id=feature_list_id)
+    if not items:
+        return JSONResponse(status_code=404, content="No unlinked features found")
+    return JSONResponse(content=jsonable_encoder(items))

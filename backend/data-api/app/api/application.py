@@ -21,12 +21,8 @@ from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
+from app.database.features.queries import FEATURE_REQUEST_UPGRADE_STATEMENTS
 from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
-from app.database.features.queries import (
-    FEATURE_REQUEST_INIT_STATEMENTS,
-    FEATURE_INIT_STATEMENTS,
-    FEATURE_LIST_INIT_STATEMENTS
-)
 from app.database.companies.controllers.company import CompanyController
 from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
@@ -36,7 +32,7 @@ from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
-from app.database.utils import init_database_tables
+from app.database.utils import init_database_tables, update_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.features.controllers.feature import FeatureController
 from app.database.features.controllers.feature_list import FeatureListController
@@ -149,13 +145,11 @@ class DataApplication(FastAPI):
         migrated_databases = []
         for database in databases:
             try:
-                await init_database_tables(await get_pool(database["datname"]), INIT_STATEMENTS)
-                await init_database_tables(
-                    await get_pool(database["datname"]),
-                    FEATURE_INIT_STATEMENTS,
-                    FEATURE_REQUEST_INIT_STATEMENTS,
-                    FEATURE_LIST_INIT_STATEMENTS,
+                # this will drop feature, feature request, feature list tables
+                await update_database_tables(
+                    await get_pool(database["datname"]), FEATURE_REQUEST_UPGRADE_STATEMENTS
                 )
+                await init_database_tables(await get_pool(database["datname"]), INIT_STATEMENTS)
                 migrated_databases.append(database["datname"])
             except Exception:
                 logger.exception(f"Failed while migrating database {database['datname']}")
