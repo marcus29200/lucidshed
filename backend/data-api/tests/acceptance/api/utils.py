@@ -4,7 +4,6 @@ from fastapi.testclient import TestClient
 
 from app.api.dependencies.database import get_pool
 from app.api.settings import data_db
-from app.database.work_items.models.feature_list import FeatureScore
 
 expired_headers = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoidGVzdEB0ZXN0LmNvbSIsInNjb3BlcyI6W10sImV4cCI6MTcxOTU4ODc5Mi4zNjUxN30.15fa1fwuhx-FQLHPzbxOmZ35afvyxzJYFs6c-cIt_o4"  # noqa
@@ -254,14 +253,8 @@ async def add_feature_list(
 ):
     data = {
         "title": f"{organization_id}-Feature-List",
-        "description": "Feature List Description",
-        "requests": 1,
-        "reach": FeatureScore.XLARGE.value,
-        "impact": FeatureScore.LARGE.value,
-        "confidence": FeatureScore.MEDIUM.value,
-        "effort": FeatureScore.SMALL.value,
-        "growth": FeatureScore.XLARGE.value,
-        "feature_requests": [1],
+        "description": "description",
+        "features": [],
     }
     data.update(**overrides)
 

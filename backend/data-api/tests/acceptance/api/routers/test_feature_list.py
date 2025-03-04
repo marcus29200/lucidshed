@@ -1,7 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from tests.acceptance.api.routers.test_feature_request import add_feature_request
 from tests.acceptance.api.utils import add_feature_list, add_organization, authenticate, expired_headers
 
 pytestmark = pytest.mark.asyncio
@@ -10,17 +9,16 @@ pytestmark = pytest.mark.asyncio
 async def test_should_create_or_update_feature_list(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
-    _ = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+    feature_list = await add_feature_list(
+        data_api,
+        organization["id"],
+        headers=headers,
+        overrides={
+            "description": "Feature List Description"
+        })
 
     assert feature_list["title"] == f"{organization["id"]}-Feature-List"
     assert feature_list["description"] == "Feature List Description"
-    assert feature_list["requests"] == 1
-    assert feature_list["reach"] == 4
-    assert feature_list["impact"] == 3
-    assert feature_list["confidence"] == 2
-    assert feature_list["effort"] == 1
-    assert feature_list["growth"] == 4
 
 
 async def test_should_not_create_or_update_feature_list_with_expired_headers(data_api: TestClient):
@@ -32,41 +30,25 @@ async def test_should_not_create_or_update_feature_list_with_expired_headers(dat
 async def test_should_get_one_feature_list(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
-    _ = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+    feature_list = await add_feature_list(
+        data_api,
+        organization["id"],
+        headers=headers,
+        overrides={"description": "Feature List Description"}
+    )
 
     response = await data_api.get(f"{organization['id']}/feature_lists/{feature_list['id']}", headers=headers)
     assert response.status_code == 200
 
     fetched_feature_list = response.json()
-    assert fetched_feature_list["requests"] == 1
-    assert fetched_feature_list["reach"] == 4
-    assert fetched_feature_list["impact"] == 3
-    assert fetched_feature_list["confidence"] == 2
-    assert fetched_feature_list["effort"] == 1
-    assert fetched_feature_list["growth"] == 4
-
-
-async def test_should_associate_feature_request_with_feature_list(data_api: TestClient):
-    _, _, headers = await authenticate(data_api, create_org=False)
-    organization = await add_organization(data_api, headers=headers)
-    feature_request = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_request_2 = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_list = await add_feature_list(
-        data_api,
-        organization["id"],
-        headers=headers,
-        overrides={"feature_requests": [feature_request["id"], feature_request_2["id"]]}
-    )
-
-    assert feature_request["id"] in feature_list["feature_requests"]
-    assert feature_request_2["id"] in feature_list["feature_requests"]
+    assert fetched_feature_list["id"] == feature_list["id"]
+    assert fetched_feature_list["description"] == "Feature List Description"
+    assert not fetched_feature_list["features"]
 
 
 async def test_should_get_all_feature_lists(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
-    _ = await add_feature_request(data_api, organization["id"], headers=headers)
     feature_list_1 = await add_feature_list(data_api, organization["id"], headers=headers)
 
     response = await data_api.get(f"{organization['id']}/feature_lists", headers=headers)
@@ -79,44 +61,99 @@ async def test_should_get_all_feature_lists(data_api: TestClient):
     assert feature_list_1["id"] in feature_list_ids
 
 
-async def test_should_get_one_feature_list_by_title(data_api: TestClient):
-    _, _, headers = await authenticate(data_api, create_org=False)
-    organization = await add_organization(data_api, headers=headers)
-    _ = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+async def test_should_link_feature_to_feature_list(data_api: TestClient):
+    from tests.acceptance.api.routers.test_features import add_feature
 
-    response = await data_api.get(f"{organization['id']}/feature_lists?title={feature_list['title']}", headers=headers)
-    assert response.status_code == 200
+    org, _, headers = await authenticate(data_api)
 
-    fetched_feature_list = response.json()
-    for item in fetched_feature_list["items"]:
-        assert item["title"] == f"{organization['id']}-Feature-List"
-        assert item["requests"] == 1
-        assert item["reach"] == 4
-        assert item["impact"] == 3
-        assert item["confidence"] == 2
-        assert item["effort"] == 1
-        assert item["growth"] == 4
-        assert item["feature_requests"] == feature_list["feature_requests"]
+    feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+    feature = await add_feature(data_api, org["id"], headers=headers)
+
+    response = await data_api.post(
+        f"{org['id']}/feature_lists/{feature_list['id']}/links",
+        json={"feature_id": feature["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
 
 
-async def test_should_associate_existing_feature_request_with_feature_list(data_api: TestClient):
-    _, _, headers = await authenticate(data_api, create_org=False)
-    organization = await add_organization(data_api, headers=headers)
-    feature_request = await add_feature_request(data_api, organization["id"], headers=headers)
-    feature_list = await add_feature_list(data_api, organization["id"], headers=headers)
+# async def test_should_unlink_feature_from_feature_list(data_api: TestClient):
+#     from tests.acceptance.api.routers.test_features import add_feature
 
-    # Associate the existing feature request with the feature list
-    response = await data_api.patch(
-        f"{organization['id']}/feature_requests/{feature_request['id']}",
-        json={"feature_list_id": feature_list["id"]},
-        headers=headers
+#     org, _, headers = await authenticate(data_api)
+
+#     feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+#     feature = await add_feature(data_api, org["id"], headers=headers)
+
+#     response = await data_api.post(
+#         f"{org['id']}/feature_lists/{feature_list['id']}/links",
+#         json={"feature_id": feature["id"]},
+#         headers=headers,
+#     )
+#     assert response.status_code == 201
+
+#     response = await data_api.delete(
+#         f"{org['id']}/feature_lists/{feature_list['id']}/links",
+#         json={"feature_id": feature["id"]},
+#         headers=headers,
+#     )
+#     assert response.status_code == 200
+
+
+async def test_should_get_all_features_associated_to_feature_list(data_api: TestClient):
+    from tests.acceptance.api.routers.test_features import add_feature
+
+    org, _, headers = await authenticate(data_api)
+
+    feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+    feature_1 = await add_feature(data_api, org["id"], headers=headers)
+    feature_2 = await add_feature(data_api, org["id"], headers=headers)
+
+    response = await data_api.post(
+        f"{org['id']}/feature_lists/{feature_list['id']}/links",
+        json={"feature_id": feature_1["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.post(
+        f"/{org['id']}/feature_lists/{feature_list['id']}/links",
+        json={"feature_id": feature_2["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.get(
+        f"/{org['id']}/feature_lists/{feature_list['id']}",
+        headers=headers,
     )
     assert response.status_code == 200
+    feature_list = response.json()
+    assert feature_list["features"][0] == feature_1["id"]
+    assert feature_list["features"][1] == feature_2["id"]
 
-    # Verify the association
-    response = await data_api.get(f"{organization['id']}/feature_lists/{feature_list['id']}", headers=headers)
+
+async def test_should_get_unassigned_features(data_api: TestClient):
+    from tests.acceptance.api.routers.test_features import add_feature
+
+    org, _, headers = await authenticate(data_api)
+
+    feature_list = await add_feature_list(data_api, org["id"], headers=headers)
+    feature_1 = await add_feature(data_api, org["id"], headers=headers)
+    feature_2 = await add_feature(data_api, org["id"], headers=headers)
+
+    response = await data_api.post(
+        f"{org['id']}/feature_lists/{feature_list['id']}/links",
+        json={"feature_id": feature_1["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.get(
+        f"/{org['id']}/feature_lists/{feature_list['id']}/unassigned_features",
+        headers=headers,
+    )
     assert response.status_code == 200
-
-    fetched_feature_list = response.json()
-    assert feature_request["id"] in fetched_feature_list["feature_requests"]
+    unassigned_features = response.json()
+    assert len(unassigned_features) == 1
+    assert unassigned_features[0]["id"] == feature_2["id"]

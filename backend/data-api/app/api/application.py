@@ -12,6 +12,7 @@ from app.api.routers.company import router as company_router
 from app.api.routers.engineering_item import router as engineering_item_router
 from app.api.routers.feature_list import router as feature_list_router
 from app.api.routers.feature_request import router as feature_request_router
+from app.api.routers.feature import router as feature_router
 from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
@@ -20,8 +21,8 @@ from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
+from app.database.features.queries import FEATURE_REQUEST_UPGRADE_STATEMENTS
 from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
-from app.database.work_items.queries import FEATURE_REQUEST_UPGRADE_STATEMENTS
 from app.database.companies.controllers.company import CompanyController
 from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
@@ -33,8 +34,9 @@ from app.database.users.controllers.user_permission import UserPermissionControl
 from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import init_database_tables, update_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
-from app.database.work_items.controllers.feature_list import FeatureListController
-from app.database.work_items.controllers.feature_request import FeatureRequestController
+from app.database.features.controllers.feature import FeatureController
+from app.database.features.controllers.feature_list import FeatureListController
+from app.database.features.controllers.feature_request import FeatureRequestController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
 
@@ -64,6 +66,7 @@ class DataApplication(FastAPI):
         self.include_router(feature_request_router, prefix="/{organization_id}/feature_requests")
         self.include_router(company_router, prefix="/{organization_id}/companies")
         self.include_router(feature_list_router, prefix="/{organization_id}/feature_lists")
+        self.include_router(feature_router, prefix="/{organization_id}/features")
 
         self.add_exception_handler(ObjectNotFoundException, self.not_found_handler)
         self.add_exception_handler(UniqueViolationError, self.duplicate_handler)
@@ -105,6 +108,7 @@ class DataApplication(FastAPI):
         self.feature_request_controller = FeatureRequestController()
         self.feature_list_controller = FeatureListController()
         self.company_controller = CompanyController()
+        self.feature_controller = FeatureController()
 
         logger.info(f"Initializing opensearch client with {settings.opensearch_host}")
         self.opensearch_client = OpenSearch(
@@ -141,10 +145,11 @@ class DataApplication(FastAPI):
         migrated_databases = []
         for database in databases:
             try:
+                # this will drop feature, feature request, feature list tables
+                await update_database_tables(
+                    await get_pool(database["datname"]), FEATURE_REQUEST_UPGRADE_STATEMENTS
+                )
                 await init_database_tables(await get_pool(database["datname"]), INIT_STATEMENTS)
-
-                await update_database_tables(await get_pool(database["datname"]), FEATURE_REQUEST_UPGRADE_STATEMENTS)
-
                 migrated_databases.append(database["datname"])
             except Exception:
                 logger.exception(f"Failed while migrating database {database['datname']}")
