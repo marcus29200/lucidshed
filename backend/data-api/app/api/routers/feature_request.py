@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Security
+from fastapi import APIRouter, Depends, Request, Security
 from pydantic import BaseModel
+from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
 from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
-from app.database.work_items.models.feature_request import BaseFeatureRequest, FeatureRequest
+from app.database.features.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 router = APIRouter(
@@ -24,6 +25,18 @@ class FeatureRequestPagedResponse(BaseModel):
 class FeatureRequestCommentPagedResponse(BaseModel):
     items: List[FeatureRequestComment]
     cursor: Optional[str] = None
+
+
+class BaseFeatureLinkPayload(BaseModel):
+    feature_id: int
+
+
+class CreateFeatureLinkPayload(BaseFeatureLinkPayload):
+    """
+    This payload is directional, so item_1 is the parent and item_2 is the child, 
+    item_1 is typically the feature request and item_2 is the feature
+    """
+    feature_id: int
 
 
 @router.post("", status_code=201, response_model=FeatureRequest)
@@ -58,15 +71,20 @@ async def update_feature_request(
 
 
 # Delete a feature request
-@router.delete("/{id}", status_code=200, response_model=FeatureRequest)
-async def delete_feature_request(request: Request, organization_id: str, id: int) -> FeatureRequest:
-    feature_request = await request.app.feature_request_controller.get(id=id)
-    if not feature_request:
-        raise HTTPException(status_code=404, detail="Feature request not found")
-    await request.app.feature_request_controller.delete(
-        id=id, current_user=request.state.user.id, scope="FEATURE_REQUEST"
+@router.delete("/{id}", status_code=200)
+async def delete_feature_request(request: Request, organization_id: str, id: int):
+    return await request.app.feature_request_controller.delete(
+        id=id, current_user=request.state.user.id
     )
-    return feature_request
+
+
+@router.post("/{feature_request_id}/comments", status_code=201)
+async def create_feature_request_comment(
+    request: Request, organization_id: str, feature_request_id: int, body: BaseFeatureRequest
+) -> FeatureRequestComment:
+    return await request.app.feature_request_controller.create_comment(
+        feature_request_id=feature_request_id, new_comment=body, current_user=request.state.user.id
+    )
 
 
 # get comments for a feature request
@@ -84,6 +102,15 @@ async def get_feature_request_comments(
     return FeatureRequestCommentPagedResponse(items=items, cursor=cursor)
 
 
+@router.get("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequestComment)
+async def get_feature_request_comment(
+    request: Request, feature_request_id: int, id: str
+) -> FeatureRequestComment:
+    return await request.app.feature_request_controller.get_comment(
+        feature_request_id=feature_request_id, id=id
+    )
+
+
 @router.patch("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequest)
 async def update_feature_request_comment(
     request: Request, feature_request_id: int, id: str, body: BaseFeatureRequestComment
@@ -99,7 +126,30 @@ async def update_feature_request_comment(
 @router.delete("/{feature_request_id}/comments/{id}", status_code=200)
 async def delete_feature_request_comment(request: Request, feature_request_id: int, id: str):
     return await request.app.feature_request_controller.delete_comment(
-        feature_reqeust_id=feature_request_id,
+        feature_request_id=feature_request_id,
         id=id,
         current_user=request.state.user.id,
+    )
+
+
+@router.post("/{feature_request_id}/links", status_code=201)
+async def create_feature_request_item_link(
+    request: Request, organization_id: str, feature_request_id: int, body: CreateFeatureLinkPayload
+) -> JSONResponse:
+    result = await request.app.feature_request_controller.link(
+        item_1=feature_request_id, item_2=body.feature_id, current_user=request.state.user.id
+    )
+
+    if not result:
+        return JSONResponse(status_code=412, content="Unable to create link")
+
+    return JSONResponse(status_code=201, content=None)
+
+
+@router.delete("/{feature_request_id}/links", status_code=200)
+async def delete_feature_request_item_link(
+    request: Request, organization_id: str, feature_request_id: int, body: BaseFeatureLinkPayload
+):
+    return await request.app.feature_request_controller.unlink(
+        item_1=feature_request_id, item_2=body.feature_id, current_user=request.state.user.id
     )
