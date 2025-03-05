@@ -7,11 +7,11 @@ FEATURE_REQUEST_QUERIES = {}
 FEATURE_REQUEST_UPGRADE_STATEMENTS = [
     # This shoujld only be run once before the first migration
     """
-DROP TABLE IF EXISTS feature_requests;
-DROP TABLE IF EXISTS feature_request_comments;
-DROP TABLE IF EXISTS features;
-DROP TABLE IF EXISTS feature_list;
-DROP TABLE IF EXISTS feature_list_feature_request;
+DROP TABLE IF EXISTS feature_requests CASCADE;
+DROP TABLE IF EXISTS feature_request_comments CASCADE;
+DROP TABLE IF EXISTS features CASCADE;
+DROP TABLE IF EXISTS feature_list CASCADE;
+DROP TABLE IF EXISTS feature_list_feature_request CASCADE;
     """,
 ]
 
