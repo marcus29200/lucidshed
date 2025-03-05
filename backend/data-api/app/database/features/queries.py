@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS feature_request_comments (
     """,
     f"""
 CREATE TABLE IF NOT EXISTS feature_request_relationships (
-    item_1 INT REFERENCES feature_requests(id) ON DELETE CASCADE,
-    item_2 INT REFERENCES features(id) ON DELETE CASCADE,
+    item_1 VARCHAR({MAX_ID_LENGTH}) REFERENCES feature_requests(id) ON DELETE CASCADE,
+    item_2 VARCHAR({MAX_ID_LENGTH}) REFERENCES features(id) ON DELETE CASCADE,
     created_at TIMESTAMP with time zone DEFAULT NOW(),
     created_by_id VARCHAR({MAX_ID_LENGTH}),
     PRIMARY KEY (item_1, item_2)
@@ -298,8 +298,8 @@ CREATE TABLE IF NOT EXISTS feature_list (
 """,
     f"""
 CREATE TABLE IF NOT EXISTS feature_list_relationships (
-item_1 INT REFERENCES feature_list(id) ON DELETE CASCADE,
-item_2 INT REFERENCES features(id) ON DELETE CASCADE,
+item_1 VARCHAR({MAX_ID_LENGTH}) REFERENCES feature_list(id) ON DELETE CASCADE,
+item_2 VARCHAR({MAX_ID_LENGTH}) REFERENCES features(id) ON DELETE CASCADE,
 created_at TIMESTAMP with time zone DEFAULT NOW(),
 created_by_id VARCHAR({MAX_ID_LENGTH}),
 PRIMARY KEY (item_1, item_2)
