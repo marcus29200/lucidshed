@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Optional, Set
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from app.database.common.models import MAX_ID_LENGTH, BaseModel, Model
 

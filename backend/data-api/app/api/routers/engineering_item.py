@@ -58,6 +58,10 @@ class CreateEngineeringItemLinkPayload(BaseEngineeringItemLinkPayload):
     link_type: EngineeringLinkType
 
 
+class BatchUpdateEngineeringItemPayload(BaseModel):
+    updates: List[BaseEngineeringItem]
+
+
 @router.post("/ask-lucid", status_code=200)
 async def ask_lucid(request: Request, organization_id: str, body: AskLucidPayload):
     # Basic idea here is to take in some query and then use the AI model to get results based on postgres data

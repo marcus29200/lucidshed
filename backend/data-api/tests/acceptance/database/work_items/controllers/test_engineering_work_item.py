@@ -173,7 +173,7 @@ async def test_update_multiple_engineering_work_item(data_app):
         BaseEngineeringItem(id=engineering_item.id, title="Test Updated"),
         BaseEngineeringItem(id=engineering_item_2.id, description="Test description 2"),
     ]
-    result = await data_app.engineering_controller.batch_update(
+    await data_app.engineering_controller.batch_update(
         updated_items=updated_items,
         current_user="test@test.com",
     )
