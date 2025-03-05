@@ -1,12 +1,9 @@
-import json
 from typing import List
-from uuid import uuid4
 
 from app.api.settings import data_db
-from app.database.common.queries import QUERIES
-from app.database.history.models.history import BaseHistory, History
-from app.exceptions.common import ObjectNotFoundException
 from app.database.common.controllers import BaseController
+from app.database.common.queries import QUERIES
+from app.database.history.models.history import History
 
 
 # Finish updating based on audit log models

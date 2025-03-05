@@ -122,27 +122,15 @@ class FeatureListController(WorkItemController):
         )
 
     async def link(self, *, item_1: str, item_2: str, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["LINK_FEATURE_LIST_FEATURE"],
-            item_1,
-            item_2,
-            current_user
-        )
+        result = await data_db.get().execute(QUERIES["LINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "INSERT 0 1"
 
     async def unlink(self, *, item_1: str, item_2: str, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["UNLINK_FEATURE_LIST_FEATURE"],
-            item_1,
-            item_2,
-            current_user
-        )
+        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "DELETE 1"
 
     async def get_unassigned_features(self, feature_list_id: str) -> List[dict]:
-        records = await data_db.get().fetch(
-            QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id
-        )
+        records = await data_db.get().fetch(QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id)
 
         return [dict(record) for record in records]
 

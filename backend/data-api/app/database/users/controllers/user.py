@@ -4,11 +4,11 @@ from uuid import uuid4
 
 from app.api.settings import user_db
 from app.api.utils import generate_cursor, parse_cursor
+from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.users.models.user import BaseUser, SlimUser, User, UserSortableField
 from app.database.users.utils import get_hashed_password
 from app.exceptions.common import ObjectNotFoundException
-from app.database.common.controllers import BaseController
 
 
 class UserController(BaseController):

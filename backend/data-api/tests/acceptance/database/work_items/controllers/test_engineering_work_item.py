@@ -232,9 +232,7 @@ async def test_delete_engineering_work_item(data_app):
     await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app)
 
-    result = await data_app.engineering_controller.delete(
-        id=engineering_item.id, current_user="test@test.com"
-    )
+    result = await data_app.engineering_controller.delete(id=engineering_item.id, current_user="test@test.com")
 
     assert result is True
 
@@ -250,9 +248,7 @@ async def test_delete_engineering_item_creates_history(data_app):
     await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app)
 
-    result = await data_app.engineering_controller.delete(
-        id=engineering_item.id, current_user="test@test.com"
-    )
+    result = await data_app.engineering_controller.delete(id=engineering_item.id, current_user="test@test.com")
 
     assert result
 
@@ -276,7 +272,7 @@ async def test_assign_iteration_to_engineering_item(data_app):
     await create_organization(data_app)
     engineering_item = await create_engineering_item(data_app)
     iteration = await create_iteration(data_app)
-    
+
     # Convert back to a base item, because this is what the API would be sending
     engineering_item = BaseEngineeringItem(**engineering_item.model_dump(exclude_unset=True))
 

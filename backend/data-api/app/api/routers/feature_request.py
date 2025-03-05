@@ -74,9 +74,7 @@ async def update_feature_request(
 # Delete a feature request
 @router.delete("/{id}", status_code=200)
 async def delete_feature_request(request: Request, organization_id: str, id: str):
-    return await request.app.feature_request_controller.delete(
-        id=id, current_user=request.state.user.id
-    )
+    return await request.app.feature_request_controller.delete(id=id, current_user=request.state.user.id)
 
 
 @router.post("/{feature_request_id}/comments", status_code=201)
@@ -104,12 +102,8 @@ async def get_feature_request_comments(
 
 
 @router.get("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequestComment)
-async def get_feature_request_comment(
-    request: Request, feature_request_id: str, id: str
-) -> FeatureRequestComment:
-    return await request.app.feature_request_controller.get_comment(
-        feature_request_id=feature_request_id, id=id
-    )
+async def get_feature_request_comment(request: Request, feature_request_id: str, id: str) -> FeatureRequestComment:
+    return await request.app.feature_request_controller.get_comment(feature_request_id=feature_request_id, id=id)
 
 
 @router.patch("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequest)

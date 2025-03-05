@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Optional
 
-from app.database.common.models import Model, BaseModel
+from app.database.common.models import BaseModel, Model
 
 
 class UserRoleType(StrEnum):

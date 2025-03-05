@@ -2,9 +2,9 @@ import json
 from enum import StrEnum
 from typing import Any, Dict, Optional, Set
 
-from pydantic import Field, EmailStr
+from pydantic import EmailStr, Field
 
-from app.database.common.models import MAX_IMAGE_SIZE, Model, BaseModel
+from app.database.common.models import MAX_IMAGE_SIZE, BaseModel, Model
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 

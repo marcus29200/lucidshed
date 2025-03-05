@@ -1,10 +1,10 @@
+import json
 from datetime import datetime
 from typing import Any, Dict, Optional, Set, Tuple
+from uuid import uuid4
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field
-import json
-from uuid import uuid4
 
 MAX_ID_LENGTH = 64
 MAX_IMAGE_SIZE = 5000000
@@ -26,7 +26,7 @@ class BaseModel(PydanticBaseModel):
 
         if isinstance(value, dict):
             value = json.dumps(value, default=str)
-    
+
         return f"'{value}'"
 
     def dump_to_create_sql(self, current_user: str) -> Tuple[str, str]:

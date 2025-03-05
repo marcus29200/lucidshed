@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Union
 
 from pydantic import Field
 
-from app.database.common.models import MAX_ID_LENGTH, Model, BaseModel
+from app.database.common.models import MAX_ID_LENGTH, BaseModel, Model
 
 
 class HistoryAction(StrEnum):

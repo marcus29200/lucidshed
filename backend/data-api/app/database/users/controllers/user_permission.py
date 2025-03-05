@@ -1,9 +1,9 @@
 from typing import List
 
 from app.api.settings import user_db
+from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
-from app.database.common.controllers import BaseController
 
 
 class UserPermissionController(BaseController):

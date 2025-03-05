@@ -89,7 +89,8 @@ class BaseController:
 
         if self._create_history:
             await self.history_controller.create(
-                new_item=BaseHistory(item_id=str(id), item_type=self._type.lower(), action="delete"), current_user=current_user
+                new_item=BaseHistory(item_id=str(id), item_type=self._type.lower(), action="delete"),
+                current_user=current_user,
             )
 
         return True

@@ -1,5 +1,5 @@
-from app.database.common.shared_queries import BASE_MODEL_FIELDS
 from app.database.common.models import MAX_ID_LENGTH
+from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 TEAM_QUERIES = {}
 

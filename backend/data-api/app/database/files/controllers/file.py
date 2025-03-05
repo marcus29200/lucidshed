@@ -6,9 +6,9 @@ from google.cloud import storage
 
 from app.api.settings import data_db, settings
 from app.api.utils import generate_cursor, parse_cursor
-from app.database.common.queries import QUERIES
-from app.database.files.models.file import File, BaseFile
 from app.database.common.controllers import BaseController
+from app.database.common.queries import QUERIES
+from app.database.files.models.file import BaseFile, File
 
 
 class FileController(BaseController):
@@ -19,7 +19,7 @@ class FileController(BaseController):
     async def create(self, organization_id: str, new_item: BaseFile, current_user: str) -> File:
         new_item.id = uuid4().hex
         new_item.path = join(settings.gcs_path or "", organization_id, new_item.id)
-        
+
         return await super().create(new_item=new_item, current_user=current_user)
 
     async def get_all(
