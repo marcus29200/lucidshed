@@ -46,7 +46,7 @@ async def add_feature_request(request: Request, organization_id: str, body: Base
 
 
 @router.get("/{id}", status_code=200, response_model=FeatureRequest)
-async def get_feature_request(request: Request, organization_id: str, id: int) -> FeatureRequest:
+async def get_feature_request(request: Request, organization_id: str, id: str) -> FeatureRequest:
     return await request.app.feature_request_controller.get(id=id)
 
 
@@ -64,7 +64,7 @@ async def get_feature_requests(
 
 @router.patch("/{id}", status_code=200, response_model=FeatureRequest)
 async def update_feature_request(
-    request: Request, organization_id: str, id: int, body: BaseFeatureRequest
+    request: Request, organization_id: str, id: str, body: BaseFeatureRequest
 ) -> FeatureRequest:
     return await request.app.feature_request_controller.update(
         id=id, updated_item=body, current_user=request.state.user.id
@@ -73,13 +73,15 @@ async def update_feature_request(
 
 # Delete a feature request
 @router.delete("/{id}", status_code=200)
-async def delete_feature_request(request: Request, organization_id: str, id: int):
-    return await request.app.feature_request_controller.delete(id=id, current_user=request.state.user.id)
+async def delete_feature_request(request: Request, organization_id: str, id: str):
+    return await request.app.feature_request_controller.delete(
+        id=id, current_user=request.state.user.id
+    )
 
 
 @router.post("/{feature_request_id}/comments", status_code=201)
 async def create_feature_request_comment(
-    request: Request, organization_id: str, feature_request_id: int, body: BaseFeatureRequest
+    request: Request, organization_id: str, feature_request_id: str, body: BaseFeatureRequest
 ) -> FeatureRequestComment:
     return await request.app.feature_request_controller.create_comment(
         feature_request_id=feature_request_id, new_comment=body, current_user=request.state.user.id
@@ -90,7 +92,7 @@ async def create_feature_request_comment(
 @router.get("/{feature_request_id}/comments", status_code=200, response_model=FeatureRequestCommentPagedResponse)
 async def get_feature_request_comments(
     request: Request,
-    feature_request_id: int,
+    feature_request_id: str,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,  # NOTE fix me
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
@@ -102,13 +104,17 @@ async def get_feature_request_comments(
 
 
 @router.get("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequestComment)
-async def get_feature_request_comment(request: Request, feature_request_id: int, id: str) -> FeatureRequestComment:
-    return await request.app.feature_request_controller.get_comment(feature_request_id=feature_request_id, id=id)
+async def get_feature_request_comment(
+    request: Request, feature_request_id: str, id: str
+) -> FeatureRequestComment:
+    return await request.app.feature_request_controller.get_comment(
+        feature_request_id=feature_request_id, id=id
+    )
 
 
 @router.patch("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequest)
 async def update_feature_request_comment(
-    request: Request, feature_request_id: int, id: str, body: BaseFeatureRequestComment
+    request: Request, feature_request_id: str, id: str, body: BaseFeatureRequestComment
 ) -> FeatureRequest:
     return await request.app.feature_request_controller.update_comment(
         feature_request_id=feature_request_id,
@@ -119,7 +125,7 @@ async def update_feature_request_comment(
 
 
 @router.delete("/{feature_request_id}/comments/{id}", status_code=200)
-async def delete_feature_request_comment(request: Request, feature_request_id: int, id: str):
+async def delete_feature_request_comment(request: Request, feature_request_id: str, id: str):
     return await request.app.feature_request_controller.delete_comment(
         feature_request_id=feature_request_id,
         id=id,
@@ -129,7 +135,7 @@ async def delete_feature_request_comment(request: Request, feature_request_id: i
 
 @router.post("/{feature_request_id}/links", status_code=201)
 async def create_feature_request_item_link(
-    request: Request, organization_id: str, feature_request_id: int, body: CreateFeatureLinkPayload
+    request: Request, organization_id: str, feature_request_id: str, body: CreateFeatureLinkPayload
 ) -> JSONResponse:
     result = await request.app.feature_request_controller.link(
         item_1=feature_request_id, item_2=body.feature_id, current_user=request.state.user.id
@@ -143,7 +149,7 @@ async def create_feature_request_item_link(
 
 @router.delete("/{feature_request_id}/links", status_code=200)
 async def delete_feature_request_item_link(
-    request: Request, organization_id: str, feature_request_id: int, body: BaseFeatureLinkPayload
+    request: Request, organization_id: str, feature_request_id: str, body: BaseFeatureLinkPayload
 ):
     return await request.app.feature_request_controller.unlink(
         item_1=feature_request_id, item_2=body.feature_id, current_user=request.state.user.id

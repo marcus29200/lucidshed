@@ -34,7 +34,7 @@ class FeatureListController(WorkItemController):
 
         return feature_list
 
-    async def get(self, *, id: int) -> FeatureList:
+    async def get(self, *, id: str) -> FeatureList:
         record = await data_db.get().fetchrow(
             QUERIES["GET_FEATURE_LIST_BY_ID"],
             id,
@@ -96,7 +96,7 @@ class FeatureListController(WorkItemController):
 
         return feature_lists, cursor
 
-    async def update(self, *, id: int, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
+    async def update(self, *, id: str, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
         old_feature_list = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
@@ -115,26 +115,38 @@ class FeatureListController(WorkItemController):
 
         return feature_list
 
-    async def delete(self, *, id: int) -> None:
+    async def delete(self, *, id: str) -> None:
         await data_db.get().execute(
             QUERIES["DELETE_FEATURE_LIST"],
             id,
         )
 
-    async def link(self, *, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(QUERIES["LINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
+    async def link(self, *, item_1: str, item_2: str, current_user: str) -> bool:
+        result = await data_db.get().execute(
+            QUERIES["LINK_FEATURE_LIST_FEATURE"],
+            item_1,
+            item_2,
+            current_user
+        )
         return result == "INSERT 0 1"
 
-    async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
+    async def unlink(self, *, item_1: str, item_2: str, current_user: str) -> bool:
+        result = await data_db.get().execute(
+            QUERIES["UNLINK_FEATURE_LIST_FEATURE"],
+            item_1,
+            item_2,
+            current_user
+        )
         return result == "DELETE 1"
 
-    async def get_unassigned_features(self, feature_list_id: int) -> List[dict]:
-        records = await data_db.get().fetch(QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id)
+    async def get_unassigned_features(self, feature_list_id: str) -> List[dict]:
+        records = await data_db.get().fetch(
+            QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id
+        )
 
         return [dict(record) for record in records]
 
-    async def get_feature(self, *, id: int) -> dict:
+    async def get_feature(self, *, id: str) -> dict:
         feature = await data_db.get().fetchrow(
             FEATURE_QUERIES["GET_FEATURE_ITEM"],
             id,
