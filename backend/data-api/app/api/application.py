@@ -21,7 +21,6 @@ from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
-from app.database.features.queries import FEATURE_REQUEST_UPGRADE_STATEMENTS
 from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
 from app.database.companies.controllers.company import CompanyController
 from app.database.files.controllers.file import FileController
@@ -145,10 +144,6 @@ class DataApplication(FastAPI):
         migrated_databases = []
         for database in databases:
             try:
-                # this will drop feature, feature request, feature list tables
-                await update_database_tables(
-                    await get_pool(database["datname"]), FEATURE_REQUEST_UPGRADE_STATEMENTS
-                )
                 await init_database_tables(await get_pool(database["datname"]), INIT_STATEMENTS)
                 migrated_databases.append(database["datname"])
             except Exception:
