@@ -1,5 +1,5 @@
 import json
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 from uuid import uuid4
 
 from app.api.settings import user_db
@@ -8,9 +8,14 @@ from app.database.common.queries import QUERIES
 from app.database.users.models.user import BaseUser, SlimUser, User, UserSortableField
 from app.database.users.utils import get_hashed_password
 from app.exceptions.common import ObjectNotFoundException
+from app.database.common.controllers import BaseController
 
 
-class UserController:
+class UserController(BaseController):
+    _type = "USER_SESSION"
+    _create_history = False  # TODO Should probably enable
+    RETURN_MODEL = User
+
     async def create(self, *, user: BaseUser, current_user: str):
         if not user.email:
             raise ValueError("User email is required")
@@ -66,6 +71,13 @@ class UserController:
             raise ObjectNotFoundException(object_id=id)
 
         return SlimUser(**record)
+
+    async def get_slim_users_by_id(self, *, ids: str) -> List[Union[SlimUser, None]]:
+        # user_ids = ('f285d857b4ae4dbfbe194f886ae43df2'), ('f285d857b4ae4dbfbe194f886ae43df2'), ('5d857b4ae4dbfbe194f886ae43df2')
+        # user_ids = ",".join([f"('{_id}')" for _id in ids])
+        records = await user_db.get().fetch(QUERIES["GET_SLIM_USERS"], ids)
+
+        return [SlimUser(**record) if record["id"] else None for record in records]
 
     async def get_all(
         self,

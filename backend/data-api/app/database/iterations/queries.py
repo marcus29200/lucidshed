@@ -22,9 +22,7 @@ ITERATION_QUERIES[
     "CREATE_ITERATION"
 ] = """
 INSERT INTO iterations
-(
-    {}
-)
+({})
 VALUES ({})
 RETURNING *;
 """

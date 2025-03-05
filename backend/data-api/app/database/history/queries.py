@@ -26,9 +26,7 @@ HISTORY_QUERIES[
     "CREATE_HISTORY"
 ] = """
 INSERT INTO history
-(
-    {}
-)
+({})
 VALUES ({})
 RETURNING *;
 """

@@ -1,10 +1,10 @@
 import json
 from enum import StrEnum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 
-from pydantic import BaseModel, Field
+from pydantic import Field, EmailStr
 
-from app.database.common.models import MAX_IMAGE_SIZE, Model
+from app.database.common.models import MAX_IMAGE_SIZE, Model, BaseModel
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 
@@ -17,7 +17,7 @@ class UserSortableField(StrEnum):
 
 
 class BaseUser(BaseModel):
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     disabled: Optional[bool] = False
@@ -30,19 +30,15 @@ class BaseUser(BaseModel):
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
     settings: Optional[Dict[str, Any]] = {}
-    # TODO:
-    # passwordManagement: (is this 2FA settings/SSO?)
-    # skills: (list of strings?)
-
-
-class User(Model, BaseUser):
-    email: str
-    permissions: Dict[str, UserPermission] = {}  # type: ignore
     password: Optional[str] = Field(None, exclude=True)
     super_admin: bool = False
     reset_code: Optional[str] = Field(None, exclude=True)
     created_org_limit: int = Field(1, exclude=True)
     created_org_count: int = Field(0, exclude=True)
+    permissions: Dict[str, UserPermission] = {}  # type: ignore
+    # TODO:
+    # passwordManagement: (is this 2FA settings/SSO?)
+    # skills: (list of strings?)
 
     def __init__(self, **data):
         if isinstance(data.get("permissions"), str):
@@ -63,8 +59,10 @@ class User(Model, BaseUser):
     @property
     def password_set(self) -> bool:
         return self.password is not None and len(self.password) > 3
-    def password_set(self):
-        return self.password and len(self.password) > 3
+
+
+class User(Model, BaseUser):
+    email: EmailStr
 
 
 class SlimUser(Model):

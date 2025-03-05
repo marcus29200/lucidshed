@@ -28,7 +28,7 @@ async def add_feature(request: Request, organization_id: str, body: BaseFeature)
 
 
 @router.get("/{id}", status_code=200, response_model=Feature)
-async def get_feature(request: Request, organization_id: str, id: int) -> Feature:
+async def get_feature(request: Request, organization_id: str, id: str) -> Feature:
     return await request.app.feature_controller.get(id=id)
 
 
@@ -45,12 +45,14 @@ async def get_features(
 
 
 @router.patch("/{id}", status_code=200, response_model=Feature)
-async def update_feature(request: Request, organization_id: str, id: int, body: BaseFeature) -> Feature:
-    return await request.app.feature_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
+async def update_feature(request: Request, organization_id: str, id: str, body: BaseFeature) -> Feature:
+    return await request.app.feature_controller.update(
+        id=id, updated_item=body, current_user=request.state.user.id
+    )
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_feature(request: Request, organization_id: str, id: int):
+async def delete_feature(request: Request, organization_id: str, id: str):
     return await request.app.feature_controller.delete(id=id, current_user=request.state.user.id)
 
 

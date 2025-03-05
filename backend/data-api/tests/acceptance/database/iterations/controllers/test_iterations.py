@@ -13,7 +13,7 @@ async def test_add_iteration(data_app):
 
     assert isinstance(iteration, Iteration)
 
-    assert iteration.id == 1
+    assert iteration.id
     assert iteration.title == "Test"
 
 

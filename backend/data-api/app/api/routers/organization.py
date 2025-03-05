@@ -200,7 +200,7 @@ async def update_organization_user_permissions(
     request: Request, organization_id: str, user_id: str, body: BaseUserPermission
 ) -> User:
     return await request.app.user_permission_controller.update(
-        id=user_id, organization_id=organization_id, updated_user_permission=body, current_user=request.state.user.id
+        id=user_id, organization_id=organization_id, updated_item=body, current_user=request.state.user.id
     )
 
 

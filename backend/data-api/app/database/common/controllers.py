@@ -18,6 +18,7 @@ down on the boiler plate code we would need for different types of objects.
 class BaseController:
     _type = ""
     _create_history = False
+    _database_context = data_db
     RETURN_MODEL = BaseModel
 
     def __init__(self):
@@ -33,7 +34,7 @@ class BaseController:
 
     async def create(self, *, new_item, current_user: str):
         keys, values = new_item.dump_to_create_sql(current_user)
-        record = await data_db.get().fetchrow(
+        record = await self._database_context.get().fetchrow(
             QUERIES[f"CREATE_{self._type}"].format(keys, values),
         )
 
@@ -50,18 +51,20 @@ class BaseController:
 
         return self.RETURN_MODEL(**record)
 
-    async def get(self, *, id: str):
-        record = await data_db.get().fetchrow(QUERIES[f"GET_{self._type}"], id)
+    async def get(self, *, id: str, **extra_params):
+        params = [id] + [value for value in extra_params.values()]
+        record = await self._database_context.get().fetchrow(QUERIES[f"GET_{self._type}"], *params)
 
         if not record:
             raise ObjectNotFoundException(object_id=id)
 
         return self.RETURN_MODEL(**record)
 
-    async def update(self, *, id: str, updated_item, current_user: str):
-        record = await data_db.get().fetchrow(
+    async def update(self, *, id: str, updated_item, current_user: str, **extra_params):
+        params = [id] + [value for value in extra_params.values()]
+        record = await self._database_context.get().fetchrow(
             QUERIES[f"UPDATE_{self._type}"].format(fields=updated_item.dump_to_update_sql(current_user)),
-            id,
+            *params,
         )
 
         if self._create_history:
@@ -77,8 +80,9 @@ class BaseController:
 
         return self.RETURN_MODEL(**record)
 
-    async def delete(self, *, id: str, current_user: str) -> bool:
-        result = await data_db.get().execute(QUERIES[f"DELETE_{self._type}"], id, current_user)
+    async def delete(self, *, id: str, current_user: str, **extra_params) -> bool:
+        params = [id, current_user] + [value for value in extra_params.values()]
+        result = await self._database_context.get().execute(QUERIES[f"DELETE_{self._type}"], *params)
 
         if result != "UPDATE 1":
             raise ObjectNotFoundException(object_id=id)

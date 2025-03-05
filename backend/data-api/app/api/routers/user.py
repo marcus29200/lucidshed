@@ -116,7 +116,8 @@ async def login(request: Request, body: LoginRequest) -> LoginResponse:
             token=access_token,
             ip_address=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent"),
-        )
+        ),
+        current_user=user.id
     )
 
     return LoginResponse(user=user, token=Token(access_token=access_token, token_type="bearer"))

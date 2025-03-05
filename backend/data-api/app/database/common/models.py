@@ -14,9 +14,9 @@ class BaseModel(PydanticBaseModel):
     # TODO Need to add base model fields here too.
     id: Optional[str] = None
     created_at: Optional[datetime] = None
-    created_by_id: Optional[str] = Field(max_length=MAX_ID_LENGTH)
+    created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     modified_at: Optional[datetime] = None
-    modified_by_id: Optional[str] = Field(max_length=MAX_ID_LENGTH)
+    modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     deleted_at: Optional[datetime] = None
     deleted_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
 
@@ -34,10 +34,10 @@ class BaseModel(PydanticBaseModel):
             self.id = uuid4().hex
 
         model_json = self.model_dump(
-            exclude=set(["created_at", "modified_at", "modified_by_id"]), exclude_unset=True
+            exclude=set(["created_at", "created_by_id", "modified_at", "modified_by_id"]), exclude_unset=True
         )
 
-        columns = ",".join(list(model_json.keys()) + ["created_at, created_by_id", "modified_at", "modified_by_id"])
+        columns = ",".join(list(model_json.keys()) + ["created_at", "created_by_id", "modified_at", "modified_by_id"])
         values = ",".join(
             [self.get_value(value) for value in model_json.values()]
             + ["NOW()", f"'{self.created_by_id or current_user}'", "NOW()", f"'{current_user}'"]

@@ -1,19 +1,25 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Optional
 
-from pydantic import BaseModel
+from app.database.common.models import BaseModel, Model
+from app.api.settings import settings
 
 
 class BaseUserSession(BaseModel):
     user_id: str
     token: str
+    expires_at: Optional[datetime] = None
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
 
+    def __init__(self, **data):
+        if not data.get("expires_at"):
+            data["expires_at"] = datetime.now(UTC) + timedelta(minutes=settings.auth_token_expire_seconds)
 
-class UserSession(BaseUserSession):
-    id: str
-    created_at: datetime
+        return super().__init__(**data)
+
+
+class UserSession(Model, BaseUserSession):
     expires_at: datetime
 
     @property

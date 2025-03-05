@@ -188,9 +188,7 @@ WORK_ITEM_QUERIES[
     "CREATE_SUPPORT_ITEM"
 ] = """
 INSERT INTO support_items
-(
-    {}
-)
+({})
 VALUES ({})
 RETURNING *;
 """

@@ -1,9 +1,7 @@
 from enum import StrEnum
 from typing import Optional
 
-from pydantic import BaseModel
-
-from app.database.common.models import Model
+from app.database.common.models import Model, BaseModel
 
 
 class UserRoleType(StrEnum):
