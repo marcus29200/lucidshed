@@ -37,7 +37,6 @@ from app.database.users.controllers.user_session import UserSessionController
 from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
-from app.database.work_items.queries import FEATURE_REQUEST_UPGRADE_STATEMENTS
 from app.exceptions.common import ObjectNotFoundException
 
 router = APIRouter()
