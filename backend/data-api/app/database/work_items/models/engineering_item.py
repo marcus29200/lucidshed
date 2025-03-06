@@ -114,15 +114,15 @@ class EngineeringItem(WorkItem, BaseEngineeringItem):
         if indexible_doc.get("description"):
             indexible_doc["description"] = self.cleaned_description
 
-        fields_to_expand = ["assigned_to_id", "created_by_id", "modified_by_id"]
-        # Populate users from ids
-        users = [self.assigned_to_id, self.created_by_id, self.modified_by_id]
-        users = await UserController().get_slim_users_by_id(ids=users)
-        indexible_doc["assigned_to"], indexible_doc["created_by"], indexible_doc["modified_by"] = (
-            users[0].model_dump(),
-            users[1].model_dump(),
-            users[2].model_dump(),
-        )
+        # fields_to_expand = ["assigned_to_id", "created_by_id", "modified_by_id"]
+        # # Populate users from ids
+        # users = [self.assigned_to_id, self.created_by_id, self.modified_by_id]
+        # users = await UserController().get_slim_users_by_id(ids=users)
+        # indexible_doc["assigned_to"], indexible_doc["created_by"], indexible_doc["modified_by"] = (
+        #     users[0].model_dump(),
+        #     users[1].model_dump(),
+        #     users[2].model_dump(),
+        # )
 
         return indexible_doc
 

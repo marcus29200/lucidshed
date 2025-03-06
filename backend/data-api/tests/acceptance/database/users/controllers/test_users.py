@@ -93,6 +93,21 @@ async def test_get_all_users(data_app):
     assert isinstance(items[1], User)
 
 
+# This can be used to get all related users for a given story, list assigned to, modified by, etc...
+async def test_get_all_slim_users_by_id(data_app):
+    user_1 = await create_user(data_app, overrides={"email": "test1@test.com"})
+    await create_user(data_app, overrides={"email": "test2@test.com"})
+    user_3 = await create_user(data_app, overrides={"email": "test3@test.com"})
+    await create_user(data_app, overrides={"email": "test4@test.com"})
+
+    users = await data_app.user_controller.get_slim_users_by_id(ids=[user_1.id, user_3.id, "test", user_1.id])
+
+    assert users[0].id == user_1.id
+    assert users[1].id == user_3.id
+    assert users[2] is None
+    assert users[3].id == user_1.id
+
+
 async def test_get_all_user_paging(data_app):
     await create_user(data_app, overrides={"email": "test1@test.com"})
     await create_user(data_app, overrides={"email": "test2@test.com"})

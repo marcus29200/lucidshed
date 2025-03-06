@@ -54,7 +54,7 @@ class CreateEngineeringItemLinkPayload(BaseEngineeringItemLinkPayload):
     to 1 and item_2 to 2 and link_type to "blocked".
     """
 
-    item_id: int
+    item_id: str
     link_type: EngineeringLinkType
 
 

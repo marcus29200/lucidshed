@@ -22,7 +22,7 @@ class PagedResponse(BaseModel):
 
 @router.post("", status_code=201, response_model=Iteration)
 async def add_iteration(request: Request, organization_id: str, body: BaseIteration) -> Iteration:
-    iteration = await request.app.iteration_controller.create(iteration=body, current_user=request.state.user.id)
+    iteration = await request.app.iteration_controller.create(new_item=body, current_user=request.state.user.id)
 
     await index_object(
         opensearch_client=request.app.opensearch_client,
@@ -54,7 +54,7 @@ async def get_iterations(
 @router.patch("/{id}", status_code=200, response_model=Iteration)
 async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
     iteration = await request.app.iteration_controller.update(
-        id=id, updated_iteration=body, current_user=request.state.user.id
+        id=id, updated_item=body, current_user=request.state.user.id
     )
 
     document = iteration.get_searchable_doc(body.model_fields_set)

@@ -12,7 +12,7 @@ async def test_should_add_engineering_item(data_api: TestClient):
 
     engineering_item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["title"] == "test"
     assert engineering_item["description"] == "test description"
     assert engineering_item["status"] == "done"
@@ -31,7 +31,7 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
         data_api, org["id"], {"item_type": EngineeringItemType.EPIC}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
 
 
@@ -63,7 +63,7 @@ async def test_should_add_engineering_item_with_estimated_completion_date_in_iso
         data_api, org["id"], {"estimated_completion_date": "2021-01-01T00:00:00+00:00"}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["estimated_completion_date"] == "2021-01-01T00:00:00Z"
 
 
@@ -75,7 +75,7 @@ async def test_should_add_engineering_item_with_iteration(data_api: TestClient):
         data_api, org["id"], {"iteration_id": iteration["id"]}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["iteration_id"] == iteration["id"]
     assert engineering_item["iteration"]["id"] == iteration["id"]
 
@@ -98,7 +98,7 @@ async def test_should_add_engineering_item_with_created_by_override(data_api: Te
         data_api, org["id"], {"created_by_id": "test2@test.com"}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["created_by_id"] == "test2@test.com"
 
 

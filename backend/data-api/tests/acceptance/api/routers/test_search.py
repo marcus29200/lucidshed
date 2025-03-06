@@ -87,6 +87,39 @@ async def test_search_for_updated_engineering_item(data_api, opensearch_enabled)
     assert data["items"][0]["title"] == "New Story"
 
 
+async def test_search_engineering_item_assigned_to_specific_user_by_first_name(data_api, opensearch_enabled):
+    org, user, headers = await authenticate(data_api)
+
+    item = await add_engineering_item(
+        data_api, org["id"], {"title": "Story", "assigned_to_id": user["id"]}, headers=headers
+    )
+
+    await asyncio.sleep(1)
+
+    response = await data_api.post(
+        f"{org['id']}/search",
+        json={"query": {"match": {"assigned_to.first_name": "Test"}}},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Story"
+
+    response = await data_api.post(
+        f"{org['id']}/search",
+        json={"query": {"match": {"assigned_to.first_name": "Marcus"}}},
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data["items"]) == 0
+
+
 async def test_search_with_async_indexing(data_api, opensearch_enabled):
     settings.opensearch_async_indexing = True
 

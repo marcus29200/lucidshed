@@ -35,7 +35,6 @@ class BaseUser(BaseModel):
     reset_code: Optional[str] = Field(None, exclude=True)
     created_org_limit: int = Field(1, exclude=True)
     created_org_count: int = Field(0, exclude=True)
-    permissions: Dict[str, UserPermission] = {}  # type: ignore
     # TODO:
     # passwordManagement: (is this 2FA settings/SSO?)
     # skills: (list of strings?)
@@ -63,6 +62,7 @@ class BaseUser(BaseModel):
 
 class User(Model, BaseUser):
     email: EmailStr
+    permissions: Dict[str, UserPermission] = {}
 
 
 class SlimUser(Model):

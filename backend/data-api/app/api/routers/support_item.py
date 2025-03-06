@@ -49,9 +49,9 @@ async def update_support_item(request: Request, organization_id: str, id: str, b
 
 @router.delete("/{id}", status_code=200)
 async def delete_support_item(request: Request, organization_id: str, id: str):
-    return await request.app.support_controller.delete(id=id, current_user=request.state.user.id, scope="SUPPORT")
+    return await request.app.support_controller.delete(id=id, current_user=request.state.user.id)
 
 
 @router.get("/{id}/history", status_code=200)
 async def get_engineering_item_history(request: Request, organization_id: str, id: str):
-    return await request.app.history_controller.get_all(item_id=id, item_type="support")
+    return await request.app.history_controller.get_all(item_id=id, item_type="support_item")

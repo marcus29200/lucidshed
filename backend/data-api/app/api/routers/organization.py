@@ -62,7 +62,7 @@ async def add_organization(
     async with pool.acquire() as conn:
         async with conn.transaction():
             org = await request.app.organization_controller.create(
-                organization=body, current_user=request.state.user.id
+                new_item=body, current_user=request.state.user.id
             )
 
             # Grant current user access to org
@@ -95,7 +95,7 @@ async def get_organization(request: Request, organization_id: str) -> Organizati
 )
 async def update_organization(request: Request, organization_id: str, body: BaseOrganization) -> Organization:
     return await request.app.organization_controller.update(
-        id=organization_id, updated_organization=body, current_user=request.state.user.id
+        id=organization_id, updated_item=body, current_user=request.state.user.id
     )
 
 
