@@ -89,7 +89,7 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         opensearch_client=request.app.opensearch_client,
         index=organization_id,
         item_id=engineering_item.id,
-        document=engineering_item.get_searchable_doc(),
+        document=await engineering_item.get_searchable_doc(),
     )
 
     return engineering_item
@@ -132,7 +132,7 @@ async def update_engineering_item(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = engineering_item.get_searchable_doc(body.model_fields_set)
+    document = await engineering_item.get_searchable_doc(body.model_fields_set)
 
     document["modified_date"] = engineering_item.modified_at
     document["modified_by_id"] = engineering_item.modified_by_id
@@ -146,6 +146,31 @@ async def update_engineering_item(
     )
 
     return engineering_item
+
+
+router.patch("", status_code=200)
+async def batch_update_engineering_item(
+    request: Request, organization_id: str, body: BatchUpdateEngineeringItemPayload
+):
+    # Update db
+    await request.app.engineering_controller.batch_update(
+        updated_items=body.updates, current_user=request.state.user.id
+    )
+
+    # This could probably be done in batches too
+    # for engineering_item in body.updates:
+    #     document = await engineering_item.get_searchable_doc(body.model_fields_set)
+
+    #     document["modified_date"] = engineering_item.modified_at
+    #     document["modified_by_id"] = engineering_item.modified_by_id
+
+    #     await index_object(
+    #         opensearch_client=request.app.opensearch_client,
+    #         index=organization_id,
+    #         item_id=engineering_item.id,
+    #         document=document,
+    #         mode="update",
+    #     )
 
 
 @router.delete("/{id}", status_code=200)

@@ -64,11 +64,15 @@ class User(Model, BaseUser):
     email: EmailStr
     permissions: Dict[str, UserPermission] = {}
 
+    @property
+    def indexed_fields(self) -> Set[str]:
+        return {"id", "email", "first_name", "last_name", "title", "team", "phone", "location", "timezone", "bio"}
 
-class SlimUser(Model):
+
+class SlimUser(BaseModel):
     id: str
     email: str
     first_name: str
     last_name: str
-    picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
-    title: Optional[str] = None
+    # picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
+    # title: Optional[str] = None

@@ -99,6 +99,27 @@ SELECT
 FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
 """
 
+
+USER_QUERIES[
+    "GET_SLIM_USERS"
+] = """
+SELECT
+    user_ids.value AS input_id,
+    users.id AS id,
+    users.first_name,
+    users.last_name,
+    users.email
+FROM
+    UNNEST($1::text[]) WITH ORDINALITY AS user_ids(value, ordinality)
+LEFT JOIN
+    users
+ON
+    users.id = user_ids.value
+ORDER BY
+    user_ids.ordinality;
+"""
+
+
 USER_QUERIES[
     "GET_USERS"
 ] = """

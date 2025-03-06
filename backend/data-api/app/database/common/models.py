@@ -78,8 +78,17 @@ class Model(BaseModel):
     def get_fields_to_index(self, updated_fields: Optional[Set[str]] = set()) -> list[str]:
         return list(self.indexed_fields.intersection(updated_fields) if updated_fields else self.indexed_fields)
 
-    def get_searchable_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
-        doc = {field: getattr(self, field) for field in self.get_fields_to_index(updated_fields)}
+    def convert_to_serializable_value(self, value):
+        if isinstance(value, BaseModel):
+            return value.model_dump()
+
+        return value
+
+    async def get_searchable_doc(self, updated_fields: Optional[set[str]] = None) -> Dict[str, Any]:
+        doc = {
+            field: self.convert_to_serializable_value(getattr(self, field))
+            for field in self.get_fields_to_index(updated_fields)
+        }
 
         doc["type"] = self.__class__.__name__
 
