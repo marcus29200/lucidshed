@@ -4,21 +4,21 @@ import ShedTable from '../../components/Table';
 import { useParams } from 'react-router-dom';
 import { UsersContext } from '../../hooks/users';
 import { useQuery } from '@tanstack/react-query';
-import { getCompanies } from '../../api/companies';
 import { FeatureRequestFormProps } from '../featureRequests/FeatureRequest';
 import { MRT_ColumnDef } from 'material-react-table';
 import { getFeatureRequests } from '../../api/featureRequests';
 import { DashboardItemIcon } from '../../icons/icons';
+import { FeatureListFormProps } from '../featureLists/FeatureList';
+import { getFeatureLists } from '../../api/featureLists';
 
 const FEATURE_REQUESTS_TABLE_ID = 'new-feature-requests-table';
 
 export const NewFeatureRequests = () => {
 	const sortStates = {
 		title: true, // Set to true to start with descending order
-		company: null,
 		submittedBy: null,
 		submittedDate: null,
-		assignedTo: null,
+		featureAssignedName: null,
 	};
 	const initialSorting = getStoredSortState(FEATURE_REQUESTS_TABLE_ID);
 	if (Object.keys(initialSorting).length) {
@@ -42,23 +42,23 @@ export const NewFeatureRequests = () => {
 		queryKey: ['featureRequests', orgId],
 		queryFn: async () => getFeatureRequests(orgId),
 	});
-
-	const { data } = useQuery({
-		queryKey: ['companies'],
-		queryFn: async () => getCompanies(orgId),
+	const { data: featuresData } = useQuery({
+		queryKey: ['featureLists'],
+		queryFn: async () => getFeatureLists(orgId),
 	});
-
-	const companies = data ?? [];
+	const features: FeatureListFormProps[] = featuresData ?? [];
 
 	const addUserNameAndCompany = (
-		feature: FeatureRequestFormProps
+		featureRequest: FeatureRequestFormProps
 	): FeatureRequestFormProps => ({
-		...feature,
+		...featureRequest,
 		submittedBy:
-			users.find((user) => user.id === feature.requester)?.fullName || '-',
-		assignedToName:
-			users.find((user) => user.id === feature.assignedTo)?.fullName || '-',
-		company: companies.find((c) => c.id === feature.companyId)?.name || '-',
+			users.find((user) => user.id === featureRequest.requester)?.fullName ||
+			'-',
+		featureAssignedName:
+			features.find(
+				(feature) => feature.id + '' === featureRequest.featureAssigned
+			)?.title || '-',
 	});
 
 	const featureRequests = (requests ?? [])
@@ -70,13 +70,6 @@ export const NewFeatureRequests = () => {
 			header: 'Title',
 			id: 'title',
 			accessorKey: 'title',
-			enableColumnActions: false,
-			enableColumnFilter: false,
-		},
-		{
-			header: 'Company',
-			id: 'company',
-			accessorKey: 'company',
 			enableColumnActions: false,
 			enableColumnFilter: false,
 		},
@@ -96,8 +89,8 @@ export const NewFeatureRequests = () => {
 		},
 		{
 			header: 'Feature assigned',
-			id: 'assignedToName',
-			accessorKey: 'assignedToName',
+			id: 'featureAssignedName',
+			accessorKey: 'featureAssignedName',
 			enableColumnActions: false,
 			enableColumnFilter: false,
 		},
