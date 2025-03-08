@@ -1,5 +1,14 @@
-import { Grid, FormControl, TextField, Box, Button } from '@mui/material';
-import { memo, useMemo, useState } from 'react';
+import {
+	Grid,
+	FormControl,
+	TextField,
+	Box,
+	Button,
+	InputLabel,
+	Select,
+	MenuItem,
+} from '@mui/material';
+import { memo, useState } from 'react';
 import { useForm, useController, SubmitHandler } from 'react-hook-form';
 import { User } from '../../api/users';
 import DescriptionRichEditor from '../../components/DescriptionRichEditor';
@@ -7,9 +16,9 @@ import UserSearchInput from '../sprints/UserSearchInput';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createFeatureRequest } from '../../api/featureRequests';
-import FreeSoloAutocomplete from '../../components/FreeSoloAutocomplete';
-import { getCompanies } from '../../api/companies';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getFeatureLists } from '../../api/featureLists';
+import { FeatureListFormProps } from '../featureLists/FeatureList';
 
 type FeatureRequestFormProps = {
 	title: string;
@@ -32,21 +41,17 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 	});
 
 	const [requester, setRequester] = useState<User | null>(null);
-	const [assignedTo, setAssignedTo] = useState<User | null>(null);
-	const [company, setCompany] = useState<string>('');
+	const [featureId, setFeatureId] = useState<string>('');
 
 	const today = dayjs().format('MMM D, YYYY');
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const { data } = useQuery({
-		queryKey: ['companies'],
-		queryFn: async () => getCompanies(orgId),
-	});
 
-	const companies = useMemo<string[]>(
-		() => data?.map((c) => c.name) ?? [],
-		[data]
-	);
+	const { data: features } = useQuery({
+		queryKey: ['featureLists'],
+		queryFn: async () => getFeatureLists(orgId),
+	});
+	const featuresList: FeatureListFormProps[] = features ?? [];
 
 	const onSubmit: SubmitHandler<FeatureRequestFormProps> = async (
 		data: FeatureRequestFormProps
@@ -55,11 +60,8 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 			title: data.title,
 			description: data.description || '',
 			submitted_by_id: requester?.id || null,
-			assigned_to_id: assignedTo?.id || null,
+			feature_assigned: featureId?.toString(),
 			comments: [],
-			company: {
-				name: company,
-			},
 		};
 		try {
 			await createFeatureRequest({ orgId, data: payload });
@@ -75,8 +77,6 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 		reset();
 		descriptionField.field.value = '';
 		setRequester(() => null);
-		setAssignedTo(() => null);
-		setCompany(() => '');
 		navigate(`/${orgId}/feature-requests`);
 	};
 	return (
@@ -127,60 +127,32 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 						</>
 					</Grid>
 					<Grid item xs={6}>
-						<>
-							<FreeSoloAutocomplete
-								setValue={setCompany}
-								value={company}
-								options={companies}
-								id="company-selector"
-								label="Company"
-							/>
-						</>
+						<FormControl fullWidth sx={{ marginTop: '8px' }}>
+							<InputLabel size="small" id="assigned-feature-label">
+								Assigned Feature
+							</InputLabel>
+							<Select
+								variant="outlined"
+								size="small"
+								fullWidth
+								labelId="assigned-feature-label"
+								label="Assigned Feature"
+								value={featureId}
+								onChange={(evt) => {
+									setFeatureId(() => evt.target.value);
+								}}
+								id="assigned-feature"
+								name="assigned-feature"
+							>
+								{featuresList.map((feature) => (
+									<MenuItem value={feature.id} key={feature.id}>
+										{feature.title}
+									</MenuItem>
+								))}
+							</Select>
+						</FormControl>
 					</Grid>
 
-					<Grid
-						item
-						xs={6}
-						sx={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '8px',
-						}}
-					>
-						<TextField
-							variant="outlined"
-							size="small"
-							margin="dense"
-							fullWidth
-							label="Tags"
-							id="tags"
-							{...register('tags')}
-						></TextField>
-					</Grid>
-					<Grid
-						item
-						xs={6}
-						sx={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '8px',
-						}}
-					>
-						<>
-							<input
-								hidden
-								name="assignedTo"
-								value={assignedTo?.id ?? ''}
-								onChange={() => setAssignedTo(() => null)}
-							/>
-							<UserSearchInput
-								setUser={setAssignedTo}
-								user={assignedTo}
-								id="assignedTo-selector"
-								label="Assigned to"
-							/>
-						</>
-					</Grid>
 					<Grid item xs={12}>
 						<DescriptionRichEditor
 							onChange={descriptionField.field.onChange}

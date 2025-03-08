@@ -27,7 +27,7 @@ const NAVIGATION_ITEMS: NavigationItem[] = [
 		to: 'feature-requests',
 		label: 'Feature management',
 		icon: () => <DeskAltIcon />,
-		activePaths: ['feature-requests', 'feature-list'],
+		activePaths: ['feature-requests', 'features'],
 	},
 ];
 

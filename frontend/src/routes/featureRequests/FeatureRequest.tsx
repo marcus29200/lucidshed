@@ -19,7 +19,6 @@ import { UsersContext } from '../../hooks/users';
 import { updateFeatureRequest } from '../../api/featureRequests';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RotateRight } from '@mui/icons-material';
-import { getCompanies } from '../../api/companies';
 import { getFeatureLists } from '../../api/featureLists';
 import { FeatureListFormProps } from '../featureLists/FeatureList';
 
@@ -32,9 +31,8 @@ export type FeatureRequestFormProps = {
 	assignedTo: string | null;
 	tags: string | null;
 	submittedBy: string | null;
-	assignedToName: string | null;
-	companyId: number | null;
-	company: string | null;
+	featureAssigned: string | null;
+	featureAssignedName: string | null;
 };
 let debounceTimeId;
 const FeatureRequest = memo(
@@ -53,24 +51,18 @@ const FeatureRequest = memo(
 		const [description, setDescription] = useState<string>('');
 		const [tags, setTags] = useState<string>('');
 		const [requester, setRequester] = useState<User | null>(null);
-		const [assignedTo, setAssignedTo] = useState<User | null>(null);
 		const [isLoading, setIsLoading] = useState(false);
 		const [submitDate, setSubmitDate] = useState<string>('');
 
-		const [company, setCompany] = useState<string>('');
-		const [featureId, setFeatureId] = useState<string>('');
+		const [featureId, setFeatureId] = useState<string | null>('');
 
 		const navigate = useNavigate();
 		const queryClient = useQueryClient();
-		const { data } = useQuery({
-			queryKey: ['companies'],
-			queryFn: async () => getCompanies(orgId),
-		});
+
 		const { data: features } = useQuery({
 			queryKey: ['featureLists'],
 			queryFn: async () => getFeatureLists(orgId),
 		});
-		const companies = data ?? [];
 		const featuresList: FeatureListFormProps[] = features ?? [];
 
 		const { mutate: patchFeatureRequest } = useMutation({
@@ -97,22 +89,11 @@ const FeatureRequest = memo(
 				setDescription(() => featureRequest.description ?? '');
 				setTags(() => featureRequest.tags ?? '');
 				setSubmitDate(() => featureRequest.submittedDate);
-
-				if (featureRequest.company === '-') {
-					featureRequest.company =
-						companies.find((c) => c.id === featureRequest.companyId)?.name ??
-						'';
-				}
-
-				setCompany(() => featureRequest.companyId! + '');
 				setRequester(
 					() =>
 						users.find((user) => user.id === featureRequest.requester) || null
 				);
-				setAssignedTo(
-					() =>
-						users.find((user) => user.id === featureRequest.assignedTo) || null
-				);
+				setFeatureId(featureRequest.featureAssigned);
 			} else {
 				clearValues();
 			}
@@ -128,8 +109,6 @@ const FeatureRequest = memo(
 			setDescription(() => '');
 			setTags(() => '');
 			setRequester(() => null);
-			setAssignedTo(() => null);
-			setCompany(() => '');
 			setFeatureId(() => '');
 		};
 
@@ -166,10 +145,6 @@ const FeatureRequest = memo(
 			setRequester(user);
 			// handlePatchFeatureRequest({ submitted_by_id: user?.id || null });
 		};
-		const handleEditAssignedTo = (user: User | null) => {
-			setAssignedTo(user);
-			// handlePatchFeatureRequest({ assigned_to_id: user?.id || null });
-		};
 
 		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
@@ -177,10 +152,8 @@ const FeatureRequest = memo(
 				description,
 				tags,
 				submitted_by_id: requester?.id || null,
-				assigned_to_id: assignedTo?.id || null,
 				title: featureRequest?.title,
-				company_id: company,
-				feature_list_id: featureId,
+				feature_assigned: featureId?.toString(),
 			};
 			if (title && title !== featureRequest?.title) {
 				payload.title = title;
@@ -254,41 +227,6 @@ const FeatureRequest = memo(
 						</Grid>
 						<Grid item xs={6}>
 							<FormControl fullWidth sx={{ marginTop: '8px' }}>
-								<InputLabel size="small" id="company-label">
-									Company
-								</InputLabel>
-								<Select
-									variant="outlined"
-									size="small"
-									fullWidth
-									labelId="company-label"
-									label="Company"
-									value={company}
-									onChange={(evt) => {
-										setCompany(() => evt.target.value);
-									}}
-									id="company"
-									name="company"
-								>
-									{companies.map((company) => (
-										<MenuItem value={company.id} key={company.id}>
-											{company.name}
-										</MenuItem>
-									))}
-								</Select>
-							</FormControl>
-						</Grid>
-
-						<Grid
-							item
-							xs={6}
-							sx={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '8px',
-							}}
-						>
-							<FormControl fullWidth sx={{ marginTop: '8px' }}>
 								<InputLabel size="small" id="assigned-feature-label">
 									Assigned Feature
 								</InputLabel>
@@ -306,37 +244,14 @@ const FeatureRequest = memo(
 									name="assigned-feature"
 								>
 									{featuresList.map((feature) => (
-										<MenuItem value={feature.id} key={feature.id}>
+										<MenuItem value={feature.id.toString()} key={feature.id}>
 											{feature.title}
 										</MenuItem>
 									))}
 								</Select>
 							</FormControl>
 						</Grid>
-						<Grid
-							item
-							xs={6}
-							sx={{
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '8px',
-							}}
-						>
-							<>
-								<input
-									hidden
-									name="assignedTo"
-									value={assignedTo?.id ?? ''}
-									onChange={() => setAssignedTo(() => null)}
-								/>
-								<UserSearchInput
-									setUser={handleEditAssignedTo}
-									user={assignedTo}
-									id="assignedTo-selector"
-									label="Assigned to"
-								/>
-							</>
-						</Grid>
+
 						<Grid item xs={12}>
 							<DescriptionRichEditor
 								onChange={handleEditDescription}

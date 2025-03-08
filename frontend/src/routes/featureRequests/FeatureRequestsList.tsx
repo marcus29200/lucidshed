@@ -8,17 +8,17 @@ import CreateFeatureRequest from './CreateFeatureRequest';
 import FeatureRequest, { FeatureRequestFormProps } from './FeatureRequest';
 import { UsersContext } from '../../hooks/users';
 import { useQuery } from '@tanstack/react-query';
-import { getCompanies } from '../../api/companies';
+import { getFeatureLists } from '../../api/featureLists';
+import { FeatureListFormProps } from '../featureLists/FeatureList';
 
 const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-table';
 
 const FeatureRequestList = () => {
 	const sortStates = {
 		title: true, // Set to true to start with descending order
-		company: null,
 		submittedBy: null,
 		submittedDate: null,
-		assignedTo: null,
+		featureAssignedName: null,
 	};
 	const initialSorting = getStoredSortState(FEATURE_REQUESTS_TABLE_ID);
 	if (Object.keys(initialSorting).length) {
@@ -47,22 +47,24 @@ const FeatureRequestList = () => {
 	const isEditFeatureRequest = !!featureRequestId && featureRequestId !== 'new';
 	const orgId = useParams().orgId as string;
 	const users = useContext(UsersContext);
-	const { data } = useQuery({
-		queryKey: ['companies'],
-		queryFn: async () => getCompanies(orgId),
-	});
 
-	const companies = data ?? [];
+	const { data: featuresData } = useQuery({
+		queryKey: ['featureLists'],
+		queryFn: async () => getFeatureLists(orgId),
+	});
+	const features: FeatureListFormProps[] = featuresData ?? [];
 
 	const addUserNameAndCompany = (
-		feature: FeatureRequestFormProps
+		featureRequest: FeatureRequestFormProps
 	): FeatureRequestFormProps => ({
-		...feature,
+		...featureRequest,
 		submittedBy:
-			users.find((user) => user.id === feature.requester)?.fullName || '-',
-		assignedToName:
-			users.find((user) => user.id === feature.assignedTo)?.fullName || '-',
-		company: companies.find((c) => c.id === feature.companyId)?.name || '-',
+			users.find((user) => user.id === featureRequest.requester)?.fullName ||
+			'-',
+		featureAssignedName:
+			features.find(
+				(feature) => feature.id + '' === featureRequest.featureAssigned
+			)?.title || '-',
 	});
 
 	const featureRequests = (useLoaderData() as FeatureRequestFormProps[]).map(
@@ -115,13 +117,6 @@ const FeatureRequestList = () => {
 			enableColumnFilter: false,
 		},
 		{
-			header: 'Company',
-			id: 'company',
-			accessorKey: 'company',
-			enableColumnActions: false,
-			enableColumnFilter: false,
-		},
-		{
 			header: 'Submitted by',
 			id: 'submittedBy',
 			accessorKey: 'submittedBy',
@@ -137,8 +132,8 @@ const FeatureRequestList = () => {
 		},
 		{
 			header: 'Feature assigned',
-			id: 'assignedToName',
-			accessorKey: 'assignedToName',
+			id: 'featureAssignedName',
+			accessorKey: 'featureAssignedName',
 			enableColumnActions: false,
 			enableColumnFilter: false,
 		},

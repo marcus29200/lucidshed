@@ -186,7 +186,7 @@ export const router = createHashRouter([
 						],
 					},
 					{
-						path: 'feature-list',
+						path: 'features',
 						children: [
 							{
 								index: true,

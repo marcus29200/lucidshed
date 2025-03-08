@@ -14,6 +14,7 @@ const mapFeatureRequestResponse = (response) => ({
 	assignedTo: response.assigned_to_id,
 	companyId: response.company_id,
 	company: '-',
+	featureAssigned: response.feature_assigned,
 });
 
 export const createFeatureRequest = async ({

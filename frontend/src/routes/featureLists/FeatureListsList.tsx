@@ -73,7 +73,7 @@ const FeatureListsList = () => {
 					setIsEditSidebarOpen(true);
 				});
 			} else {
-				navigate(`/${orgId}/feature-list`);
+				navigate(`/${orgId}/features`);
 			}
 		} else if (isEditFeatureList && selectedRow) {
 			setTimeout(() => {
@@ -88,7 +88,7 @@ const FeatureListsList = () => {
 
 	const handleRowClick = (row) => {
 		setSelectedRow(() => row);
-		navigate(`/${orgId}/feature-list/${row.id}`);
+		navigate(`/${orgId}/features/${row.id}`);
 	};
 	const { mutate: patchFeatureList } = useMutation({
 		mutationFn: updateFeatureList,
@@ -98,9 +98,9 @@ const FeatureListsList = () => {
 		onSuccess: async () => {
 			setEditingFieldId('');
 			await queryClient.invalidateQueries({
-				queryKey: ['feature-list', orgId],
+				queryKey: ['feature', orgId],
 			});
-			navigate(`/${orgId}/feature-list`);
+			navigate(`/${orgId}/features`);
 		},
 	});
 
@@ -368,7 +368,7 @@ const FeatureListsList = () => {
 					textAlign: 'left',
 				}}
 			>
-				<Link to={`/${orgId}/feature-list/new`}>
+				<Link to={`/${orgId}/features/new`}>
 					<Button
 						color="primary"
 						variant="contained"

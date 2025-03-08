@@ -14,6 +14,7 @@ export type FeatureListFormProps = {
 	description: string | null;
 	requests: number | null;
 	priority: string | null;
+	feature_assigned: string | null;
 };
 let debounceTimeId;
 const FeatureList = memo(
@@ -63,7 +64,7 @@ const FeatureList = memo(
 
 		const cancelEdition = () => {
 			clearValues();
-			navigate(`/${orgId}/feature-list`);
+			navigate(`/${orgId}/features`);
 		};
 
 		const clearValues = () => {

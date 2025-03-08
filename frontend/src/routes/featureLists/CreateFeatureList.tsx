@@ -46,7 +46,7 @@ const CreateFeatureList = memo(({ show }: { show: boolean }) => {
 	const cancelCreation = () => {
 		reset();
 		descriptionField.field.value = '';
-		navigate(`/${orgId}/feature-list`);
+		navigate(`/${orgId}/features`);
 	};
 	return (
 		<div
