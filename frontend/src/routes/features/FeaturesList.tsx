@@ -4,15 +4,15 @@ import { Link, useLoaderData, useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, FormControl, MenuItem, Select } from '@mui/material';
 import ShedTable from '../../components/Table';
 import { MRT_ColumnDef } from 'material-react-table';
-import CreateFeatureList from './CreateFeatureList';
-import FeatureList, { FeatureListFormProps } from './FeatureList';
+import CreateFeature from './CreateFeature';
+import { FeatureListFormProps } from './FeatureDetails';
 import { UseMutateFunction, useMutation } from '@tanstack/react-query';
 import { queryClient } from '../../router';
-import { updateFeatureList } from '../../api/featureLists';
+import { updateFeature } from '../../api/features';
 
 const FEATURE_LISTS_TABLE_ID = 'feature-lists-table';
 
-const FeatureListsList = () => {
+const FeaturesList = () => {
 	const sortStates = {
 		title: true,
 		requests: null,
@@ -38,18 +38,12 @@ const FeatureListsList = () => {
 		[key: string]: boolean | null;
 	}>(sortStates);
 	const [isCreateSidebarOpen, setIsCreateSidebarOpen] = useState(false);
-	const [isEditSidebarOpen, setIsEditSidebarOpen] = useState(false);
 
 	const [editingFieldId, setEditingFieldId] = useState('');
 
-	const [selectedRow, setSelectedRow] = useState<FeatureListFormProps | null>(
-		null
-	);
+	const featureListParam = useParams().new as string;
 
-	const featureListId = useParams().featureListId as string;
-
-	const isNewFeatureList = !!featureListId && featureListId === 'new';
-	const isEditFeatureList = !!featureListId && featureListId !== 'new';
+	const isNewFeatureList = !!featureListParam && featureListParam === 'new';
 	const orgId = useParams().orgId as string;
 
 	const featureLists = useLoaderData() as FeatureListFormProps[];
@@ -62,43 +56,19 @@ const FeatureListsList = () => {
 		});
 	}, [isNewFeatureList]);
 
-	useEffect(() => {
-		if (isEditFeatureList && !selectedRow) {
-			const row = featureLists.find(
-				(featureList) => featureList.id === +featureListId
-			);
-			if (row) {
-				setSelectedRow(() => row);
-				setTimeout(() => {
-					setIsEditSidebarOpen(true);
-				});
-			} else {
-				navigate(`/${orgId}/features`);
-			}
-		} else if (isEditFeatureList && selectedRow) {
-			setTimeout(() => {
-				setIsEditSidebarOpen(true);
-			});
-		} else {
-			setTimeout(() => {
-				setIsEditSidebarOpen(false);
-			});
-		}
-	}, [isEditFeatureList, selectedRow]);
-
 	const handleRowClick = (row) => {
-		setSelectedRow(() => row);
-		navigate(`/${orgId}/features/${row.id}`);
+		navigate(`/${orgId}/features/${row.id}/requests`);
 	};
+
 	const { mutate: patchFeatureList } = useMutation({
-		mutationFn: updateFeatureList,
+		mutationFn: updateFeature,
 		onError: () => {
 			console.error('wuhh');
 		},
 		onSuccess: async () => {
 			setEditingFieldId('');
 			await queryClient.invalidateQueries({
-				queryKey: ['feature', orgId],
+				queryKey: ['features', orgId],
 			});
 			navigate(`/${orgId}/features`);
 		},
@@ -390,8 +360,7 @@ const FeatureListsList = () => {
 				actionsEnabled={false}
 				handleRowClicked={handleRowClick}
 			/>
-			<CreateFeatureList show={isCreateSidebarOpen} />
-			<FeatureList show={isEditSidebarOpen} featureList={selectedRow} />
+			<CreateFeature show={isCreateSidebarOpen} />
 		</div>
 	);
 };
@@ -470,4 +439,4 @@ function FieldInput({
 	);
 }
 
-export default FeatureListsList;
+export default FeaturesList;

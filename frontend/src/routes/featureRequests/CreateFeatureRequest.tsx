@@ -15,10 +15,13 @@ import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 import UserSearchInput from '../sprints/UserSearchInput';
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createFeatureRequest } from '../../api/featureRequests';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFeatureLists } from '../../api/featureLists';
-import { FeatureListFormProps } from '../featureLists/FeatureList';
+import {
+	createFeatureRequest,
+	linkRequestToFeature,
+} from '../../api/featureRequests';
+import { useQuery } from '@tanstack/react-query';
+import { getFeatures } from '../../api/features';
+import { FeatureListFormProps } from '../features/FeatureDetails';
 
 type FeatureRequestFormProps = {
 	title: string;
@@ -45,11 +48,10 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 
 	const today = dayjs().format('MMM D, YYYY');
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
 
 	const { data: features } = useQuery({
 		queryKey: ['featureLists'],
-		queryFn: async () => getFeatureLists(orgId),
+		queryFn: async () => getFeatures(orgId),
 	});
 	const featuresList: FeatureListFormProps[] = features ?? [];
 
@@ -64,8 +66,14 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 			comments: [],
 		};
 		try {
-			await createFeatureRequest({ orgId, data: payload });
-			queryClient.invalidateQueries({ queryKey: ['companies'] });
+			const request = await createFeatureRequest({ orgId, data: payload });
+			if (featureId) {
+				await linkRequestToFeature({
+					orgId,
+					requestId: request.id,
+					featureId: +featureId,
+				});
+			}
 		} catch (error) {
 			console.error('Error creating feature request:', error);
 		} finally {

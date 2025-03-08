@@ -4,7 +4,7 @@ import { useForm, useController, SubmitHandler } from 'react-hook-form';
 import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 
 import { useNavigate, useParams } from 'react-router-dom';
-import { createFeatureList } from '../../api/featureLists';
+import { createFeature } from '../../api/features';
 
 type FeatureListFormProps = {
 	title: string;
@@ -12,7 +12,7 @@ type FeatureListFormProps = {
 	requests: number;
 };
 
-const CreateFeatureList = memo(({ show }: { show: boolean }) => {
+const CreateFeature = memo(({ show }: { show: boolean }) => {
 	const orgId = useParams().orgId as string;
 
 	const { register, reset, handleSubmit, control } =
@@ -35,7 +35,7 @@ const CreateFeatureList = memo(({ show }: { show: boolean }) => {
 			requests: 0,
 		};
 		try {
-			await createFeatureList({ orgId, data: payload });
+			await createFeature({ orgId, data: payload });
 		} catch (error) {
 			console.error('Error creating feature list:', error);
 		} finally {
@@ -113,6 +113,6 @@ const CreateFeatureList = memo(({ show }: { show: boolean }) => {
 	);
 });
 
-CreateFeatureList.displayName = 'CreateFeatureList';
+CreateFeature.displayName = 'CreateFeatureList';
 
-export default CreateFeatureList;
+export default CreateFeature;

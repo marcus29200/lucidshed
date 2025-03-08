@@ -8,8 +8,8 @@ import CreateFeatureRequest from './CreateFeatureRequest';
 import FeatureRequest, { FeatureRequestFormProps } from './FeatureRequest';
 import { UsersContext } from '../../hooks/users';
 import { useQuery } from '@tanstack/react-query';
-import { getFeatureLists } from '../../api/featureLists';
-import { FeatureListFormProps } from '../featureLists/FeatureList';
+import { getFeatures } from '../../api/features';
+import { FeatureListFormProps } from '../features/FeatureDetails';
 
 const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-table';
 
@@ -50,7 +50,7 @@ const FeatureRequestList = () => {
 
 	const { data: featuresData } = useQuery({
 		queryKey: ['featureLists'],
-		queryFn: async () => getFeatureLists(orgId),
+		queryFn: async () => getFeatures(orgId),
 	});
 	const features: FeatureListFormProps[] = featuresData ?? [];
 

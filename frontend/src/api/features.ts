@@ -1,9 +1,9 @@
 import { BASE_URL } from '../environment';
-import { FeatureListFormProps } from '../routes/featureLists/FeatureList';
+import { FeatureListFormProps } from '../routes/features/FeatureDetails';
 import { getAuthHeaders } from './utils';
-const featureListsUrl = 'features';
+const featuresUrl = 'features';
 
-const mapFeatureListResponse = (response) => ({
+const mapFeatureResponse = (response) => ({
 	id: response.id,
 	title: response.title,
 	description: response.description,
@@ -16,14 +16,14 @@ const mapFeatureListResponse = (response) => ({
 	priority: response.priority,
 });
 
-export const createFeatureList = async ({
+export const createFeature = async ({
 	orgId,
 	data,
 }: {
 	orgId: string;
 	data;
 }): Promise<unknown> => {
-	const res = await fetch(`${BASE_URL}/${orgId}/${featureListsUrl}`, {
+	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -37,11 +37,11 @@ export const createFeatureList = async ({
 	return await res.json();
 };
 
-export const getFeatureLists = async (
+export const getFeatures = async (
 	orgId: string,
 	search?: string
 ): Promise<FeatureListFormProps[]> => {
-	let url = `${BASE_URL}/${orgId}/${featureListsUrl}`;
+	let url = `${BASE_URL}/${orgId}/${featuresUrl}`;
 	if (search) {
 		url += `&search=${search}`;
 	}
@@ -58,48 +58,42 @@ export const getFeatureLists = async (
 		throw res;
 	}
 	const page = await res.json();
-	return page.items.map(mapFeatureListResponse);
+	return page.items.map(mapFeatureResponse);
 };
 
-export const getFeatureListDetail = async (
+export const getFeatureDetail = async (
 	orgId: string,
 	featureId: string
 ): Promise<unknown> => {
-	const res = await fetch(
-		`${BASE_URL}/${orgId}/${featureListsUrl}/${featureId}`,
-		{
-			method: 'GET',
-			headers: {
-				...getAuthHeaders(),
-			},
-		}
-	);
+	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
+		method: 'GET',
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
 	if (!res.ok) {
 		throw res;
 	}
 	return await res.json();
 };
 
-export const deleteFeatureList = async (
+export const deleteFeature = async (
 	orgId: string,
 	featureId: number
 ): Promise<unknown> => {
-	const res = await fetch(
-		`${BASE_URL}/${orgId}/${featureListsUrl}/${featureId}`,
-		{
-			method: 'DELETE',
-			headers: {
-				...getAuthHeaders(),
-			},
-		}
-	);
+	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
+		method: 'DELETE',
+		headers: {
+			...getAuthHeaders(),
+		},
+	});
 	if (!res.ok) {
 		throw res;
 	}
 	return await res.json();
 };
 
-export const updateFeatureList = async ({
+export const updateFeature = async ({
 	orgId,
 	featureId,
 	data,
@@ -108,17 +102,14 @@ export const updateFeatureList = async ({
 	featureId: number;
 	data;
 }) => {
-	const res = await fetch(
-		`${BASE_URL}/${orgId}/${featureListsUrl}/${featureId}`,
-		{
-			method: 'PATCH',
-			headers: {
-				'Content-Type': 'application/json',
-				...getAuthHeaders(),
-			},
-			body: JSON.stringify(data),
-		}
-	);
+	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
+		method: 'PATCH',
+		headers: {
+			'Content-Type': 'application/json',
+			...getAuthHeaders(),
+		},
+		body: JSON.stringify(data),
+	});
 	if (!res.ok) {
 		throw res;
 	}

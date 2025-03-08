@@ -16,11 +16,15 @@ import UserSearchInput from '../sprints/UserSearchInput';
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { UsersContext } from '../../hooks/users';
-import { updateFeatureRequest } from '../../api/featureRequests';
+import {
+	linkRequestToFeature,
+	removeLinkRequestToFeature,
+	updateFeatureRequest,
+} from '../../api/featureRequests';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RotateRight } from '@mui/icons-material';
-import { getFeatureLists } from '../../api/featureLists';
-import { FeatureListFormProps } from '../featureLists/FeatureList';
+import { getFeatures } from '../../api/features';
+import { FeatureListFormProps } from '../features/FeatureDetails';
 
 export type FeatureRequestFormProps = {
 	title: string;
@@ -61,7 +65,7 @@ const FeatureRequest = memo(
 
 		const { data: features } = useQuery({
 			queryKey: ['featureLists'],
-			queryFn: async () => getFeatureLists(orgId),
+			queryFn: async () => getFeatures(orgId),
 		});
 		const featuresList: FeatureListFormProps[] = features ?? [];
 
@@ -146,7 +150,7 @@ const FeatureRequest = memo(
 			// handlePatchFeatureRequest({ submitted_by_id: user?.id || null });
 		};
 
-		const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
 			const payload = {
 				description,
@@ -157,6 +161,25 @@ const FeatureRequest = memo(
 			};
 			if (title && title !== featureRequest?.title) {
 				payload.title = title;
+			}
+			if (featureId && featureId !== featureRequest?.featureAssigned) {
+				try {
+					await linkRequestToFeature({
+						orgId,
+						requestId: (featureRequest as FeatureRequestFormProps).id,
+						featureId: +featureId,
+					});
+					if (featureRequest?.featureAssigned) {
+						// remove previous link
+						await removeLinkRequestToFeature({
+							orgId,
+							requestId: (featureRequest as FeatureRequestFormProps).id,
+							featureId: +featureRequest.featureAssigned,
+						});
+					}
+				} catch (error) {
+					console.error('Error linking request:', error);
+				}
 			}
 
 			handlePatchFeatureRequest(payload);

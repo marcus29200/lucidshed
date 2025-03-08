@@ -8,8 +8,8 @@ import { FeatureRequestFormProps } from '../featureRequests/FeatureRequest';
 import { MRT_ColumnDef } from 'material-react-table';
 import { getFeatureRequests } from '../../api/featureRequests';
 import { DashboardItemIcon } from '../../icons/icons';
-import { FeatureListFormProps } from '../featureLists/FeatureList';
-import { getFeatureLists } from '../../api/featureLists';
+import { FeatureListFormProps } from '../features/FeatureDetails';
+import { getFeatures } from '../../api/features';
 
 const FEATURE_REQUESTS_TABLE_ID = 'new-feature-requests-table';
 
@@ -44,7 +44,7 @@ export const NewFeatureRequests = () => {
 	});
 	const { data: featuresData } = useQuery({
 		queryKey: ['featureLists'],
-		queryFn: async () => getFeatureLists(orgId),
+		queryFn: async () => getFeatures(orgId),
 	});
 	const features: FeatureListFormProps[] = featuresData ?? [];
 

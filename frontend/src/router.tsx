@@ -28,8 +28,12 @@ import { backlogLoader } from './routes/backlog/backlog.loaders';
 import { featureRequestsLoader } from './routes/featureRequests/featureRequests.loader';
 import FeatureRequestList from './routes/featureRequests/FeatureRequestsList';
 import ProductRequestList from './routes/productRequests/ProductRequestsList';
-import FeatureListsList from './routes/featureLists/FeatureListsList';
-import { featureListsLoader } from './routes/featureLists/featureLists.loader';
+import FeaturesList from './routes/features/FeaturesList';
+import {
+	featureDetailLoader,
+	featuresLoader,
+} from './routes/features/features.loader';
+import FeatureDetail from './routes/features/FeatureDetails';
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -190,13 +194,18 @@ export const router = createHashRouter([
 						children: [
 							{
 								index: true,
-								loader: featureListsLoader(queryClient),
-								element: <FeatureListsList />,
+								loader: featuresLoader(queryClient),
+								element: <FeaturesList />,
 							},
 							{
-								path: ':featureListId',
-								loader: featureListsLoader(queryClient),
-								element: <FeatureListsList />,
+								path: ':new',
+								loader: featuresLoader(queryClient),
+								element: <FeaturesList />,
+							},
+							{
+								path: ':featureListId/requests',
+								loader: featureDetailLoader(queryClient),
+								element: <FeatureDetail />,
 							},
 						],
 					},

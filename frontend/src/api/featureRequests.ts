@@ -10,6 +10,7 @@ const mapFeatureRequestResponse = (response) => ({
 	description: response.description,
 	status: response.status,
 	requester: response.submitted_by_id,
+	submittedBy: response.submitted_by_id,
 	submittedDate: dayjs(response.created_at).format('MMM DD, YYYY'),
 	assignedTo: response.assigned_to_id,
 	companyId: response.company_id,
@@ -23,7 +24,7 @@ export const createFeatureRequest = async ({
 }: {
 	orgId: string;
 	data;
-}): Promise<unknown> => {
+}): Promise<Omit<FeatureRequestFormProps, 'tags' | 'featureAssignedName'>> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${featureRequestsUrl}`, {
 		method: 'POST',
 		headers: {
@@ -35,7 +36,8 @@ export const createFeatureRequest = async ({
 	if (!res.ok) {
 		throw res;
 	}
-	return await res.json();
+	const request = await res.json();
+	return mapFeatureRequestResponse(request);
 };
 
 export const getFeatureRequests = async (
@@ -120,6 +122,62 @@ export const updateFeatureRequest = async ({
 	);
 	if (!res.ok) {
 		throw res;
+	}
+	return await res.json();
+};
+
+export const linkRequestToFeature = async ({
+	orgId,
+	requestId,
+	featureId,
+}: {
+	orgId: string;
+	requestId: number;
+	featureId: number;
+}) => {
+	const res = await fetch(
+		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}/links`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...getAuthHeaders(),
+			},
+			body: JSON.stringify({
+				feature_id: featureId,
+			}),
+		}
+	);
+	if (!res.ok) {
+		throw await res.json();
+	}
+	return await res.json();
+};
+
+export const removeLinkRequestToFeature = async ({
+	orgId,
+	requestId,
+	featureId,
+}: {
+	orgId: string;
+	requestId: number;
+	featureId: number;
+}) => {
+	const res = await fetch(
+		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}/links`,
+		{
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				...getAuthHeaders(),
+			},
+			body: JSON.stringify({
+				feature_id: featureId,
+			}),
+		}
+	);
+	if (!res.ok) {
+		throw await res.json();
 	}
 	return await res.json();
 };
