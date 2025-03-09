@@ -406,4 +406,3 @@ WHERE
     item_1 = $1
     AND item_2 = $2;
 """
-

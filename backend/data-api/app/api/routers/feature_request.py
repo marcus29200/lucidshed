@@ -6,8 +6,8 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
-from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
 from app.database.features.models.feature_request import BaseFeatureRequest, FeatureRequest
+from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
 from app.database.work_items.models.work_item import WorkItemSortableField
 
 router = APIRouter(
@@ -33,9 +33,10 @@ class BaseFeatureLinkPayload(BaseModel):
 
 class CreateFeatureLinkPayload(BaseFeatureLinkPayload):
     """
-    This payload is directional, so item_1 is the parent and item_2 is the child, 
+    This payload is directional, so item_1 is the parent and item_2 is the child,
     item_1 is typically the feature request and item_2 is the feature
     """
+
     feature_id: int
 
 
@@ -73,9 +74,7 @@ async def update_feature_request(
 # Delete a feature request
 @router.delete("/{id}", status_code=200)
 async def delete_feature_request(request: Request, organization_id: str, id: int):
-    return await request.app.feature_request_controller.delete(
-        id=id, current_user=request.state.user.id
-    )
+    return await request.app.feature_request_controller.delete(id=id, current_user=request.state.user.id)
 
 
 @router.post("/{feature_request_id}/comments", status_code=201)
@@ -103,12 +102,8 @@ async def get_feature_request_comments(
 
 
 @router.get("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequestComment)
-async def get_feature_request_comment(
-    request: Request, feature_request_id: int, id: str
-) -> FeatureRequestComment:
-    return await request.app.feature_request_controller.get_comment(
-        feature_request_id=feature_request_id, id=id
-    )
+async def get_feature_request_comment(request: Request, feature_request_id: int, id: str) -> FeatureRequestComment:
+    return await request.app.feature_request_controller.get_comment(feature_request_id=feature_request_id, id=id)
 
 
 @router.patch("/{feature_request_id}/comments/{id}", status_code=200, response_model=FeatureRequest)

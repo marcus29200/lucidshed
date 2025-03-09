@@ -10,9 +10,9 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.database import close_pool, get_pool
 from app.api.routers.company import router as company_router
 from app.api.routers.engineering_item import router as engineering_item_router
+from app.api.routers.feature import router as feature_router
 from app.api.routers.feature_list import router as feature_list_router
 from app.api.routers.feature_request import router as feature_request_router
-from app.api.routers.feature import router as feature_router
 from app.api.routers.files import router as file_router
 from app.api.routers.iteration import router as iteration_router
 from app.api.routers.organization import router as organization_router
@@ -23,6 +23,9 @@ from app.api.routers.user import router as user_router
 from app.api.settings import database_pools, settings
 from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
 from app.database.companies.controllers.company import CompanyController
+from app.database.features.controllers.feature import FeatureController
+from app.database.features.controllers.feature_list import FeatureListController
+from app.database.features.controllers.feature_request import FeatureRequestController
 from app.database.files.controllers.file import FileController
 from app.database.history.controllers.history import HistoryController
 from app.database.iterations.controllers.iteration import IterationController
@@ -31,11 +34,8 @@ from app.database.teams.controllers.team import TeamController
 from app.database.users.controllers.user import UserController
 from app.database.users.controllers.user_permission import UserPermissionController
 from app.database.users.controllers.user_session import UserSessionController
-from app.database.utils import init_database_tables, update_database_tables
+from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
-from app.database.features.controllers.feature import FeatureController
-from app.database.features.controllers.feature_list import FeatureListController
-from app.database.features.controllers.feature_request import FeatureRequestController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
 

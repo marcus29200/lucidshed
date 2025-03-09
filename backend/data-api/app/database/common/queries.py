@@ -1,22 +1,19 @@
 from app.database.companies.queries import COMPANY_INIT_STATEMENTS, COMPANY_QUERIES
+from app.database.features.queries import (
+    FEATURE_INIT_STATEMENTS,
+    FEATURE_LIST_INIT_STATEMENTS,
+    FEATURE_LIST_QUERIES,
+    FEATURE_QUERIES,
+    FEATURE_REQUEST_INIT_STATEMENTS,
+    FEATURE_REQUEST_QUERIES,
+)
 from app.database.files.queries import FILE_INIT_STATEMENTS, FILE_QUERIES
 from app.database.history.queries import HISTORY_INIT_STATEMENTS, HISTORY_QUERIES
 from app.database.iterations.queries import ITERATION_INIT_STATEMENTS, ITERATION_QUERIES
 from app.database.organizations.queries import ORGANIZATION_INIT_STATEMENTS, ORGANIZATION_QUERIES
 from app.database.teams.queries import TEAM_INIT_STATEMENTS, TEAM_QUERIES
 from app.database.users.queries import USER_INIT_STATEMENTS, USER_QUERIES  # noqa
-from app.database.work_items.queries import (
-    WORK_ITEM_INIT_STATEMENTS,
-    WORK_ITEM_QUERIES,
-)
-from app.database.features.queries import (
-    FEATURE_INIT_STATEMENTS,
-    FEATURE_QUERIES,
-    FEATURE_LIST_INIT_STATEMENTS,
-    FEATURE_LIST_QUERIES,
-    FEATURE_REQUEST_INIT_STATEMENTS,
-    FEATURE_REQUEST_QUERIES,
-)
+from app.database.work_items.queries import WORK_ITEM_INIT_STATEMENTS, WORK_ITEM_QUERIES
 
 INIT_STATEMENTS = (
     []

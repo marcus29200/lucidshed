@@ -10,12 +10,8 @@ async def test_should_create_or_update_feature_list(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
     feature_list = await add_feature_list(
-        data_api,
-        organization["id"],
-        headers=headers,
-        overrides={
-            "description": "Feature List Description"
-        })
+        data_api, organization["id"], headers=headers, overrides={"description": "Feature List Description"}
+    )
 
     assert feature_list["title"] == f"{organization["id"]}-Feature-List"
     assert feature_list["description"] == "Feature List Description"
@@ -31,10 +27,7 @@ async def test_should_get_one_feature_list(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     organization = await add_organization(data_api, headers=headers)
     feature_list = await add_feature_list(
-        data_api,
-        organization["id"],
-        headers=headers,
-        overrides={"description": "Feature List Description"}
+        data_api, organization["id"], headers=headers, overrides={"description": "Feature List Description"}
     )
 
     response = await data_api.get(f"{organization['id']}/feature_lists/{feature_list['id']}", headers=headers)

@@ -1,14 +1,13 @@
+from logging import getLogger
 from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
+from app.database.features.models.feature import BaseFeature, Feature
 from app.database.features.queries import FEATURE_QUERIES as QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.features.models.feature import BaseFeature, Feature
 from app.database.work_items.models.work_item import WorkItemSortableField
-from logging import getLogger
-
 from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
 
@@ -62,9 +61,7 @@ class FeatureController(WorkItemController):
         limit: Optional[int] = 1000,
         cursor: Optional[str] = None,
     ) -> Tuple[List[Feature], str | None]:
-        if (
-            sort and sort not in WorkItemSortableField
-        ):
+        if sort and sort not in WorkItemSortableField:
             raise ObjectNotFoundException(f"Invalid sort field {sort}")
 
         # TODO: implement determine_get_all_filter_conditions for FeatureRequest
@@ -116,16 +113,10 @@ class FeatureController(WorkItemController):
             old_item_json["effort"],
             old_item_json["growth"],
             current_user,
-
         )
 
         await self.history_controller.create(
-            BaseHistory(
-                item_id=record["id"],
-                item_type="feature",
-                action="update",
-                metadata=new_item_json
-            ),
+            BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
             current_user,
         )
 
@@ -141,3 +132,14 @@ class FeatureController(WorkItemController):
             raise ObjectNotFoundException(object_id=id)
 
         return True
+
+    async def get_all_feature_requests_for_feature(self, *, id: int) -> List[dict]:
+        """get all feature requests for a feature"""
+        records = await data_db.get().fetch(
+            QUERIES["GET_FEATURE_REQUESTS_FOR_FEATURE"],
+            id,
+        )
+        if not records:
+            raise ObjectNotFoundException(object_id=id)
+
+        return [dict(record) for record in records]

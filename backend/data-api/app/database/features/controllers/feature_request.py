@@ -1,16 +1,15 @@
+from logging import getLogger
 from typing import List, Optional, Tuple
 from uuid import uuid4
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
+from app.database.features.models.feature_request import BaseFeatureRequest, FeatureRequest
 from app.database.features.queries import FEATURE_REQUEST_QUERIES as QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
-from app.database.features.models.feature_request import BaseFeatureRequest, FeatureRequest
-from app.database.work_items.models.work_item import WorkItemSortableField
 from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
-from logging import getLogger
-
+from app.database.work_items.models.work_item import WorkItemSortableField
 from app.exceptions.common import ObjectNotFoundException
 
 logger = getLogger(__name__)
@@ -131,28 +130,18 @@ class FeatureRequestController(WorkItemController):
 
         return FeatureRequest(**record)
 
-    async def link(
-        self, *, item_1: int, item_2: int, current_user: str
-    ) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["LINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user
-        )
+    async def link(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+        result = await data_db.get().execute(QUERIES["LINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user)
 
         return result == "INSERT 0 1"
 
     async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["UNLINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user
-        )
+        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_REQUEST_FEATURE"], item_1, item_2)
 
         return result == "DELETE 1"
 
     async def delete(self, *, id: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["DELETE_FEATURE_REQUEST_ITEM"],
-            id,
-            current_user
-        )
+        result = await data_db.get().execute(QUERIES["DELETE_FEATURE_REQUEST_ITEM"], id, current_user)
 
         if result != "UPDATE 1":
             raise ObjectNotFoundException(object_id=id)
@@ -232,10 +221,7 @@ class FeatureRequestController(WorkItemController):
 
     async def delete_comment(self, *, feature_request_id: int, id: str, current_user: str) -> bool:
         result = await data_db.get().execute(
-            QUERIES["DELETE_FEATURE_REQUEST_COMMENT"],
-            feature_request_id,
-            id,
-            current_user
+            QUERIES["DELETE_FEATURE_REQUEST_COMMENT"], feature_request_id, id, current_user
         )
 
         if result != "UPDATE 1":
@@ -245,9 +231,7 @@ class FeatureRequestController(WorkItemController):
 
     async def delete_comments(self, *, feature_request_id: int, current_user: str) -> int:
         result = await data_db.get().execute(
-            QUERIES["DELETE_FEATURE_REQUEST_COMMENTS"],
-            feature_request_id,
-            current_user
+            QUERIES["DELETE_FEATURE_REQUEST_COMMENTS"], feature_request_id, current_user
         )
 
         return result.split("UPDATE ")[-1]

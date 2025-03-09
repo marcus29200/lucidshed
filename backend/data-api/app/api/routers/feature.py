@@ -1,7 +1,9 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Request, Security
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
+from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
@@ -44,11 +46,21 @@ async def get_features(
 
 @router.patch("/{id}", status_code=200, response_model=Feature)
 async def update_feature(request: Request, organization_id: str, id: int, body: BaseFeature) -> Feature:
-    return await request.app.feature_controller.update(
-        id=id, updated_item=body, current_user=request.state.user.id
-    )
+    return await request.app.feature_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
 
 
 @router.delete("/{id}", status_code=200)
 async def delete_feature(request: Request, organization_id: str, id: int):
     return await request.app.feature_controller.delete(id=id, current_user=request.state.user.id)
+
+
+@router.get("/{id}/assigned-requests", status_code=200)
+async def get_assigned_feature_requests(
+    request: Request,
+    organization_id: str,
+    id: int,
+) -> JSONResponse:
+    items = await request.app.feature_controller.get_all_feature_requests_for_feature(id=id)
+    if not items:
+        return JSONResponse(content={"items": []})
+    return JSONResponse(content=jsonable_encoder({"items": items}))

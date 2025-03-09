@@ -400,3 +400,12 @@ SET
 WHERE
     id = $1
 """
+
+FEATURE_QUERIES[
+    "GET_FEATURE_REQUESTS_FOR_FEATURE"
+] = """
+SELECT fr.*
+FROM feature_request_relationships frr
+JOIN feature_requests fr ON frr.item_1 = fr.id
+WHERE frr.item_2 = $1;
+"""
