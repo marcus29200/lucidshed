@@ -39,14 +39,19 @@ export type FeatureRequestFormProps = {
 	featureAssignedName: string | null;
 };
 let debounceTimeId;
+type Props = {
+	show: boolean;
+	featureRequest: FeatureRequestFormProps | null;
+	basePath: string; //do not include orgId
+	enableEditAssignedFeature?: boolean;
+};
 const FeatureRequest = memo(
 	({
 		show,
 		featureRequest,
-	}: {
-		show: boolean;
-		featureRequest: FeatureRequestFormProps | null;
-	}) => {
+		basePath,
+		enableEditAssignedFeature = true,
+	}: Props) => {
 		const orgId = useParams().orgId as string;
 
 		const users = useContext(UsersContext);
@@ -105,7 +110,7 @@ const FeatureRequest = memo(
 
 		const cancelEdition = () => {
 			clearValues();
-			navigate(`/${orgId}/feature-requests`);
+			navigate(`/${orgId}/${basePath}`);
 		};
 
 		const clearValues = () => {
@@ -249,7 +254,11 @@ const FeatureRequest = memo(
 							</>
 						</Grid>
 						<Grid item xs={6}>
-							<FormControl fullWidth sx={{ marginTop: '8px' }}>
+							<FormControl
+								fullWidth
+								sx={{ marginTop: '8px' }}
+								disabled={!enableEditAssignedFeature}
+							>
 								<InputLabel size="small" id="assigned-feature-label">
 									Assigned Feature
 								</InputLabel>

@@ -1,5 +1,7 @@
 import { BASE_URL } from '../environment';
+import { FeatureRequestFormProps } from '../routes/featureRequests/FeatureRequest';
 import { FeatureListFormProps } from '../routes/features/FeatureDetails';
+import { mapFeatureRequestResponse } from './featureRequests';
 import { getAuthHeaders } from './utils';
 const featuresUrl = 'features';
 
@@ -114,4 +116,27 @@ export const updateFeature = async ({
 		throw res;
 	}
 	return await res.json();
+};
+
+export const getAssignedRequestsToFeature = async (
+	orgId: string,
+	featureId: string
+): Promise<Array<FeatureRequestFormProps>> => {
+	const res = await fetch(
+		`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}/assigned-requests`,
+		{
+			method: 'GET',
+			headers: {
+				...getAuthHeaders(),
+			},
+		}
+	);
+	if (!res.ok) {
+		throw res;
+	}
+	if (res.status === 404) {
+		return [];
+	}
+	const data: { items: unknown[] } = await res.json();
+	return data.items.map(mapFeatureRequestResponse);
 };

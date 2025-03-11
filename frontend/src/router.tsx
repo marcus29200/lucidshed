@@ -203,7 +203,12 @@ export const router = createHashRouter([
 								element: <FeaturesList />,
 							},
 							{
-								path: ':featureListId/requests',
+								path: ':featureId/requests',
+								loader: featureDetailLoader(queryClient),
+								element: <FeatureDetail />,
+							},
+							{
+								path: ':featureId/requests/:featureRequestId',
 								loader: featureDetailLoader(queryClient),
 								element: <FeatureDetail />,
 							},

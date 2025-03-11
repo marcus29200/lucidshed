@@ -26,10 +26,10 @@ export const featuresLoader = (queryClient: QueryClient) => {
 
 export const featureDetailLoader = (queryClient: QueryClient) => {
 	return async ({ params }: LoaderFunctionArgs) => {
-		const { orgId, featureListId } = params;
-		if (!orgId || !featureListId) {
+		const { orgId, featureId } = params;
+		if (!orgId || !featureId) {
 			throw new Error('no org id or feature list id');
 		}
-		return queryClient.fetchQuery(featureDetailQuery(orgId, featureListId));
+		return queryClient.fetchQuery(featureDetailQuery(orgId, featureId));
 	};
 };

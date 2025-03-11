@@ -4,7 +4,7 @@ import { getAuthHeaders } from './utils';
 import dayjs from 'dayjs';
 const featureRequestsUrl = 'feature_requests';
 
-const mapFeatureRequestResponse = (response) => ({
+export const mapFeatureRequestResponse = (response) => ({
 	id: response.id,
 	title: response.title,
 	description: response.description,
@@ -16,6 +16,8 @@ const mapFeatureRequestResponse = (response) => ({
 	companyId: response.company_id,
 	company: '-',
 	featureAssigned: response.feature_assigned,
+	tags: null,
+	featureAssignedName: null,
 });
 
 export const createFeatureRequest = async ({

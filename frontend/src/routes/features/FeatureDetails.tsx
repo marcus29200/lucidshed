@@ -4,9 +4,16 @@ import { useEffect, useState } from 'react';
 import DescriptionRichEditor from '../../components/DescriptionRichEditor';
 
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExpandMore, RotateRight } from '@mui/icons-material';
-import { updateFeature } from '../../api/features';
+import {
+	getAssignedRequestsToFeature,
+	updateFeature,
+} from '../../api/features';
+import FeatureRequest, {
+	FeatureRequestFormProps,
+} from '../featureRequests/FeatureRequest';
+import { FeatureRequestTable } from '../featureRequests/FeatureRequestTable';
 
 export type FeatureListFormProps = {
 	title: string;
@@ -18,6 +25,7 @@ export type FeatureListFormProps = {
 };
 let debounceTimeId;
 const DESCRIPTION_EXPANDED_KEY = 'feature-description-expanded';
+const FEATURE_REQUESTS_TABLE_ID = 'feature-requests-assigned-table';
 
 const FeatureDetail = () => {
 	const orgId = useParams().orgId as string;
@@ -25,6 +33,12 @@ const FeatureDetail = () => {
 	const [title, setTitle] = useState<string>('');
 	const [description, setDescription] = useState<string>('');
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectedRow, setSelectedRow] =
+		useState<FeatureRequestFormProps | null>(null);
+	const [showEditRequest, setShowEditRequest] = useState(false);
+	const featureRequestId = useParams().featureRequestId as string;
+
+	const basePath = `features/${featureList.id}/requests`;
 
 	const [descriptionExpanded, setDescriptionExpanded] = useState(
 		!localStorage.getItem(DESCRIPTION_EXPANDED_KEY) ||
@@ -33,6 +47,13 @@ const FeatureDetail = () => {
 
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const { data: requestsData } = useQuery({
+		queryKey: ['feature-requests-assigned', orgId, featureList.id],
+		queryFn: async () =>
+			getAssignedRequestsToFeature(orgId, featureList.id.toString()),
+	});
+
+	const requests: FeatureRequestFormProps[] = requestsData ?? [];
 
 	useEffect(() => {
 		if (featureList) {
@@ -47,6 +68,28 @@ const FeatureDetail = () => {
 			descriptionExpanded ? '1' : '0'
 		);
 	}, [descriptionExpanded]);
+
+	useEffect(() => {
+		if (debounceTimeId) {
+			clearTimeout(debounceTimeId);
+		}
+		setSelectedRow(() => null);
+		debounceTimeId = setTimeout(() => {
+			if (featureRequestId) {
+				const row = requests.find(
+					(featureRequest) => featureRequest.id === +featureRequestId
+				);
+				if (row) {
+					setSelectedRow(() => row);
+					setShowEditRequest(true);
+				} else {
+					navigate(`/${orgId}/${basePath}`);
+				}
+			} else {
+				setShowEditRequest(false);
+			}
+		}, 200);
+	}, [featureRequestId, requests]);
 
 	const { mutate: patchFeatureList } = useMutation({
 		mutationFn: updateFeature,
@@ -64,7 +107,7 @@ const FeatureDetail = () => {
 		},
 	});
 
-	const cancelEdition = () => {
+	const navigateBack = () => {
 		clearValues();
 		navigate(`/${orgId}/features`);
 	};
@@ -115,8 +158,37 @@ const FeatureDetail = () => {
 		handlePatchFeatureRequest(payload);
 	};
 
+	const handleSelectRow = (row: FeatureRequestFormProps) => {
+		setSelectedRow(row);
+		navigate(`/${orgId}/${basePath}/${row.id}`);
+	};
+
+	const columns = [
+		{
+			header: 'Title',
+			id: 'title',
+			accessorKey: 'title',
+			enableColumnActions: false,
+			enableColumnFilter: false,
+		},
+		{
+			header: 'Submitted by',
+			id: 'submittedBy',
+			accessorKey: 'submittedBy',
+			enableColumnActions: false,
+			enableColumnFilter: false,
+		},
+		{
+			header: 'Submitted date',
+			id: 'submittedDate',
+			accessorKey: 'submittedDate',
+			enableColumnActions: false,
+			enableColumnFilter: false,
+		},
+	];
+
 	return (
-		<>
+		<div className="relative">
 			<div className="bg-white p-6 rounded-md">
 				<form
 					onSubmit={(e) => handleSubmit(e)}
@@ -187,9 +259,7 @@ const FeatureDetail = () => {
 							variant="contained"
 							sx={{ backgroundColor: 'neutral.lightest', color: 'black' }}
 							color="neutral"
-							onClick={() => {
-								cancelEdition();
-							}}
+							onClick={navigateBack}
 						>
 							Go back
 						</Button>
@@ -199,8 +269,24 @@ const FeatureDetail = () => {
 					</Box>
 				</form>
 			</div>
-			<div className="bg-white p-6 rounded-md mt-4">Request items</div>
-		</>
+			<div className="mt-4 ">
+				<h2 className="text-left p-4 bg-white rounded-xl font-semibold text-lg">
+					Requests assigned
+				</h2>
+				<FeatureRequestTable
+					tableId={FEATURE_REQUESTS_TABLE_ID}
+					requests={requests}
+					handleRowClick={handleSelectRow}
+					enabledColumns={columns}
+				/>
+			</div>
+			<FeatureRequest
+				show={showEditRequest}
+				featureRequest={selectedRow}
+				basePath={basePath}
+				enableEditAssignedFeature={false}
+			/>
+		</div>
 	);
 };
 
