@@ -1,5 +1,5 @@
-from typing import Any, Dict, Optional
 from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 
 import pytest
 from fastapi.testclient import TestClient
@@ -142,8 +142,7 @@ async def test_should_get_comment_for_feature_request(data_api: TestClient):
     comments = response.json()
 
     response = await data_api.get(
-        f"{org['id']}/feature_requests/{feature_request['id']}/comments/{comments['id']}",
-        headers=headers
+        f"{org['id']}/feature_requests/{feature_request['id']}/comments/{comments['id']}", headers=headers
     )
     assert response.status_code == 200
     comment = response.json()
@@ -188,3 +187,27 @@ async def test_should_link_feature_request_to_feature(data_api: TestClient):
         headers=headers,
     )
     assert response.status_code == 201
+
+
+async def test_should_unlink_feature_from_feature_request(data_api: TestClient):
+    from tests.acceptance.api.routers.test_features import add_feature
+
+    org, _, headers = await authenticate(data_api)
+
+    feature_request = await add_feature_request(data_api, org["id"], headers=headers)
+    feature = await add_feature(data_api, org["id"], headers=headers)
+
+    response = await data_api.post(
+        f"{org['id']}/feature_requests/{feature_request['id']}/links",
+        json={"feature_id": feature["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 201
+
+    response = await data_api.request(
+        method="DELETE",
+        url=f"{org['id']}/feature_requests/{feature_request['id']}/links",
+        json={"feature_id": feature["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 200

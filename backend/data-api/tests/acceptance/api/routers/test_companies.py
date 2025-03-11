@@ -69,13 +69,13 @@ async def test_should_get_one_company_by_name(data_api: TestClient):
     organization = await add_organization(data_api, headers=headers)
     company = await add_company(data_api, organization["id"], headers=headers)
 
-    company = await add_company(data_api, organization["id"], {"name": organization["id"]+"1"}, headers=headers)
+    company = await add_company(data_api, organization["id"], {"name": organization["id"] + "1"}, headers=headers)
 
     response = await data_api.get(f"/{organization['id']}/companies/name/{company['name']}", headers=headers)
     assert response.status_code == 200
 
     fetched_company = response.json()
-    assert fetched_company["name"] == organization["id"]+"1"
+    assert fetched_company["name"] == organization["id"] + "1"
 
 
 async def test_should_update_company(data_api: TestClient):

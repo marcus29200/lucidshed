@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Security
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn
@@ -31,6 +31,7 @@ class CreateFeatureListListPayload(BaseFeatureListListPayload):
     This payload is directional, so item_1 is the parent and item_2 is the child,
     item_1 is typically the feature list and item_2 is the feature
     """
+
     feature_id: int
 
 
@@ -76,9 +77,7 @@ async def link_feature_to_feature_list(
     request: Request, organization_id: str, feature_list_id: int, body: CreateFeatureListListPayload
 ) -> JSONResponse:
     result = await request.app.feature_list_controller.link(
-        item_1=feature_list_id,
-        item_2=body.feature_id,
-        current_user=request.state.user.id
+        item_1=feature_list_id, item_2=body.feature_id, current_user=request.state.user.id
     )
     if not result:
         return JSONResponse(status_code=412, content="Unable to create link")
@@ -91,18 +90,12 @@ async def unlink_feature_from_feature_list(
     request: Request, organization_id: str, feature_list_id: int, body: BaseFeatureListListPayload
 ):
     return await request.app.feature_list_controller.unlink(
-        item_1=feature_list_id,
-        item_2=body.feature_id,
-        current_user=request.state.user.id
+        item_1=feature_list_id, item_2=body.feature_id, current_user=request.state.user.id
     )
 
 
 @router.get("/{feature_list_id}/unassigned_features", status_code=200)
-async def get_unlinked_features(
-    request: Request,
-    organization_id: str,
-    feature_list_id: int
-) -> JSONResponse:
+async def get_unlinked_features(request: Request, organization_id: str, feature_list_id: int) -> JSONResponse:
     items = await request.app.feature_list_controller.get_unassigned_features(feature_list_id=feature_list_id)
     if not items:
         return JSONResponse(status_code=404, content="No unlinked features found")

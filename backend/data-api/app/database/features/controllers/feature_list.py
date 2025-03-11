@@ -3,7 +3,8 @@ from typing import List, Optional, Tuple
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.features.models.feature_list import BaseFeatureList, FeatureList
-from app.database.features.queries import FEATURE_LIST_QUERIES as QUERIES, FEATURE_QUERIES
+from app.database.features.queries import FEATURE_LIST_QUERIES as QUERIES
+from app.database.features.queries import FEATURE_QUERIES
 from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
@@ -90,9 +91,7 @@ class FeatureListController(WorkItemController):
         feature_lists = [FeatureList(**record) for record in records]
 
         for feature_list in feature_lists:
-            features = await data_db.get().fetch(
-                QUERIES["GET_FEATURES_FOR_FEATURE_LIST"], feature_list.id
-            )
+            features = await data_db.get().fetch(QUERIES["GET_FEATURES_FOR_FEATURE_LIST"], feature_list.id)
             feature_list.features = [fr["feature_id"] for fr in features]
 
         return feature_lists, cursor
@@ -123,27 +122,15 @@ class FeatureListController(WorkItemController):
         )
 
     async def link(self, *, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["LINK_FEATURE_LIST_FEATURE"],
-            item_1,
-            item_2,
-            current_user
-        )
+        result = await data_db.get().execute(QUERIES["LINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "INSERT 0 1"
 
     async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["UNLINK_FEATURE_LIST_FEATURE"],
-            item_1,
-            item_2,
-            current_user
-        )
+        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "DELETE 1"
 
     async def get_unassigned_features(self, feature_list_id: int) -> List[dict]:
-        records = await data_db.get().fetch(
-            QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id
-        )
+        records = await data_db.get().fetch(QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id)
 
         return [dict(record) for record in records]
 
