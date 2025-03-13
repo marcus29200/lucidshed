@@ -104,7 +104,6 @@ const FeaturesList = () => {
 						onClick={(e) => {
 							e.stopPropagation();
 							setEditingFieldId(cell.id);
-							console.log(cell);
 						}}
 					>
 						{editingFieldId === cell.id ? (
@@ -152,7 +151,6 @@ const FeaturesList = () => {
 						onClick={(e) => {
 							e.stopPropagation();
 							setEditingFieldId(cell.id);
-							console.log(cell);
 						}}
 					>
 						{editingFieldId === cell.id ? (
@@ -166,8 +164,10 @@ const FeaturesList = () => {
 									orgId={orgId}
 								/>
 							</>
-						) : (
+						) : value ? (
 							value
+						) : (
+							'-'
 						)}
 					</div>
 				);
@@ -200,7 +200,6 @@ const FeaturesList = () => {
 						onClick={(e) => {
 							e.stopPropagation();
 							setEditingFieldId(cell.id);
-							console.log(cell);
 						}}
 					>
 						{editingFieldId === cell.id ? (
@@ -214,8 +213,10 @@ const FeaturesList = () => {
 									orgId={orgId}
 								/>
 							</>
-						) : (
+						) : value ? (
 							value
+						) : (
+							'-'
 						)}
 					</div>
 				);
@@ -248,7 +249,6 @@ const FeaturesList = () => {
 						onClick={(e) => {
 							e.stopPropagation();
 							setEditingFieldId(cell.id);
-							console.log(cell);
 						}}
 					>
 						{editingFieldId === cell.id ? (
@@ -262,8 +262,10 @@ const FeaturesList = () => {
 									orgId={orgId}
 								/>
 							</>
-						) : (
+						) : value ? (
 							value
+						) : (
+							'-'
 						)}
 					</div>
 				);
@@ -296,7 +298,6 @@ const FeaturesList = () => {
 						onClick={(e) => {
 							e.stopPropagation();
 							setEditingFieldId(cell.id);
-							console.log(cell);
 						}}
 					>
 						{editingFieldId === cell.id ? (
@@ -310,8 +311,10 @@ const FeaturesList = () => {
 									orgId={orgId}
 								/>
 							</>
-						) : (
+						) : value ? (
 							value
+						) : (
+							'-'
 						)}
 					</div>
 				);
