@@ -5,6 +5,7 @@ from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 
 class FeatureScore(Enum):
+    DEFAULT = 0
     SMALL = 1
     MEDIUM = 2
     LARGE = 3
@@ -13,20 +14,20 @@ class FeatureScore(Enum):
 
 
 class BaseFeature(BaseWorkItem):
-    requests: Optional[int] = 1
-    reach: Optional[FeatureScore] = FeatureScore.SMALL.value
-    impact: Optional[FeatureScore] = FeatureScore.SMALL.value
-    confidence: Optional[FeatureScore] = FeatureScore.SMALL.value
-    effort: Optional[FeatureScore] = FeatureScore.SMALL.value
-    growth: Optional[FeatureScore] = FeatureScore.SMALL.value
+    requests: Optional[int] = 0
+    reach: Optional[FeatureScore] = FeatureScore.DEFAULT
+    impact: Optional[FeatureScore] = FeatureScore.DEFAULT
+    confidence: Optional[FeatureScore] = FeatureScore.DEFAULT
+    effort: Optional[FeatureScore] = FeatureScore.DEFAULT
+    growth: Optional[FeatureScore] = FeatureScore.DEFAULT
 
     def __init__(self, **data):
-        data["reach"] = data.get("reach") or FeatureScore.SMALL.value
-        data["impact"] = data.get("impact") or FeatureScore.SMALL.value
-        data["confidence"] = data.get("confidence") or FeatureScore.SMALL.value
-        data["effort"] = data.get("effort") or FeatureScore.SMALL.value
-        data["growth"] = data.get("growth") or FeatureScore.SMALL.value
-        data["requests"] = data.get("requests") or 1
+        data["reach"] = data.get("reach") or FeatureScore.DEFAULT
+        data["impact"] = data.get("impact") or FeatureScore.DEFAULT
+        data["confidence"] = data.get("confidence") or FeatureScore.DEFAULT
+        data["effort"] = data.get("effort") or FeatureScore.DEFAULT
+        data["growth"] = data.get("growth") or FeatureScore.DEFAULT
+        data["requests"] = data.get("requests") or 0
 
         super().__init__(**data)
 

@@ -64,3 +64,13 @@ async def get_assigned_feature_requests(
     if not items:
         return JSONResponse(content={"items": []})
     return JSONResponse(content=jsonable_encoder({"items": items}))
+
+
+@router.get("/{id}/request-count", status_code=200)
+async def get_feature_request_count(
+    request: Request,
+    organization_id: str,
+    id: int,
+) -> JSONResponse:
+    count = await request.app.feature_controller.get_count_of_feature_requests_for_feature(id=id)
+    return JSONResponse(content=jsonable_encoder({"count": count}))
