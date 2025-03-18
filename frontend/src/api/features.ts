@@ -6,11 +6,12 @@ import { getAuthHeaders } from './utils';
 
 const featuresUrl = 'features';
 
-const mapFeatureResponse = (response) => ({
+const mapFeatureResponse = async (response, orgId: string) => ({
 	id: response.id,
 	title: response.title,
 	description: response.description,
 	requests: response.requests,
+	requestsCount: await getFeatureRequestsCount(orgId, response.id),
 	reach: response.reach,
 	impact: response.impact,
 	confidence: response.confidence,
@@ -61,7 +62,10 @@ export const getFeatures = async (
 		throw res;
 	}
 	const page = await res.json();
-	return page.items.map(mapFeatureResponse);
+	const promises = await Promise.all(
+		page.items.map((item) => mapFeatureResponse(item, orgId))
+	);
+	return promises;
 };
 
 export const getFeatureDetail = async (
@@ -96,11 +100,7 @@ export const deleteFeature = async (
 	return await res.json();
 };
 
-export const updateFeature = async ({
-	orgId,
-	featureId,
-	data,
-}) => {
+export const updateFeature = async ({ orgId, featureId, data }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
 		method: 'PATCH',
 		headers: {
@@ -129,7 +129,8 @@ export const getAssignedRequestsToFeature = async (
 		}
 	);
 	if (!res.ok) {
-		throw res;
+		console.error(res);
+		return [];
 	}
 	if (res.status === 404) {
 		return [];
@@ -143,7 +144,7 @@ export const getFeatureRequestsCount = async (
 	featureId: string
 ): Promise<number> => {
 	const res = await fetch(
-		`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}/requests-count`,
+		`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}/request-count`,
 		{
 			method: 'GET',
 			headers: {
@@ -152,7 +153,12 @@ export const getFeatureRequestsCount = async (
 		}
 	);
 	if (!res.ok) {
-		throw res;
+		console.error(res);
+		return 0;
 	}
-	return await res.json();
+	if (res.status === 404) {
+		return 0;
+	}
+	const { count } = await res.json();
+	return count;
 };

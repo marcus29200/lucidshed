@@ -84,10 +84,14 @@ const FeaturesList = () => {
 		},
 		{
 			header: 'Requests',
-			id: 'requests',
-			accessorKey: 'requests',
+			id: 'requestsCount',
+			accessorKey: 'requestsCount',
 			enableColumnActions: false,
 			enableColumnFilter: false,
+			Cell: ({ cell }) => {
+				const value = cell.getValue<string>();
+				return value ? value : '-';
+			},
 		},
 		{
 			header: 'Reach',
@@ -117,8 +121,10 @@ const FeaturesList = () => {
 									orgId={orgId}
 								/>
 							</>
-						) : (
+						) : value ? (
 							value
+						) : (
+							'-'
 						)}
 					</div>
 				);
