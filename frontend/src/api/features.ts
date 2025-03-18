@@ -3,6 +3,7 @@ import { FeatureRequestFormProps } from '../routes/featureRequests/FeatureReques
 import { FeatureListFormProps } from '../routes/features/FeatureDetails';
 import { mapFeatureRequestResponse } from './featureRequests';
 import { getAuthHeaders } from './utils';
+
 const featuresUrl = 'features';
 
 const mapFeatureResponse = (response) => ({
@@ -99,10 +100,6 @@ export const updateFeature = async ({
 	orgId,
 	featureId,
 	data,
-}: {
-	orgId: string;
-	featureId: number;
-	data;
 }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
 		method: 'PATCH',
@@ -139,4 +136,23 @@ export const getAssignedRequestsToFeature = async (
 	}
 	const data: { items: unknown[] } = await res.json();
 	return data.items.map(mapFeatureRequestResponse);
+};
+
+export const getFeatureRequestsCount = async (
+	orgId: string,
+	featureId: string
+): Promise<number> => {
+	const res = await fetch(
+		`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}/requests-count`,
+		{
+			method: 'GET',
+			headers: {
+				...getAuthHeaders(),
+			},
+		}
+	);
+	if (!res.ok) {
+		throw res;
+	}
+	return await res.json();
 };
