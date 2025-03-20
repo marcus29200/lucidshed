@@ -85,12 +85,12 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         new_item=body, current_user=request.state.user.id
     )
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=engineering_item.id,
-        document=await engineering_item.get_searchable_doc(),
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=engineering_item.id,
+    #     document=await engineering_item.get_searchable_doc(),
+    # )
 
     return engineering_item
 
@@ -124,31 +124,8 @@ async def get_engineering_items(
     return EngineeringItemPagedResponse(items=items, cursor=cursor)
 
 
-@router.patch("/{id}", status_code=200, response_model=EngineeringItem)
-async def update_engineering_item(
-    request: Request, organization_id: str, id: str, body: BaseEngineeringItem
-) -> EngineeringItem:
-    engineering_item = await request.app.engineering_controller.update(
-        id=id, updated_item=body, current_user=request.state.user.id
-    )
-
-    document = await engineering_item.get_searchable_doc(body.model_fields_set)
-
-    document["modified_date"] = engineering_item.modified_at
-    document["modified_by_id"] = engineering_item.modified_by_id
-
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=engineering_item.id,
-        document=document,
-        mode="update",
-    )
-
-    return engineering_item
-
-
-router.patch("", status_code=200)
+# FIXME: Currently not working because of some clash with the api paths, keeps getting routed to the regular update
+router.patch("/batch", status_code=200)
 async def batch_update_engineering_item(
     request: Request, organization_id: str, body: BatchUpdateEngineeringItemPayload
 ):
@@ -173,18 +150,42 @@ async def batch_update_engineering_item(
     #     )
 
 
+@router.patch("/{id}", status_code=200, response_model=EngineeringItem)
+async def update_engineering_item(
+    request: Request, organization_id: str, id: str, body: BaseEngineeringItem
+) -> EngineeringItem:
+    engineering_item = await request.app.engineering_controller.update(
+        id=id, updated_item=body, current_user=request.state.user.id
+    )
+
+    document = await engineering_item.get_searchable_doc(body.model_fields_set)
+
+    document["modified_date"] = engineering_item.modified_at
+    document["modified_by_id"] = engineering_item.modified_by_id
+
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=engineering_item.id,
+    #     document=document,
+    #     mode="update",
+    # )
+
+    return engineering_item
+
+
 @router.delete("/{id}", status_code=200)
 async def delete_engineering_item(request: Request, organization_id: str, id: str):
     deleted = await request.app.engineering_controller.delete(id=id, current_user=request.state.user.id)
 
-    if deleted:
-        await index_object(
-            opensearch_client=request.app.opensearch_client,
-            index=organization_id,
-            item_id=id,
-            document={"type": EngineeringItem.__name__},
-            mode="delete",
-        )
+    # if deleted:
+    #     await index_object(
+    #         opensearch_client=request.app.opensearch_client,
+    #         index=organization_id,
+    #         item_id=id,
+    #         document={"type": EngineeringItem.__name__},
+    #         mode="delete",
+    #     )
 
     return deleted
 

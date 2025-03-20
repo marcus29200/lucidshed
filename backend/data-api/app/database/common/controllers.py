@@ -1,5 +1,6 @@
 import logging
 
+from typing import Any, Dict
 from app.api.settings import data_db
 from app.database.common.models import BaseModel
 from app.database.common.queries import QUERIES
@@ -51,6 +52,14 @@ class BaseController:
 
         return self.RETURN_MODEL(**record)
 
+    async def load_property(self, db, query, _id):
+        value = await db.get().fetchrow(query, _id) if _id else None
+
+        return dict(value) if value else None
+
+    async def load_additional_properties(self, *, record) -> Dict[str, Any]:
+        return {}
+
     async def get(self, *, id: str, **extra_params):
         params = [id] + [value for value in extra_params.values()]
         record = await self._database_context.get().fetchrow(QUERIES[f"GET_{self._type}"], *params)
@@ -58,6 +67,8 @@ class BaseController:
         if not record:
             raise ObjectNotFoundException(object_id=id)
 
+        record = dict(record)
+        record.update(await self.load_additional_properties(record=record))
         return self.RETURN_MODEL(**record)
 
     async def update(self, *, id: str, updated_item, current_user: str, **extra_params):

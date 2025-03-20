@@ -24,12 +24,12 @@ class PagedResponse(BaseModel):
 async def add_iteration(request: Request, organization_id: str, body: BaseIteration) -> Iteration:
     iteration = await request.app.iteration_controller.create(new_item=body, current_user=request.state.user.id)
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=iteration.id,
-        document=iteration.get_searchable_doc(),
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=iteration.id,
+    #     document=iteration.get_searchable_doc(),
+    # )
 
     return iteration
 
@@ -57,18 +57,18 @@ async def update_iteration(request: Request, organization_id: str, id: str, body
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = iteration.get_searchable_doc(body.model_fields_set)
+    # document = iteration.get_searchable_doc(body.model_fields_set)
 
-    document["modified_date"] = iteration.modified_at
-    document["modified_by_id"] = iteration.modified_by_id
+    # document["modified_date"] = iteration.modified_at
+    # document["modified_by_id"] = iteration.modified_by_id
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=iteration.id,
-        document=document,
-        mode="update",
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=iteration.id,
+    #     document=document,
+    #     mode="update",
+    # )
 
     return iteration
 
@@ -77,13 +77,13 @@ async def update_iteration(request: Request, organization_id: str, id: str, body
 async def delete_iteration(request: Request, organization_id: str, id: str):
     deleted = await request.app.iteration_controller.delete(id=id, current_user=request.state.user.id)
 
-    if deleted:
-        await index_object(
-            opensearch_client=request.app.opensearch_client,
-            index=organization_id,
-            item_id=id,
-            document={"type": Iteration.__name__},
-            mode="delete",
-        )
+    # if deleted:
+        # await index_object(
+        #     opensearch_client=request.app.opensearch_client,
+        #     index=organization_id,
+        #     item_id=id,
+        #     document={"type": Iteration.__name__},
+        #     mode="delete",
+        # )
 
     return deleted

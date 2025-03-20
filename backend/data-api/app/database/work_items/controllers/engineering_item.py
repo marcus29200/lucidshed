@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 
-from app.api.settings import data_db
+from app.api.settings import data_db, user_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.users.controllers.user import UserController
@@ -29,12 +29,19 @@ class EngineeringController(WorkItemController):
 
         return engineering_item
 
+    async def load_additional_properties(self, *, record):
+        return {
+            "iteration": await self.load_property(data_db, QUERIES["GET_ITERATION"], record.get("iteration_id")),
+            "team": await self.load_property(data_db, QUERIES["GET_TEAM"], record.get("team_id")),
+            "assigned_to": await self.load_property(user_db, QUERIES["GET_USER"], record.get("assigned_to_id"))
+        }
+        
     async def get_all(
         self,
         *,
         item_type: Optional[EngineeringItemType] = None,
-        iteration_id: Optional[int] = None,
-        related_item_id: Optional[int] = None,
+        iteration_id: Optional[str] = None,
+        related_item_id: Optional[str] = None,
         assigned_to_id: Optional[str] = None,
         sort: Optional[WorkItemSortableField] = None,
         limit: Optional[int] = 1000,
@@ -108,8 +115,8 @@ class EngineeringController(WorkItemController):
 
 def determine_get_all_filter_conditions(
     item_type: Optional[EngineeringItemType] = None,
-    iteration_id: Optional[int] = None,
-    related_item_id: Optional[int] = None,
+    iteration_id: Optional[str] = None,
+    related_item_id: Optional[str] = None,
     assigned_to_id: Optional[str] = None,
 ) -> List[str]:
     filter_conditions = []
@@ -117,11 +124,10 @@ def determine_get_all_filter_conditions(
     if item_type is not None:
         filter_conditions.append(f"engineering_items.item_type = '{item_type.value}'")
 
-    if iteration_id is not None:
-        if iteration_id == -1:
-            filter_conditions.append("engineering_items.iteration_id IS NULL")
-        else:
-            filter_conditions.append(f"engineering_items.iteration_id = '{iteration_id}'")
+    if iteration_id is None:
+        filter_conditions.append("engineering_items.iteration_id IS NULL")
+    else:
+        filter_conditions.append(f"engineering_items.iteration_id = '{iteration_id}'")
 
     if related_item_id is not None:
         filter_conditions.append(
