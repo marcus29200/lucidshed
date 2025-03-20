@@ -86,7 +86,7 @@ class FeatureController(WorkItemController):
 
         await self.history_controller.create(
             history=BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
-            history=current_user,
+            current_user=current_user,
         )
 
         return Feature(**record)

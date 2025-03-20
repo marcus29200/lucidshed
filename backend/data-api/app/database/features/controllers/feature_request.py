@@ -65,7 +65,7 @@ class FeatureRequestController(WorkItemController):
         return result == "INSERT 0 1"
 
     async def unlink(self, *, item_1: str, item_2: str, current_user: str) -> bool:
-        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user)
+        result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_REQUEST_FEATURE"], item_1, item_2)
 
         return result == "DELETE 1"
 
