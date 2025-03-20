@@ -9,7 +9,6 @@ from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
 from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
-from app.database.history.models.history import BaseHistory
 
 logger = getLogger(__name__)
 
@@ -63,33 +62,7 @@ class FeatureController(WorkItemController):
 
     @serialize_enum_values
     async def update(self, *, id: int, updated_item: BaseFeature, current_user: str) -> Feature:
-        old_feature_item = await self.get(id=id)
-
-        new_item_json = updated_item.model_dump(exclude_unset=True)
-        old_item_json = old_feature_item.model_dump()
-
-        old_item_json.update(**new_item_json)
-
-        record = await data_db.get().fetchrow(
-            QUERIES["UPDATE_FEATURE_ITEM"],
-            id,
-            old_item_json["title"],
-            old_item_json["description"],
-            old_item_json["requests"],
-            old_item_json["reach"],
-            old_item_json["impact"],
-            old_item_json["confidence"],
-            old_item_json["effort"],
-            old_item_json["growth"],
-            current_user,
-        )
-
-        await self.history_controller.create(
-            history=BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
-            current_user=current_user,
-        )
-
-        return Feature(**record)
+        return await super().update(id=id, updated_item=updated_item, current_user=current_user)
 
     async def delete(self, *, id: int, current_user: str) -> bool:
         result = await data_db.get().execute(

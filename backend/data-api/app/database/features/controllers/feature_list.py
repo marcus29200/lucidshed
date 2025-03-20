@@ -141,7 +141,7 @@ class FeatureListController(WorkItemController):
 
     async def get_feature(self, *, id: str) -> dict:
         feature = await data_db.get().fetchrow(
-            FEATURE_QUERIES["GET_FEATURE_ITEM"],
+            FEATURE_QUERIES["GET_FEATURE"],
             id,
         )
         if not feature:

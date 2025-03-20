@@ -58,7 +58,7 @@ async def delete_feature(request: Request, organization_id: str, id: str):
 async def get_assigned_feature_requests(
     request: Request,
     organization_id: str,
-    id: int,
+    id: str,
 ) -> JSONResponse:
     items = await request.app.feature_controller.get_all_feature_requests_for_feature(id=id)
     if not items:
@@ -70,7 +70,7 @@ async def get_assigned_feature_requests(
 async def get_feature_request_count(
     request: Request,
     organization_id: str,
-    id: int,
+    id: str,
 ) -> JSONResponse:
     count = await request.app.feature_controller.get_count_of_feature_requests_for_feature(id=id)
     return JSONResponse(content=jsonable_encoder({"count": count}))
