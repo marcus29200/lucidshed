@@ -73,7 +73,7 @@ class UserController(BaseController):
         return SlimUser(**record)
 
     async def get_slim_users_by_id(self, *, ids: str) -> List[Union[SlimUser, None]]:
-        # user_ids = ('f285d857b4ae4dbfbe194f886ae43df2'), ('f285d857b4ae4dbfbe194f886ae43df2'), ('5d857b4ae4dbfbe194f886ae43df2')
+        # user_ids = ('f285d857b4ae4dbfbe194f886ae43df2'), ('f285d857b4ae4dbfbe194f886ae43df2'), ('5d857b4ae4dbfbe194f886ae43df2')  # noqa
         # user_ids = ",".join([f"('{_id}')" for _id in ids])
         records = await user_db.get().fetch(QUERIES["GET_SLIM_USERS"], ids)
 

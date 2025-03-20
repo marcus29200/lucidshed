@@ -7,7 +7,8 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.api.tools.ask_lucid import perform_engineering_item_request
-from app.api.tools.opensearch import index_object
+
+# from app.api.tools.opensearch import index_object
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -126,6 +127,8 @@ async def get_engineering_items(
 
 # FIXME: Currently not working because of some clash with the api paths, keeps getting routed to the regular update
 router.patch("/batch", status_code=200)
+
+
 async def batch_update_engineering_item(
     request: Request, organization_id: str, body: BatchUpdateEngineeringItemPayload
 ):

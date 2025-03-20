@@ -38,7 +38,7 @@ async def test_should_add_feature_request(data_api: TestClient):
     org = await add_organization(data_api, headers=headers)
     feature_request = await add_feature_request(data_api, org["id"], headers=headers)
 
-    assert feature_request["id"] > 0
+    assert feature_request["id"]
     assert feature_request["title"] == "test feature"
     assert feature_request["description"] == "test feature description"
 

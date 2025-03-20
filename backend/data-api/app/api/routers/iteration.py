@@ -5,7 +5,8 @@ from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
-from app.api.tools.opensearch import index_object
+
+# from app.api.tools.opensearch import index_object
 from app.database.iterations.models.iteration import BaseIteration, Iteration, IterationSortableField
 
 router = APIRouter(
@@ -78,12 +79,12 @@ async def delete_iteration(request: Request, organization_id: str, id: str):
     deleted = await request.app.iteration_controller.delete(id=id, current_user=request.state.user.id)
 
     # if deleted:
-        # await index_object(
-        #     opensearch_client=request.app.opensearch_client,
-        #     index=organization_id,
-        #     item_id=id,
-        #     document={"type": Iteration.__name__},
-        #     mode="delete",
-        # )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=id,
+    #     document={"type": Iteration.__name__},
+    #     mode="delete",
+    # )
 
     return deleted

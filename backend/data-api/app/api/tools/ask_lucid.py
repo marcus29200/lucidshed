@@ -62,8 +62,8 @@ class AskLucidRawResponse(BaseModel):
 # Include user's name data in the indexed documents? But then we have to have a way to deal with stale data.
 # - Could be a background process that updates documents with the latest user data, but that seems heavy.
 # - Would need to be some sort of a event driven system
-# Could we redefine how these queries are done? Maybe instead of just accepting anything, we need to have a context first.
-# - Like for example the user has to do a search to narrow down results first, like what iteration they are looking in, or
+# Could we redefine how these queries are? Maybe instead of just accepting anything, we need to have a context first.
+# - Like for example the user has to do a search to narrow down results first, like what iteration they are in, or
 # what users are being filtered on, and then they can ask a question based on that data.
 async def perform_engineering_item_request(
     opensearch_client: OpenSearch, organization_id: str, user_query: str

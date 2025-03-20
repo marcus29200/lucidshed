@@ -4,9 +4,8 @@ from uuid import uuid4
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
-from app.database.features.models.feature_request import BaseFeatureRequest, FeatureRequest
+from app.database.features.models.feature_request import FeatureRequest
 from app.database.features.queries import FEATURE_REQUEST_QUERIES as QUERIES
-from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.comment import BaseFeatureRequestComment, FeatureRequestComment
 from app.database.work_items.models.work_item import WorkItemSortableField
@@ -16,44 +15,9 @@ logger = getLogger(__name__)
 
 
 class FeatureRequestController(WorkItemController):
-
-    async def create(self, *, new_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
-
-        record = await data_db.get().fetchrow(
-            QUERIES["CREATE_FEATURE_REQUEST"],
-            new_item.title,
-            new_item.submitted_by_id,
-            new_item.submitted_date,
-            new_item.feature_assigned,
-            new_item.description,
-            new_item.company_id,
-            new_item.created_by_id or current_user,
-            current_user,
-        )
-        await self.history_controller.create(
-            BaseHistory(
-                item_id=record["id"],
-                item_type="feature_request",
-                action="create",
-                metadata=new_item.model_dump(exclude_unset=True),
-            ),
-            current_user,
-        )
-
-        feature_request = FeatureRequest(**record)
-
-        return feature_request
-
-    async def get(self, *, id: int) -> FeatureRequest:
-        record = await data_db.get().fetchrow(
-            QUERIES["GET_FEATURE_REQUEST_ITEM"],
-            id,
-        )
-
-        if not record:
-            raise ObjectNotFoundException(object_id=id)
-
-        return FeatureRequest(**record)
+    _type = "FEATURE_REQUEST"
+    _create_history = True
+    RETURN_MODEL = FeatureRequest
 
     async def get_all(
         self,
@@ -95,63 +59,20 @@ class FeatureRequestController(WorkItemController):
 
         return [FeatureRequest(**record) for record in records], cursor
 
-    async def update(self, *, id: int, updated_item: BaseFeatureRequest, current_user: str) -> FeatureRequest:
-        old_feature_request_item = await self.get(id=id)
-
-        new_item_json = updated_item.model_dump(exclude_unset=True)
-        old_item_json = old_feature_request_item.model_dump()
-
-        old_item_json.update(**new_item_json)
-
-        record = await data_db.get().fetchrow(
-            QUERIES["UPDATE_FEATURE_REQUEST"],
-            id,
-            old_item_json["title"],
-            old_item_json["submitted_by_id"],
-            old_item_json["submitted_date"],
-            old_item_json["feature_assigned"],
-            old_item_json["description"],
-            old_item_json["company_id"],
-            old_item_json["created_by_id"],
-            current_user,
-            old_item_json["deleted_at"],
-            old_item_json["deleted_by_id"],
-        )
-
-        await self.history_controller.create(
-            BaseHistory(
-                item_id=record["id"],
-                item_type="feature_request",
-                action="update",
-                metadata=new_item_json,
-            ),
-            current_user,
-        )
-
-        return FeatureRequest(**record)
-
-    async def link(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+    async def link(self, *, item_1: str, item_2: str, current_user: str) -> bool:
         result = await data_db.get().execute(QUERIES["LINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user)
 
         return result == "INSERT 0 1"
 
-    async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+    async def unlink(self, *, item_1: str, item_2: str, current_user: str) -> bool:
         result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_REQUEST_FEATURE"], item_1, item_2, current_user)
 
         return result == "DELETE 1"
 
-    async def delete(self, *, id: int, current_user: str) -> bool:
-        result = await data_db.get().execute(QUERIES["DELETE_FEATURE_REQUEST_ITEM"], id, current_user)
-
-        if result != "UPDATE 1":
-            raise ObjectNotFoundException(object_id=id)
-
-        return True
-
     async def create_comment(
         self,
         *,
-        feature_request_id: int,
+        feature_request_id: str,
         new_comment: BaseFeatureRequestComment,
         current_user: str,
     ) -> FeatureRequestComment:
@@ -168,7 +89,7 @@ class FeatureRequestController(WorkItemController):
 
         return FeatureRequestComment(**record)
 
-    async def get_comment(self, *, feature_request_id: int, id: str) -> FeatureRequestComment:
+    async def get_comment(self, *, feature_request_id: str, id: str) -> FeatureRequestComment:
         record = await data_db.get().fetchrow(QUERIES["GET_FEATURE_REQUEST_COMMENT"], feature_request_id, id)
 
         if not record:
@@ -179,7 +100,7 @@ class FeatureRequestController(WorkItemController):
 
         return FeatureRequestComment(**record)
 
-    async def get_comments(self, *, id: int) -> Tuple[List[FeatureRequestComment], Optional[str]]:
+    async def get_comments(self, *, id: str) -> Tuple[List[FeatureRequestComment], Optional[str]]:
         records = await data_db.get().fetch(QUERIES["GET_FEATURE_REQUEST_COMMENTS"], id)
 
         # TODO Create history entry
@@ -189,7 +110,7 @@ class FeatureRequestController(WorkItemController):
     async def update_comment(
         self,
         *,
-        feature_request_id: int,
+        feature_request_id: str,
         id: str,
         updated_comment: BaseFeatureRequestComment,
         current_user: str,
@@ -219,7 +140,7 @@ class FeatureRequestController(WorkItemController):
 
         return FeatureRequestComment(**record)
 
-    async def delete_comment(self, *, feature_request_id: int, id: str, current_user: str) -> bool:
+    async def delete_comment(self, *, feature_request_id: str, id: str, current_user: str) -> bool:
         result = await data_db.get().execute(
             QUERIES["DELETE_FEATURE_REQUEST_COMMENT"], feature_request_id, id, current_user
         )
@@ -229,7 +150,7 @@ class FeatureRequestController(WorkItemController):
 
         return True
 
-    async def delete_comments(self, *, feature_request_id: int, current_user: str) -> int:
+    async def delete_comments(self, *, feature_request_id: str, current_user: str) -> int:
         result = await data_db.get().execute(
             QUERIES["DELETE_FEATURE_REQUEST_COMMENTS"], feature_request_id, current_user
         )

@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS feature_requests (
     f"""
 CREATE TABLE IF NOT EXISTS feature_request_comments (
     id VARCHAR({MAX_ID_LENGTH}),
-    feature_request_id INT NOT NULL,
+    feature_request_id VARCHAR({MAX_ID_LENGTH}) NOT NULL,
     {BASE_MODEL_FIELDS},
     description TEXT
 );
@@ -39,16 +39,9 @@ FEATURE_REQUEST_QUERIES[
 ] = """
 INSERT INTO feature_requests
 (
-    title,
-    submitted_by_id,
-    submitted_date,
-    feature_assigned,
-    description,
-    company_id,
-    created_by_id,
-    modified_by_id
+    {}
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ({})
 RETURNING *;
 """
 
@@ -57,24 +50,14 @@ FEATURE_REQUEST_QUERIES[
 ] = """
 UPDATE feature_requests
 SET
-    title = $2,
-    submitted_by_id = $3,
-    submitted_date = $4,
-    feature_assigned = $5,
-    description = $6,
-    company_id = $7,
-    created_by_id = $8,
-    modified_at = NOW(),
-    modified_by_id = $9,
-    deleted_at = $10,
-    deleted_by_id = $11
+    {fields}
 WHERE
     id = $1
 RETURNING *;
 """
 
 FEATURE_REQUEST_QUERIES[
-    "GET_FEATURE_REQUEST_ITEM"
+    "GET_FEATURE_REQUEST"
 ] = """
 SELECT * FROM feature_requests WHERE id = $1 AND deleted_at IS NULL;
 """
@@ -91,7 +74,7 @@ OFFSET $3;
 """
 
 FEATURE_REQUEST_QUERIES[
-    "DELETE_FEATURE_REQUEST_ITEM"
+    "DELETE_FEATURE_REQUEST"
 ] = """
 UPDATE feature_requests
 SET
@@ -219,24 +202,13 @@ FEATURE_QUERIES[
     "CREATE_FEATURE"
 ] = """
 INSERT INTO features
-(
-    title,
-    description,
-    requests,
-    reach,
-    impact,
-    confidence,
-    effort,
-    growth,
-    created_by_id,
-    modified_by_id
-)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-    RETURNING id, title, description, requests, reach, impact, confidence, effort,
+({})
+VALUES ({})
+RETURNING id, title, description, requests, reach, impact, confidence, effort,
     growth, created_by_id, modified_by_id, created_at, modified_at;
 """
 FEATURE_QUERIES[
-    "GET_FEATURE_ITEM"
+    "GET_FEATURE"
 ] = """
 SELECT
     id, title, description, requests, reach, impact, confidence, effort,
@@ -257,26 +229,17 @@ LIMIT $2
 OFFSET $3;
 """
 FEATURE_QUERIES[
-    "UPDATE_FEATURE_ITEM"
+    "UPDATE_FEATURE"
 ] = """
 UPDATE features
 SET
-    title = $2,
-    description = $3,
-    requests = $4,
-    reach = $5,
-    impact = $6,
-    confidence = $7,
-    effort = $8,
-    growth = $9,
-    modified_by_id = $10,
-    modified_at = NOW()
+    {fields}
 WHERE id = $1
 RETURNING id, title, description, requests, reach, impact, confidence, effort,
 growth, created_by_id, modified_by_id, created_at, modified_at;
 """
 FEATURE_QUERIES[
-    "DELETE_FEATURE_ITEM"
+    "DELETE_FEATURE"
 ] = """
 UPDATE features
 SET
@@ -312,12 +275,13 @@ FEATURE_LIST_QUERIES[
 ] = """
 INSERT INTO feature_list
 (
+    id,
     title,
     description,
     created_by_id,
     modified_by_id
 )
-    VALUES ($1, $2, $3, $4)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *;
 """
 

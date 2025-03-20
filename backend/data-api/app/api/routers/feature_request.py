@@ -28,7 +28,7 @@ class FeatureRequestCommentPagedResponse(BaseModel):
 
 
 class BaseFeatureLinkPayload(BaseModel):
-    feature_id: int
+    feature_id: str
 
 
 class CreateFeatureLinkPayload(BaseFeatureLinkPayload):
@@ -37,7 +37,7 @@ class CreateFeatureLinkPayload(BaseFeatureLinkPayload):
     item_1 is typically the feature request and item_2 is the feature
     """
 
-    feature_id: int
+    feature_id: str
 
 
 @router.post("", status_code=201, response_model=FeatureRequest)

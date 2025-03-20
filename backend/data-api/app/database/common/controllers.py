@@ -1,6 +1,6 @@
 import logging
-
 from typing import Any, Dict
+
 from app.api.settings import data_db
 from app.database.common.models import BaseModel
 from app.database.common.queries import QUERIES

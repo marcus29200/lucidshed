@@ -90,9 +90,7 @@ async def _test_search_for_updated_engineering_item(data_api, opensearch_enabled
 async def _test_search_engineering_item_assigned_to_specific_user_by_first_name(data_api, opensearch_enabled):
     org, user, headers = await authenticate(data_api)
 
-    item = await add_engineering_item(
-        data_api, org["id"], {"title": "Story", "assigned_to_id": user["id"]}, headers=headers
-    )
+    await add_engineering_item(data_api, org["id"], {"title": "Story", "assigned_to_id": user["id"]}, headers=headers)
 
     await asyncio.sleep(1)
 

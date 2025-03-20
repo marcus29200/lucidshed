@@ -1,7 +1,7 @@
 import json
 from typing import Any, Dict, Optional
 
-from app.database.common.models import Model, BaseModel
+from app.database.common.models import BaseModel, Model
 
 
 class BaseOrganization(BaseModel):

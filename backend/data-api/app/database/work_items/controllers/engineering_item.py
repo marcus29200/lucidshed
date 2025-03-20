@@ -33,9 +33,9 @@ class EngineeringController(WorkItemController):
         return {
             "iteration": await self.load_property(data_db, QUERIES["GET_ITERATION"], record.get("iteration_id")),
             "team": await self.load_property(data_db, QUERIES["GET_TEAM"], record.get("team_id")),
-            "assigned_to": await self.load_property(user_db, QUERIES["GET_USER"], record.get("assigned_to_id"))
+            "assigned_to": await self.load_property(user_db, QUERIES["GET_USER"], record.get("assigned_to_id")),
         }
-        
+
     async def get_all(
         self,
         *,

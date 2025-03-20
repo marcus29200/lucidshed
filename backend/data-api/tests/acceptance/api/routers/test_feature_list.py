@@ -122,8 +122,7 @@ async def test_should_get_all_features_associated_to_feature_list(data_api: Test
     )
     assert response.status_code == 200
     feature_list = response.json()
-    assert feature_list["features"][0] == feature_1["id"]
-    assert feature_list["features"][1] == feature_2["id"]
+    assert sorted(feature_list["features"]) == sorted([feature_1["id"], feature_2["id"]])
 
 
 async def test_should_get_unassigned_features(data_api: TestClient):

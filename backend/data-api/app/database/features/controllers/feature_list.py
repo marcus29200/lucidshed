@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple
+from uuid import uuid4
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
@@ -12,9 +13,14 @@ from app.exceptions.common import ObjectNotFoundException
 
 
 class FeatureListController(WorkItemController):
+    _type = "FEATURE_LIST"
+    _create_history = True
+    RETURN_MODEL = FeatureList
+
     async def create(self, *, new_item: BaseFeatureList, current_user: str) -> FeatureList:
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_LIST"],
+            uuid4().hex,
             new_item.title,
             new_item.description,
             current_user,
@@ -22,13 +28,13 @@ class FeatureListController(WorkItemController):
         )
 
         await self.history_controller.create(
-            BaseHistory(
+            new_item=BaseHistory(
                 item_id=record["id"],
                 item_type="feature_list",
                 action="create",
                 metadata=new_item.model_dump(exclude_unset=True),
             ),
-            current_user,
+            current_user=current_user,
         )
         feature_list = FeatureList(**record)
 
@@ -46,7 +52,6 @@ class FeatureListController(WorkItemController):
         record_dict = dict(record)
         # get features associated with the feature list
         features = await data_db.get().fetch(QUERIES["GET_FEATURES_FOR_FEATURE_LIST"], id)
-        # breakpoint()
         record_dict["features"] = [dict(feature)["item_2"] for feature in features]
 
         feature_list = FeatureList(**record_dict)

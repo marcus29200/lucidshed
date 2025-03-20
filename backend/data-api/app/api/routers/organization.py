@@ -61,9 +61,7 @@ async def add_organization(
     # Initialize database tables
     async with pool.acquire() as conn:
         async with conn.transaction():
-            org = await request.app.organization_controller.create(
-                new_item=body, current_user=request.state.user.id
-            )
+            org = await request.app.organization_controller.create(new_item=body, current_user=request.state.user.id)
 
             # Grant current user access to org
             await request.app.user_permission_controller.create(

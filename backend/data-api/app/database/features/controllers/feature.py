@@ -5,54 +5,23 @@ from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.features.models.feature import BaseFeature, Feature
 from app.database.features.queries import FEATURE_QUERIES as QUERIES
-from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
 from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
+from app.database.history.models.history import BaseHistory
 
 logger = getLogger(__name__)
 
 
 class FeatureController(WorkItemController):
+    _type = "FEATURE"
+    _create_history = True
+    RETURN_MODEL = Feature
 
     @serialize_enum_values
     async def create(self, *, new_item: BaseFeature, current_user: str) -> Feature:
-        record = await data_db.get().fetchrow(
-            QUERIES["CREATE_FEATURE"],
-            new_item.title,
-            new_item.description,
-            new_item.requests,
-            new_item.reach,
-            new_item.impact,
-            new_item.confidence,
-            new_item.effort,
-            new_item.growth,
-            current_user,
-            current_user,
-        )
-        await self.history_controller.create(
-            BaseHistory(
-                item_id=record["id"],
-                item_type="feature",
-                action="create",
-                metadata=new_item.model_dump(exclude_unset=True),
-            ),
-            current_user,
-        )
-        feature = Feature(**record)
-        return feature
-
-    async def get(self, *, id: int) -> Feature:
-        record = await data_db.get().fetchrow(
-            QUERIES["GET_FEATURE_ITEM"],
-            id,
-        )
-
-        if not record:
-            raise ObjectNotFoundException(object_id=id)
-
-        return Feature(**record)
+        return await super().create(new_item=new_item, current_user=current_user)
 
     async def get_all(
         self,
@@ -116,8 +85,8 @@ class FeatureController(WorkItemController):
         )
 
         await self.history_controller.create(
-            BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
-            current_user,
+            history=BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
+            history=current_user,
         )
 
         return Feature(**record)

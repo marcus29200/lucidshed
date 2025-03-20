@@ -68,7 +68,7 @@ async def add_engineering_item(
         "description": "test description",
         "status": "done",
         "priority": "high",
-        "item_type": "story"
+        "item_type": "story",
     }
     data.update(**overrides)
 

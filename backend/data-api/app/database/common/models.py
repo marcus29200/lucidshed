@@ -24,7 +24,7 @@ class BaseModel(PydanticBaseModel):
         if value is None or value == "None":
             return "NULL"
 
-        if isinstance(value, dict):
+        if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value, default=str)
 
         return f"'{value}'"

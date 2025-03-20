@@ -6,7 +6,6 @@ from typing import Any, Dict, List, Optional, Set
 
 from app.database.iterations.models.iteration import Iteration
 from app.database.teams.models.team import Team
-from app.database.users.controllers.user import UserController
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 INDEXED_FIELDS = [
