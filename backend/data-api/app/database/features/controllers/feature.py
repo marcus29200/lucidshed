@@ -64,17 +64,6 @@ class FeatureController(WorkItemController):
     async def update(self, *, id: int, updated_item: BaseFeature, current_user: str) -> Feature:
         return await super().update(id=id, updated_item=updated_item, current_user=current_user)
 
-    async def delete(self, *, id: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["DELETE_FEATURE_ITEM"],
-            id,
-            current_user,
-        )
-        if result != "UPDATE 1":
-            raise ObjectNotFoundException(object_id=id)
-
-        return True
-
     async def get_all_feature_requests_for_feature(self, *, id: int) -> List[dict]:
         """get all feature requests for a feature"""
         records = await data_db.get().fetch(
