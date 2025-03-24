@@ -16,7 +16,7 @@ async def create_organization(data_app, overrides: Dict[str, Any] = {}) -> Organ
     org_obj.update(**overrides)
 
     organization = await data_app.organization_controller.create(
-        organization=BaseOrganization(**org_obj), current_user="test@test.com"
+        new_item=BaseOrganization(**org_obj), current_user="test@test.com"
     )
 
     assert organization.id
@@ -52,7 +52,7 @@ async def test_update_organization(data_app):
 
     organization.title = "Test Updated"
     organization = await data_app.organization_controller.update(
-        id=organization.id, updated_organization=organization, current_user="test@test.com"
+        id=organization.id, updated_item=organization, current_user="test@test.com"
     )
 
     assert organization.id
@@ -64,7 +64,7 @@ async def test_update_organization_with_settings(data_app):
 
     organization.settings = {"test": "value"}
     organization = await data_app.organization_controller.update(
-        id=organization.id, updated_organization=organization, current_user="test@test.com"
+        id=organization.id, updated_item=organization, current_user="test@test.com"
     )
 
     assert organization.settings == {"test": "value"}

@@ -7,7 +7,8 @@ from starlette.responses import JSONResponse
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
 from app.api.tools.ask_lucid import perform_engineering_item_request
-from app.api.tools.opensearch import index_object
+
+# from app.api.tools.opensearch import index_object
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.database.work_items.models.engineering_item import (
     BaseEngineeringItem,
@@ -54,8 +55,12 @@ class CreateEngineeringItemLinkPayload(BaseEngineeringItemLinkPayload):
     to 1 and item_2 to 2 and link_type to "blocked".
     """
 
-    item_id: int
+    item_id: str
     link_type: EngineeringLinkType
+
+
+class BatchUpdateEngineeringItemPayload(BaseModel):
+    updates: List[BaseEngineeringItem]
 
 
 @router.post("/ask-lucid", status_code=200)
@@ -81,18 +86,18 @@ async def add_engineering_item(request: Request, organization_id: str, body: Bas
         new_item=body, current_user=request.state.user.id
     )
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=engineering_item.id,
-        document=engineering_item.get_searchable_doc(),
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=engineering_item.id,
+    #     document=await engineering_item.get_searchable_doc(),
+    # )
 
     return engineering_item
 
 
 @router.get("/{id}", status_code=200, response_model=EngineeringItem)
-async def get_engineering_item(request: Request, organization_id: str, id: int) -> EngineeringItem:
+async def get_engineering_item(request: Request, organization_id: str, id: str) -> EngineeringItem:
     return await request.app.engineering_controller.get(id=id)
 
 
@@ -101,8 +106,8 @@ async def get_engineering_items(
     request: Request,
     organization_id: str,
     item_type: Optional[EngineeringItemType] = None,
-    iteration_id: Optional[int] = None,
-    related_item_id: Optional[int] = None,
+    iteration_id: Optional[str] = None,
+    related_item_id: Optional[str] = None,
     assigned_to_id: Optional[str] = None,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,
     limit: Optional[int] = 1000,
@@ -120,56 +125,82 @@ async def get_engineering_items(
     return EngineeringItemPagedResponse(items=items, cursor=cursor)
 
 
+# FIXME: Currently not working because of some clash with the api paths, keeps getting routed to the regular update
+router.patch("/batch", status_code=200)
+
+
+async def batch_update_engineering_item(
+    request: Request, organization_id: str, body: BatchUpdateEngineeringItemPayload
+):
+    # Update db
+    await request.app.engineering_controller.batch_update(
+        updated_items=body.updates, current_user=request.state.user.id
+    )
+
+    # This could probably be done in batches too
+    # for engineering_item in body.updates:
+    #     document = await engineering_item.get_searchable_doc(body.model_fields_set)
+
+    #     document["modified_date"] = engineering_item.modified_at
+    #     document["modified_by_id"] = engineering_item.modified_by_id
+
+    #     await index_object(
+    #         opensearch_client=request.app.opensearch_client,
+    #         index=organization_id,
+    #         item_id=engineering_item.id,
+    #         document=document,
+    #         mode="update",
+    #     )
+
+
 @router.patch("/{id}", status_code=200, response_model=EngineeringItem)
 async def update_engineering_item(
-    request: Request, organization_id: str, id: int, body: BaseEngineeringItem
+    request: Request, organization_id: str, id: str, body: BaseEngineeringItem
 ) -> EngineeringItem:
     engineering_item = await request.app.engineering_controller.update(
         id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = engineering_item.get_searchable_doc(body.model_fields_set)
+    document = await engineering_item.get_searchable_doc(body.model_fields_set)
 
     document["modified_date"] = engineering_item.modified_at
     document["modified_by_id"] = engineering_item.modified_by_id
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=engineering_item.id,
-        document=document,
-        mode="update",
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=engineering_item.id,
+    #     document=document,
+    #     mode="update",
+    # )
 
     return engineering_item
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_engineering_item(request: Request, organization_id: str, id: int):
-    deleted = await request.app.engineering_controller.delete(
-        id=id, current_user=request.state.user.id, scope="ENGINEERING"
-    )
+async def delete_engineering_item(request: Request, organization_id: str, id: str):
+    deleted = await request.app.engineering_controller.delete(id=id, current_user=request.state.user.id)
 
-    if deleted:
-        await index_object(
-            opensearch_client=request.app.opensearch_client,
-            index=organization_id,
-            item_id=id,
-            document={"type": EngineeringItem.__name__},
-            mode="delete",
-        )
+    # if deleted:
+    #     await index_object(
+    #         opensearch_client=request.app.opensearch_client,
+    #         index=organization_id,
+    #         item_id=id,
+    #         document={"type": EngineeringItem.__name__},
+    #         mode="delete",
+    #     )
 
     return deleted
 
 
 @router.get("/{id}/history", status_code=200)
-async def get_engineering_item_history(request: Request, organization_id: str, id: int):
-    return await request.app.history_controller.get_all(item_id=id, item_type="engineering")
+async def get_engineering_item_history(request: Request, organization_id: str, id: str):
+    return await request.app.history_controller.get_all(item_id=id, item_type="engineering_item")
 
 
 @router.post("/{work_item_id}/comments", status_code=201)
 async def create_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, body: BaseWorkItemComment
+    request: Request, organization_id: str, work_item_id: str, body: BaseWorkItemComment
 ) -> WorkItemComment:
     # NOTE If engineering item doesn't exist what happens with the foreign constraint exception? Can we return a 404?
     return await request.app.engineering_controller.create_comment(
@@ -179,7 +210,7 @@ async def create_engineering_item_comment(
 
 @router.get("/{work_item_id}/comments/{id}", status_code=200)
 async def get_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, id: str
+    request: Request, organization_id: str, work_item_id: str, id: str
 ) -> WorkItemComment:
     return await request.app.engineering_controller.get_comment(work_item_id=work_item_id, id=id)
 
@@ -188,7 +219,7 @@ async def get_engineering_item_comment(
 async def get_engineering_item_comments(
     request: Request,
     organization_id: str,
-    work_item_id: int,
+    work_item_id: str,
     sort: Optional[WorkItemSortableField] = WorkItemSortableField.TITLE,  # NOTE Change
     limit: Optional[int] = 1000,
     cursor: Optional[str] = None,
@@ -201,7 +232,7 @@ async def get_engineering_item_comments(
 
 @router.patch("/{work_item_id}/comments/{id}", status_code=200, response_model=EngineeringItem)
 async def update_engineering_item_comment(
-    request: Request, organization_id: str, work_item_id: int, id: str, body: BaseWorkItemComment
+    request: Request, organization_id: str, work_item_id: str, id: str, body: BaseWorkItemComment
 ) -> EngineeringItem:
     return await request.app.engineering_controller.update_comment(
         work_item_id=work_item_id, id=id, updated_item=body, current_user=request.state.user.id
@@ -209,7 +240,7 @@ async def update_engineering_item_comment(
 
 
 @router.delete("/{work_item_id}/comments/{id}", status_code=200)
-async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: int, id: str):
+async def delete_engineering_item_comment(request: Request, organization_id: str, work_item_id: str, id: str):
     return await request.app.engineering_controller.delete_comment(
         work_item_id=work_item_id, id=id, current_user=request.state.user.id
     )
@@ -217,7 +248,7 @@ async def delete_engineering_item_comment(request: Request, organization_id: str
 
 @router.post("/{work_item_id}/links", status_code=201)
 async def create_engineering_item_link(
-    request: Request, organization_id: str, work_item_id: int, body: CreateEngineeringItemLinkPayload
+    request: Request, organization_id: str, work_item_id: str, body: CreateEngineeringItemLinkPayload
 ) -> JSONResponse:
     result = await request.app.engineering_controller.link(
         item_1=work_item_id, item_2=body.item_id, link_type=body.link_type, current_user=request.state.user.id
@@ -231,7 +262,7 @@ async def create_engineering_item_link(
 
 @router.delete("/{work_item_id}/links", status_code=200)
 async def delete_engineering_item_link(
-    request: Request, organization_id: str, work_item_id: int, body: BaseEngineeringItemLinkPayload
+    request: Request, organization_id: str, work_item_id: str, body: BaseEngineeringItemLinkPayload
 ):
     return await request.app.engineering_controller.unlink(
         item_1=work_item_id, item_2=body.item_id, current_user=request.state.user.id

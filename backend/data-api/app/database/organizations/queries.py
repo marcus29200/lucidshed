@@ -20,15 +20,8 @@ ORGANIZATION_QUERIES[
     "CREATE_ORGANIZATION"
 ] = """
 INSERT INTO organizations
-(
-    id,
-    title,
-    disabled,
-    settings,
-    created_by_id,
-    modified_by_id
-)
-VALUES ($1, $2, $3, $4, $5, $6)
+({})
+VALUES ({})
 RETURNING *;
 """
 
@@ -44,13 +37,7 @@ ORGANIZATION_QUERIES[
 ] = """
 UPDATE organizations
 SET
-    title = $2,
-    disabled = $3,
-    settings = $4,
-    modified_at = NOW(),
-    modified_by_id = $5,
-    deleted_at = $6,
-    deleted_by_id = $7
+    {fields}
 WHERE
     id = $1
 RETURNING *;

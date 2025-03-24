@@ -5,7 +5,6 @@ from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.features.models.feature import BaseFeature, Feature
 from app.database.features.queries import FEATURE_QUERIES as QUERIES
-from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
 from app.decorators import serialize_enum_values
@@ -15,44 +14,13 @@ logger = getLogger(__name__)
 
 
 class FeatureController(WorkItemController):
+    _type = "FEATURE"
+    _create_history = True
+    RETURN_MODEL = Feature
 
     @serialize_enum_values
     async def create(self, *, new_item: BaseFeature, current_user: str) -> Feature:
-        record = await data_db.get().fetchrow(
-            QUERIES["CREATE_FEATURE"],
-            new_item.title,
-            new_item.description,
-            new_item.requests,
-            new_item.reach,
-            new_item.impact,
-            new_item.confidence,
-            new_item.effort,
-            new_item.growth,
-            current_user,
-            current_user,
-        )
-        await self.history_controller.create(
-            BaseHistory(
-                item_id=record["id"],
-                item_type="feature",
-                action="create",
-                metadata=new_item.model_dump(exclude_unset=True),
-            ),
-            current_user,
-        )
-        feature = Feature(**record)
-        return feature
-
-    async def get(self, *, id: int) -> Feature:
-        record = await data_db.get().fetchrow(
-            QUERIES["GET_FEATURE_ITEM"],
-            id,
-        )
-
-        if not record:
-            raise ObjectNotFoundException(object_id=id)
-
-        return Feature(**record)
+        return await super().create(new_item=new_item, current_user=current_user)
 
     async def get_all(
         self,
@@ -94,44 +62,7 @@ class FeatureController(WorkItemController):
 
     @serialize_enum_values
     async def update(self, *, id: int, updated_item: BaseFeature, current_user: str) -> Feature:
-        old_feature_item = await self.get(id=id)
-
-        new_item_json = updated_item.model_dump(exclude_unset=True)
-        old_item_json = old_feature_item.model_dump()
-
-        old_item_json.update(**new_item_json)
-
-        record = await data_db.get().fetchrow(
-            QUERIES["UPDATE_FEATURE_ITEM"],
-            id,
-            old_item_json["title"],
-            old_item_json["description"],
-            old_item_json["requests"],
-            old_item_json["reach"],
-            old_item_json["impact"],
-            old_item_json["confidence"],
-            old_item_json["effort"],
-            old_item_json["growth"],
-            current_user,
-        )
-
-        await self.history_controller.create(
-            BaseHistory(item_id=record["id"], item_type="feature", action="update", metadata=new_item_json),
-            current_user,
-        )
-
-        return Feature(**record)
-
-    async def delete(self, *, id: int, current_user: str) -> bool:
-        result = await data_db.get().execute(
-            QUERIES["DELETE_FEATURE_ITEM"],
-            id,
-            current_user,
-        )
-        if result != "UPDATE 1":
-            raise ObjectNotFoundException(object_id=id)
-
-        return True
+        return await super().update(id=id, updated_item=updated_item, current_user=current_user)
 
     async def get_all_feature_requests_for_feature(self, *, id: int) -> List[dict]:
         """get all feature requests for a feature"""

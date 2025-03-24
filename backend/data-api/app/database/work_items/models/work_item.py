@@ -2,34 +2,34 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from app.database.common.models import MAX_ID_LENGTH, Model
+from app.database.common.models import MAX_ID_LENGTH, BaseModel, Model
 from app.database.users.models.user import SlimUser
 
 
 class WorkItemSortableField(StrEnum):
-    ID: str = "id"
-    TITLE: str = "title"
-    STATUS: str = "status"
-    PRIORITY: str = "priority"
-    DUE_DATE: str = "due_date"
-    CREATED_AT: str = "created_at"
-    MODIFIED_AT: str = "modified_at"
+    ID = "id"
+    TITLE = "title"
+    STATUS = "status"
+    PRIORITY = "priority"
+    DUE_DATE = "due_date"
+    CREATED_AT = "created_at"
+    MODIFIED_AT = "modified_at"
 
 
 class Priority(StrEnum):
-    CRITICAL: str = "critical"
-    HIGH: str = "high"
-    MEDIUM: str = "medium"
-    LOW: str = "low"
+    CRITICAL = "critical"
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
 
 
 class CheckinFrequency(StrEnum):
-    DAILY: str = "daily"
-    WEEKLY: str = "weekly"
-    BIWEEKLY: str = "bi-weekly"
-    MONTHLY: str = "monthly"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    BIWEEKLY = "bi-weekly"
+    MONTHLY = "monthly"
 
 
 class BaseWorkItem(BaseModel):
@@ -46,6 +46,7 @@ class BaseWorkItem(BaseModel):
     assigned_to_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     assigned_to: Optional[SlimUser] = None
     created_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
+    created_by: Optional[SlimUser] = None
     modified_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
     archived_at: Optional[datetime] = None
     archived_by_id: Optional[str] = Field(None, max_length=MAX_ID_LENGTH)
@@ -58,4 +59,4 @@ class BaseWorkItem(BaseModel):
 
 
 class WorkItem(Model, BaseWorkItem):
-    id: int  # type: ignore
+    pass

@@ -26,17 +26,8 @@ HISTORY_QUERIES[
     "CREATE_HISTORY"
 ] = """
 INSERT INTO history
-(
-    id,
-    item_id,
-    item_type,
-    message,
-    action,
-    metadata,
-    created_by_id,
-    modified_by_id
-)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+({})
+VALUES ({})
 RETURNING *;
 """
 

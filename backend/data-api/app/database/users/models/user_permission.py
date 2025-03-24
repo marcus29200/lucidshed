@@ -1,15 +1,13 @@
 from enum import StrEnum
 from typing import Optional
 
-from pydantic import BaseModel
-
-from app.database.common.models import Model
+from app.database.common.models import BaseModel, Model
 
 
 class UserRoleType(StrEnum):
-    ADMIN: str = "admin"
-    MEMBER: str = "member"
-    GUEST: str = "guest"
+    ADMIN = "admin"
+    MEMBER = "member"
+    GUEST = "guest"
 
 
 class BaseUserPermission(BaseModel):

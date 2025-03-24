@@ -6,16 +6,16 @@ from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 
 class SupportItemStatus(StrEnum):
-    NEW: str = "new"
-    OPEN: str = "open"
-    PENDING: str = "pending"
-    ONHOLD: str = "on-hold"
+    NEW = "new"
+    OPEN = "open"
+    PENDING = "pending"
+    ONHOLD = "on-hold"
 
 
 class SupportItemType(StrEnum):
-    PROBLEM: str = "problem"
-    QUESTION: str = "question"
-    REQUEST: str = "request"
+    PROBLEM = "problem"
+    QUESTION = "question"
+    REQUEST = "request"
 
 
 class BaseSupportItem(BaseWorkItem):

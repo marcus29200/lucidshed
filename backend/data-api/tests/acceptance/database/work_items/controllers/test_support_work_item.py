@@ -62,11 +62,11 @@ async def test_add_history_item_to_support_work_item(data_app):
 
     assert support_item.id
 
-    history_items = await data_app.history_controller.get_all(item_id=support_item.id, item_type="support")
+    history_items = await data_app.history_controller.get_all(item_id=support_item.id, item_type="support_item")
 
     assert len(history_items) == 1
     assert history_items[0].item_id == str(support_item.id)
-    assert history_items[0].item_type == "support"
+    assert history_items[0].item_type == "support_item"
     assert history_items[0].action == "create"
     assert history_items[0].metadata["title"] == "Test"
 
@@ -84,7 +84,7 @@ async def test_get_support_work_item_raises_not_found_exception(data_app):
     await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.get(id=0)
+        await data_app.support_controller.get(id="test")
 
 
 # TODO Fix
@@ -147,7 +147,7 @@ async def test_delete_support_work_item(data_app):
     await create_organization(data_app)
     support_item = await create_support_item(data_app)
 
-    result = await data_app.support_controller.delete(id=support_item.id, current_user="test@test.com", scope="SUPPORT")
+    result = await data_app.support_controller.delete(id=support_item.id, current_user="test@test.com")
 
     assert result is True
 
@@ -156,4 +156,4 @@ async def test_delete_support_work_item_fails_when_doesnt_exist(data_app):
     await create_organization(data_app)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.support_controller.delete(id=0, current_user="test@test.com", scope="SUPPORT")
+        await data_app.support_controller.delete(id="test", current_user="test@test.com")

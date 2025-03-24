@@ -119,7 +119,7 @@ async def test_should_update_organization(data_api: TestClient):
 async def test_should_update_organization_settings(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
-    assert item["settings"] == {}
+    assert item["settings"] is None
 
     response = await data_api.patch(f"{item['id']}", json={"settings": {"test": "value"}}, headers=headers)
     assert response.status_code == 200

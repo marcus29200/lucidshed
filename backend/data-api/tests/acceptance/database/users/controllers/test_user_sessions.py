@@ -8,9 +8,9 @@ pytestmark = pytest.mark.asyncio
 
 
 async def create_user_session(data_app, user_id: str) -> UserSession:
-    base_user_session = BaseUserSession(user_id=user_id, token="test")
+    base_user_session = BaseUserSession(user_id=user_id, token="test", created_by_id=user_id, modified_by_id=user_id)
 
-    user_session = await data_app.user_session_controller.create(user_session=base_user_session)
+    user_session = await data_app.user_session_controller.create(new_item=base_user_session, current_user=user_id)
 
     assert user_session.id
 
@@ -33,7 +33,7 @@ async def test_get_user_session(data_app):
     user = await create_user(data_app)
     user_session = await create_user_session(data_app, user_id=user.id)
 
-    user_session = await data_app.user_session_controller.get(token=user_session.token)
+    user_session = await data_app.user_session_controller.get(id=user_session.token)
 
     assert user_session.id
 
@@ -43,14 +43,14 @@ async def test_get_user_session_return_not_found(data_app):
     # await create_user_session(data_app, user_id=user.id)
 
     with pytest.raises(ObjectNotFoundException):
-        await data_app.user_session_controller.get(token="not_found")
+        await data_app.user_session_controller.get(id="not_found")
 
 
 async def test_delete_user_session_by_token(data_app):
     user = await create_user(data_app)
     user_session = await create_user_session(data_app, user_id=user.id)
 
-    result = await data_app.user_session_controller.delete(identifier=user_session.token)
+    result = await data_app.user_session_controller.delete(id=user_session.token, current_user=user.id)
 
     assert result
 
@@ -59,6 +59,6 @@ async def test_delete_user_session_by_user_id(data_app):
     user = await create_user(data_app)
     user_session = await create_user_session(data_app, user_id=user.id)
 
-    result = await data_app.user_session_controller.delete(identifier=user_session.user_id)
+    result = await data_app.user_session_controller.delete(id=user_session.user_id, current_user=user.id)
 
     assert result

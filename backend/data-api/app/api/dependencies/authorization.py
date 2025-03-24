@@ -62,7 +62,7 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(scopes=token_scopes, username=username)
 
-        session: UserSession = await request.app.user_session_controller.get(token=token)
+        session: UserSession = await request.app.user_session_controller.get(id=token)
         if session.expired:
             raise credentials_exception
     except Exception:

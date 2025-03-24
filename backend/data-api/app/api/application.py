@@ -115,6 +115,7 @@ class DataApplication(FastAPI):
             http_auth=(settings.opensearch_username, settings.opensearch_password),
         )
 
+    # TODO Needs tests
     async def migrate_existing_databases(self) -> None:
         databases = []
 

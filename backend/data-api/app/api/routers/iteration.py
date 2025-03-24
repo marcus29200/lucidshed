@@ -5,7 +5,8 @@ from pydantic import BaseModel
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, user_db_conn
-from app.api.tools.opensearch import index_object
+
+# from app.api.tools.opensearch import index_object
 from app.database.iterations.models.iteration import BaseIteration, Iteration, IterationSortableField
 
 router = APIRouter(
@@ -22,20 +23,20 @@ class PagedResponse(BaseModel):
 
 @router.post("", status_code=201, response_model=Iteration)
 async def add_iteration(request: Request, organization_id: str, body: BaseIteration) -> Iteration:
-    iteration = await request.app.iteration_controller.create(iteration=body, current_user=request.state.user.id)
+    iteration = await request.app.iteration_controller.create(new_item=body, current_user=request.state.user.id)
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=iteration.id,
-        document=iteration.get_searchable_doc(),
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=iteration.id,
+    #     document=iteration.get_searchable_doc(),
+    # )
 
     return iteration
 
 
 @router.get("/{id}", status_code=200, response_model=Iteration)
-async def get_iteration(request: Request, organization_id: str, id: int) -> Iteration:
+async def get_iteration(request: Request, organization_id: str, id: str) -> Iteration:
     return await request.app.iteration_controller.get(id=id)
 
 
@@ -52,38 +53,38 @@ async def get_iterations(
 
 
 @router.patch("/{id}", status_code=200, response_model=Iteration)
-async def update_iteration(request: Request, organization_id: str, id: int, body: BaseIteration) -> Iteration:
+async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
     iteration = await request.app.iteration_controller.update(
-        id=id, updated_iteration=body, current_user=request.state.user.id
+        id=id, updated_item=body, current_user=request.state.user.id
     )
 
-    document = iteration.get_searchable_doc(body.model_fields_set)
+    # document = iteration.get_searchable_doc(body.model_fields_set)
 
-    document["modified_date"] = iteration.modified_at
-    document["modified_by_id"] = iteration.modified_by_id
+    # document["modified_date"] = iteration.modified_at
+    # document["modified_by_id"] = iteration.modified_by_id
 
-    await index_object(
-        opensearch_client=request.app.opensearch_client,
-        index=organization_id,
-        item_id=iteration.id,
-        document=document,
-        mode="update",
-    )
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=iteration.id,
+    #     document=document,
+    #     mode="update",
+    # )
 
     return iteration
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_iteration(request: Request, organization_id: str, id: int):
+async def delete_iteration(request: Request, organization_id: str, id: str):
     deleted = await request.app.iteration_controller.delete(id=id, current_user=request.state.user.id)
 
-    if deleted:
-        await index_object(
-            opensearch_client=request.app.opensearch_client,
-            index=organization_id,
-            item_id=id,
-            document={"type": Iteration.__name__},
-            mode="delete",
-        )
+    # if deleted:
+    # await index_object(
+    #     opensearch_client=request.app.opensearch_client,
+    #     index=organization_id,
+    #     item_id=id,
+    #     document={"type": Iteration.__name__},
+    #     mode="delete",
+    # )
 
     return deleted

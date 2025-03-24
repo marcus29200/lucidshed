@@ -13,7 +13,7 @@ async def test_add_team(data_app):
 
     assert isinstance(team, Team)
 
-    assert team.id == 1
+    assert team.id
     assert team.title == "Test"
 
 
@@ -52,7 +52,7 @@ async def test_update_team(data_app):
     team = await create_team(data_app)
 
     team.title = "Test Updated"
-    team = await data_app.team_controller.update(id=team.id, updated_team=team, current_user="test@test.com")
+    team = await data_app.team_controller.update(id=team.id, updated_item=team, current_user="test@test.com")
 
     assert team.title == "Test Updated"
 

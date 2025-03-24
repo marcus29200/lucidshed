@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 from openai import Client, RateLimitError
 from openai.types.chat import ChatCompletion
+from opensearchpy import OpenSearch
 from pydantic import BaseModel
 
 from app.api.settings import settings
@@ -38,7 +39,7 @@ You are an assistant that can answer questions based on engineering items (also 
 
 Provide a short, but intelligent answer and or summary of the engineering items provided in the context below to the
 user's question. Also do not answer the question with information from outside sources, everything you need should be
-in the context given. 
+in the context given.
 """
 
 logger = logging.getLogger(__name__)
@@ -56,8 +57,16 @@ class AskLucidRawResponse(BaseModel):
     summary: str
 
 
+# How can we deal with users, in the query we'll likely have names, not ids. How can we map the names to ids?
+# Use a postgres query based on the user permissions table?
+# Include user's name data in the indexed documents? But then we have to have a way to deal with stale data.
+# - Could be a background process that updates documents with the latest user data, but that seems heavy.
+# - Would need to be some sort of a event driven system
+# Could we redefine how these queries are? Maybe instead of just accepting anything, we need to have a context first.
+# - Like for example the user has to do a search to narrow down results first, like what iteration they are in, or
+# what users are being filtered on, and then they can ask a question based on that data.
 async def perform_engineering_item_request(
-    opensearch_client, organization_id: str, user_query: str
+    opensearch_client: OpenSearch, organization_id: str, user_query: str
 ) -> Tuple[str, List[EngineeringItem]]:
     openai_client = Client(api_key=settings.openai_api_key)
 
@@ -73,7 +82,9 @@ async def perform_engineering_item_request(
         query = json.loads(completion.choices[0].message.content)
 
         # Run the query against Opensearch
-        os_result = OSEngineeringItems(**opensearch_client.search(index=organization_id, body=query))
+        os_result = OSEngineeringItems(
+            **opensearch_client.search(index=organization_id, body=query, sort=query.get("sort"))
+        )
 
         if len(os_result.hits) == 0:
             return "Unfortunately there was nothing related to your question", []

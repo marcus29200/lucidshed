@@ -1,23 +1,23 @@
 import json
 from enum import StrEnum
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Set
 
-from pydantic import BaseModel, Field
+from pydantic import EmailStr, Field
 
-from app.database.common.models import MAX_IMAGE_SIZE, Model
+from app.database.common.models import MAX_IMAGE_SIZE, BaseModel, Model
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission
 
 
 class UserSortableField(StrEnum):
-    ID: str = "id"
-    CREATED_AT: str = "created_at"
-    EMAIL: str = "email"
-    FIRST_NAME: str = "first_name"
-    LAST_NAME: str = "last_name"
+    ID = "id"
+    CREATED_AT = "created_at"
+    EMAIL = "email"
+    FIRST_NAME = "first_name"
+    LAST_NAME = "last_name"
 
 
 class BaseUser(BaseModel):
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     disabled: Optional[bool] = False
@@ -30,19 +30,14 @@ class BaseUser(BaseModel):
     bio: Optional[str] = None
     picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
     settings: Optional[Dict[str, Any]] = {}
-    # TODO:
-    # passwordManagement: (is this 2FA settings/SSO?)
-    # skills: (list of strings?)
-
-
-class User(Model, BaseUser):
-    email: str
-    permissions: Dict[str, UserPermission] = {}  # type: ignore
     password: Optional[str] = Field(None, exclude=True)
     super_admin: bool = False
     reset_code: Optional[str] = Field(None, exclude=True)
     created_org_limit: int = Field(1, exclude=True)
     created_org_count: int = Field(0, exclude=True)
+    # TODO:
+    # passwordManagement: (is this 2FA settings/SSO?)
+    # skills: (list of strings?)
 
     def __init__(self, **data):
         if isinstance(data.get("permissions"), str):
@@ -56,19 +51,28 @@ class User(Model, BaseUser):
         super().__init__(**data)
 
     @property
-    def verified(self):
+    def verified(self) -> bool:
         # Other things might be able to determine if a user is verified or not
         return self.password_set
 
     @property
-    def password_set(self):
-        return self.password and len(self.password) > 3
+    def password_set(self) -> bool:
+        return self.password is not None and len(self.password) > 3
 
 
-class SlimUser(Model):
+class User(Model, BaseUser):
+    email: EmailStr
+    permissions: Dict[str, UserPermission] = {}
+
+    @property
+    def indexed_fields(self) -> Set[str]:
+        return {"id", "email", "first_name", "last_name", "title", "team", "phone", "location", "timezone", "bio"}
+
+
+class SlimUser(BaseModel):
     id: str
     email: str
     first_name: str
     last_name: str
-    picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
-    title: Optional[str] = None
+    # picture: Optional[bytes] = Field(None, max_length=MAX_IMAGE_SIZE)
+    # title: Optional[str] = None

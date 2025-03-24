@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple
+from uuid import uuid4
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
@@ -12,9 +13,14 @@ from app.exceptions.common import ObjectNotFoundException
 
 
 class FeatureListController(WorkItemController):
+    _type = "FEATURE_LIST"
+    _create_history = True
+    RETURN_MODEL = FeatureList
+
     async def create(self, *, new_item: BaseFeatureList, current_user: str) -> FeatureList:
         record = await data_db.get().fetchrow(
             QUERIES["CREATE_FEATURE_LIST"],
+            uuid4().hex,
             new_item.title,
             new_item.description,
             current_user,
@@ -22,19 +28,19 @@ class FeatureListController(WorkItemController):
         )
 
         await self.history_controller.create(
-            BaseHistory(
+            new_item=BaseHistory(
                 item_id=record["id"],
                 item_type="feature_list",
                 action="create",
                 metadata=new_item.model_dump(exclude_unset=True),
             ),
-            current_user,
+            current_user=current_user,
         )
         feature_list = FeatureList(**record)
 
         return feature_list
 
-    async def get(self, *, id: int) -> FeatureList:
+    async def get(self, *, id: str) -> FeatureList:
         record = await data_db.get().fetchrow(
             QUERIES["GET_FEATURE_LIST_BY_ID"],
             id,
@@ -46,7 +52,6 @@ class FeatureListController(WorkItemController):
         record_dict = dict(record)
         # get features associated with the feature list
         features = await data_db.get().fetch(QUERIES["GET_FEATURES_FOR_FEATURE_LIST"], id)
-        # breakpoint()
         record_dict["features"] = [dict(feature)["item_2"] for feature in features]
 
         feature_list = FeatureList(**record_dict)
@@ -96,7 +101,7 @@ class FeatureListController(WorkItemController):
 
         return feature_lists, cursor
 
-    async def update(self, *, id: int, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
+    async def update(self, *, id: str, updated_item: BaseFeatureList, current_user: str) -> FeatureList:
         old_feature_list = await self.get(id=id)
 
         new_item_json = updated_item.model_dump(exclude_unset=True)
@@ -115,28 +120,28 @@ class FeatureListController(WorkItemController):
 
         return feature_list
 
-    async def delete(self, *, id: int) -> None:
+    async def delete(self, *, id: str) -> None:
         await data_db.get().execute(
             QUERIES["DELETE_FEATURE_LIST"],
             id,
         )
 
-    async def link(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+    async def link(self, *, item_1: str, item_2: str, current_user: str) -> bool:
         result = await data_db.get().execute(QUERIES["LINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "INSERT 0 1"
 
-    async def unlink(self, *, item_1: int, item_2: int, current_user: str) -> bool:
+    async def unlink(self, *, item_1: str, item_2: str, current_user: str) -> bool:
         result = await data_db.get().execute(QUERIES["UNLINK_FEATURE_LIST_FEATURE"], item_1, item_2, current_user)
         return result == "DELETE 1"
 
-    async def get_unassigned_features(self, feature_list_id: int) -> List[dict]:
+    async def get_unassigned_features(self, feature_list_id: str) -> List[dict]:
         records = await data_db.get().fetch(QUERIES["GET UNASSIGNED_FEATURES"], feature_list_id)
 
         return [dict(record) for record in records]
 
-    async def get_feature(self, *, id: int) -> dict:
+    async def get_feature(self, *, id: str) -> dict:
         feature = await data_db.get().fetchrow(
-            FEATURE_QUERIES["GET_FEATURE_ITEM"],
+            FEATURE_QUERIES["GET_FEATURE"],
             id,
         )
         if not feature:

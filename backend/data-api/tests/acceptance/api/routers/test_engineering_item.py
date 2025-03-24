@@ -12,7 +12,7 @@ async def test_should_add_engineering_item(data_api: TestClient):
 
     engineering_item = await add_engineering_item(data_api, org["id"], headers=headers)
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["title"] == "test"
     assert engineering_item["description"] == "test description"
     assert engineering_item["status"] == "done"
@@ -31,7 +31,7 @@ async def test_should_add_engineering_item_epic_type(data_api: TestClient):
         data_api, org["id"], {"item_type": EngineeringItemType.EPIC}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["item_type"] == EngineeringItemType.EPIC
 
 
@@ -63,7 +63,7 @@ async def test_should_add_engineering_item_with_estimated_completion_date_in_iso
         data_api, org["id"], {"estimated_completion_date": "2021-01-01T00:00:00+00:00"}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["estimated_completion_date"] == "2021-01-01T00:00:00Z"
 
 
@@ -75,7 +75,7 @@ async def test_should_add_engineering_item_with_iteration(data_api: TestClient):
         data_api, org["id"], {"iteration_id": iteration["id"]}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["iteration_id"] == iteration["id"]
     assert engineering_item["iteration"]["id"] == iteration["id"]
 
@@ -98,7 +98,7 @@ async def test_should_add_engineering_item_with_created_by_override(data_api: Te
         data_api, org["id"], {"created_by_id": "test2@test.com"}, headers=headers
     )
 
-    assert engineering_item["id"] > 0
+    assert engineering_item["id"]
     assert engineering_item["created_by_id"] == "test2@test.com"
 
 
@@ -252,7 +252,7 @@ async def test_should_get_all_engineering_item_without_iteration_id(data_api: Te
         data_api,
         f"{data_api.test_org_id}/engineering",
         item_type=EngineeringItemType.STORY.value,
-        iteration_id=-1,
+        iteration_id="",
         headers=headers,
     )
 
@@ -348,6 +348,34 @@ async def test_should_not_update_engineering_item_with_expired_token(data_api: T
     response = await data_api.get(f"{data_api.test_org_id}/engineering/{item['id']}", headers=headers)
     item = response.json()
     assert item["title"] != "Test Updated"
+
+
+# FIXME
+async def _test_should_batch_update_engineering_items(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    item_1 = await add_engineering_item(data_api, org["id"], headers=headers)
+    item_2 = await add_engineering_item(data_api, org["id"], headers=headers)
+
+    response = await data_api.patch(
+        f"{data_api.test_org_id}/engineering/batch",
+        json={
+            "updates": [
+                {"id": item_1["id"], "description": "Updated 1"},
+                {"id": item_2["id"], "description": "Updated 2"},
+            ]
+        },
+        headers=headers,
+    )
+    assert response.status_code == 200
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item_1['id']}", headers=headers)
+    item = response.json()
+    assert item["title"] != "Updated 1"
+
+    response = await data_api.get(f"{data_api.test_org_id}/engineering/{item_2['id']}", headers=headers)
+    item = response.json()
+    assert item["title"] != "Updated 2"
 
 
 async def test_should_delete_engineering_item(data_api: TestClient):

@@ -2,19 +2,19 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Optional, Set
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from app.database.common.models import MAX_ID_LENGTH, Model
+from app.database.common.models import MAX_ID_LENGTH, BaseModel, Model
 
 
 class IterationSortableField(StrEnum):
-    ID: str = "id"
-    TITLE: str = "title"
-    STATUS: str = "status"
-    START_DATE: str = "start_date"
-    END_DATE: str = "end_date"
-    CREATED_AT: str = "created_at"
-    MODIFIED_AT: str = "modified_at"
+    ID = "id"
+    TITLE = "title"
+    STATUS = "status"
+    START_DATE = "start_date"
+    END_DATE = "end_date"
+    CREATED_AT = "created_at"
+    MODIFIED_AT = "modified_at"
 
 
 class BaseIteration(BaseModel):
@@ -28,8 +28,6 @@ class BaseIteration(BaseModel):
 
 
 class Iteration(Model, BaseIteration):
-    id: int  # type: ignore
-
     @property
     def indexed_fields(self) -> Set[str]:
         return {"id", "title", "description", "status", "start_date", "end_date", "created_at", "modified_at"}

@@ -26,7 +26,7 @@ async def add_support_item(request: Request, organization_id: str, body: BaseSup
 
 
 @router.get("/{id}", status_code=200, response_model=SupportItem)
-async def get_support_item(request: Request, organization_id: str, id: int) -> SupportItem:
+async def get_support_item(request: Request, organization_id: str, id: str) -> SupportItem:
     return await request.app.support_controller.get(id=id)
 
 
@@ -43,15 +43,15 @@ async def get_support_items(
 
 
 @router.patch("/{id}", status_code=200, response_model=SupportItem)
-async def update_support_item(request: Request, organization_id: str, id: int, body: BaseSupportItem) -> SupportItem:
+async def update_support_item(request: Request, organization_id: str, id: str, body: BaseSupportItem) -> SupportItem:
     return await request.app.support_controller.update(id=id, updated_item=body, current_user=request.state.user.id)
 
 
 @router.delete("/{id}", status_code=200)
-async def delete_support_item(request: Request, organization_id: str, id: int):
-    return await request.app.support_controller.delete(id=id, current_user=request.state.user.id, scope="SUPPORT")
+async def delete_support_item(request: Request, organization_id: str, id: str):
+    return await request.app.support_controller.delete(id=id, current_user=request.state.user.id)
 
 
 @router.get("/{id}/history", status_code=200)
-async def get_engineering_item_history(request: Request, organization_id: str, id: int):
-    return await request.app.history_controller.get_all(item_id=id, item_type="support")
+async def get_engineering_item_history(request: Request, organization_id: str, id: str):
+    return await request.app.history_controller.get_all(item_id=id, item_type="support_item")

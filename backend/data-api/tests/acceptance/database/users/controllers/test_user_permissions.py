@@ -58,7 +58,7 @@ async def test_update_user_permission(data_app):
 
     user_permission.role = UserRoleType.MEMBER
     user_permission = await data_app.user_permission_controller.update(
-        id=user.id, organization_id=org.id, updated_user_permission=user_permission, current_user=user.id
+        id=user.id, organization_id=org.id, updated_item=user_permission, current_user=user.id
     )
 
     assert user_permission.role is UserRoleType.MEMBER

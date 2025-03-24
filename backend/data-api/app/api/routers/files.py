@@ -22,7 +22,7 @@ class PagedResponse(BaseModel):
 @router.post("", status_code=201, response_model=File)
 async def add_file(request: Request, organization_id: str, body: BaseFile) -> File:
     return await request.app.file_controller.create(
-        organization_id=organization_id, file=body, current_user=request.state.user.id
+        organization_id=organization_id, new_item=body, current_user=request.state.user.id
     )
 
 
@@ -44,9 +44,9 @@ async def get_files(
 
 
 # @router.patch("/{id}", status_code=200, response_model=Iteration)
-# async def update_iteration(request: Request, organization_id: str, id: int, body: BaseIteration) -> Iteration:
+# async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
 #     return await request.app.iteration_controller.update(
-#         id=id, updated_iteration=body, current_user=request.state.user.id
+#         id=id, updated_item=body, current_user=request.state.user.id
 #     )
 
 

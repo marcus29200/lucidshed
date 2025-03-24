@@ -1,3 +1,4 @@
+from app.database.common.models import MAX_ID_LENGTH
 from app.database.common.shared_queries import BASE_MODEL_FIELDS
 
 ITERATION_QUERIES = {}
@@ -5,7 +6,7 @@ ITERATION_QUERIES = {}
 ITERATION_INIT_STATEMENTS = [
     f"""
 CREATE TABLE IF NOT EXISTS iterations (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR({MAX_ID_LENGTH}) PRIMARY KEY,
     {BASE_MODEL_FIELDS},
     title VARCHAR(256),
     description TEXT,
@@ -21,16 +22,8 @@ ITERATION_QUERIES[
     "CREATE_ITERATION"
 ] = """
 INSERT INTO iterations
-(
-    title,
-    description,
-    status,
-    start_date,
-    end_date,
-    created_by_id,
-    modified_by_id
-)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+({})
+VALUES ({})
 RETURNING *;
 """
 
@@ -59,15 +52,7 @@ ITERATION_QUERIES[
 ] = """
 UPDATE iterations
 SET
-    title = $2,
-    description = $3,
-    status = $4,
-    start_date = $5,
-    end_date = $6,
-    modified_at = NOW(),
-    modified_by_id = $7,
-    deleted_at = $8,
-    deleted_by_id = $9
+    {fields}
 WHERE
     id = $1
 RETURNING *;

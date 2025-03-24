@@ -43,12 +43,12 @@ CREATE TABLE IF NOT EXISTS user_permissions (
     f"""
 CREATE TABLE IF NOT EXISTS user_sessions (
     id VARCHAR({MAX_ID_LENGTH}),
+    {BASE_MODEL_FIELDS},
     user_id VARCHAR({MAX_ID_LENGTH}) REFERENCES users(id) ON DELETE CASCADE,
     token VARCHAR(256) UNIQUE,
     ip_address VARCHAR(45),
     user_agent VARCHAR(256),
-    expires_at timestamp with time zone DEFAULT NULL,
-    created_at timestamp with time zone DEFAULT NOW()
+    expires_at timestamp with time zone DEFAULT NULL
 )
     """,
 ]
@@ -99,6 +99,27 @@ SELECT
 FROM users WHERE (id = $1 OR email = $1) AND deleted_at IS NULL;
 """
 
+
+USER_QUERIES[
+    "GET_SLIM_USERS"
+] = """
+SELECT
+    user_ids.value AS input_id,
+    users.id AS id,
+    users.first_name,
+    users.last_name,
+    users.email
+FROM
+    UNNEST($1::text[]) WITH ORDINALITY AS user_ids(value, ordinality)
+LEFT JOIN
+    users
+ON
+    users.id = user_ids.value
+ORDER BY
+    user_ids.ordinality;
+"""
+
+
 USER_QUERIES[
     "GET_USERS"
 ] = """
@@ -109,6 +130,7 @@ ORDER BY $1
 LIMIT $2
 OFFSET $3;
 """
+
 
 USER_QUERIES[
     "GET_ORGANIZATION_USER"
@@ -221,16 +243,8 @@ USER_QUERIES[
     "CREATE_USER_PERMISSION"
 ] = """
 INSERT INTO user_permissions
-(
-    organization_id,
-    id,
-    user_id,
-    disabled,
-    role,
-    created_by_id,
-    modified_by_id
-)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+({})
+VALUES ({})
 RETURNING *;
 """
 
@@ -238,7 +252,7 @@ RETURNING *;
 USER_QUERIES[
     "GET_USER_PERMISSION"
 ] = """
-SELECT * FROM user_permissions WHERE organization_id = $1 AND user_id = $2;
+SELECT * FROM user_permissions WHERE organization_id = $2 AND user_id = $1;
 """
 
 
@@ -254,13 +268,8 @@ USER_QUERIES[
 ] = """
 UPDATE user_permissions
 SET
-    disabled = $3,
-    role = $4,
-    modified_at = NOW(),
-    modified_by_id = $5,
-    deleted_at = $6,
-    deleted_by_id = $7
-WHERE organization_id = $1 AND user_id = $2
+    {fields}
+WHERE organization_id = $2 AND user_id = $1
 RETURNING *;
 """
 
@@ -270,8 +279,8 @@ USER_QUERIES[
 UPDATE user_permissions
 SET
     deleted_at = NOW(),
-    deleted_by_id = $3
-WHERE organization_id = $1 AND user_id = $2;
+    deleted_by_id = $2
+WHERE organization_id = $3 AND user_id = $1;
 """
 
 
@@ -279,15 +288,8 @@ USER_QUERIES[
     "CREATE_USER_SESSION"
 ] = """
 INSERT INTO user_sessions
-(
-    id,
-    user_id,
-    token,
-    expires_at,
-    ip_address,
-    user_agent
-)
-VALUES ($1, $2, $3, $4, $5, $6)
+({})
+VALUES ({})
 RETURNING *;
 """
 

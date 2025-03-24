@@ -68,6 +68,7 @@ async def add_engineering_item(
         "description": "test description",
         "status": "done",
         "priority": "high",
+        "item_type": "story",
     }
     data.update(**overrides)
 
@@ -155,8 +156,8 @@ async def page_results(
     while True:
         query_params = {
             "item_type": item_type if item_type else "",
-            "iteration_id": iteration_id if iteration_id else None,
-            "assigned_to_id": assigned_to_id if assigned_to_id else None,
+            "iteration_id": iteration_id if iteration_id is not None else None,
+            "assigned_to_id": assigned_to_id if assigned_to_id is not None else None,
             "sort": sort if sort else "id",
             "limit": limit,
             "cursor": cursor if cursor else "",

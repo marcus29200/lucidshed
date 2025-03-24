@@ -36,7 +36,7 @@ async def test_should_add_support_item(data_api: TestClient):
     org = await add_organization(data_api, headers=headers)
     support_item = await add_support_item(data_api, org["id"], headers=headers)
 
-    assert support_item["id"] > 0
+    assert support_item["id"]
     assert support_item["title"] == "test"
     assert support_item["description"] == "test description"
     assert support_item["priority"] == "high"
@@ -52,7 +52,7 @@ async def test_should_add_support_item_pending_status(data_api: TestClient):
     org = await add_organization(data_api, headers=headers)
     support_item = await add_support_item(data_api, org["id"], {"status": SupportItemStatus.PENDING}, headers=headers)
 
-    assert support_item["id"] > 0
+    assert support_item["id"]
     assert support_item["status"] == SupportItemStatus.PENDING
 
 
@@ -72,7 +72,7 @@ async def test_should_add_support_item_with_created_by_override(data_api: TestCl
     org = await add_organization(data_api, headers=headers)
     support_item = await add_support_item(data_api, org["id"], {"created_by_id": "test2@test.com"}, headers=headers)
 
-    assert support_item["id"] > 0
+    assert support_item["id"]
     assert support_item["created_by_id"] == "test2@test.com"
 
 

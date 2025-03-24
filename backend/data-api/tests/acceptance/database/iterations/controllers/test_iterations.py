@@ -13,7 +13,7 @@ async def test_add_iteration(data_app):
 
     assert isinstance(iteration, Iteration)
 
-    assert iteration.id == 1
+    assert iteration.id
     assert iteration.title == "Test"
 
 
@@ -53,7 +53,7 @@ async def test_update_iteration(data_app):
 
     iteration.title = "Test Updated"
     iteration = await data_app.iteration_controller.update(
-        id=iteration.id, updated_iteration=iteration, current_user="test@test.com"
+        id=iteration.id, updated_item=iteration, current_user="test@test.com"
     )
 
     assert iteration.title == "Test Updated"
