@@ -8,7 +8,7 @@ from app.database.users.models.user_permission import BaseUserPermission, UserPe
 
 class UserPermissionController(BaseController):
     _type = "USER_PERMISSION"
-    _create_history = True
+    _create_history = False
     _database_context = user_db
     RETURN_MODEL = UserPermission
 
