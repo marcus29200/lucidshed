@@ -38,9 +38,7 @@ FEATURE_REQUEST_QUERIES[
     "CREATE_FEATURE_REQUEST"
 ] = """
 INSERT INTO feature_requests
-(
-    {}
-)
+({})
 VALUES ({})
 RETURNING *;
 """

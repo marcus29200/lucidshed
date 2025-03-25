@@ -15,7 +15,6 @@ class BaseFeatureRequest(BaseWorkItem):
     description: Optional[str] = ""
     company_id: Optional[int] = None
     # tags: Optional[List[Tag]] = []  # TODO Create DB models and relationships
-    comments: Optional[List[str]] = []
 
 
 class FeatureRequest(WorkItem, BaseFeatureRequest):
