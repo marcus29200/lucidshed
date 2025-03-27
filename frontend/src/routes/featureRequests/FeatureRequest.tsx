@@ -28,7 +28,7 @@ import { FeatureListFormProps } from '../features/FeatureDetails';
 
 export type FeatureRequestFormProps = {
 	title: string;
-	id: number;
+	id: string;
 	submittedDate: string;
 	description: string | null;
 	requester: string | null;
@@ -172,14 +172,14 @@ const FeatureRequest = memo(
 					await linkRequestToFeature({
 						orgId,
 						requestId: (featureRequest as FeatureRequestFormProps).id,
-						featureId: +featureId,
+						featureId: featureId,
 					});
 					if (featureRequest?.featureAssigned) {
 						// remove previous link
 						await removeLinkRequestToFeature({
 							orgId,
 							requestId: (featureRequest as FeatureRequestFormProps).id,
-							featureId: +featureRequest.featureAssigned,
+							featureId: featureRequest.featureAssigned,
 						});
 					}
 				} catch (error) {

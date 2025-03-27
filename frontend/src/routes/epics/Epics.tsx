@@ -14,7 +14,7 @@ export const epicsQuery = (orgId: string) =>
 	});
 
 export type ApiEpic = {
-	id: number;
+	id: string;
 	title: string;
 	description?: string;
 	estimated_completion_date: string;
@@ -26,7 +26,7 @@ export type ApiEpic = {
 export type Epic = {
 	name: string;
 	progress: number;
-	id: number;
+	id: string;
 	startDate: string;
 	endDate: string;
 	priority: Priority;

@@ -33,7 +33,7 @@ const FeatureRequestList = () => {
 	useEffect(() => {
 		if (isEditFeatureRequest && !selectedRow) {
 			const row = featureRequests.find(
-				(featureRequest) => featureRequest.id === +featureRequestId
+				(featureRequest) => featureRequest.id === featureRequestId
 			);
 			if (row) {
 				setSelectedRow(() => row);

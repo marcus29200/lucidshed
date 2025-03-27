@@ -17,7 +17,7 @@ import { FeatureRequestTable } from '../featureRequests/FeatureRequestTable';
 
 export type FeatureListFormProps = {
 	title: string;
-	id: number;
+	id: string;
 	description: string | null;
 	requests: number | null;
 	priority: string | null;
@@ -77,7 +77,7 @@ const FeatureDetail = () => {
 		debounceTimeId = setTimeout(() => {
 			if (featureRequestId) {
 				const row = requests.find(
-					(featureRequest) => featureRequest.id === +featureRequestId
+					(featureRequest) => featureRequest.id === featureRequestId
 				);
 				if (row) {
 					setSelectedRow(() => row);

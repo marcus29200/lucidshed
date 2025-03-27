@@ -86,7 +86,7 @@ export const getFeatureDetail = async (
 
 export const deleteFeature = async (
 	orgId: string,
-	featureId: number
+	featureId: string
 ): Promise<unknown> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${featuresUrl}/${featureId}`, {
 		method: 'DELETE',

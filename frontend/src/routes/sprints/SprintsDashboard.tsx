@@ -13,10 +13,7 @@ import {
 import '../../index.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link, useLoaderData, useParams } from 'react-router-dom';
-// import BarChart from '../components/BarChart';
-// import LineChart from '../components/LineChart';
-// import LineChartLOE from '../components/LineChartLOE';
-// import TableChart from '../components/TableChart';
+
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HomeIcon } from '../../icons/icons';

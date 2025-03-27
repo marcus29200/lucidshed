@@ -85,7 +85,7 @@ export const getFeatureRequestDetail = async (
 
 export const deleteFeatureRequest = async (
 	orgId: string,
-	requestId: number
+	requestId: string
 ): Promise<unknown> => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}`,
@@ -108,7 +108,7 @@ export const updateFeatureRequest = async ({
 	data,
 }: {
 	orgId: string;
-	requestId: number;
+	requestId: string;
 	data;
 }) => {
 	const res = await fetch(
@@ -134,8 +134,8 @@ export const linkRequestToFeature = async ({
 	featureId,
 }: {
 	orgId: string;
-	requestId: number;
-	featureId: number;
+	requestId: string;
+	featureId: string;
 }) => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}/links`,
@@ -162,8 +162,8 @@ export const removeLinkRequestToFeature = async ({
 	featureId,
 }: {
 	orgId: string;
-	requestId: number;
-	featureId: number;
+	requestId: string;
+	featureId: string;
 }) => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/${featureRequestsUrl}/${requestId}/links`,

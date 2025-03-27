@@ -7,7 +7,7 @@ export type CreateCommentPayload = {
 };
 export type RawComment = {
 	id: string;
-	work_item_id: number;
+	work_item_id: string;
 	created_by_id: string;
 	description: string;
 	created_at: Date;
@@ -18,7 +18,7 @@ export type CommentsPage = {
 };
 export type UserComment = {
 	id: string;
-	workItemId: number;
+	workItemId: string;
 	user: string;
 	description: string;
 	createdAt: string; // MMM dd, yyyy h:mm a
@@ -41,7 +41,7 @@ export const getAllComments = async ({
 	workItemId,
 }: {
 	orgId: string;
-	workItemId: number;
+	workItemId: string;
 }) => {
 	const res = await fetch(
 		`${BASE_URL}/${orgId}/engineering/${workItemId}/comments`,
@@ -66,7 +66,7 @@ export const createComment = async ({
 	data,
 }: {
 	orgId: string;
-	workItemId: number;
+	workItemId: string;
 	data: CreateCommentPayload;
 }) => {
 	const res = await fetch(
@@ -93,7 +93,7 @@ export const updateComment = async ({
 	data,
 }: {
 	orgId: string;
-	workItemId: number;
+	workItemId: string;
 	commentId: string;
 	data: CreateCommentPayload;
 }) => {

@@ -125,13 +125,13 @@ export type StoryFormProps = {
 	targetDate?: Date;
 	title: string;
 	description?: string;
-	sprint?: number;
+	sprint?: string;
 	priority: Priority;
 	estimate?: number;
 	status?: StoryStatus;
 	subType?: TicketType;
 	assignedTo?: string;
-	epic?: number;
+	epic?: string;
 };
 
 export type StoriesView = 'table' | 'kanban';

@@ -18,14 +18,14 @@ import {
 import GroupByButton from '../../components/GroupByButton';
 
 export type Story = {
-	id: number;
+	id: string;
 	name: string;
 	targetDate?: Date;
 	startDate: Date | null;
 	progress: number;
 	assignedToId?: string;
 	assignedToName?: string;
-	iterationId?: number;
+	iterationId?: string;
 	iterationTitle?: string;
 	status: StoryStatus;
 	createdDate: Date;

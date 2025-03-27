@@ -86,7 +86,7 @@ export const Sprints = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 	const [targetDeletion, setTargetDeletion] = useState<string>('');
-	const [targetSprint, setTargetSprint] = useState<number | null>(0);
+	const [targetSprint, setTargetSprint] = useState<string | null>('');
 	const [confirmDeletionName, setConfirmDeletionName] = useState('');
 	const [descriptionExpanded, setDescriptionExpanded] = useState(
 		!localStorage.getItem(DESCRIPTION_EXPANDED_KEY) ||
@@ -159,8 +159,8 @@ export const Sprints = () => {
 	};
 
 	const deleteSelectedSprint = async () => {
-		const target: number | null =
-			targetDeletion === 'backlog' ? null : +targetDeletion;
+		const target: string | null =
+			targetDeletion === 'backlog' ? null : targetDeletion;
 		setTargetSprint(target);
 		try {
 			await deleteSprint({ orgId, sprintId: (selectedSprint as Sprint).id });

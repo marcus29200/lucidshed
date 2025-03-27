@@ -86,7 +86,7 @@ export const StoriesKanbanView = ({ stories, orgId, onChange }: Props) => {
 			const sourceStatus = source.droppableId as StoryStatus;
 			const destinationStatus = destination.droppableId as StoryStatus;
 
-			let storyId = 0;
+			let storyId = '';
 
 			setStoriesState((prevStories) => {
 				const newState = { ...prevStories };

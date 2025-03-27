@@ -3,7 +3,7 @@ import { getAuthHeaders } from './utils';
 const companiesUrl = 'companies';
 
 export type Company = {
-	id: number;
+	id: string;
 	name: string;
 	description?: string;
 };
@@ -71,7 +71,7 @@ export const getCompanyDetail = async (
 
 export const deleteCompany = async (
 	orgId: string,
-	companyId: number
+	companyId: string
 ): Promise<unknown> => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${companiesUrl}/${companyId}`, {
 		method: 'DELETE',
@@ -91,7 +91,7 @@ export const updateCompany = async ({
 	data,
 }: {
 	orgId: string;
-	companyId: number;
+	companyId: string;
 	data: Partial<Company>;
 }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/${companiesUrl}/${companyId}`, {

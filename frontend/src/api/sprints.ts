@@ -19,7 +19,7 @@ export type RawSprint = {
 	end_date: Date;
 	created_by_id: string;
 	modified_by_id: string;
-	id: number;
+	id: string;
 	created_at: Date;
 	modified_at: Date;
 	deleted_at: null;
@@ -27,7 +27,7 @@ export type RawSprint = {
 	organization_id: string;
 };
 export type Sprint = {
-	id: number;
+	id: string;
 	title: string;
 	description: string;
 	status: string;

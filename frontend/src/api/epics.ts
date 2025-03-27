@@ -23,7 +23,7 @@ export type CreateEpicPayload = {
 	priority: Priority;
 	item_type: 'epic';
 };
-export type GetEpicPayload = { orgId: string; epicId: number };
+export type GetEpicPayload = { orgId: string; epicId: string };
 export const mapEpic = (epic: ApiEpic): Epic => {
 	return {
 		name: epic.title,
@@ -133,8 +133,8 @@ export const linkStoryToEpic = async ({
 	storyId,
 }: {
 	orgId: string;
-	epicId: number;
-	storyId: number;
+	epicId: string;
+	storyId: string;
 }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}/links`, {
 		method: 'POST',
@@ -159,8 +159,8 @@ export const removeLinkStoryToEpic = async ({
 	storyId,
 }: {
 	orgId: string;
-	epicId: number;
-	storyId: number;
+	epicId: string;
+	storyId: string;
 }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${epicId}/links`, {
 		method: 'DELETE',
@@ -180,7 +180,7 @@ export const removeLinkStoryToEpic = async ({
 
 export const getRelatedStories = async (
 	orgId: string,
-	epicId: number
+	epicId: string
 ): Promise<Story[]> => {
 	const url = `${BASE_URL}/${orgId}/engineering?item_type=story&related_item_id=${epicId}`;
 

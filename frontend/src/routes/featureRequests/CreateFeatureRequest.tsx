@@ -71,7 +71,7 @@ const CreateFeatureRequest = memo(({ show }: { show: boolean }) => {
 				await linkRequestToFeature({
 					orgId,
 					requestId: request.id,
-					featureId: +featureId,
+					featureId: featureId,
 				});
 			}
 		} catch (error) {

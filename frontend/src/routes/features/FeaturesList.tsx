@@ -384,7 +384,7 @@ type FieldInputProps = {
 		Error,
 		{
 			orgId: string;
-			featureId: number;
+			featureId: string;
 			data: unknown;
 		},
 		unknown
@@ -401,7 +401,7 @@ function FieldInput({
 	value,
 }: FieldInputProps) {
 	const handleUpdateFeature = (
-		featureId: number,
+		featureId: string,
 		payload: {
 			reach?: number;
 			impact?: number;

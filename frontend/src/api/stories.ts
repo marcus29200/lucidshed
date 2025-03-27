@@ -20,13 +20,13 @@ export type CreateStoryPayload = {
 	priority?: Priority;
 	item_type: 'story';
 	estimate?: number;
-	iteration_id?: number | null;
+	iteration_id?: string | null;
 	status?: string; // TODO: Enum of statuses
 	item_sub_type?: string;
 	assigned_to_id?: string | null;
 	start_date?: string | null;
 	completed_at?: string | null;
-	epicId?: number | null;
+	epicId?: string | null;
 };
 
 export type StoryAPI = {
@@ -49,9 +49,9 @@ export type StoryAPI = {
 	start_date: Date | null;
 	due_date: Date | null;
 	acceptance_criteria: string[];
-	iteration_id: number;
+	iteration_id: string;
 	iteration: RawSprint;
-	id: number;
+	id: string;
 	created_at: Date;
 	modified_at: Date;
 	deleted_at: number | null;
@@ -128,7 +128,7 @@ export const getStories = async (
 	return results?.items;
 };
 
-export const getStory = async (orgId: string, storyId: number) => {
+export const getStory = async (orgId: string, storyId: string) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${storyId}`, {
 		headers: {
 			...getAuthHeaders(),
@@ -147,7 +147,7 @@ export const updateStory = async ({
 	data,
 }: {
 	orgId: string;
-	storyId: number;
+	storyId: string;
 	data: Partial<CreateStoryPayload>;
 }) => {
 	const res = await fetch(`${BASE_URL}/${orgId}/engineering/${storyId}`, {
@@ -208,7 +208,7 @@ export const getStoriesAssignedToMe = async (
 
 export const getRelatedEpic = async (
 	orgId: string,
-	storyId: number
+	storyId: string
 ): Promise<Epic | null> => {
 	const url = `${BASE_URL}/${orgId}/engineering?item_type=epic&related_item_id=${storyId}`;
 

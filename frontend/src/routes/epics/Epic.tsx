@@ -27,7 +27,7 @@ import { queryClient } from '../../router';
 import { DatePicker } from '@mui/x-date-pickers';
 import { priorities } from '../stories/stories.model';
 
-export const epicDetailQuery = (orgId: string, epicId: number) =>
+export const epicDetailQuery = (orgId: string, epicId: string) =>
 	queryOptions({
 		queryKey: ['epics', 'detail', orgId, epicId],
 		queryFn: async () => getEpic({ orgId, epicId }),
@@ -41,7 +41,7 @@ export const epicLoader = (_queryClient: QueryClient) => {
 		if (!params.epicId) {
 			throw new Error('No epic id provided');
 		}
-		return getEpic({ orgId: params.orgId, epicId: +params.epicId });
+		return getEpic({ orgId: params.orgId, epicId: params.epicId });
 		// return queryClient.ensureQueryData(
 		// 	epicDetailQuery(params.orgId, +params.epicId)
 		// );

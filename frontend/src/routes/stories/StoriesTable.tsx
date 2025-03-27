@@ -180,7 +180,7 @@ const StoriesTable = ({
 		}
 
 		for (let i = 0; i < rowsToUpdate.length; i++) {
-			const storyId = +rowsToUpdate[i];
+			const storyId = rowsToUpdate[i];
 			patchStory({ orgId: orgId as string, storyId: storyId, data: cleanData });
 			if (epicId) {
 				await linkStoryToEpic({
