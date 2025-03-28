@@ -53,7 +53,7 @@ async def _index_object(
                 return opensearch_client.delete(index=index, id=item_id)
             case _:
                 raise ValueError(f"Unable to index using {mode}")
-    except Exception:
+    except Exception as exc:
         logger.exception("Unable to index object")
 
-        raise ValueError(f"Unable to index using {mode}")
+        raise ValueError(f"Unable to index using {mode}") from exc

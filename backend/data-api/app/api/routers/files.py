@@ -43,13 +43,6 @@ async def get_files(
     return PagedResponse(items=items, cursor=cursor)
 
 
-# @router.patch("/{id}", status_code=200, response_model=Iteration)
-# async def update_iteration(request: Request, organization_id: str, id: str, body: BaseIteration) -> Iteration:
-#     return await request.app.iteration_controller.update(
-#         id=id, updated_item=body, current_user=request.state.user.id
-#     )
-
-
 @router.delete("/{id}", status_code=200)
 async def delete_file(request: Request, organization_id: str, id: str):
     return await request.app.file_controller.delete(id=id, current_user=request.state.user.id)

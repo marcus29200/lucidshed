@@ -43,8 +43,6 @@ async def data_db_conn(request: Request):
 
                 async with data_conn.transaction():
                     yield
-            except Exception:
-                raise
             finally:
                 data_conn.terminate()
                 data_db.set(None)
@@ -58,8 +56,6 @@ async def user_db_conn():
 
             async with user_conn.transaction():
                 yield
-        except Exception:
-            raise
         finally:
             user_conn.terminate()
             user_db.set(None)

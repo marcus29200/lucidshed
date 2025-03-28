@@ -19,9 +19,6 @@ class PagedResponse(BaseModel):
     cursor: Optional[str] = None
 
 
-# TODO Needs to be indexed
-
-
 @router.post("", status_code=201, response_model=Team)
 async def add_team(request: Request, organization_id: str, body: BaseTeam) -> Team:
     return await request.app.team_controller.create(new_item=body, current_user=request.state.user.id)

@@ -42,7 +42,6 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     if not user.reset_code:
         raise HTTPException(status_code=412, detail="Unable to create reset code")
 
-    # TODO Add tests
     send_mail(
         user.email,
         "Verify your email",
@@ -63,10 +62,10 @@ async def reset(request: Request, body: ResetPassword) -> JSONResponse:
         user = await request.app.user_controller.set_user_password(
             reset_code=body.reset_code, new_password=body.password
         )
-    except Exception:
+    except Exception as exc:
         logger.exception("Unable to verify reset code")
 
-        raise HTTPException(status_code=401, detail="Invalid reset code")
+        raise HTTPException(status_code=401, detail="Invalid reset code") from exc
 
     send_mail(user.email, "Your password has been reset", "Your password has been reset")
 

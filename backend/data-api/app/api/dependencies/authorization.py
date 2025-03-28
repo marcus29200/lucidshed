@@ -65,15 +65,15 @@ async def get_current_user(request: Request, security_scopes: SecurityScopes):
         session: UserSession = await request.app.user_session_controller.get(id=token)
         if session.expired:
             raise credentials_exception
-    except Exception:
-        raise credentials_exception
+    except Exception as exc:
+        raise credentials_exception from exc
 
     try:
         user: User = await request.app.user_controller.get(
             id=None, email=token_data.username, organization_id=request.path_params.get("organization_id")
         )
-    except ObjectNotFoundException:
-        raise credentials_exception
+    except ObjectNotFoundException as exc:
+        raise credentials_exception from exc
 
     # If the user is a super admin or we just care if the user is authenticated
     if user.super_admin or security_scopes.scopes[0] == "authenticated":
