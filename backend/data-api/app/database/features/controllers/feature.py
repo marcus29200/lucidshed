@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple
 
 from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
-from app.database.features.models.feature import BaseFeature, Feature
+from app.database.features.models.feature import Feature
 from app.database.features.queries import FEATURE_QUERIES as QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
