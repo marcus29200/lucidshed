@@ -16,7 +16,7 @@ class UserSessionController(BaseController):
 
         return [UserSession(**record) for record in records]
 
-    async def delete(self, *, id: str, current_user: str) -> bool:
+    async def delete(self, *, id: str, current_user: str, **extra_params) -> bool:
         result = await user_db.get().execute(QUERIES["DELETE_USER_SESSION"], id)
 
         delete_count = int(result.split("DELETE ")[-1])

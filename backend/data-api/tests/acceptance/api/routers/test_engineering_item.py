@@ -260,6 +260,26 @@ async def test_should_get_all_engineering_item_without_iteration_id(data_api: Te
     assert items[0]["id"] == item_without_iteration["id"]
 
 
+async def test_should_get_all_engineering_item_ignoring_iteration(data_api: TestClient):
+    org, _, headers = await authenticate(data_api)
+
+    iteration = await add_iteration(data_api, org["id"], headers=headers)
+    await add_engineering_item(
+        data_api, org["id"], overrides={"title": "test2", "iteration_id": iteration["id"]}, headers=headers
+    )
+
+    await add_engineering_item(data_api, org["id"], overrides={"title": "test2"}, headers=headers)
+
+    items = await page_results(
+        data_api,
+        f"{data_api.test_org_id}/engineering",
+        item_type=EngineeringItemType.STORY.value,
+        headers=headers,
+    )
+
+    assert len(items) == 2
+
+
 async def test_should_get_all_engineering_item_with_assigned_to_id(data_api: TestClient):
     org, user, headers = await authenticate(data_api)
 

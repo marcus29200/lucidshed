@@ -149,6 +149,7 @@ async def test_should_get_feature_request_count(data_api: TestClient):
     feature_request_count = response.json()
     assert feature_request_count["count"] == 0  # No linked feature requests yet
     from tests.acceptance.api.routers.test_feature_request import add_feature_request
+
     feature_request = await add_feature_request(data_api, org["id"], headers=headers)
     response = await data_api.post(
         f"{org['id']}/feature_requests/{feature_request['id']}/links",

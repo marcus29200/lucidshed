@@ -124,10 +124,11 @@ def determine_get_all_filter_conditions(
     if item_type is not None:
         filter_conditions.append(f"engineering_items.item_type = '{item_type.value}'")
 
-    if iteration_id is None:
-        filter_conditions.append("engineering_items.iteration_id IS NULL")
-    else:
-        filter_conditions.append(f"engineering_items.iteration_id = '{iteration_id}'")
+    if iteration_id is not None:
+        if iteration_id == "":
+            filter_conditions.append("engineering_items.iteration_id = '' OR engineering_items.iteration_id IS NULL")
+        else:
+            filter_conditions.append(f"engineering_items.iteration_id = '{iteration_id}'")
 
     if related_item_id is not None:
         filter_conditions.append(

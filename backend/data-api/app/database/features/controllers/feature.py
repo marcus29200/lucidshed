@@ -74,7 +74,7 @@ class FeatureController(WorkItemController):
             raise ObjectNotFoundException(object_id=id)
 
         return [dict(record) for record in records]
-    
+
     async def get_count_of_feature_requests_for_feature(self, *, id: int) -> int:
         """get count of all feature requests for a feature"""
         record = await data_db.get().fetchrow(

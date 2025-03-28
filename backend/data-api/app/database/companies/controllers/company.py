@@ -10,14 +10,17 @@ from app.exceptions.common import ObjectNotFoundException
 
 class CompanyController:
     async def create(self, *, new_item: BaseCompany, current_user: str) -> Company:
-        company = await self.get_by_name(name=new_item.name)
-        if not company:
+        try:
+            company = await self.get_by_name(name=new_item.name)
+        except ObjectNotFoundException:
             record = await data_db.get().fetchrow(
                 QUERIES["CREATE_COMPANY"], new_item.name, new_item.description, current_user, current_user
             )
-            return Company(**record)
+            company = Company(**record)
 
-    async def get(self, *, id: int) -> Optional[Company]:
+        return company
+
+    async def get(self, *, id: int) -> Company:
         record = await data_db.get().fetchrow(
             QUERIES["GET_COMPANY"],
             id,
@@ -28,13 +31,13 @@ class CompanyController:
 
         return Company(**record)
 
-    async def get_by_name(self, *, name: str) -> Optional[Company]:
+    async def get_by_name(self, *, name: str) -> Company:
         record = await data_db.get().fetchrow(
             QUERIES["GET_COMPANY_BY_NAME"],
             name.strip(),
         )
         if not record:
-            return None
+            raise ObjectNotFoundException(object_id=name)
 
         return Company(**record)
 
