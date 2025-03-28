@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Optional
 
 from app.database.work_items.models.work_item import BaseWorkItem, WorkItem
 
 
-class FeatureScore(Enum):
+class FeatureScore(IntEnum):
     DEFAULT = 0
     SMALL = 1
     MEDIUM = 2

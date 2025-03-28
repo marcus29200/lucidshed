@@ -7,7 +7,6 @@ from app.database.features.models.feature import BaseFeature, Feature
 from app.database.features.queries import FEATURE_QUERIES as QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
-from app.decorators import serialize_enum_values
 from app.exceptions.common import ObjectNotFoundException
 
 logger = getLogger(__name__)
@@ -17,10 +16,6 @@ class FeatureController(WorkItemController):
     _type = "FEATURE"
     _create_history = True
     RETURN_MODEL = Feature
-
-    @serialize_enum_values
-    async def create(self, *, new_item: BaseFeature, current_user: str) -> Feature:
-        return await super().create(new_item=new_item, current_user=current_user)
 
     async def get_all(
         self,
@@ -59,10 +54,6 @@ class FeatureController(WorkItemController):
             cursor = generate_cursor(sort, offset + limit)
 
         return [Feature(**record) for record in records], cursor
-
-    @serialize_enum_values
-    async def update(self, *, id: int, updated_item: BaseFeature, current_user: str) -> Feature:
-        return await super().update(id=id, updated_item=updated_item, current_user=current_user)
 
     async def get_all_feature_requests_for_feature(self, *, id: int) -> List[dict]:
         """get all feature requests for a feature"""
