@@ -44,7 +44,7 @@ export const queryClient = new QueryClient({
 			console.log(error);
 
 			if (error.status === 401 || error.detail === 'Invalid Token') {
-				window.location.replace('/shed/#/login');
+				window.location.replace('/#/login');
 			}
 			if (error.status === 404) {
 				console.log(window.location.pathname);
