@@ -1,10 +1,10 @@
 import base64
 import json
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from python_http_client.exceptions import BadRequestsError
-from sendgrid import From, Mail, SendGridAPIClient
+from sendgrid import From, Mail, SendGridAPIClient, To
 
 from app.api.settings import settings
 from app.exceptions.common import SendgridException
@@ -38,9 +38,9 @@ def parse_cursor(cursor: str) -> Tuple[Any | None, int, Dict[str, Any]]:
     return cursor_dict["sort_field"], cursor_dict["offset"], cursor_dict["extra"]
 
 
-def send_mail(to_email: str, subject: str, content: str):
+def send_mail(to_emails: List[str], subject: str, content: str):
     if not settings.sendgrid_api_key:
-        logger.warning(f"Sendgrid not configured, sent '{content}' to {to_email}")
+        logger.warning(f"Sendgrid not configured, sent '{content}' to {to_emails}")
         return
 
     try:
@@ -49,13 +49,13 @@ def send_mail(to_email: str, subject: str, content: str):
         sendgrid_client.send(
             Mail(
                 from_email=From(settings.from_email, name=settings.from_name),
-                to_emails=to_email,
+                to_emails=",".join(to_emails),
                 subject=subject,
                 html_content=content,
             )
         )
     except Exception as e:
-        logger.exception("Unable to send email")
+        logger.exception(f"Unable to send emails to {to_emails}")
 
         if isinstance(e, BadRequestsError):
             logger.error(f"Sendgrid response content {e.body}")

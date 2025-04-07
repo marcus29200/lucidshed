@@ -30,7 +30,7 @@ class PagedResponse(BaseModel):
 
 
 BLOCKED_ORG_IDS = ["users", "auth", "signup", "register"]
-
+    
 
 @router.post(
     "/",
@@ -71,6 +71,13 @@ async def add_organization(
                 ),
                 current_user=request.state.user.id,
             )
+    
+    if settings.notify_of_signup:
+        send_mail(
+            settings.notify_of_signup,
+            f"New signup from {org.title}!",
+            f"{request.state.user.email} has created the organzation {org.title} [id={org.id}]",
+        )
 
     return org
 
@@ -137,7 +144,7 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
             )
 
         send_mail(
-            user.email,
+            [user.email],
             "You've been invited to an organization",
             f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=')}{user.reset_code}",
         )
@@ -148,7 +155,7 @@ async def add_organization_user(request: Request, organization_id: str, body: Ba
         org = await request.app.organization_controller.get(id=organization_id)
 
         send_mail(
-            user.email,
+            [user.email],
             "You've been invited to an organization",
             f"Your account has been added to {org.title or org.id}",
         )

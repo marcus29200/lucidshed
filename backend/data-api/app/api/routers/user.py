@@ -43,7 +43,7 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
         raise HTTPException(status_code=412, detail="Unable to create reset code")
 
     send_mail(
-        user.email,
+        [user.email],
         "Verify your email",
         f"Here is your verification link: {join(settings.frontend_url, 'reset-password?code=')}{user.reset_code}",
     )
@@ -67,7 +67,7 @@ async def reset(request: Request, body: ResetPassword) -> JSONResponse:
 
         raise HTTPException(status_code=401, detail="Invalid reset code") from exc
 
-    send_mail(user.email, "Your password has been reset", "Your password has been reset")
+    send_mail([user.email], "Your password has been reset", "Your password has been reset")
 
     return JSONResponse({"detail": "Password reset, proceed to login"})
 
@@ -82,7 +82,7 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
         raise HTTPException(status_code=412, detail="Unable to create reset code")
 
     send_mail(
-        user.email,
+        [user.email],
         "Reset your password",
         f"Here is your reset link: {join(settings.frontend_url, 'reset-password?code=')}{user.reset_code}",
     )

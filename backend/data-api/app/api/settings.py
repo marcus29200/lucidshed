@@ -1,7 +1,7 @@
 import logging
 from contextvars import ContextVar
 from os import getenv
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from asyncpg import Pool
 from pydantic import BaseModel
@@ -26,6 +26,8 @@ class Settings(BaseModel):
     frontend_url: str = getenv("FRONTEND_URL", "http://localhost:3000")
 
     log_level: str = getenv("LOG_LEVEL", "INFO")
+
+    notify_of_signup: List[str] = []
 
     # Database settings
     database_connection_name: Optional[str] = getenv("DATABASE_CONNECTION_NAME", None)

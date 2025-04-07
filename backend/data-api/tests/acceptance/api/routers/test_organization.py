@@ -75,6 +75,17 @@ async def test_should_not_add_organization_without_token(data_api: TestClient):
     await add_organization(data_api, headers={}, expected_status_code=401)
 
 
+@patch("app.api.utils.SendGridAPIClient.send")
+async def test_should_notify_of_organization_creation(mock_send, data_api: TestClient):
+    _, user, headers = await authenticate(data_api, create_org=False)
+
+    settings.sendgrid_api_key = "test"
+    settings.notify_of_signup = ["mscaffidi@lucidshed.com"]
+
+    organization = await add_organization(data_api, headers=headers)
+
+    mock_send.assert_called()
+
 async def test_should_get_organization(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)
     item = await add_organization(data_api, headers=headers)
