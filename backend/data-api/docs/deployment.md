@@ -12,6 +12,8 @@ The purpose of this doc is to outline how the data api application is deployed.
     - Any scheduled commands or upgrades will also probably run here (none as of this writing).
 - CloudSQL
     - Our main database, this is where organization databases and the user database is held.
+- Opensearch
+    - What we chose for search, this is currently deployed in AWS using a managed instance.
 
 #### Release Methodology
 - To deploy a new version of the data api:
