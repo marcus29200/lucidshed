@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.settings import settings
+from app.settings import settings
 from tests.acceptance.api.utils import (
     DEFAULT_PASSWORD,
     add_organization,
@@ -82,9 +82,10 @@ async def test_should_notify_of_organization_creation(mock_send, data_api: TestC
     settings.sendgrid_api_key = "test"
     settings.notify_of_signup = ["mscaffidi@lucidshed.com"]
 
-    organization = await add_organization(data_api, headers=headers)
+    await add_organization(data_api, headers=headers)
 
     mock_send.assert_called()
+
 
 async def test_should_get_organization(data_api: TestClient):
     _, _, headers = await authenticate(data_api, create_org=False)

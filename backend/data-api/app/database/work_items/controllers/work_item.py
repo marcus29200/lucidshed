@@ -1,11 +1,11 @@
 from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
-from app.api.settings import data_db
 from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.work_items.models.comment import BaseWorkItemComment, WorkItemComment
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import data_db
 
 
 class WorkItemController(BaseController):

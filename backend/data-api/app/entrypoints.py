@@ -4,7 +4,7 @@ from logging.config import dictConfig
 import uvicorn
 
 from app.api.application import DataApplication
-from app.api.settings import settings
+from app.settings import settings
 
 LOGGING_CONFIG = {
     "version": 1,

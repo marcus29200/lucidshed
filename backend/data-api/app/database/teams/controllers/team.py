@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple
 
-from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.teams.models.team import Team
+from app.settings import data_db
 
 
 class TeamController(BaseController):

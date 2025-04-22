@@ -20,7 +20,6 @@ from app.api.routers.search import router as search_router
 from app.api.routers.support_item import router as support_item_router
 from app.api.routers.team import router as team_router
 from app.api.routers.user import router as user_router
-from app.api.settings import database_pools, settings
 from app.database.common.queries import INIT_STATEMENTS, USER_INIT_STATEMENTS
 from app.database.companies.controllers.company import CompanyController
 from app.database.features.controllers.feature import FeatureController
@@ -38,6 +37,7 @@ from app.database.utils import init_database_tables
 from app.database.work_items.controllers.engineering_item import EngineeringController
 from app.database.work_items.controllers.support_item import SupportController
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import database_pools, settings
 
 router = APIRouter()
 

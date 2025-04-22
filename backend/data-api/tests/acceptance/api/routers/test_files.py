@@ -3,7 +3,7 @@ from os.path import join
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.settings import settings
+from app.settings import settings
 from tests.acceptance.api.utils import add_organization, authenticate, expired_headers, page_results
 
 pytestmark = pytest.mark.asyncio

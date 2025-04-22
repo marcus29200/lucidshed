@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.settings import settings
+from app.settings import settings
 from tests.acceptance.api.utils import DEFAULT_PASSWORD, add_user, authenticate
 
 pytestmark = pytest.mark.asyncio
@@ -38,6 +38,13 @@ async def test_should_register_user_with_sendgrid(mock_send, data_api: TestClien
     assert user["email"]
 
     mock_send.assert_called_once()
+
+
+async def test_should_rate_limit_register_user(data_api: TestClient):
+    user = await add_user(data_api)
+    assert user["email"]
+
+    await add_user(data_api, expected_status_code=429)
 
 
 async def test_should_not_register_duplicate_user(data_api: TestClient):

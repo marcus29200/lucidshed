@@ -4,7 +4,7 @@ from os import getenv
 from typing import Any, Dict, List, Optional
 
 from asyncpg import Pool
-from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 database_pools: ContextVar[Dict[str, Pool]] = ContextVar("database_pools", default={})
 
@@ -18,7 +18,7 @@ def load_bool_env_var(env_var: str, default: Any = None) -> bool:
     return True if (getenv(env_var) or default).lower() == "true" else False
 
 
-class Settings(BaseModel):
+class Settings(BaseSettings):
     # Application settings
     host: str = getenv("APP_HOST", "0.0.0.0")
     port: int = int(getenv("APP_PORT", 8080))
@@ -26,6 +26,8 @@ class Settings(BaseModel):
     frontend_url: str = getenv("FRONTEND_URL", "http://localhost:3000")
 
     log_level: str = getenv("LOG_LEVEL", "INFO")
+
+    rate_limit_requests: bool = load_bool_env_var("RATE_LIMIT_REQUESTS", "true")
 
     notify_of_signup: List[str] = []
 
@@ -66,6 +68,8 @@ class Settings(BaseModel):
     opensearch_password: Optional[str] = getenv("OPENSEARCH_PASSWORD", "Luc1dshedTester!")
     opensearch_async_indexing: bool = load_bool_env_var("OPENSEARCH_ASYNC_INDEXING", "true")
     opensearch_enabled: bool = load_bool_env_var("OPENSEARCH_ENABLED", "true")
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     def get_database_url(self, db_name: Optional[str] = None) -> str:
         url = f"postgresql://{self.database_user}:{self.database_password}@{self.database_host}:{self.database_port}"

@@ -3,9 +3,9 @@ from typing import Dict
 import pytest
 
 from app.api.dependencies.database import get_pool
-from app.api.settings import settings, user_db
 from app.database.users.models.user import BaseUser, User
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import settings, user_db
 from tests.acceptance.database.utils import page_results
 
 pytestmark = pytest.mark.asyncio

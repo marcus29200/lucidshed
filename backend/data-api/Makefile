@@ -19,7 +19,7 @@ db-down:
 	docker compose down
 
 api:
-	$(POETRY) run api  --env-file=.env
+	$(POETRY) run api
 
 test:
 	$(POETRY) run pytest -n auto

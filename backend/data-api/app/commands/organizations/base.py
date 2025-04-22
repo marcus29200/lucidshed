@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 from asyncpg import connect
 
-from app.api.settings import settings
+from app.settings import settings
 
 logger = logging.getLogger(__name__)
 

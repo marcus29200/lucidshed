@@ -1,8 +1,8 @@
-from app.api.settings import user_db
 from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.users.models.user_session import UserSession
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import user_db
 
 
 class UserSessionController(BaseController):

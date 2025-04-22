@@ -1,11 +1,11 @@
 import logging
 from typing import Any, Dict
 
-from app.api.settings import data_db
 from app.database.common.models import BaseModel
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import BaseHistory
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import data_db
 
 logger = logging.getLogger(__name__)
 

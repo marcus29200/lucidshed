@@ -5,7 +5,7 @@ from asyncpg import create_pool
 from asyncpg.exceptions import TooManyConnectionsError
 from fastapi import Request
 
-from app.api.settings import data_db, database_pools, settings, user_db
+from app.settings import data_db, database_pools, settings, user_db
 
 
 @backoff.on_exception(backoff.expo, TooManyConnectionsError, max_tries=10, max_time=5)

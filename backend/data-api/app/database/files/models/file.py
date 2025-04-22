@@ -5,8 +5,8 @@ from google.auth import default, impersonated_credentials
 from google.cloud import storage
 from pydantic import Field
 
-from app.api.settings import settings
 from app.database.common.models import MAX_ID_LENGTH, BaseModel, Model
+from app.settings import settings
 
 SIGNED_URL_EXPIRATION_MINUTES = 60 * 15
 

@@ -4,11 +4,11 @@ from uuid import uuid4
 
 from google.cloud import storage
 
-from app.api.settings import data_db, settings
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.files.models.file import BaseFile, File
+from app.settings import data_db, settings
 
 
 class FileController(BaseController):

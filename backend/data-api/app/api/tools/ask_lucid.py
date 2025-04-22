@@ -7,8 +7,8 @@ from openai.types.chat import ChatCompletion
 from opensearchpy import OpenSearch
 from pydantic import BaseModel
 
-from app.api.settings import settings
 from app.database.work_items.models.engineering_item import EngineeringItem
+from app.settings import settings
 
 FILTERING_BASE_QUERY = """
 You are an expert at constructing OpenSearch queries in valid JSON format. The response should strictly adhere to the

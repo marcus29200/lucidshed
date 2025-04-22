@@ -1,11 +1,11 @@
 from typing import List, Optional, Tuple
 
-from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.common.queries import QUERIES
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.support_item import SupportItem
 from app.database.work_items.models.work_item import WorkItemSortableField
+from app.settings import data_db
 
 
 class SupportController(WorkItemController):

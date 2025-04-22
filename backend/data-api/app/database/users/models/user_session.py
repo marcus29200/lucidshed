@@ -1,8 +1,8 @@
 from datetime import UTC, datetime, timedelta
 from typing import Optional
 
-from app.api.settings import settings
 from app.database.common.models import BaseModel, Model
+from app.settings import settings
 
 
 class BaseUserSession(BaseModel):

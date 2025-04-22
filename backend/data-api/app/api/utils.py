@@ -4,10 +4,10 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from python_http_client.exceptions import BadRequestsError
-from sendgrid import From, Mail, SendGridAPIClient, To
+from sendgrid import From, Mail, SendGridAPIClient
 
-from app.api.settings import settings
 from app.exceptions.common import SendgridException
+from app.settings import settings
 
 logger = logging.getLogger(__name__)
 

@@ -8,12 +8,12 @@ from jwt import decode, encode
 
 from app.api.dependencies.database import get_pool
 from app.api.models.users import TokenData
-from app.api.settings import settings, user_db
 from app.database.users.models.user import User
 from app.database.users.models.user_permission import UserRoleType
 from app.database.users.models.user_session import UserSession
 from app.database.users.utils import password_matches
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import settings, user_db
 
 logger = logging.getLogger(__name__)
 

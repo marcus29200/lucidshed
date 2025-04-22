@@ -4,9 +4,9 @@ import logging
 from opensearchpy import OpenSearch
 
 from app.api.dependencies.database import data_db, get_pool
-from app.api.settings import settings
 from app.commands.organizations.base import BaseOrganizationCommand
 from app.database.work_items.controllers.engineering_item import EngineeringController
+from app.settings import settings
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from app.api.settings import settings
+from app.settings import settings
 from tests.acceptance.api.utils import add_engineering_item, add_iteration, authenticate
 
 pytestmark = pytest.mark.asyncio

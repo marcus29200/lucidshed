@@ -1,7 +1,6 @@
 from typing import List, Optional, Tuple
 from uuid import uuid4
 
-from app.api.settings import data_db
 from app.api.utils import generate_cursor, parse_cursor
 from app.database.features.models.feature_list import BaseFeatureList, FeatureList
 from app.database.features.queries import FEATURE_LIST_QUERIES as QUERIES
@@ -10,6 +9,7 @@ from app.database.history.models.history import BaseHistory
 from app.database.work_items.controllers.work_item import WorkItemController
 from app.database.work_items.models.work_item import WorkItemSortableField
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import data_db
 
 
 class FeatureListController(WorkItemController):

@@ -7,9 +7,9 @@ from httpx import ASGITransport, AsyncClient
 
 from app.api.application import DataApplication
 from app.api.dependencies.database import close_pool, data_db, get_pool
-from app.api.settings import database_pools, settings
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.utils import create_database, delete_database, init_database_tables
+from app.settings import database_pools, settings
 
 
 def setup():
@@ -18,6 +18,7 @@ def setup():
     settings.sendgrid_api_key = None
     settings.opensearch_enabled = False
     settings.opensearch_async_indexing = False
+    settings.rate_limit_requests = False
 
     settings.user_db_name = f"users_{test_org_id}"
 

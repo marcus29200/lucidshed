@@ -3,8 +3,8 @@ from typing import Any, Dict
 import pytest
 
 from app.api.dependencies.database import get_pool
-from app.api.settings import data_db
 from app.database.organizations.models.organization import BaseOrganization, Organization
+from app.settings import data_db
 
 pytestmark = pytest.mark.asyncio
 

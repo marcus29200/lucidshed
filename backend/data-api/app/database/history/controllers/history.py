@@ -1,9 +1,9 @@
 from typing import List
 
-from app.api.settings import data_db
 from app.database.common.controllers import BaseController
 from app.database.common.queries import QUERIES
 from app.database.history.models.history import History
+from app.settings import data_db
 
 
 # Finish updating based on audit log models

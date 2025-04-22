@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from opensearchpy import OpenSearch
 
-from app.api.settings import settings
+from app.settings import settings
 
 logger = logging.getLogger(__name__)
 

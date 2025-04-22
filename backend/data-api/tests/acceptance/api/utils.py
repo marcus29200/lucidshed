@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from fastapi.testclient import TestClient
 
 from app.api.dependencies.database import get_pool
-from app.api.settings import data_db
+from app.settings import data_db
 
 expired_headers = {
     "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoidGVzdEB0ZXN0LmNvbSIsInNjb3BlcyI6W10sImV4cCI6MTcxOTU4ODc5Mi4zNjUxN30.15fa1fwuhx-FQLHPzbxOmZ35afvyxzJYFs6c-cIt_o4"  # noqa

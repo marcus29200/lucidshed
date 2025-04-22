@@ -8,12 +8,13 @@ from fastapi.responses import JSONResponse
 
 from app.api.dependencies.authorization import authenticate_user, create_access_token, get_current_user
 from app.api.dependencies.database import user_db_conn
+from app.api.dependencies.rate_limit import RateLimiter
 from app.api.models.users import LoginRequest, LoginResponse, ResetPassword, ResetPasswordRequest, Token
-from app.api.settings import settings
 from app.api.utils import send_mail
 from app.database.users.models.user import BaseUser, User
 from app.database.users.models.user_session import BaseUserSession, UserSession
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,8 @@ class RegisterUserPayload(BaseUser):
         super().__init__(**data)
 
 
-@router.post("/register", status_code=200)
+# TODO Implement delay on repeat attempts
+@router.post("/register", status_code=200, dependencies=[Depends(RateLimiter(requests_limit=1, time_window=3600))])
 async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     user: User = await request.app.user_controller.create(user=body, current_user="system")
 
@@ -56,7 +58,8 @@ async def register(request: Request, body: RegisterUserPayload) -> JSONResponse:
     )
 
 
-@router.post("/reset-password", status_code=200)
+# TODO Implement delay on repeat attempts
+@router.post("/reset-password", status_code=200, dependencies=[Depends(RateLimiter(requests_limit=1, time_window=60))])
 async def reset(request: Request, body: ResetPassword) -> JSONResponse:
     try:
         user = await request.app.user_controller.set_user_password(
@@ -72,7 +75,8 @@ async def reset(request: Request, body: ResetPassword) -> JSONResponse:
     return JSONResponse({"detail": "Password reset, proceed to login"})
 
 
-@router.post("/reset-request", status_code=200)
+# TODO Implement delay on repeat attempts
+@router.post("/reset-request", status_code=200, dependencies=[Depends(RateLimiter(requests_limit=1, time_window=60))])
 async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONResponse:
     user = await request.app.user_controller.update(
         id=None, updated_user=BaseUser(), email=body.email, reset_code=uuid4().hex, current_user="system"
@@ -93,7 +97,10 @@ async def reset_request(request: Request, body: ResetPasswordRequest) -> JSONRes
     return JSONResponse({"detail": "Reset code emailed to registered email"})
 
 
-@router.post("/login", response_model=LoginResponse)
+# TODO Implement delay on repeat attempts
+@router.post(
+    "/login", response_model=LoginResponse, dependencies=[Depends(RateLimiter(requests_limit=1, time_window=5))]
+)
 async def login(request: Request, body: LoginRequest) -> LoginResponse:
     try:
         user: User = await authenticate_user(request, body.username, body.password)

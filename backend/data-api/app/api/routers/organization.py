@@ -9,7 +9,6 @@ from starlette.responses import JSONResponse
 
 from app.api.dependencies.authorization import get_current_user
 from app.api.dependencies.database import data_db_conn, get_pool, user_db_conn
-from app.api.settings import data_db, settings
 from app.api.utils import send_mail
 from app.database.common.queries import INIT_STATEMENTS
 from app.database.organizations.models.organization import BaseOrganization, Organization
@@ -17,6 +16,7 @@ from app.database.users.models.user import BaseUser, User, UserSortableField
 from app.database.users.models.user_permission import BaseUserPermission, UserPermission, UserRoleType
 from app.database.utils import create_database, init_database_tables
 from app.exceptions.common import ObjectNotFoundException
+from app.settings import data_db, settings
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class PagedResponse(BaseModel):
 
 
 BLOCKED_ORG_IDS = ["users", "auth", "signup", "register"]
-    
+
 
 @router.post(
     "/",
@@ -71,7 +71,7 @@ async def add_organization(
                 ),
                 current_user=request.state.user.id,
             )
-    
+
     if settings.notify_of_signup:
         send_mail(
             settings.notify_of_signup,
