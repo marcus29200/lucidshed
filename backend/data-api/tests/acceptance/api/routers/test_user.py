@@ -41,6 +41,7 @@ async def test_should_register_user_with_sendgrid(mock_send, data_api: TestClien
 
 
 async def test_should_rate_limit_register_user(data_api: TestClient):
+    settings.rate_limit_requests = True
     user = await add_user(data_api)
     assert user["email"]
 
