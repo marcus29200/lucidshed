@@ -3,7 +3,7 @@
 Install these before getting started
 
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- [Poetry](https://python-poetry.org/)
+- [UV](https://docs.astral.sh/uv/getting-started/installation/)
 - [Pyenv](https://github.com/pyenv/pyenv)
 
 
@@ -18,11 +18,11 @@ Install these before getting started
 
 ### Running project for backend development and frontend development
 
-- Set up Python 3.12 using pyenv 
+- Set up Python 3.13 using pyenv 
 - Run `make install-dev` in `backend/data-api/` to install packages
 - Run `docker compose up -d db` inside `backend/data-api/`
 - Run `make api` to start the api inside `backend/data-api/`
 
 ### Running tests
-- Run `poetry run pytest -n auto` to run all tests or define a specific test to run
+- Run `uv run pytest -n auto` to run all tests or define a specific test to run
   - Exclude `-n auto` if you don't want to run them in parallel.

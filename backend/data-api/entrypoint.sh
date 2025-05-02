@@ -6,4 +6,4 @@ export PATH="$PATH:/root/.local/bin"
 # Log the modified PATH
 echo "Modified PATH: $PATH"
 
-poetry run api
+uv run api

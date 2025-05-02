@@ -1,16 +1,14 @@
-POETRY ?= poetry
-
 install-dev:
-	$(POETRY) install --no-cache
+	uv sync
 
 install:
-	$(POETRY) install --without dev --no-cache
+	uv sync --no-dev
 
 format:
-	$(POETRY) run isort .
-	$(POETRY) run black .
-	$(POETRY) run flake8 app tests
-	$(POETRY) run mypy -p app
+	uv run isort .
+	uv run black .
+	uv run flake8 app tests
+	uv run mypy -p app
 
 db-up:
 	docker compose up -d db
@@ -19,10 +17,10 @@ db-down:
 	docker compose down
 
 api:
-	$(POETRY) run api
+	uv run api
 
 test:
-	$(POETRY) run pytest -n auto
+	uv run pytest -n auto
 
 coverage:
-	$(POETRY) run pytest -n auto --cov=app --cov-report=html
+	uv run pytest -n auto --cov=app --cov-report=html
