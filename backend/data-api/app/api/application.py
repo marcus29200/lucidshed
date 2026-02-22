@@ -172,6 +172,3 @@ class DataApplication(FastAPI):
         logger.exception(exc)
 
         return JSONResponse(status_code=424, content={"detail": "Unable to process request at this time"})
-
-
-app = DataApplication(settings)

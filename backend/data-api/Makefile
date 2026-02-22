@@ -10,6 +10,9 @@ format:
 	uv run flake8 app tests
 	uv run mypy -p app
 
+docker-test:
+	docker build .
+
 db-up:
 	docker compose up -d db
 

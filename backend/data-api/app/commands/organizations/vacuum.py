@@ -11,6 +11,7 @@ class VacuumCommand(BaseOrganizationCommand):
     async def perform(self, organization_id: str):
         objects_removed = 0
 
+        conn = None
         try:
             conn = await connect(
                 host="localhost",
@@ -33,7 +34,8 @@ class VacuumCommand(BaseOrganizationCommand):
         except Exception as e:
             print(f"Failed to vacuum {organization_id}: {e}")
         finally:
-            await conn.close()
+            if conn:
+                await conn.close()
 
         return objects_removed
 
