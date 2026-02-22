@@ -20,7 +20,7 @@ def setup():
     settings.opensearch_async_indexing = False
     settings.rate_limit_requests = False
 
-    settings.user_db_name = f"users_{test_org_id}"
+    settings.user_db_name = f"{test_org_id}_users"
 
     return test_org_id
 

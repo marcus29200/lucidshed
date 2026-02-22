@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.14.3-slim
+FROM python:3.13.12-slim
 
 # Install system dependencies needed for building Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
